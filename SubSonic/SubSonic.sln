@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubSonic", "SubSonic.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubSonic.Tests", "..\SubSonic.Tests\SubSonic.Tests.csproj", "{A5DFA965-3513-4C9F-A55D-0D982257CD2E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubSonic.Test.Rigging", "..\SubSonic.Test.Rigging\SubSonic.Test.Rigging.csproj", "{CE231745-A4BD-494D-8BAE-C50B1F54629D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{A5DFA965-3513-4C9F-A55D-0D982257CD2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A5DFA965-3513-4C9F-A55D-0D982257CD2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A5DFA965-3513-4C9F-A55D-0D982257CD2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE231745-A4BD-494D-8BAE-C50B1F54629D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE231745-A4BD-494D-8BAE-C50B1F54629D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE231745-A4BD-494D-8BAE-C50B1F54629D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE231745-A4BD-494D-8BAE-C50B1F54629D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
