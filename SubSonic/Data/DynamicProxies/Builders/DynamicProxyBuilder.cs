@@ -104,10 +104,11 @@ namespace SubSonic.Data.DynamicProxies
                 iLGetGenerator.EmitCall(OpCodes.Call, typeof(Type).GetMethod("GetProperty", new[] { typeof(string) }), null);       // call GetProperty with the propertyName as the parameter
                 iLGetGenerator.Emit(OpCodes.Stloc, propertyInfo);                                                                   // store PropertyInfo object in the local variable propertyInfo
 
-                iLGetGenerator.Emit(OpCodes.Ldarg_0);                           // this ptr as the first parameter
-                iLGetGenerator.Emit(OpCodes.Ldfld, fieldDbContextAccessor);     // field variable _dbContextAccessor
-                iLGetGenerator.Emit(OpCodes.Ldloc, propertyInfo);               // local variable propertyInfo as the second parameter
+                
                 iLGetGenerator.Emit(OpCodes.Ldarg_0);                           // this
+                iLGetGenerator.Emit(OpCodes.Ldfld, fieldDbContextAccessor);     // field variable _dbContextAccessor
+                iLGetGenerator.Emit(OpCodes.Ldarg_0);                           // this ptr as the first parameter
+                iLGetGenerator.Emit(OpCodes.Ldloc, propertyInfo);               // local variable propertyInfo as the second parameter
                 iLGetGenerator.EmitCall(OpCodes.Call, load, null);              // call the Load or LoadCollection on the DBContextAccessor object
                 iLGetGenerator.Emit(OpCodes.Stfld, propertyField);              // store the return in the propertyField
             //}
