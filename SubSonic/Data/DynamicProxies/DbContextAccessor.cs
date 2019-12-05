@@ -14,16 +14,26 @@ namespace SubSonic.Data.DynamicProxies
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public TType Load<TType>(TType source, PropertyInfo propertyInfo) 
-            where TType : class
+        public TProperty Load<TEntity, TProperty>(TEntity source, PropertyInfo propertyInfo) 
+            where TEntity : class
+            where TProperty : class
         {
-            throw new NotImplementedException();
+            int id = typeof(TEntity).GetProperty(propertyInfo.GetForeignKeyName())
+                .IsNullThrow(new InvalidOperationException())
+                .GetValue<int>(source);
+
+            return null;
         }
 
-        public ICollection<TType> LoadCollection<TType>(TType source, PropertyInfo propertyInfo)
-            where TType : class
+        public ICollection<TProperty> LoadCollection<TEntity, TProperty>(TEntity source, PropertyInfo propertyInfo)
+            where TEntity : class
+            where TProperty : class
         {
-            throw new NotImplementedException();
+            int id = typeof(TEntity).GetProperty(source.GetPrimaryKeyName())
+                .IsNullThrow(new InvalidOperationException())
+                .GetValue<int>(source);
+
+            return new HashSet<TProperty>();
         }
     }
 }

@@ -85,10 +85,13 @@ namespace SubSonic.Data.DynamicProxies
                 load = fieldDbContextAccessor.FieldType.GetMethods()
                     .Where(method =>
                         method.Name == (propertyType.IsClass ? "Load" : "LoadCollection"))
-                    .Single().MakeGenericMethod(baseType),
+                    .Single().MakeGenericMethod(baseType, propertyType),
                 isNull = internalExt.GetMethod("IsNull", BindingFlags.Public | BindingFlags.Static , null, new[] { typeof(object) }, null);
 
-            Label fieldIsNotNull = iLGetGenerator.DefineLabel();
+            Label 
+                fieldIsNotNull = iLGetGenerator.DefineLabel(),
+                fieldIsNull = iLGetGenerator.DefineLabel(),
+                fieldCountIsNotZero = iLGetGenerator.DefineLabel();
 
             LocalBuilder
                 propertyInfo = iLGetGenerator.DeclareLocal(typeof(PropertyInfo));
@@ -96,23 +99,54 @@ namespace SubSonic.Data.DynamicProxies
             iLGetGenerator.Emit(OpCodes.Ldarg_0);                   // this
             iLGetGenerator.Emit(OpCodes.Ldfld, propertyField);      // propertyField
             iLGetGenerator.EmitCall(OpCodes.Call, isNull, null);    // use the static extension method IsNull
-            iLGetGenerator.Emit(OpCodes.Brfalse_S, fieldIsNotNull); // value is not null
-            //{
+            if (propertyType.IsClass)
+            {
+                iLGetGenerator.Emit(OpCodes.Brfalse_S, fieldIsNotNull); // value is not null
+            }
+            else
+            {
+                iLGetGenerator.Emit(OpCodes.Brtrue_S, fieldIsNull); // value is null
+            }
+
+            {
+                if (propertyType.IsGenericType)
+                {
+                    //iLGetGenerator.Emit(OpCodes.Ldarg_0);
+                    //iLGetGenerator.Emit(OpCodes.Ldfld, propertyField);
+                    //iLGetGenerator.EmitCall(OpCodes.Call, propertyType.GetProperty("Count").GetMethod, null);
+                    //iLGetGenerator.Emit(OpCodes.Ldarg, 0);
+                    //iLGetGenerator.EmitCall(OpCodes.Call, typeof(int).GetMethod("Equals", new[] { typeof(int) }), null);
+                    //iLGetGenerator.Emit(OpCodes.Brfalse_S, fieldCountIsNotZero);
+                    iLGetGenerator.MarkLabel(fieldIsNull);
+                    iLGetGenerator.BeginScope();
+                }
+                else
+                {
+                    iLGetGenerator.BeginScope();
+                }
                 iLGetGenerator.Emit(OpCodes.Ldarg_0);                                                                               // this
                 iLGetGenerator.EmitCall(OpCodes.Call, typeof(object).GetMethod("GetType"), null);                                   // call GetType method
                 iLGetGenerator.Emit(OpCodes.Ldstr, propertyName);                                                                   // push new string of propertyName
                 iLGetGenerator.EmitCall(OpCodes.Call, typeof(Type).GetMethod("GetProperty", new[] { typeof(string) }), null);       // call GetProperty with the propertyName as the parameter
                 iLGetGenerator.Emit(OpCodes.Stloc, propertyInfo);                                                                   // store PropertyInfo object in the local variable propertyInfo
 
-                
                 iLGetGenerator.Emit(OpCodes.Ldarg_0);                           // this
+                iLGetGenerator.Emit(OpCodes.Dup);                               // Duplicate the top of the stack -> this
                 iLGetGenerator.Emit(OpCodes.Ldfld, fieldDbContextAccessor);     // field variable _dbContextAccessor
                 iLGetGenerator.Emit(OpCodes.Ldarg_0);                           // this ptr as the first parameter
                 iLGetGenerator.Emit(OpCodes.Ldloc, propertyInfo);               // local variable propertyInfo as the second parameter
                 iLGetGenerator.EmitCall(OpCodes.Call, load, null);              // call the Load or LoadCollection on the DBContextAccessor object
                 iLGetGenerator.Emit(OpCodes.Stfld, propertyField);              // store the return in the propertyField
-            //}
-            iLGetGenerator.MarkLabel(fieldIsNotNull);               // jump here when propertyField is not null
+                if (propertyType.IsGenericType)
+                {
+                    iLGetGenerator.MarkLabel(fieldCountIsNotZero);
+                }
+            }
+            iLGetGenerator.EndScope();
+            if (propertyType.IsClass)
+            {
+                iLGetGenerator.MarkLabel(fieldIsNotNull);               // jump here when propertyField is not null
+            }
             iLGetGenerator.Emit(OpCodes.Ldarg_0);   // this
             iLGetGenerator.Emit(OpCodes.Ldfld, propertyField); // propertyField
             iLGetGenerator.Emit(OpCodes.Ret);

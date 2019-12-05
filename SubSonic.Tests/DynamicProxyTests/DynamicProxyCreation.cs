@@ -31,6 +31,7 @@ namespace SubSonic.Tests.DynamicProxyTests
             proxy.GetType().Should().BeDerivedFrom<RealEstateProperty>();
             proxy.GetType().GetField("_dbContextAccessor", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(proxy).Should().BeOfType(typeof(DbContextAccessor));
 
+            proxy.Status.Should().BeNull();
             proxy.Units.Should().NotBeNull();
             
         }
