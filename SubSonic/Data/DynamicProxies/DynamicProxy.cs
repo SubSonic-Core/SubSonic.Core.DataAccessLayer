@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.CompilerServices;
 using System.Text;
+
+[assembly: InternalsVisibleTo("SubSonic.DynamicProxies")]
 
 namespace SubSonic.Data.DynamicProxies
 {
@@ -19,7 +22,7 @@ namespace SubSonic.Data.DynamicProxies
             assemblyName = new AssemblyName("SubSonic.DynamicProxies");
 
             DynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
-            ModuleBuilder = DynamicAssembly.DefineDynamicModule("MainModule");
+            ModuleBuilder = DynamicAssembly.DefineDynamicModule("DynamicProxiesTypeGenerator");
 
             DynamicProxyCache = new Dictionary<string, Type>();
         }
@@ -34,63 +37,18 @@ namespace SubSonic.Data.DynamicProxies
                 DynamicProxyCache.Add(baseType.FullName, BuildDerivedTypeFrom(baseType));
             }
 
-            return (TEntity)Activator.CreateInstance(DynamicProxyCache[baseType.FullName], dbContext);
+            return (TEntity)Activator.CreateInstance(DynamicProxyCache[baseType.FullName], new DbContextAccessor(dbContext));
         }
 
         private static Type BuildDerivedTypeFrom(Type baseType)
         {
 
-            TypeBuilder typeBuilder = ModuleBuilder.DefineType(
+            DynamicProxyBuilder proxyBuilder = new DynamicProxyBuilder(ModuleBuilder.DefineType(
                 $"{assemblyName.FullName}.{baseType.Name}",
                 TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.AutoClass | TypeAttributes.AnsiClass | TypeAttributes.BeforeFieldInit | TypeAttributes.AutoLayout,
-                baseType);
+                baseType), baseType);
 
-            CreateConstructor(typeBuilder, baseType);
-
-            //foreach (PropertyInfo propertyInfo in baseType.GetProperties(BindingFlags.Public))
-            //{
-            //    if(!propertyInfo.GetMethod.IsVirtual)
-            //    {   // do not care about what can not be overridden
-            //        continue;
-            //    }
-
-            //    CreateProperty(typeBuilder, propertyInfo.Name, propertyInfo.PropertyType);
-            //}
-
-            return typeBuilder.CreateType();
-        }
-
-        private static void CreateConstructor(TypeBuilder typeBuilder, Type baseType)
-        {
-            FieldBuilder fieldDbContext = typeBuilder.DefineField($"_dbContext", typeof(DbContext), FieldAttributes.Private);
-
-            ConstructorInfo baseCtor = baseType.GetConstructor(Type.EmptyTypes);
-
-            ConstructorBuilder constructorBuilder = typeBuilder.DefineConstructor(
-                MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.RTSpecialName,
-                CallingConventions.Standard,
-                new Type[] { typeof(DbContext) });
-
-            ILGenerator iLGenerator = constructorBuilder.GetILGenerator();
-
-            iLGenerator.Emit(OpCodes.Ldarg_0);
-            iLGenerator.Emit(OpCodes.Call, baseCtor);
-            iLGenerator.Emit(OpCodes.Ldarg_0);
-            iLGenerator.Emit(OpCodes.Ldarg_1);
-            iLGenerator.Emit(OpCodes.Stfld, fieldDbContext);
-            iLGenerator.Emit(OpCodes.Ret);
-        }
-
-        private static void CreateProperty(TypeBuilder typeBuilder, string propertyName, Type propertyType)
-        {
-            FieldBuilder fieldBuilder = typeBuilder.DefineField($"_{propertyName}", propertyType, FieldAttributes.Private);
-
-            PropertyBuilder propertyBuilder = typeBuilder.DefineProperty(
-                    propertyName,
-                    PropertyAttributes.None,
-                    propertyType,
-                    null);
-        }
-            
+            return proxyBuilder.CreateType();
+        }            
     }
 }

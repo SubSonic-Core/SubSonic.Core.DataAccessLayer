@@ -1,7 +1,10 @@
 ﻿using SubSonic.Infrastructure;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
+
+[assembly: InternalsVisibleTo("SubSonic.Tests", AllInternalsVisible = true)]
 
 namespace SubSonic
 {
@@ -19,12 +22,12 @@ namespace SubSonic
             return new DbSet<TEntity>(this);
         }
 
-        protected internal virtual void OnDbConfiguring(DbContextOptionsBuilder optionsBuilder)
+        protected virtual void OnDbConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
 
         }
 
-        protected internal virtual void OnDbModeling(DbModelBuilder modelBuilder)
+        protected virtual void OnDbModeling(DbModelBuilder modelBuilder)
         {
 
         }

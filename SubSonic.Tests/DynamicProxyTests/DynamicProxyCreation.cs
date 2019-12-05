@@ -29,8 +29,7 @@ namespace SubSonic.Tests.DynamicProxyTests
             var proxy = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(dbContext);
 
             proxy.GetType().Should().BeDerivedFrom<RealEstateProperty>();
-            proxy.GetType().GetField("_dbContext", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(proxy).Should().BeOfType(typeof(TestDbContext));
-            proxy.GetType().GetField("_dbContext", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(proxy).Should().Be(dbContext);
+            proxy.GetType().GetField("_dbContextAccessor", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(proxy).Should().BeOfType(typeof(DbContextAccessor));
 
             proxy.Units.Should().NotBeNull();
             
