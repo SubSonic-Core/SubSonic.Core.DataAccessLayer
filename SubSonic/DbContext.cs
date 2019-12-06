@@ -13,8 +13,10 @@ namespace SubSonic
     {
         protected DbContext()
         {
-
+            OnDbConfiguring(new DbContextOptionsBuilder(Options = new DbContextOptions()));
         }
+
+        DbContextOptions Options { get; }
 
         public DbSet<TEntity> Set<TEntity>()
             where TEntity : class
