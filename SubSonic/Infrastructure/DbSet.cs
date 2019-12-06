@@ -24,7 +24,7 @@ namespace SubSonic.Infrastructure
 
         public Type ElementType => typeof(TEntity);
 
-        public Expression Expression => Expression.Default(ElementType);
+        public Expression Expression { get; private set; }
 
         public IQueryProvider Provider => new SubSonicQueryProvider(dbContext);
 
@@ -61,6 +61,8 @@ namespace SubSonic.Infrastructure
 
         public DbSet<TEntity> FindByID(object[] keys)
         {
+            DbExpressionBuilder builder = new DbExpressionBuilder(Expression.Parameter(ElementType, ElementType.Name.ToLower()));
+
             throw new NotImplementedException();
         }
     }
