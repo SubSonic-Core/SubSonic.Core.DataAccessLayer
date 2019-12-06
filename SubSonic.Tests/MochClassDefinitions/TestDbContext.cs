@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using SubSonic.Infrastructure;
+using Models = SubSonic.Test.Rigging.Models;
 
 namespace SubSonic.Tests
 {
@@ -14,14 +15,18 @@ namespace SubSonic.Tests
 
         }
 
-        protected override void OnDbConfiguring(DbContextOptionsBuilder optionsBuilder)
+        protected override void OnDbConfiguring(DbContextOptionsBuilder builder)
         {
-            base.OnDbConfiguring(optionsBuilder);
+            builder
+                .EnableProxyGeneration();
         }
 
-        protected override void OnDbModeling(DbModelBuilder modelBuilder)
+        protected override void OnDbModeling(DbModelBuilder builder)
         {
-            base.OnDbModeling(modelBuilder);
+            builder
+                .AddEntityModel<Models.RealEstateProperty>()
+                .AddEntityModel<Models.Status>()
+                .AddEntityModel<Models.Unit>();
         }
     }
 }

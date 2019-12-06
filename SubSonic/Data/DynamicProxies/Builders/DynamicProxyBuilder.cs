@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -69,6 +70,8 @@ namespace SubSonic.Data.DynamicProxies
                     propertyType,
                     Type.EmptyTypes);
 
+            bool IsCollection = propertyType.IsGenericType && propertyType.GetProperty("Count").IsNotNull();
+
             MethodAttributes methodAttributesForGetAndSet = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual ;
 
             MethodBuilder
@@ -86,7 +89,8 @@ namespace SubSonic.Data.DynamicProxies
                     .Where(method =>
                         method.Name == (propertyType.IsClass ? "Load" : "LoadCollection"))
                     .Single().MakeGenericMethod(baseType, propertyType),
-                isNull = internalExt.GetMethod("IsNull", BindingFlags.Public | BindingFlags.Static , null, new[] { typeof(object) }, null);
+                isNull = internalExt.GetMethod("IsNull", BindingFlags.Public | BindingFlags.Static , null, new[] { typeof(object) }, null),
+                isDefaultValue = internalExt.GetMethod("IsDefaultValue", BindingFlags.Public | BindingFlags.Static);
 
             Label 
                 fieldIsNotNull = iLGetGenerator.DefineLabel(),
@@ -94,12 +98,18 @@ namespace SubSonic.Data.DynamicProxies
                 fieldCountIsNotZero = iLGetGenerator.DefineLabel();
 
             LocalBuilder
-                propertyInfo = iLGetGenerator.DeclareLocal(typeof(PropertyInfo));
+                propertyInfo = iLGetGenerator.DeclareLocal(typeof(PropertyInfo)),
+                count = null;
+
+            if(IsCollection)
+            {
+                count = iLGetGenerator.DeclareLocal(typeof(int));
+            }
 
             iLGetGenerator.Emit(OpCodes.Ldarg_0);                   // this
             iLGetGenerator.Emit(OpCodes.Ldfld, propertyField);      // propertyField
             iLGetGenerator.EmitCall(OpCodes.Call, isNull, null);    // use the static extension method IsNull
-            if (propertyType.IsClass)
+            if (!IsCollection)
             {
                 iLGetGenerator.Emit(OpCodes.Brfalse_S, fieldIsNotNull); // value is not null
             }
@@ -108,22 +118,25 @@ namespace SubSonic.Data.DynamicProxies
                 iLGetGenerator.Emit(OpCodes.Brtrue_S, fieldIsNull); // value is null
             }
 
+            if (IsCollection)
             {
-                if (propertyType.IsGenericType)
-                {
-                    //iLGetGenerator.Emit(OpCodes.Ldarg_0);
-                    //iLGetGenerator.Emit(OpCodes.Ldfld, propertyField);
-                    //iLGetGenerator.EmitCall(OpCodes.Call, propertyType.GetProperty("Count").GetMethod, null);
-                    //iLGetGenerator.Emit(OpCodes.Ldarg, 0);
-                    //iLGetGenerator.EmitCall(OpCodes.Call, typeof(int).GetMethod("Equals", new[] { typeof(int) }), null);
-                    //iLGetGenerator.Emit(OpCodes.Brfalse_S, fieldCountIsNotZero);
-                    iLGetGenerator.MarkLabel(fieldIsNull);
-                    iLGetGenerator.BeginScope();
-                }
-                else
-                {
-                    iLGetGenerator.BeginScope();
-                }
+                iLGetGenerator.Emit(OpCodes.Ldarg_0);
+                iLGetGenerator.Emit(OpCodes.Ldfld, propertyField);
+                iLGetGenerator.EmitCall(OpCodes.Call, propertyType.GetProperty("Count").GetMethod, null);
+                iLGetGenerator.Emit(OpCodes.Stloc, count);
+
+                iLGetGenerator.Emit(OpCodes.Ldloc, count);
+                iLGetGenerator.EmitCall(OpCodes.Call, isDefaultValue.MakeGenericMethod(typeof(int)), null);
+                iLGetGenerator.Emit(OpCodes.Brfalse_S, fieldCountIsNotZero);
+                iLGetGenerator.MarkLabel(fieldIsNull);
+                iLGetGenerator.BeginScope();
+            }
+            else
+            {
+                iLGetGenerator.BeginScope();
+            }
+
+            {  
                 iLGetGenerator.Emit(OpCodes.Ldarg_0);                                                                               // this
                 iLGetGenerator.EmitCall(OpCodes.Call, typeof(object).GetMethod("GetType"), null);                                   // call GetType method
                 iLGetGenerator.Emit(OpCodes.Ldstr, propertyName);                                                                   // push new string of propertyName
@@ -137,13 +150,13 @@ namespace SubSonic.Data.DynamicProxies
                 iLGetGenerator.Emit(OpCodes.Ldloc, propertyInfo);               // local variable propertyInfo as the second parameter
                 iLGetGenerator.EmitCall(OpCodes.Call, load, null);              // call the Load or LoadCollection on the DBContextAccessor object
                 iLGetGenerator.Emit(OpCodes.Stfld, propertyField);              // store the return in the propertyField
-                if (propertyType.IsGenericType)
+                if (IsCollection)
                 {
                     iLGetGenerator.MarkLabel(fieldCountIsNotZero);
                 }
             }
             iLGetGenerator.EndScope();
-            if (propertyType.IsClass)
+            if (!IsCollection)
             {
                 iLGetGenerator.MarkLabel(fieldIsNotNull);               // jump here when propertyField is not null
             }

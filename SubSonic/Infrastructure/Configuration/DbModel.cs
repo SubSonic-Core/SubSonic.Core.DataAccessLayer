@@ -6,8 +6,13 @@ namespace SubSonic.Infrastructure
 {
     public class DbModel
     {
-        public DbModel()
+        private readonly DbContext dbContext;
+
+        public DbModel(DbContext dbContext)
         {
+            this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+
+            EntityModels = new List<DbEntityModel>();
         }
 
         public ICollection<DbEntityModel> EntityModels { get; }

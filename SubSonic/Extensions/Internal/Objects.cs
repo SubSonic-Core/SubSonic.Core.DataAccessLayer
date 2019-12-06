@@ -39,5 +39,10 @@ namespace SubSonic
             }
             return source;
         }
+
+        public static bool IsDefaultValue<TType>(this TType left)
+        {
+            return left.Equals(default(TType));
+        }
     }
 }

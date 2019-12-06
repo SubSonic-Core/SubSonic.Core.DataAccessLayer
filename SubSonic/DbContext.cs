@@ -13,8 +13,8 @@ namespace SubSonic
     {
         protected DbContext()
         {
-            OnDbConfiguring(new DbContextOptionsBuilder(Options = new DbContextOptions()));
-            OnDbModeling(new DbModelBuilder(Model = new DbModel()));
+            OnDbConfiguring(new DbContextOptionsBuilder(this, Options = new DbContextOptions()));
+            OnDbModeling(new DbModelBuilder(Model = new DbModel(this)));
         }
 
         DbContextOptions Options { get; }
@@ -27,12 +27,12 @@ namespace SubSonic
             return new DbSet<TEntity>(this);
         }
 
-        protected virtual void OnDbConfiguring(DbContextOptionsBuilder optionsBuilder)
+        protected virtual void OnDbConfiguring(DbContextOptionsBuilder builder)
         {
 
         }
 
-        protected virtual void OnDbModeling(DbModelBuilder modelBuilder)
+        protected virtual void OnDbModeling(DbModelBuilder builder)
         {
 
         }
@@ -73,6 +73,6 @@ namespace SubSonic
         }
         #endregion
 
-        public IServiceProvider Instance => throw new NotImplementedException();
+        public IServiceProvider Instance { get; internal set; }
     }
 }
