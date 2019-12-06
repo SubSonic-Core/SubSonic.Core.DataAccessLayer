@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
+using Ext = SubSonic.Extensions;
 
 namespace SubSonic.Data.DynamicProxies
 {
@@ -18,27 +20,47 @@ namespace SubSonic.Data.DynamicProxies
             where TEntity : class
             where TProperty : class
         {
-            int id = typeof(TEntity).GetProperty(info.GetForeignKeyName())
-                .IsNullThrow(new InvalidOperationException())
-                .GetValue<int>(entity);
+            string[] keys = Ext.GetForeignKeyName(info);
+            object[] keyData = GetKeyData(entity, keys);
 
-            return null;
+            return dbContext.Set<TProperty>().FindByID(keyData).Single();
         }
 
-        public void SetForeignKeyProperty<TEntity>(TEntity entity, PropertyInfo info)
+        public void SetForeignKeyProperty<TEntity, TProperty>(TEntity entity, PropertyInfo info)
+            where TEntity : class
+            where TProperty : class
         {
-            throw new NotImplementedException();
+            string[] 
+                keys = dbContext.Model.GetEntityModel<TProperty>().PrimaryKey,
+                foreignKeys = Ext.GetForeignKeyName(info);
+            TProperty property = info.GetValue<TProperty>(entity);
+
+            for(int i = 0; i < keys.Length; i++)
+            {
+                PropertyInfo 
+                    primaryKeyInfo = typeof(TProperty).GetProperty(keys[i]),
+                    foriegnKeyInfo = typeof(TEntity).GetProperty(foreignKeys[i]);
+
+                foriegnKeyInfo.SetValue(entity, primaryKeyInfo.GetValue(property), null);
+            }
         }
 
         public ICollection<TProperty> LoadCollection<TEntity, TProperty>(TEntity entity, PropertyInfo info)
             where TEntity : class
             where TProperty : class
         {
-            int id = typeof(TEntity).GetProperty(entity.GetPrimaryKeyName())
-                .IsNullThrow(new InvalidOperationException())
-                .GetValue<int>(entity);
+            string[] keys = dbContext.Model.GetEntityModel<TProperty>().PrimaryKey;
+            object[] keyData = GetKeyData(entity, keys);
 
-            return new HashSet<TProperty>();
+            return dbContext.Set<TProperty>().FindByID(keyData).ToHashSet();
+        }
+
+        private object[] GetKeyData<TEntity>(TEntity entity, string[] keys)
+        {
+            return typeof(TEntity).GetProperties()
+                    .Where(property => keys.Any(key => key.Equals(property.Name)))
+                    .Select(property => property.GetValue(entity, null))
+                    .ToArray();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace SubSonic.Infrastructure
@@ -16,5 +17,18 @@ namespace SubSonic.Infrastructure
         }
 
         public ICollection<DbEntityModel> EntityModels { get; }
+
+        public DbEntityModel GetEntityModel<TEntity>()
+            where TEntity : class
+        {
+            return GetEntityModel(typeof(TEntity));
+        }
+
+        public DbEntityModel GetEntityModel(Type entityModelType)
+        {
+            return EntityModels
+                .SingleOrDefault(model => model.EntityModelType == entityModelType)
+                .IsNullThrow(new EntityNotRegisteredWithDbModel(entityModelType));
+        }
     }
 }

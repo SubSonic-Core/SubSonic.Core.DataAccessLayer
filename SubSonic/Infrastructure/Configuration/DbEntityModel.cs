@@ -14,6 +14,6 @@ namespace SubSonic.Infrastructure
         public ICollection<DbEntityProperty> Properties { get; }
 
         public Type EntityModelType { get; internal set; }
-        
+        public string[] PrimaryKey { get; internal set; }
     }
 }

@@ -17,9 +17,9 @@ namespace SubSonic
             OnDbModeling(new DbModelBuilder(Model = new DbModel(this)));
         }
 
-        DbContextOptions Options { get; }
+        public DbContextOptions Options { get; }
 
-        DbModel Model { get; }
+        public DbModel Model { get; }
 
         public DbSet<TEntity> Set<TEntity>()
             where TEntity : class

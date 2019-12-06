@@ -90,7 +90,7 @@ namespace SubSonic.Data.DynamicProxies
                     .MakeGenericMethod(baseType, propertyType),
                 set = fieldDbContextAccessor.FieldType
                     .GetMethod("SetForeignKeyProperty", BindingFlags.Public | BindingFlags.Instance)
-                    .MakeGenericMethod(baseType),
+                    .MakeGenericMethod(baseType, propertyType),
                 isNull = internalExt.GetMethod("IsNull", BindingFlags.Public | BindingFlags.Static , null, new[] { typeof(object) }, null),
                 isDefaultValue = internalExt.GetMethod("IsDefaultValue", BindingFlags.Public | BindingFlags.Static);
 
@@ -170,6 +170,10 @@ namespace SubSonic.Data.DynamicProxies
 
             propertyInfo = iLSetGenerator.DeclareLocal(typeof(PropertyInfo));
 
+            iLSetGenerator.Emit(OpCodes.Ldarg_0);
+            iLSetGenerator.Emit(OpCodes.Ldarg_1);
+            iLSetGenerator.Emit(OpCodes.Stfld, propertyField);
+
             if (!IsCollection)
             {
                 iLSetGenerator.Emit(OpCodes.Ldarg_0);                                                                               // this
@@ -185,9 +189,7 @@ namespace SubSonic.Data.DynamicProxies
                 iLSetGenerator.Emit(OpCodes.Ldloc, propertyInfo);               // local variable propertyInfo as the second parameter
                 iLSetGenerator.EmitCall(OpCodes.Call, set, null);               // call the SetForeignKeyProperty on the DBContextAccessor object
             }
-            iLSetGenerator.Emit(OpCodes.Ldarg_0);
-            iLSetGenerator.Emit(OpCodes.Ldarg_1);
-            iLSetGenerator.Emit(OpCodes.Stfld, propertyField);
+
             iLSetGenerator.Emit(OpCodes.Ret);
 
             typeBuilder.DefineMethodOverride(setMethod, baseType.GetProperty(propertyName).SetMethod);

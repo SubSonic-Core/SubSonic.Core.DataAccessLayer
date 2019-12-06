@@ -58,5 +58,10 @@ namespace SubSonic.Infrastructure
         {
             return ((IEnumerable<TEntity>)source).GetEnumerator();
         }
+
+        public DbSet<TEntity> FindByID(object[] keys)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
