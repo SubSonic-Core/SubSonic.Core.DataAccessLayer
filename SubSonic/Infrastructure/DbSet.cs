@@ -70,12 +70,7 @@ namespace SubSonic.Infrastructure
                 builder.BuildComparisonExpression(model.PrimaryKey[i], keyData[i], EnumComparisonOperator.Equal, EnumGroupOperator.AndAlso);
             }
 
-            Expression = Expression.Call(
-                typeof(Queryable),
-                "Where",
-                new[] { ElementType},
-                queryableData.AsQueryable<TEntity>().Expression,
-                Expression.Lambda<Func<TEntity, bool>>(builder.Body, builder.Parameter));
+            Expression = builder.BuildWhereExpression<TEntity>(queryableData.AsQueryable().Expression);
 
             return this;
         }

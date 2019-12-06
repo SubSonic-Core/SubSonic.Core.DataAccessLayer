@@ -43,6 +43,17 @@ namespace SubSonic.Infrastructure
             return this;
         }
 
+        public Expression BuildWhereExpression<TEntity>(Expression source)
+            where TEntity : class
+        {
+            return Expression.Call(
+                typeof(Queryable),
+                "Where",
+                new[] {parameter.Type},
+                source,
+                Expression.Lambda<Func<TEntity, bool>>(body, parameter));
+        }
+
         private Expression GetBodyExpression(Expression right, EnumGroupOperator @group)
         {
             Expression result;
