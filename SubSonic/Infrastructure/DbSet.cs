@@ -14,12 +14,14 @@ namespace SubSonic.Infrastructure
         where TEntity : class
     {
         private readonly DbContext dbContext;
-        private readonly List<TEntity> source;
-
+        private readonly DbEntityModel model;
+        private readonly List<TEntity> queryableData;
+        
         public DbSet(DbContext dbContext)
         {
             this.dbContext = dbContext;
-            this.source = new List<TEntity>();
+            this.queryableData = new List<TEntity>();
+            this.model = dbContext.Model.GetEntityModel<TEntity>();
         }
 
         public Type ElementType => typeof(TEntity);
@@ -39,7 +41,7 @@ namespace SubSonic.Infrastructure
         [EditorBrowsable(EditorBrowsableState.Never)]
         public IList GetList()
         {
-            return source;
+            return queryableData;
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
@@ -56,14 +58,26 @@ namespace SubSonic.Infrastructure
 
         IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()
         {
-            return ((IEnumerable<TEntity>)source).GetEnumerator();
+            return ((IEnumerable<TEntity>)queryableData).GetEnumerator();
         }
 
-        public DbSet<TEntity> FindByID(object[] keys)
+        public DbSet<TEntity> FindByID(params object[] keyData)
         {
             DbExpressionBuilder builder = new DbExpressionBuilder(Expression.Parameter(ElementType, ElementType.Name.ToLower()));
 
-            throw new NotImplementedException();
+            for(int i = 0; i < model.PrimaryKey.Length; i++)
+            {
+                builder.BuildComparisonExpression(model.PrimaryKey[i], keyData[i], EnumComparisonOperator.Equal, EnumGroupOperator.AndAlso);
+            }
+
+            Expression = Expression.Call(
+                typeof(Queryable),
+                "Where",
+                new[] { ElementType},
+                queryableData.AsQueryable<TEntity>().Expression,
+                Expression.Lambda<Func<TEntity, bool>>(builder.Body, builder.Parameter));
+
+            return this;
         }
     }
 }
