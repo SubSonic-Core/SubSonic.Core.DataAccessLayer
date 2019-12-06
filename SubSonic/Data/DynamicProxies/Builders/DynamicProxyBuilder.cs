@@ -85,10 +85,12 @@ namespace SubSonic.Data.DynamicProxies
             Type internalExt = typeof(InternalExtensions);
 
             MethodInfo
-                load = fieldDbContextAccessor.FieldType.GetMethods()
-                    .Where(method =>
-                        method.Name == (propertyType.IsClass ? "Load" : "LoadCollection"))
-                    .Single().MakeGenericMethod(baseType, propertyType),
+                load = fieldDbContextAccessor.FieldType
+                    .GetMethod(!IsCollection ? "LoadProperty" : "LoadCollection", BindingFlags.Public | BindingFlags.Instance)
+                    .MakeGenericMethod(baseType, propertyType),
+                set = fieldDbContextAccessor.FieldType
+                    .GetMethod("SetForeignKeyProperty", BindingFlags.Public | BindingFlags.Instance)
+                    .MakeGenericMethod(baseType),
                 isNull = internalExt.GetMethod("IsNull", BindingFlags.Public | BindingFlags.Static , null, new[] { typeof(object) }, null),
                 isDefaultValue = internalExt.GetMethod("IsDefaultValue", BindingFlags.Public | BindingFlags.Static);
 
@@ -148,7 +150,7 @@ namespace SubSonic.Data.DynamicProxies
                 iLGetGenerator.Emit(OpCodes.Ldfld, fieldDbContextAccessor);     // field variable _dbContextAccessor
                 iLGetGenerator.Emit(OpCodes.Ldarg_0);                           // this ptr as the first parameter
                 iLGetGenerator.Emit(OpCodes.Ldloc, propertyInfo);               // local variable propertyInfo as the second parameter
-                iLGetGenerator.EmitCall(OpCodes.Call, load, null);              // call the Load or LoadCollection on the DBContextAccessor object
+                iLGetGenerator.EmitCall(OpCodes.Call, load, null);              // call the LoadProperty or LoadCollection on the DBContextAccessor object
                 iLGetGenerator.Emit(OpCodes.Stfld, propertyField);              // store the return in the propertyField
                 if (IsCollection)
                 {
@@ -166,6 +168,23 @@ namespace SubSonic.Data.DynamicProxies
 
             typeBuilder.DefineMethodOverride(getMethod, baseType.GetProperty(propertyName).GetMethod);
 
+            propertyInfo = iLSetGenerator.DeclareLocal(typeof(PropertyInfo));
+
+            if (!IsCollection)
+            {
+                iLSetGenerator.Emit(OpCodes.Ldarg_0);                                                                               // this
+                iLSetGenerator.EmitCall(OpCodes.Call, typeof(object).GetMethod("GetType"), null);                                   // call GetType method
+                iLSetGenerator.Emit(OpCodes.Ldstr, propertyName);                                                                   // push new string of propertyName
+                iLSetGenerator.EmitCall(OpCodes.Call, typeof(Type).GetMethod("GetProperty", new[] { typeof(string) }), null);       // call GetProperty with the propertyName as the parameter
+                iLSetGenerator.Emit(OpCodes.Stloc, propertyInfo);                                                                   // store PropertyInfo object in the local variable propertyInfo
+
+                iLSetGenerator.Emit(OpCodes.Ldarg_0);                           // this
+                iLSetGenerator.Emit(OpCodes.Dup);                               // Duplicate the top of the stack -> this
+                iLSetGenerator.Emit(OpCodes.Ldfld, fieldDbContextAccessor);     // field variable _dbContextAccessor
+                iLSetGenerator.Emit(OpCodes.Ldarg_0);                           // this ptr as the first parameter
+                iLSetGenerator.Emit(OpCodes.Ldloc, propertyInfo);               // local variable propertyInfo as the second parameter
+                iLSetGenerator.EmitCall(OpCodes.Call, set, null);               // call the SetForeignKeyProperty on the DBContextAccessor object
+            }
             iLSetGenerator.Emit(OpCodes.Ldarg_0);
             iLSetGenerator.Emit(OpCodes.Ldarg_1);
             iLSetGenerator.Emit(OpCodes.Stfld, propertyField);

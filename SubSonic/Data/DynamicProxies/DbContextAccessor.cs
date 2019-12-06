@@ -14,7 +14,7 @@ namespace SubSonic.Data.DynamicProxies
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public TProperty Load<TEntity, TProperty>(TEntity entity, PropertyInfo info) 
+        public TProperty LoadProperty<TEntity, TProperty>(TEntity entity, PropertyInfo info) 
             where TEntity : class
             where TProperty : class
         {
@@ -25,7 +25,7 @@ namespace SubSonic.Data.DynamicProxies
             return null;
         }
 
-        public void SetForeignKey<TEntity>(TEntity entity, PropertyInfo info)
+        public void SetForeignKeyProperty<TEntity>(TEntity entity, PropertyInfo info)
         {
             throw new NotImplementedException();
         }
