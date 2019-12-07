@@ -30,6 +30,20 @@ namespace SubSonic.Data.DynamicProxies
         public static TEntity CreateProxyInstanceOf<TEntity>(DbContext dbContext)
             where TEntity : class
         {
+            DynamicProxyWrapper proxy = GetProxyWrapper<TEntity>();
+
+            if (dbContext.Options.EnableProxyGeneration && proxy.IsElegibleForProxy)
+            {
+                return (TEntity)Activator.CreateInstance(proxy.Type, new DbContextAccessor(dbContext));
+            }
+            else
+            {
+                return Activator.CreateInstance<TEntity>();
+            }
+        }
+
+        public static DynamicProxyWrapper GetProxyWrapper<TEntity>()
+        {
             Type baseType = typeof(TEntity);
 
             if (!DynamicProxyCache.ContainsKey(baseType.FullName))
@@ -37,16 +51,7 @@ namespace SubSonic.Data.DynamicProxies
                 DynamicProxyCache.Add(baseType.FullName, new DynamicProxyWrapper(baseType));
             }
 
-            DynamicProxyWrapper proxy = DynamicProxyCache[baseType.FullName];
-
-            if (dbContext.Options.EnableProxyGeneration && proxy.IsElegibleForProxy)
-            {
-                return (TEntity)Activator.CreateInstance(DynamicProxyCache[baseType.FullName].ProxyType, new DbContextAccessor(dbContext));
-            }
-            else
-            {
-                return Activator.CreateInstance<TEntity>();
-            }
+            return DynamicProxyCache[baseType.FullName];
         }
 
         internal static Type BuildDerivedTypeFrom(Type baseType)

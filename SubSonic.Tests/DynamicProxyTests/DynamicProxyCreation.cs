@@ -23,17 +23,24 @@ namespace SubSonic.Tests.DynamicProxyTests
             dbContext = new TestDbContext();
         }
 
+
+
         [Test]
-        public void CanBuildDynamicType()
+        public void CanBuildProxyForElegibleType()
         {
-            var proxy = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(dbContext);
+            DynamicProxyWrapper proxyWrapper = DynamicProxy.GetProxyWrapper<RealEstateProperty>();
 
-            proxy.GetType().Should().BeDerivedFrom<RealEstateProperty>();
-            proxy.GetType().GetField("_dbContextAccessor", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(proxy).Should().BeOfType(typeof(DbContextAccessor));
+            proxyWrapper.IsElegibleForProxy.Should().BeTrue();
+            proxyWrapper.Type.Should().BeDerivedFrom<RealEstateProperty>();
+        }
 
-            proxy.Status.Should().BeNull();
-            proxy.Units.Should().NotBeNull();
-            
+        [Test]
+        public void WillNotBuildProxyForInElegibleType()
+        {
+            DynamicProxyWrapper proxyWrapper = DynamicProxy.GetProxyWrapper<Status>();
+
+            proxyWrapper.IsElegibleForProxy.Should().BeFalse();
+            proxyWrapper.Type.Should().BeNull();
         }
     }
 }

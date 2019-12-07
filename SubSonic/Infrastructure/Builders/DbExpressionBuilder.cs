@@ -10,16 +10,19 @@ namespace SubSonic.Infrastructure
     internal class DbExpressionBuilder
     {
         private readonly ParameterExpression parameter;
+        private readonly ConstantExpression root;
+        private MethodCallExpression call;
         private Expression body;
 
-        public DbExpressionBuilder(ParameterExpression expression)
+        public DbExpressionBuilder(
+            ParameterExpression parameter,
+            ConstantExpression root)
         {
-            parameter = expression ?? throw new ArgumentNullException(nameof(expression));
+            this.parameter = parameter ?? throw new ArgumentNullException(nameof(parameter));
+            this.root = root ?? throw new ArgumentNullException(nameof(root));
         }
 
-        public ParameterExpression Parameter => parameter;
-
-        public Expression Body => body;
+        public Expression ToMethodCallExpression() => call;
 
         public DbExpressionBuilder BuildComparisonExpression(string property, object value, EnumComparisonOperator @operator, EnumGroupOperator @group)
         {
@@ -43,15 +46,80 @@ namespace SubSonic.Infrastructure
             return this;
         }
 
-        public Expression BuildWhereExpression<TEntity>(Expression source)
-            where TEntity : class
+        public DbExpressionBuilder ForEachProperty(string[] properties, Action<string> action)
         {
-            return Expression.Call(
+            foreach(string property in properties)
+            {
+                action(property);
+            }
+
+            return this;
+        }
+            
+
+        public DbExpressionBuilder CallExpression<TEntity>(EnumCallExpression @enum, params string[] properties)
+        {
+            Expression lambda = GetExpressionArgument<TEntity>(@enum, properties);
+
+            this.call = Expression.Call(
                 typeof(Queryable),
-                "Where",
-                new[] {parameter.Type},
-                source,
-                Expression.Lambda<Func<TEntity, bool>>(body, parameter));
+                @enum.ToString(),
+                GetTypeArguments(@enum, lambda),
+                (Expression)call ?? root,
+                lambda);
+
+            return this;
+        }
+
+        private Type[] GetTypeArguments(EnumCallExpression @enum, Expression expression)
+        {
+            IEnumerable<Type> types = new Type[] { };
+            
+            switch(@enum)
+            {
+                case EnumCallExpression.Where:
+                    {
+                        types = GetParameterTypes((LambdaExpression)expression);
+                    }
+                    break;
+                case EnumCallExpression.OrderBy:
+                    {
+                        types = GetParameterTypes((LambdaExpression)expression)
+                            .Union(GetMemberType((LambdaExpression)expression));
+                    }
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+
+            return types.ToArray();
+        }
+
+        private IEnumerable<Type> GetParameterTypes(LambdaExpression expression) => expression.Parameters.Select(Param => Param.Type);
+        private IEnumerable<Type> GetMemberType(LambdaExpression expression) => new[] { expression.Body.Type };
+
+        private Expression GetExpressionArgument<TEntity>(EnumCallExpression @call, params string[] properties)
+        {
+            Expression result;
+            switch(@call)
+            {
+                case EnumCallExpression.Where:
+                    {
+                        result = Expression.Lambda<Func<TEntity, bool>>(body, parameter);
+                    }
+                    break;
+                case EnumCallExpression.OrderBy:
+                    {
+                        PropertyInfo info = typeof(TEntity).GetProperty(properties[0]);
+                        Expression property = Expression.Property(parameter, info);
+                         
+                        result = Expression.Lambda(Expression.GetFuncType(parameter.Type, info.PropertyType), property, parameter);
+                    }
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+            return result;
         }
 
         private Expression GetBodyExpression(Expression right, EnumGroupOperator @group)

@@ -9,7 +9,6 @@ namespace SubSonic.Infrastructure
 {
     public class DbSet<TEntity>
         : IQueryable<TEntity>, IEnumerable<TEntity>, IQueryable, IEnumerable, IListSource
-        where TEntity : class
     {
         private readonly DbContext dbContext;
         private readonly IQueryProvider provider;
@@ -22,12 +21,19 @@ namespace SubSonic.Infrastructure
             this.provider = provider ?? throw new ArgumentNullException(nameof(provider));
 
             this.queryableData = new List<TEntity>();
+            this.Expression = queryableData.AsQueryable().Expression;
             this.model = dbContext.Model.GetEntityModel<TEntity>();
+        }
+
+        public DbSet(DbContext dbContext, IQueryProvider provider, Expression expression)
+            : this(dbContext, provider)
+        {
+            this.Expression = expression ?? throw new ArgumentNullException(nameof(expression));
         }
 
         public Type ElementType => typeof(TEntity);
 
-        public Expression Expression => queryableData.AsQueryable().Expression;
+        public Expression Expression { get; }
 
         public IQueryProvider Provider => provider;
 
@@ -64,14 +70,19 @@ namespace SubSonic.Infrastructure
 
         public IQueryable<TEntity> FindByID(params object[] keyData)
         {
-            DbExpressionBuilder builder = new DbExpressionBuilder(Expression.Parameter(ElementType, ElementType.Name.ToLower()));
+            DbExpressionBuilder builder = new DbExpressionBuilder(Expression.Parameter(ElementType, ElementType.Name.ToLower()), (ConstantExpression)Expression);
 
             for(int i = 0; i < model.PrimaryKey.Length; i++)
             {
                 builder.BuildComparisonExpression(model.PrimaryKey[i], keyData[i], EnumComparisonOperator.Equal, EnumGroupOperator.AndAlso);
             }
 
-            return Provider.CreateQuery<TEntity>(builder.BuildWhereExpression<TEntity>(Expression));
+            return Provider.CreateQuery<TEntity>(
+                builder
+                    .CallExpression<TEntity>(EnumCallExpression.Where)
+                    .ForEachProperty(model.PrimaryKey, property => 
+                        builder.CallExpression<TEntity>(EnumCallExpression.OrderBy, property))
+                    .ToMethodCallExpression());
         }
     }
 }

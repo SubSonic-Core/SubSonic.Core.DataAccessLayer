@@ -6,12 +6,12 @@ using System.Text;
 
 namespace SubSonic.Infrastructure.Providers
 {
-    public class SubSonicQueryProvider
+    public class SubSonicDbSetProvider
         : IQueryProvider
     {
         private readonly DbContext dbContext;
 
-        public SubSonicQueryProvider(DbContext dbContext)
+        public SubSonicDbSetProvider(DbContext dbContext)
         {
             this.dbContext = dbContext;
         }
@@ -21,9 +21,9 @@ namespace SubSonic.Infrastructure.Providers
             throw new NotImplementedException();
         }
 
-        public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
+        public virtual IQueryable<TElement> CreateQuery<TElement>(Expression expression)
         {
-            throw new NotImplementedException();
+            return new DbSet<TElement>(dbContext, this, expression);
         }
 
         public object Execute(Expression expression)
@@ -31,7 +31,7 @@ namespace SubSonic.Infrastructure.Providers
             throw new NotImplementedException();
         }
 
-        public TResult Execute<TResult>(Expression expression)
+        public virtual TResult Execute<TResult>(Expression expression)
         {
             throw new NotImplementedException();
         }

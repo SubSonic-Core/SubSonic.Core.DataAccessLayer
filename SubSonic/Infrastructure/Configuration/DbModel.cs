@@ -19,7 +19,6 @@ namespace SubSonic.Infrastructure
         public ICollection<DbEntityModel> EntityModels { get; }
 
         public DbEntityModel GetEntityModel<TEntity>()
-            where TEntity : class
         {
             return GetEntityModel(typeof(TEntity));
         }

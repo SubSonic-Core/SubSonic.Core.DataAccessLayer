@@ -5,11 +5,11 @@ using System.Text;
 
 namespace SubSonic.Data.DynamicProxies
 {
-    internal class DynamicProxyWrapper
+    public class DynamicProxyWrapper
     {
         private readonly Type baseType;
 
-        public DynamicProxyWrapper(Type baseType)
+        internal DynamicProxyWrapper(Type baseType)
         {
             this.baseType = baseType ?? throw new ArgumentNullException(nameof(baseType));
         }
@@ -18,7 +18,7 @@ namespace SubSonic.Data.DynamicProxies
 
         private Type proxyType;
 
-        public Type ProxyType
+        public Type Type
         {
             get
             {
