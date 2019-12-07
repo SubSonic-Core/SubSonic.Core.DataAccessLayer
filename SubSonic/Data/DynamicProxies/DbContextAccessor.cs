@@ -6,6 +6,12 @@ using Ext = SubSonic.Extensions;
 
 namespace SubSonic.Data.DynamicProxies
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <remarks>
+    /// this class is referenced in the proxy classes that are generated and will not count references at design time
+    /// </remarks>
     internal class DbContextAccessor
     {
         private readonly DbContext dbContext;
