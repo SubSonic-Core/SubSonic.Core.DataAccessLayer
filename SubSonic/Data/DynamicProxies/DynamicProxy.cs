@@ -11,7 +11,7 @@ namespace SubSonic.Data.DynamicProxies
 {
     public static class DynamicProxy
     {
-        private readonly static Dictionary<string, Type> DynamicProxyCache;
+        private readonly static Dictionary<string, DynamicProxyWrapper> DynamicProxyCache;
 
         private readonly static AssemblyName assemblyName;
         private readonly static AssemblyBuilder DynamicAssembly;
@@ -24,7 +24,7 @@ namespace SubSonic.Data.DynamicProxies
             DynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
             ModuleBuilder = DynamicAssembly.DefineDynamicModule("DynamicProxiesTypeGenerator");
 
-            DynamicProxyCache = new Dictionary<string, Type>();
+            DynamicProxyCache = new Dictionary<string, DynamicProxyWrapper>();
         }
 
         public static TEntity CreateProxyInstanceOf<TEntity>(DbContext dbContext)
@@ -34,13 +34,22 @@ namespace SubSonic.Data.DynamicProxies
 
             if (!DynamicProxyCache.ContainsKey(baseType.FullName))
             {
-                DynamicProxyCache.Add(baseType.FullName, BuildDerivedTypeFrom(baseType));
+                DynamicProxyCache.Add(baseType.FullName, new DynamicProxyWrapper(baseType));
             }
 
-            return (TEntity)Activator.CreateInstance(DynamicProxyCache[baseType.FullName], new DbContextAccessor(dbContext));
+            DynamicProxyWrapper proxy = DynamicProxyCache[baseType.FullName];
+
+            if (dbContext.Options.EnableProxyGeneration && proxy.IsElegibleForProxy)
+            {
+                return (TEntity)Activator.CreateInstance(DynamicProxyCache[baseType.FullName].ProxyType, new DbContextAccessor(dbContext));
+            }
+            else
+            {
+                return Activator.CreateInstance<TEntity>();
+            }
         }
 
-        private static Type BuildDerivedTypeFrom(Type baseType)
+        internal static Type BuildDerivedTypeFrom(Type baseType)
         {
 
             DynamicProxyBuilder proxyBuilder = new DynamicProxyBuilder(ModuleBuilder.DefineType(

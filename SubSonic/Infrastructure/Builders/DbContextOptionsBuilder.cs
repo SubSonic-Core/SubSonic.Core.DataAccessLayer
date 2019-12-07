@@ -9,6 +9,8 @@ namespace SubSonic.Infrastructure
         private readonly DbContext dbContext;
         private readonly DbContextOptions options;
 
+        private bool isDirtyServiceProvider = false;
+
         public DbContextOptionsBuilder(DbContext dbContext, DbContextOptions options)
         {
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
@@ -21,7 +23,10 @@ namespace SubSonic.Infrastructure
         }
         public void SetServiceProvider(IServiceProvider provider)
         {
-            dbContext.Instance = provider;
+            if (!isDirtyServiceProvider)
+            {
+                dbContext.Instance = provider;
+            }
         }
     }
 }

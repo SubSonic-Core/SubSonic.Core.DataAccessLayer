@@ -1,4 +1,5 @@
 ﻿using SubSonic.Infrastructure;
+using SubSonic.Infrastructure.Providers;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -24,7 +25,7 @@ namespace SubSonic
         public DbSet<TEntity> Set<TEntity>()
             where TEntity : class
         {
-            return new DbSet<TEntity>(this);
+            return new DbSet<TEntity>(this, new SubSonicQueryProvider(this));
         }
 
         protected virtual void OnDbConfiguring(DbContextOptionsBuilder builder)
