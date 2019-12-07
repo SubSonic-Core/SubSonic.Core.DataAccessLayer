@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace SubSonic
@@ -28,6 +29,20 @@ namespace SubSonic
         public static Type[] BuildGenericArgumentTypes(this Type type)
         {
             return type.IsGenericType ? type.GetGenericArguments() : new[] { type };
+        }
+
+        public static string GetQualifiedTypeName(this Type type)
+        {
+            string result;
+            if(type.IsGenericType)
+            {
+                result = $"{type.Name}<{String.Join(',', type.GetGenericArguments().Select(t => t.Name))}>";
+            }
+            else
+            {
+                result = type.Name;
+            }
+            return result;
         }
     }
 }

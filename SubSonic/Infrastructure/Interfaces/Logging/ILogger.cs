@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 namespace SubSonic.Infrastructure.Logging
 {
-    interface ISubSonicLogger<out CategoryName>
+    public interface ISubSonicLogger<out CategoryName>
         : ILogger<CategoryName>
     {
         IPerformanceLogger<CategoryName> Start(string name);

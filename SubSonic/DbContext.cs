@@ -25,7 +25,7 @@ namespace SubSonic
         public DbSet<TEntity> Set<TEntity>()
             where TEntity : class
         {
-            return new DbSet<TEntity>(new SubSonicDbSetProvider(this));
+            return new DbSet<TEntity>(new SubSonicDbSetProvider<TEntity>(this, new Infrastructure.Logging.SubSonicLogger<DbSet<TEntity>>(null)));
         }
 
         protected virtual void OnDbConfiguring(DbContextOptionsBuilder builder)

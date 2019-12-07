@@ -22,12 +22,14 @@ namespace SubSonic.Infrastructure.Logging
                 throw new ArgumentException("Supply the name of the containing method.", nameof(name));
             }
 
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.logger = logger;// ?? throw new ArgumentNullException(nameof(logger));
             
             Start(name);
         }
 
         public bool IsPerformanceLoggingEnabled => logger.IsNotNull() && logger.IsEnabled(LogLevel.Debug);
+
+        public string NameOfScope => $"{typeof(CategoryName).Name}::{name}";
 
         public double TotalMilliseconds => (end - start).TotalMilliseconds;
 
@@ -42,7 +44,7 @@ namespace SubSonic.Infrastructure.Logging
 
             if (IsPerformanceLoggingEnabled)
             {
-                logger.LogDebug("Start Execution of {name} at {time}", $"{typeof(CategoryName).Name}::{name}", start);
+                logger.LogDebug("Start Execution of {name} at {time}", NameOfScope, start);
             }
         }
 
@@ -52,7 +54,7 @@ namespace SubSonic.Infrastructure.Logging
 
             if (IsPerformanceLoggingEnabled)
             {
-                logger.LogDebug("End Execution of {name} at {time} elapsed time: {milliseconds} ms", $"{typeof(CategoryName).Name}::{name}", end, TotalMilliseconds);
+                logger.LogDebug("End Execution of {name} at {time} elapsed time: {milliseconds} ms", NameOfScope, end, TotalMilliseconds);
             }
         }
 
