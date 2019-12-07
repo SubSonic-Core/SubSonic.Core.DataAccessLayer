@@ -62,8 +62,6 @@ namespace SubSonic.Data.DynamicProxies
 
         private void BuildOverriddenProperty(string propertyName, Type propertyType)
         {
-            FieldBuilder propertyField = typeBuilder.DefineField($"_{propertyName}", propertyType, FieldAttributes.Private);
-
             PropertyBuilder propertyBuilder = typeBuilder.DefineProperty(
                     propertyName,
                     PropertyAttributes.None,
@@ -98,7 +96,9 @@ namespace SubSonic.Data.DynamicProxies
                 isDefaultValue = internalExt.GetMethods()
                     .Where(info =>
                         info.Name.Equals("IsDefaultValue") && info.IsGenericMethod)
-                    .Single();
+                    .Single(),
+                getter = baseType.GetProperty(propertyName).GetGetMethod(),
+                setter = baseType.GetProperty(propertyName).GetSetMethod();
 
             Label 
                 fieldIsNotNullOrForeignKeyIsDefault = iLGetGenerator.DefineLabel(),
@@ -108,8 +108,8 @@ namespace SubSonic.Data.DynamicProxies
             LocalBuilder
                 propertyInfo = iLGetGenerator.DeclareLocal(typeof(PropertyInfo)),
                 count = null;
-
-            if(IsCollection)
+            #region getter
+            if (IsCollection)
             {
                 count = iLGetGenerator.DeclareLocal(typeof(int));
             }
@@ -120,9 +120,9 @@ namespace SubSonic.Data.DynamicProxies
             iLGetGenerator.EmitCall(OpCodes.Call, typeof(Type).GetMethod("GetProperty", new[] { typeof(string) }), null);       // call GetProperty with the propertyName as the parameter
             iLGetGenerator.Emit(OpCodes.Stloc, propertyInfo);                                                                   // store PropertyInfo object in the local variable propertyInfo
 
-            iLGetGenerator.Emit(OpCodes.Ldarg_0);                   // this
-            iLGetGenerator.Emit(OpCodes.Ldfld, propertyField);      // propertyField
-            iLGetGenerator.EmitCall(OpCodes.Call, isNull, null);    // use the static extension method IsNull
+            iLGetGenerator.Emit(OpCodes.Ldarg_0);                                                       // this
+            iLGetGenerator.Emit(OpCodes.Call, getter);       // propertyField
+            iLGetGenerator.EmitCall(OpCodes.Call, isNull, null);                                        // use the static extension method IsNull
             if (!IsCollection)
             {
                 iLGetGenerator.Emit(OpCodes.Brfalse_S, fieldIsNotNullOrForeignKeyIsDefault);                 // value is not null
@@ -142,7 +142,7 @@ namespace SubSonic.Data.DynamicProxies
             if (IsCollection)
             {
                 iLGetGenerator.Emit(OpCodes.Ldarg_0);
-                iLGetGenerator.Emit(OpCodes.Ldfld, propertyField);
+                iLGetGenerator.Emit(OpCodes.Call, getter);
                 iLGetGenerator.EmitCall(OpCodes.Call, propertyType.GetProperty("Count").GetMethod, null);
                 iLGetGenerator.Emit(OpCodes.Stloc, count);
 
@@ -164,7 +164,7 @@ namespace SubSonic.Data.DynamicProxies
                 iLGetGenerator.Emit(OpCodes.Ldarg_0);                           // this ptr as the first parameter
                 iLGetGenerator.Emit(OpCodes.Ldloc, propertyInfo);               // local variable propertyInfo as the second parameter
                 iLGetGenerator.EmitCall(OpCodes.Call, load, null);              // call the LoadProperty or LoadCollection on the DBContextAccessor object
-                iLGetGenerator.Emit(OpCodes.Stfld, propertyField);              // store the return in the propertyField
+                iLGetGenerator.Emit(OpCodes.Call, setter);              // store the return in the propertyField
                 if (IsCollection)
                 {
                     iLGetGenerator.MarkLabel(fieldCountIsNotZero);
@@ -176,16 +176,17 @@ namespace SubSonic.Data.DynamicProxies
                 iLGetGenerator.MarkLabel(fieldIsNotNullOrForeignKeyIsDefault);               // jump here when propertyField is not null
             }
             iLGetGenerator.Emit(OpCodes.Ldarg_0);   // this
-            iLGetGenerator.Emit(OpCodes.Ldfld, propertyField); // propertyField
+            iLGetGenerator.Emit(OpCodes.Call, getter); // propertyField
             iLGetGenerator.Emit(OpCodes.Ret);
 
             typeBuilder.DefineMethodOverride(getMethod, baseType.GetProperty(propertyName).GetMethod);
-
+            #endregion
+            #region setter
             propertyInfo = iLSetGenerator.DeclareLocal(typeof(PropertyInfo));
 
             iLSetGenerator.Emit(OpCodes.Ldarg_0);
             iLSetGenerator.Emit(OpCodes.Ldarg_1);
-            iLSetGenerator.Emit(OpCodes.Stfld, propertyField);
+            iLSetGenerator.Emit(OpCodes.Call, baseType.GetProperty(propertyName).GetSetMethod());
 
             if (!IsCollection)
             {
@@ -205,6 +206,7 @@ namespace SubSonic.Data.DynamicProxies
             iLSetGenerator.Emit(OpCodes.Ret);
 
             typeBuilder.DefineMethodOverride(setMethod, baseType.GetProperty(propertyName).SetMethod);
+            #endregion
         }
     }
 }
