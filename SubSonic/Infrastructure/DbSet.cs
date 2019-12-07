@@ -10,23 +10,23 @@ namespace SubSonic.Infrastructure
     public class DbSet<TEntity>
         : IQueryable<TEntity>, IEnumerable<TEntity>, IQueryable, IEnumerable, IListSource
     {
-        private readonly DbContext dbContext;
         private readonly IQueryProvider provider;
         private readonly DbEntityModel model;
         private readonly List<TEntity> queryableData;
         
-        public DbSet(DbContext dbContext, IQueryProvider provider)
+        public DbSet(ISubSonicQueryProvider provider)
         {
-            this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             this.provider = provider ?? throw new ArgumentNullException(nameof(provider));
 
             this.queryableData = new List<TEntity>();
             this.Expression = queryableData.AsQueryable().Expression;
-            this.model = dbContext.Model.GetEntityModel<TEntity>();
+            this.model = DbContext.Model.GetEntityModel<TEntity>();
         }
 
-        public DbSet(DbContext dbContext, IQueryProvider provider, Expression expression)
-            : this(dbContext, provider)
+        protected DbContext DbContext => ((ISubSonicQueryProvider)provider).DbContext;
+
+        public DbSet(ISubSonicQueryProvider provider, Expression expression)
+            : this(provider)
         {
             this.Expression = expression ?? throw new ArgumentNullException(nameof(expression));
         }

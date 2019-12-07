@@ -7,14 +7,14 @@ using System.Text;
 namespace SubSonic.Infrastructure.Providers
 {
     public class SubSonicDbSetProvider
-        : IQueryProvider
+        : ISubSonicQueryProvider
     {
-        private readonly DbContext dbContext;
-
         public SubSonicDbSetProvider(DbContext dbContext)
         {
-            this.dbContext = dbContext;
+            this.DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
+
+        public DbContext DbContext { get; }
 
         public IQueryable CreateQuery(Expression expression)
         {
@@ -23,7 +23,7 @@ namespace SubSonic.Infrastructure.Providers
 
         public virtual IQueryable<TElement> CreateQuery<TElement>(Expression expression)
         {
-            return new DbSet<TElement>(dbContext, this, expression);
+            return new DbSet<TElement>(this, expression);
         }
 
         public object Execute(Expression expression)

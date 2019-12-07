@@ -23,8 +23,6 @@ namespace SubSonic.Tests.DynamicProxyTests
             dbContext = new TestDbContext();
         }
 
-
-
         [Test]
         public void CanBuildProxyForElegibleType()
         {
