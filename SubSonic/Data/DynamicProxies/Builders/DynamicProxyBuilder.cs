@@ -87,15 +87,21 @@ namespace SubSonic.Data.DynamicProxies
             MethodInfo
                 load = fieldDbContextAccessor.FieldType
                     .GetMethod(!IsCollection ? "LoadProperty" : "LoadCollection", BindingFlags.Public | BindingFlags.Instance)
-                    .MakeGenericMethod(baseType, propertyType),
+                    .MakeGenericMethod(new[] { baseType }.Union(propertyType.BuildGenericArgumentTypes()).ToArray()),
                 set = fieldDbContextAccessor.FieldType
                     .GetMethod("SetForeignKeyProperty", BindingFlags.Public | BindingFlags.Instance)
-                    .MakeGenericMethod(baseType, propertyType),
+                    .MakeGenericMethod(new[] { baseType }.Union(propertyType.BuildGenericArgumentTypes()).ToArray()),
+                isForeignKeyDefaultValue = fieldDbContextAccessor.FieldType
+                    .GetMethod("IsForeignKeyPropertySetToDefaultValue", BindingFlags.Public | BindingFlags.Instance)
+                    .MakeGenericMethod(baseType),
                 isNull = internalExt.GetMethod("IsNull", BindingFlags.Public | BindingFlags.Static , null, new[] { typeof(object) }, null),
-                isDefaultValue = internalExt.GetMethod("IsDefaultValue", BindingFlags.Public | BindingFlags.Static);
+                isDefaultValue = internalExt.GetMethods()
+                    .Where(info =>
+                        info.Name.Equals("IsDefaultValue") && info.IsGenericMethod)
+                    .Single();
 
             Label 
-                fieldIsNotNull = iLGetGenerator.DefineLabel(),
+                fieldIsNotNullOrForeignKeyIsDefault = iLGetGenerator.DefineLabel(),
                 fieldIsNull = iLGetGenerator.DefineLabel(),
                 fieldCountIsNotZero = iLGetGenerator.DefineLabel();
 
@@ -108,12 +114,25 @@ namespace SubSonic.Data.DynamicProxies
                 count = iLGetGenerator.DeclareLocal(typeof(int));
             }
 
+            iLGetGenerator.Emit(OpCodes.Ldarg_0);                                                                               // this
+            iLGetGenerator.EmitCall(OpCodes.Call, typeof(object).GetMethod("GetType"), null);                                   // call GetType method
+            iLGetGenerator.Emit(OpCodes.Ldstr, propertyName);                                                                   // push new string of propertyName
+            iLGetGenerator.EmitCall(OpCodes.Call, typeof(Type).GetMethod("GetProperty", new[] { typeof(string) }), null);       // call GetProperty with the propertyName as the parameter
+            iLGetGenerator.Emit(OpCodes.Stloc, propertyInfo);                                                                   // store PropertyInfo object in the local variable propertyInfo
+
             iLGetGenerator.Emit(OpCodes.Ldarg_0);                   // this
             iLGetGenerator.Emit(OpCodes.Ldfld, propertyField);      // propertyField
             iLGetGenerator.EmitCall(OpCodes.Call, isNull, null);    // use the static extension method IsNull
             if (!IsCollection)
             {
-                iLGetGenerator.Emit(OpCodes.Brfalse_S, fieldIsNotNull); // value is not null
+                iLGetGenerator.Emit(OpCodes.Brfalse_S, fieldIsNotNullOrForeignKeyIsDefault);                 // value is not null
+
+                iLGetGenerator.Emit(OpCodes.Ldarg_0);                                   // this
+                iLGetGenerator.Emit(OpCodes.Ldfld, fieldDbContextAccessor);             // field variable _dbContextAccessor
+                iLGetGenerator.Emit(OpCodes.Ldarg_0);                                   // this ptr as the first parameter
+                iLGetGenerator.Emit(OpCodes.Ldloc, propertyInfo);                       // local variable propertyInfo as the second parameter
+                iLGetGenerator.EmitCall(OpCodes.Call, isForeignKeyDefaultValue, null);  // call the IsForeignKeyPropertySetToDefaultValue on the DBContextAccessor object
+                iLGetGenerator.Emit(OpCodes.Brtrue_S, fieldIsNotNullOrForeignKeyIsDefault);
             }
             else
             {
@@ -139,12 +158,6 @@ namespace SubSonic.Data.DynamicProxies
             }
 
             {  
-                iLGetGenerator.Emit(OpCodes.Ldarg_0);                                                                               // this
-                iLGetGenerator.EmitCall(OpCodes.Call, typeof(object).GetMethod("GetType"), null);                                   // call GetType method
-                iLGetGenerator.Emit(OpCodes.Ldstr, propertyName);                                                                   // push new string of propertyName
-                iLGetGenerator.EmitCall(OpCodes.Call, typeof(Type).GetMethod("GetProperty", new[] { typeof(string) }), null);       // call GetProperty with the propertyName as the parameter
-                iLGetGenerator.Emit(OpCodes.Stloc, propertyInfo);                                                                   // store PropertyInfo object in the local variable propertyInfo
-
                 iLGetGenerator.Emit(OpCodes.Ldarg_0);                           // this
                 iLGetGenerator.Emit(OpCodes.Dup);                               // Duplicate the top of the stack -> this
                 iLGetGenerator.Emit(OpCodes.Ldfld, fieldDbContextAccessor);     // field variable _dbContextAccessor
@@ -160,7 +173,7 @@ namespace SubSonic.Data.DynamicProxies
             iLGetGenerator.EndScope();
             if (!IsCollection)
             {
-                iLGetGenerator.MarkLabel(fieldIsNotNull);               // jump here when propertyField is not null
+                iLGetGenerator.MarkLabel(fieldIsNotNullOrForeignKeyIsDefault);               // jump here when propertyField is not null
             }
             iLGetGenerator.Emit(OpCodes.Ldarg_0);   // this
             iLGetGenerator.Emit(OpCodes.Ldfld, propertyField); // propertyField
@@ -183,7 +196,6 @@ namespace SubSonic.Data.DynamicProxies
                 iLSetGenerator.Emit(OpCodes.Stloc, propertyInfo);                                                                   // store PropertyInfo object in the local variable propertyInfo
 
                 iLSetGenerator.Emit(OpCodes.Ldarg_0);                           // this
-                iLSetGenerator.Emit(OpCodes.Dup);                               // Duplicate the top of the stack -> this
                 iLSetGenerator.Emit(OpCodes.Ldfld, fieldDbContextAccessor);     // field variable _dbContextAccessor
                 iLSetGenerator.Emit(OpCodes.Ldarg_0);                           // this ptr as the first parameter
                 iLSetGenerator.Emit(OpCodes.Ldloc, propertyInfo);               // local variable propertyInfo as the second parameter

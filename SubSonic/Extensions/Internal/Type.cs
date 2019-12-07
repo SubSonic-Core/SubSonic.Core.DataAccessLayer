@@ -15,5 +15,19 @@ namespace SubSonic
         {
             return type.IsNullableType() ? Nullable.GetUnderlyingType(type) : type;
         }
+
+        public static object GetDefault(this Type type)
+        {
+            if(type.IsValueType)
+            {
+                return Activator.CreateInstance(type);
+            }
+            return null;
+        }
+
+        public static Type[] BuildGenericArgumentTypes(this Type type)
+        {
+            return type.IsGenericType ? type.GetGenericArguments() : new[] { type };
+        }
     }
 }

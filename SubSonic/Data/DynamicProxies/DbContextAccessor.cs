@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using Ext = SubSonic.Extensions;
 
 namespace SubSonic.Data.DynamicProxies
@@ -24,6 +23,20 @@ namespace SubSonic.Data.DynamicProxies
             object[] keyData = GetKeyData(entity, keys);
 
             return dbContext.Set<TProperty>().FindByID(keyData).Single();
+        }
+
+        public bool IsForeignKeyPropertySetToDefaultValue<TEntity>(TEntity entity, PropertyInfo info)
+        {
+            bool result = false;
+
+            string[] keys = Ext.GetForeignKeyName(info);
+
+            foreach(object value in GetKeyData(entity, keys))
+            {
+                result |= value.IsDefaultValue(value.GetType());
+            }
+
+            return result;
         }
 
         public void SetForeignKeyProperty<TEntity, TProperty>(TEntity entity, PropertyInfo info)
@@ -52,7 +65,11 @@ namespace SubSonic.Data.DynamicProxies
             string[] keys = dbContext.Model.GetEntityModel<TProperty>().PrimaryKey;
             object[] keyData = GetKeyData(entity, keys);
 
-            return dbContext.Set<TProperty>().FindByID(keyData).ToHashSet();
+            return dbContext
+                .Set<TProperty>()
+                .FindByID(keyData)
+                .Load()
+                .ToHashSet();
         }
 
         private object[] GetKeyData<TEntity>(TEntity entity, string[] keys)

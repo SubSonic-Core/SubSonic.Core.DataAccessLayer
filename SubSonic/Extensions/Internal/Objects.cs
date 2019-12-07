@@ -40,9 +40,16 @@ namespace SubSonic
             return source;
         }
 
+        
+
         public static bool IsDefaultValue<TType>(this TType left)
         {
-            return left.Equals(default(TType));
+            return IsDefaultValue(left, typeof(TType));
+        }
+
+        public static bool IsDefaultValue(this object left, Type type)
+        {
+            return left.Equals(GetDefault(type));
         }
     }
 }
