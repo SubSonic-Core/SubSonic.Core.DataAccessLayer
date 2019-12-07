@@ -10,38 +10,60 @@ namespace SubSonic.Infrastructure.Logging
         : IPerformanceLogger<CategoryName>
         , IDisposableAsync
     {
-        private readonly DateTime start;
+        private DateTime start;
+        private DateTime end;
         private readonly ILogger<CategoryName> logger;
-        private readonly string name;
+        private string name;
 
         public SubSonicPerformanceLogger(ILogger<CategoryName> logger, string name)
         {
             if (string.IsNullOrEmpty(name))
             {
-                throw new ArgumentException("message", nameof(name));
+                throw new ArgumentException("Supply the name of the containing method.", nameof(name));
             }
 
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            
+            Start(name);
+        }
+
+        public bool IsPerformanceLoggingEnabled => logger.IsNotNull() && logger.IsEnabled(LogLevel.Debug);
+
+        public double TotalMilliseconds => (end - start).TotalMilliseconds;
+
+        public double TotalSeconds => (end - start).TotalSeconds;
+
+        public double TotalMinutes => (end - start).TotalMinutes;
+
+        public void Start(string name)
+        {
             this.name = name;
+            this.start = DateTime.Now;
 
             if (IsPerformanceLoggingEnabled)
             {
-                start = DateTime.Now;
-
                 logger.LogDebug("Start Execution of {name} at {time}", $"{typeof(CategoryName).Name}::{name}", start);
             }
         }
 
-        public bool IsPerformanceLoggingEnabled => logger.IsEnabled(LogLevel.Debug);
+        public void End()
+        {
+            this.end = DateTime.Now;
+
+            if (IsPerformanceLoggingEnabled)
+            {
+                logger.LogDebug("End Execution of {name} at {time} elapsed time: {milliseconds} ms", $"{typeof(CategoryName).Name}::{name}", end, TotalMilliseconds);
+            }
+        }
+
+        public async Task EndAsync()
+        {
+            await DisposeAsync();
+        }
 
         public async Task DisposeAsync()
         {
-            if (IsPerformanceLoggingEnabled)
-            {
-                DateTime end = DateTime.Now;
-
-                logger.LogDebug("End Execution of {name} at {time} elapsed time: {milliseconds} ms", $"{typeof(CategoryName).Name}::{name}", end, (end - start).TotalMilliseconds);
-            }
+            End();
         }
 
         #region IDisposable Support
@@ -81,3 +103,4 @@ namespace SubSonic.Infrastructure.Logging
         #endregion
     }
 }
+
