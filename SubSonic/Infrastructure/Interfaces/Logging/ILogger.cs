@@ -5,9 +5,9 @@ using Microsoft.Extensions.Logging;
 
 namespace SubSonic.Infrastructure.Logging
 {
-    public interface ISubSonicLogger<out CategoryName>
-        : ILogger<CategoryName>
+    public interface ISubSonicLogger<out TCategoryName>
+        : ILogger<TCategoryName>
     {
-        IPerformanceLogger<CategoryName> Start(string name);
+        IPerformanceLogger<TCategoryName> Start(string name);
     }
 }

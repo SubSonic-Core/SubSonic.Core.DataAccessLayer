@@ -1,9 +1,9 @@
-﻿using System;
+﻿using SubSonic.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 [assembly: InternalsVisibleTo("SubSonic.DynamicProxies")]
 
@@ -11,25 +11,20 @@ namespace SubSonic.Data.DynamicProxies
 {
     public static class DynamicProxy
     {
-        private readonly static Dictionary<string, DynamicProxyWrapper> DynamicProxyCache;
+        private readonly static Dictionary<string, DynamicProxyWrapper> DynamicProxyCache = new Dictionary<string, DynamicProxyWrapper>();
 
-        private readonly static AssemblyName assemblyName;
-        private readonly static AssemblyBuilder DynamicAssembly;
-        private static ModuleBuilder ModuleBuilder;
-
-        static DynamicProxy()
-        {
-            assemblyName = new AssemblyName("SubSonic.DynamicProxies");
-
-            DynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
-            ModuleBuilder = DynamicAssembly.DefineDynamicModule("DynamicProxiesTypeGenerator");
-
-            DynamicProxyCache = new Dictionary<string, DynamicProxyWrapper>();
-        }
+        private readonly static AssemblyName assemblyName = new AssemblyName("SubSonic.DynamicProxies");
+        private readonly static AssemblyBuilder DynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+        private static ModuleBuilder ModuleBuilder = DynamicAssembly.DefineDynamicModule("DynamicProxiesTypeGenerator");
 
         public static TEntity CreateProxyInstanceOf<TEntity>(DbContext dbContext)
             where TEntity : class
         {
+            if (dbContext is null)
+            {
+                throw new ArgumentNullException(nameof(dbContext));
+            }
+
             DynamicProxyWrapper proxy = GetProxyWrapper<TEntity>(dbContext);
 
             if (dbContext.Options.EnableProxyGeneration && proxy.IsElegibleForProxy)
@@ -56,11 +51,10 @@ namespace SubSonic.Data.DynamicProxies
 
         internal static Type BuildDerivedTypeFrom(Type baseType, DbContext dbContext)
         {
-
             DynamicProxyBuilder proxyBuilder = new DynamicProxyBuilder(ModuleBuilder.DefineType(
                 $"{assemblyName.FullName}.{baseType.Name}",
                 TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.AutoClass | TypeAttributes.AnsiClass | TypeAttributes.BeforeFieldInit | TypeAttributes.AutoLayout,
-                baseType), baseType, dbContext);
+                baseType, new[] { typeof(IEntityProxy) }), baseType, dbContext);
 
             return proxyBuilder.CreateType();
         }            

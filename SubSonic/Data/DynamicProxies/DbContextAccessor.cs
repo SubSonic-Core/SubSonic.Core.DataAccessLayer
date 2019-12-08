@@ -81,7 +81,7 @@ namespace SubSonic.Data.DynamicProxies
         private object[] GetKeyData<TEntity>(TEntity entity, string[] keys)
         {
             return typeof(TEntity).GetProperties()
-                    .Where(property => keys.Any(key => key.Equals(property.Name)))
+                    .Where(property => keys.Any(key => key.Equals(property.Name, StringComparison.OrdinalIgnoreCase)))
                     .Select(property => property.GetValue(entity, null))
                     .ToArray();
         }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SubSonic.Infrastructure
 {
-    public class IEntityProxy
+    public interface IEntityProxy
     {
         bool IsDirty { get; }
     }

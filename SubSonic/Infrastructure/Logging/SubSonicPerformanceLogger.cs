@@ -2,24 +2,25 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SubSonic.Infrastructure.Logging
 {
-    public class SubSonicPerformanceLogger<CategoryName>
-        : IPerformanceLogger<CategoryName>
+    public class SubSonicPerformanceLogger<TCategoryName>
+        : IPerformanceLogger<TCategoryName>
         , IDisposableAsync
     {
         private DateTime start;
         private DateTime end;
-        private readonly ILogger<CategoryName> logger;
+        private readonly ILogger<TCategoryName> logger;
         private string name;
 
-        public SubSonicPerformanceLogger(ILogger<CategoryName> logger, string name)
+        public SubSonicPerformanceLogger(ILogger<TCategoryName> logger, string name)
         {
             if (string.IsNullOrEmpty(name))
             {
-                throw new ArgumentException("Supply the name of the containing method.", nameof(name));
+                throw new ArgumentException(SubSonicErrorMessages.MissingNameArgument, nameof(name));
             }
 
             this.logger = logger;// ?? throw new ArgumentNullException(nameof(logger));
@@ -29,7 +30,7 @@ namespace SubSonic.Infrastructure.Logging
 
         public bool IsPerformanceLoggingEnabled => logger.IsNotNull() && logger.IsEnabled(LogLevel.Debug);
 
-        public string NameOfScope => $"{typeof(CategoryName).Name}::{name}";
+        public string NameOfScope => $"{typeof(TCategoryName).Name}::{name}";
 
         public double TotalMilliseconds => (end - start).TotalMilliseconds;
 
@@ -44,7 +45,7 @@ namespace SubSonic.Infrastructure.Logging
 
             if (IsPerformanceLoggingEnabled)
             {
-                logger.LogDebug("Start Execution of {name} at {time}", NameOfScope, start);
+                logger.LogDebug(SubSonicPerformanceLogging.Start, NameOfScope, start);
             }
         }
 
@@ -54,13 +55,13 @@ namespace SubSonic.Infrastructure.Logging
 
             if (IsPerformanceLoggingEnabled)
             {
-                logger.LogDebug("End Execution of {name} at {time} elapsed time: {milliseconds} ms", NameOfScope, end, TotalMilliseconds);
+                logger.LogDebug(SubSonicPerformanceLogging.End, NameOfScope, end, TotalMilliseconds);
             }
         }
 
         public async Task EndAsync()
         {
-            await DisposeAsync();
+            await DisposeAsync().ConfigureAwait(true);
         }
 
         public async Task DisposeAsync()
@@ -77,7 +78,7 @@ namespace SubSonic.Infrastructure.Logging
             {
                 if (disposing)
                 {
-                    Task.Factory.StartNew(async () => await DisposeAsync());
+                    Task.Factory.StartNew(async () => await DisposeAsync().ConfigureAwait(true), default(CancellationToken), TaskCreationOptions.AttachedToParent, TaskScheduler.Default);
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
@@ -100,7 +101,7 @@ namespace SubSonic.Infrastructure.Logging
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(true);
             // TODO: uncomment the following line if the finalizer is overridden above.
-            // GC.SuppressFinalize(this);
+            GC.SuppressFinalize(this);
         }
         #endregion
     }

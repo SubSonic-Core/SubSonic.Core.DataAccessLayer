@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 using SubSonic.Data.DynamicProxies;
+using SubSonic.Infrastructure;
 using SubSonic.Test.Rigging.Models;
 using System;
 using System.Collections;
@@ -34,6 +35,15 @@ namespace SubSonic.Tests.DynamicProxyTests
             RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(dbContext);
 
             instance.Should().BeAssignableTo<RealEstateProperty>();
+        }
+
+        [Test]
+        public void DynamicProxyImplementsIEntityProxy()
+        {
+            RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(dbContext);
+
+            ((IEntityProxy)instance).Should().NotBeNull();
+            ((IEntityProxy)instance).IsDirty.Should().BeFalse();
         }
 
         [Test]

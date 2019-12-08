@@ -1,12 +1,8 @@
 ﻿using SubSonic.Infrastructure;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace SubSonic.Data.DynamicProxies
 {
@@ -17,6 +13,7 @@ namespace SubSonic.Data.DynamicProxies
         private readonly DbContext dbContext;
 
         private FieldBuilder fieldDbContextAccessor;
+        private FieldBuilder fieldIsDirty;
 
         public DynamicProxyBuilder(TypeBuilder typeBuilder, Type baseType, DbContext dbContext)
         {
@@ -33,7 +30,12 @@ namespace SubSonic.Data.DynamicProxies
 
             foreach (DbEntityProperty property in model.Properties)
             {
-                //PropertyInfo info = baseType.GetProperty(property.RuntimeName);
+                PropertyInfo info = baseType.GetProperty(property.RuntimeName);
+
+                if(!info.GetMethod.IsVirtual)
+                {   // we cannot override this property
+                    continue;
+                }
 
                 if (property.PropertyType == EnumDbEntityPropertyType.Navigation || property.PropertyType == EnumDbEntityPropertyType.Collection)
                 {
@@ -41,12 +43,48 @@ namespace SubSonic.Data.DynamicProxies
                 }
             }
 
+            #region implement IsDirty per the IEntityProxy interface
+            BuildIsDirtyProperty();
+            #endregion
+
             return typeBuilder.CreateType();
+        }
+
+        private void BuildIsDirtyProperty()
+        {
+            PropertyBuilder propertyBuilder = typeBuilder.DefineProperty(
+                    "IsDirty",
+                    PropertyAttributes.None,
+                    typeof(bool),
+                    Type.EmptyTypes);
+
+            MethodAttributes methodAttributesForGetAndSet = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig;
+
+            MethodBuilder
+                getMethod = typeBuilder.DefineMethod($"get_IsDirty", methodAttributesForGetAndSet | MethodAttributes.Virtual, typeof(bool), Type.EmptyTypes),
+                setMethod = typeBuilder.DefineMethod($"set_IsDirty", methodAttributesForGetAndSet, null, new Type[] { typeof(bool) });
+
+            ILGenerator
+                iLGetGenerator = getMethod.GetILGenerator(),
+                iLSetGenerator = setMethod.GetILGenerator();
+
+            #region getter
+            iLGetGenerator.Emit(OpCodes.Ldarg_0);
+            iLGetGenerator.Emit(OpCodes.Ldfld, fieldIsDirty);
+            iLGetGenerator.Emit(OpCodes.Ret);
+            #endregion
+            #region setter
+            iLSetGenerator.Emit(OpCodes.Ldarg_0);
+            iLSetGenerator.Emit(OpCodes.Ldarg_1);
+            iLSetGenerator.Emit(OpCodes.Stfld, fieldIsDirty);
+            iLGetGenerator.Emit(OpCodes.Ret);
+            #endregion
         }
 
         private void BuildProxyConstructor()
         {
             fieldDbContextAccessor = typeBuilder.DefineField($"_dbContextAccessor", typeof(DbContextAccessor), FieldAttributes.Private);
+            fieldIsDirty = typeBuilder.DefineField($"_isDirty", typeof(bool), FieldAttributes.Private);
 
             ConstructorInfo baseCtor = baseType.GetConstructor(Type.EmptyTypes);
 
@@ -98,7 +136,7 @@ namespace SubSonic.Data.DynamicProxies
                 isNull = internalExt.GetMethod("IsNull", BindingFlags.Public | BindingFlags.Static , null, new[] { typeof(object) }, null),
                 isDefaultValue = internalExt.GetMethods()
                     .Where(info =>
-                        info.Name.Equals("IsDefaultValue") && info.IsGenericMethod)
+                        info.Name.Equals("IsDefaultValue", StringComparison.OrdinalIgnoreCase) && info.IsGenericMethod)
                     .Single(),
                 getter = baseType.GetProperty(propertyName).GetGetMethod(),
                 setter = baseType.GetProperty(propertyName).GetSetMethod();

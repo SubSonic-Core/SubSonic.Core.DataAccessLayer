@@ -14,8 +14,16 @@ namespace SubSonic
     {
         protected DbContext()
         {
-            OnDbConfiguring(new DbContextOptionsBuilder(this, Options = new DbContextOptions()));
-            OnDbModeling(new DbModelBuilder(Model = new DbModel(this)));
+            Options = new DbContextOptions();
+            Model = new DbModel(this);
+
+            Initialize();            
+        }
+
+        private void Initialize()
+        {
+            OnDbConfiguring(new DbContextOptionsBuilder(this, Options));
+            OnDbModeling(new DbModelBuilder(Model));
         }
 
         public DbContextOptions Options { get; }
@@ -70,7 +78,7 @@ namespace SubSonic
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(true);
             // TODO: uncomment the following line if the finalizer is overridden above.
-            // GC.SuppressFinalize(this);
+            GC.SuppressFinalize(this);
         }
         #endregion
 

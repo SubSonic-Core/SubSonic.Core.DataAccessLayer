@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -70,7 +71,7 @@ namespace SubSonic.Infrastructure
 
         public IQueryable<TEntity> FindByID(params object[] keyData)
         {
-            DbExpressionBuilder builder = new DbExpressionBuilder(Expression.Parameter(ElementType, ElementType.Name.ToLower()), (ConstantExpression)Expression);
+            DbExpressionBuilder builder = new DbExpressionBuilder(Expression.Parameter(ElementType, ElementType.Name.ToLower(CultureInfo.CurrentCulture)), (ConstantExpression)Expression);
 
             for(int i = 0; i < model.PrimaryKey.Length; i++)
             {
