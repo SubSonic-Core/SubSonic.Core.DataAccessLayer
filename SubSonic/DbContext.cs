@@ -2,10 +2,12 @@
 using SubSonic.Infrastructure.Providers;
 using System;
 using System.Collections.Generic;
+using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Text;
 
 [assembly: InternalsVisibleTo("SubSonic.Tests", AllInternalsVisible = true)]
+[assembly: NeutralResourcesLanguage("en")]
 
 namespace SubSonic
 {

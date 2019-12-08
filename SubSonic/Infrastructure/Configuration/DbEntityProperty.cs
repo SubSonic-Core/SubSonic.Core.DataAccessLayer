@@ -11,7 +11,7 @@ namespace SubSonic.Infrastructure
         {
             if (string.IsNullOrEmpty(columnName))
             {
-                throw new ArgumentException("message", nameof(columnName));
+                throw new ArgumentException("", nameof(columnName));
             }
 
             ColumnName = columnName;

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Ext = SubSonic.Extensions;
+using Ext = SubSonic.SubSonicExtensions;
 
 namespace SubSonic.Data.DynamicProxies
 {
@@ -50,7 +50,9 @@ namespace SubSonic.Data.DynamicProxies
             where TProperty : class
         {
             string[] 
-                keys = dbContext.Model.GetEntityModel<TProperty>().PrimaryKey,
+                keys = dbContext.Model.GetEntityModel<TProperty>()
+                    .GetPrimaryKey()
+                    .ToArray(),
                 foreignKeys = Ext.GetForeignKeyName(info);
             TProperty property = info.GetValue<TProperty>(entity);
 
@@ -68,7 +70,9 @@ namespace SubSonic.Data.DynamicProxies
             where TEntity : class
             where TProperty : class
         {
-            string[] keys = dbContext.Model.GetEntityModel<TProperty>().PrimaryKey;
+            string[] keys = dbContext.Model.GetEntityModel<TProperty>()
+                .GetPrimaryKey()
+                .ToArray();
             object[] keyData = GetKeyData(entity, keys);
 
             return dbContext

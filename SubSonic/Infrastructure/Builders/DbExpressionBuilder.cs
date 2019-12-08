@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -32,7 +33,7 @@ namespace SubSonic.Infrastructure
 
             Expression
                 left = Expression.Property(parameter, propertyInfo),
-                right = Expression.Constant(Convert.ChangeType(value, ConstantType), ConstantType);
+                right = Expression.Constant(Convert.ChangeType(value, ConstantType, CultureInfo.CurrentCulture), ConstantType);
 
             if(body.IsNull())
             {
@@ -71,9 +72,9 @@ namespace SubSonic.Infrastructure
             return this;
         }
 
-        private Type[] GetTypeArguments(EnumCallExpression @enum, Expression expression)
+        private static Type[] GetTypeArguments(EnumCallExpression @enum, Expression expression)
         {
-            IEnumerable<Type> types = new Type[] { };
+            IEnumerable<Type> types = Array.Empty<Type>();
             
             switch(@enum)
             {
@@ -95,8 +96,8 @@ namespace SubSonic.Infrastructure
             return types.ToArray();
         }
 
-        private IEnumerable<Type> GetParameterTypes(LambdaExpression expression) => expression.Parameters.Select(Param => Param.Type);
-        private IEnumerable<Type> GetMemberType(LambdaExpression expression) => new[] { expression.Body.Type };
+        private static IEnumerable<Type> GetParameterTypes(LambdaExpression expression) => expression.Parameters.Select(Param => Param.Type);
+        private static IEnumerable<Type> GetMemberType(LambdaExpression expression) => new[] { expression.Body.Type };
 
         private Expression GetExpressionArgument<TEntity>(EnumCallExpression @call, params string[] properties)
         {
@@ -155,7 +156,7 @@ namespace SubSonic.Infrastructure
             return result;
         }
 
-        private Expression GetComparisonExpression(Expression left, Expression right, EnumComparisonOperator @operator)
+        private static Expression GetComparisonExpression(Expression left, Expression right, EnumComparisonOperator @operator)
         {
             Expression result;
 

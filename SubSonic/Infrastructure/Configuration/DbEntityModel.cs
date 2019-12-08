@@ -7,6 +7,8 @@ namespace SubSonic.Infrastructure
 {
     public class DbEntityModel
     {
+        private IEnumerable<string> primaryKey;
+
         public DbEntityModel()
         {
             Properties = new List<DbEntityProperty>();
@@ -19,6 +21,15 @@ namespace SubSonic.Infrastructure
         public DbEntityProperty this[int index] => Properties.ElementAt(index);
 
         public Type EntityModelType { get; internal set; }
-        public string[] PrimaryKey { get; internal set; }
+
+        public IEnumerable<string> GetPrimaryKey()
+        {
+            return primaryKey;
+        }
+
+        internal void SetPrimaryKey(IEnumerable<string> value)
+        {
+            primaryKey = value;
+        }
     }
 }

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using System.Text;
-using Ext = SubSonic.Extensions;
+using Ext = SubSonic.SubSonicExtensions;
 
 namespace SubSonic.Infrastructure
 {
@@ -27,7 +27,7 @@ namespace SubSonic.Infrastructure
                 EntityModelType = entityModelType
             };
 
-            entity.PrimaryKey = Ext.GetPrimaryKeyName<TEntity>();
+            entity.SetPrimaryKey(Ext.GetPrimaryKeyName<TEntity>());
 
             foreach (PropertyInfo info in entityModelType.GetProperties())
             {

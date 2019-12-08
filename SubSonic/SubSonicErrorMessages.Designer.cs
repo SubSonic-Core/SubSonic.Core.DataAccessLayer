@@ -61,6 +61,15 @@ namespace SubSonic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type {0}is not registed with the db model..
+        /// </summary>
+        internal static string EntityTypeIsNotRegisteredException {
+            get {
+                return ResourceManager.GetString("EntityTypeIsNotRegisteredException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Supply the name of the containing method..
         /// </summary>
         internal static string MissingNameArgument {

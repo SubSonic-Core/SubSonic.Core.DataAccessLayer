@@ -27,7 +27,7 @@ namespace SubSonic.Infrastructure
         {
             return EntityModels
                 .SingleOrDefault(model => model.EntityModelType == entityModelType)
-                .IsNullThrow(new EntityNotRegisteredWithDbModel(entityModelType));
+                .IsNullThrow(new EntityNotRegisteredWithDbModelException(entityModelType));
         }
     }
 }

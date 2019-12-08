@@ -8,10 +8,15 @@ using System.Text;
 
 namespace SubSonic
 {
-    public static partial class Extensions
+    public static partial class SubSonicExtensions
     {
         public static string[] GetForeignKeyName(this PropertyInfo propertyInfo)
         {
+            if (propertyInfo is null)
+            {
+                throw new ArgumentNullException(nameof(propertyInfo));
+            }
+
             string[] result = propertyInfo
                                 .GetCustomAttributes<ForeignKeyAttribute>()
                                 .Select(attribute => attribute.Name)
@@ -34,6 +39,16 @@ namespace SubSonic
 
         public static TType GetValue<TType>(this PropertyInfo source, object value, object[] index = null)
         {
+            if (source is null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            if (value is null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             return (TType)source.GetValue(value, index);
         }
 

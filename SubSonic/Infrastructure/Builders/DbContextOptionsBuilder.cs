@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Text;
 
 namespace SubSonic.Infrastructure
@@ -21,6 +22,22 @@ namespace SubSonic.Infrastructure
         {
             options.EnableProxyGeneration = true;
         }
+
+        public static void RegisterDataProvider(string providerInvariantName, DbProviderFactory factory)
+        {
+            DbProviderFactories.RegisterFactory(providerInvariantName, factory);
+        }
+
+        public static void RegisterDataProvider(string providerInvariantName, Type factoryType)
+        {
+            DbProviderFactories.RegisterFactory(providerInvariantName, factoryType);
+        }
+
+        public static void RegisterDataProvider(string providerInvariantName, string factoryTypeAssembyQualifiedName)
+        {
+            DbProviderFactories.RegisterFactory(providerInvariantName, factoryTypeAssembyQualifiedName);
+        }
+
         public void SetServiceProvider(IServiceProvider provider)
         {
             if (!isDirtyServiceProvider)

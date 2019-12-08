@@ -5,12 +5,12 @@ using System.Text;
 
 namespace SubSonic.Infrastructure.Logging
 {
-    public class SubSonicLogger<CategoryName>
-        : ISubSonicLogger<CategoryName>
+    public class SubSonicLogger<TCategoryName>
+        : ISubSonicLogger<TCategoryName>
     {
-        private readonly ILogger<CategoryName> logger;
+        private readonly ILogger<TCategoryName> logger;
 
-        public SubSonicLogger(ILogger<CategoryName> logger)
+        public SubSonicLogger(ILogger<TCategoryName> logger)
         {
             this.logger = logger;
         }
@@ -32,9 +32,9 @@ namespace SubSonic.Infrastructure.Logging
             }
         }
 
-        public IPerformanceLogger<CategoryName> Start(string name)
+        public IPerformanceLogger<TCategoryName> Start(string name)
         {
-            return new SubSonicPerformanceLogger<CategoryName>(logger, name);
+            return new SubSonicPerformanceLogger<TCategoryName>(logger, name);
         }
     }
 }

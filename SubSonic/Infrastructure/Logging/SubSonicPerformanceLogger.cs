@@ -25,7 +25,7 @@ namespace SubSonic.Infrastructure.Logging
 
             this.logger = logger;// ?? throw new ArgumentNullException(nameof(logger));
             
-            Start(name);
+            StartClock(name);
         }
 
         public bool IsPerformanceLoggingEnabled => logger.IsNotNull() && logger.IsEnabled(LogLevel.Debug);
@@ -38,7 +38,7 @@ namespace SubSonic.Infrastructure.Logging
 
         public double TotalMinutes => (end - start).TotalMinutes;
 
-        public void Start(string name)
+        public void StartClock(string name)
         {
             this.name = name;
             this.start = DateTime.Now;
@@ -49,7 +49,7 @@ namespace SubSonic.Infrastructure.Logging
             }
         }
 
-        public void End()
+        public void EndClock()
         {
             this.end = DateTime.Now;
 
@@ -59,14 +59,14 @@ namespace SubSonic.Infrastructure.Logging
             }
         }
 
-        public async Task EndAsync()
+        public async Task EndClockAsync()
         {
             await DisposeAsync().ConfigureAwait(true);
         }
 
         public async Task DisposeAsync()
         {
-            End();
+            EndClock();
         }
 
         #region IDisposable Support

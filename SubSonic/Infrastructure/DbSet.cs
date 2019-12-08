@@ -73,15 +73,17 @@ namespace SubSonic.Infrastructure
         {
             DbExpressionBuilder builder = new DbExpressionBuilder(Expression.Parameter(ElementType, ElementType.Name.ToLower(CultureInfo.CurrentCulture)), (ConstantExpression)Expression);
 
-            for(int i = 0; i < model.PrimaryKey.Length; i++)
+            string[] keys = model.GetPrimaryKey().ToArray();
+
+            for (int i = 0; i < keys.Length; i++)
             {
-                builder.BuildComparisonExpression(model.PrimaryKey[i], keyData[i], EnumComparisonOperator.Equal, EnumGroupOperator.AndAlso);
+                builder.BuildComparisonExpression(keys[i], keyData[i], EnumComparisonOperator.Equal, EnumGroupOperator.AndAlso);
             }
 
             return Provider.CreateQuery<TEntity>(
                 builder
                     .CallExpression<TEntity>(EnumCallExpression.Where)
-                    .ForEachProperty(model.PrimaryKey, property => 
+                    .ForEachProperty(keys, property => 
                         builder.CallExpression<TEntity>(EnumCallExpression.OrderBy, property))
                     .ToMethodCallExpression());
         }
