@@ -31,17 +31,15 @@ namespace SubSonic.Infrastructure
 
             foreach (PropertyInfo info in entityModelType.GetProperties())
             {
-                if(info.GetMethod.IsVirtual)
-                {
-                    // really good possibility this is a navigation property and does not map to the database
-                    continue;
-                }
-
                 var column = info.GetCustomAttribute<ColumnAttribute>();
 
-                DbEntityProperty property = new DbEntityProperty(column.IsNotNull(col => col.Name, info.Name));
-
-                property.IsKey = info.GetCustomAttribute<KeyAttribute>().IsNotNull();
+                DbEntityProperty property = new DbEntityProperty(column.IsNotNull(col => col.Name, info.Name))
+                {
+                    RuntimeName = info.Name,
+                    Type = info.PropertyType,
+                    IsKey = info.GetCustomAttribute<KeyAttribute>().IsNotNull(),
+                    IsRequired = info.GetCustomAttribute<RequiredAttribute>().IsNotNull() || !info.PropertyType.IsNullableType()
+                };
 
                 entity.Properties.Add(property);
             }

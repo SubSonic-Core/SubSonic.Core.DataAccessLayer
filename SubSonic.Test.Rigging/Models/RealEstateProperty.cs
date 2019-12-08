@@ -21,6 +21,8 @@ namespace SubSonic.Test.Rigging.Models
         [ForeignKey(nameof(StatusID))]
         public virtual Status Status { get; set; }
 
+        public bool? HasParallelPowerGeneration { get; set; }
+
         public virtual ICollection<Unit> Units { get; set; }
     }
 }

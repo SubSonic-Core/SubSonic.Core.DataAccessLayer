@@ -9,7 +9,7 @@ namespace SubSonic
     {
         public static bool IsNullableType(this Type type)
         {
-            return type.IsGenericType && typeof(Nullable).IsAssignableFrom(type);
+            return (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>));
         }
 
         public static Type GetUnderlyingType(this Type type)
@@ -36,7 +36,7 @@ namespace SubSonic
             string result;
             if(type.IsGenericType)
             {
-                result = $"{type.Name}<{String.Join(',', type.GetGenericArguments().Select(t => t.Name))}>";
+                result = $"{type.Name}<{string.Join(',', type.GetGenericArguments().Select(t => t.Name))}>";
             }
             else
             {

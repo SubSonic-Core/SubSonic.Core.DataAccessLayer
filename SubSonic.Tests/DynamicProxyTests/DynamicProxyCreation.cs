@@ -26,7 +26,7 @@ namespace SubSonic.Tests.DynamicProxyTests
         [Test]
         public void CanBuildProxyForElegibleType()
         {
-            DynamicProxyWrapper proxyWrapper = DynamicProxy.GetProxyWrapper<RealEstateProperty>();
+            DynamicProxyWrapper proxyWrapper = DynamicProxy.GetProxyWrapper<RealEstateProperty>(dbContext);
 
             proxyWrapper.IsElegibleForProxy.Should().BeTrue();
             proxyWrapper.Type.Should().BeDerivedFrom<RealEstateProperty>();
@@ -39,7 +39,7 @@ namespace SubSonic.Tests.DynamicProxyTests
         [Test]
         public void WillNotBuildProxyForInElegibleType()
         {
-            DynamicProxyWrapper proxyWrapper = DynamicProxy.GetProxyWrapper<Status>();
+            DynamicProxyWrapper proxyWrapper = DynamicProxy.GetProxyWrapper<Status>(dbContext);
 
             proxyWrapper.IsElegibleForProxy.Should().BeFalse();
             proxyWrapper.Type.Should().BeNull();

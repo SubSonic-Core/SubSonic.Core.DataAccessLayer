@@ -8,10 +8,12 @@ namespace SubSonic.Data.DynamicProxies
     public class DynamicProxyWrapper
     {
         private readonly Type baseType;
+        private readonly DbContext dbContext;
 
-        internal DynamicProxyWrapper(Type baseType)
+        internal DynamicProxyWrapper(Type baseType, DbContext dbContext)
         {
             this.baseType = baseType ?? throw new ArgumentNullException(nameof(baseType));
+            this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
         public bool IsElegibleForProxy => baseType.GetProperties().Any(property => property.GetMethod.IsVirtual);
@@ -27,7 +29,7 @@ namespace SubSonic.Data.DynamicProxies
                     return null;
                 }
 
-                return proxyType ?? (proxyType = DynamicProxy.BuildDerivedTypeFrom(baseType));
+                return proxyType ?? (proxyType = DynamicProxy.BuildDerivedTypeFrom(baseType, dbContext));
             }
         }
     }

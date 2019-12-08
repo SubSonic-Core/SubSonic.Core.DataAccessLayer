@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SubSonic.Infrastructure;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,27 +14,31 @@ namespace SubSonic.Data.DynamicProxies
     {
         private readonly TypeBuilder typeBuilder;
         private readonly Type baseType;
+        private readonly DbContext dbContext;
 
         private FieldBuilder fieldDbContextAccessor;
 
-        public DynamicProxyBuilder(TypeBuilder typeBuilder, Type baseType)
+        public DynamicProxyBuilder(TypeBuilder typeBuilder, Type baseType, DbContext dbContext)
         {
             this.typeBuilder = typeBuilder ?? throw new ArgumentNullException(nameof(typeBuilder));
-            this.baseType = baseType;
+            this.baseType = baseType ?? throw new ArgumentNullException(nameof(baseType));
+            this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
         public Type CreateType()
         {
             BuildProxyConstructor();
 
-            foreach (PropertyInfo property in baseType.GetProperties())
-            {
-                if (!property.GetMethod.IsVirtual)
-                {
-                    continue;
-                }
+            DbEntityModel model = dbContext.Model.GetEntityModel(baseType);
 
-                BuildOverriddenProperty(property.Name, property.PropertyType);
+            foreach (DbEntityProperty property in model.Properties)
+            {
+                //PropertyInfo info = baseType.GetProperty(property.RuntimeName);
+
+                if (property.PropertyType == EnumDbEntityPropertyType.Navigation || property.PropertyType == EnumDbEntityPropertyType.Collection)
+                {
+                    BuildOverriddenProperty(property.RuntimeName, property.Type, property.PropertyType == EnumDbEntityPropertyType.Collection);
+                }
             }
 
             return typeBuilder.CreateType();
@@ -60,15 +65,13 @@ namespace SubSonic.Data.DynamicProxies
             iLGenerator.Emit(OpCodes.Ret);
         }
 
-        private void BuildOverriddenProperty(string propertyName, Type propertyType)
+        private void BuildOverriddenProperty(string propertyName, Type propertyType, bool isCollection)
         {
             PropertyBuilder propertyBuilder = typeBuilder.DefineProperty(
                     propertyName,
                     PropertyAttributes.None,
                     propertyType,
                     Type.EmptyTypes);
-
-            bool IsCollection = propertyType.IsGenericType && propertyType.GetProperty("Count").IsNotNull();
 
             MethodAttributes methodAttributesForGetAndSet = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual ;
 
@@ -84,7 +87,7 @@ namespace SubSonic.Data.DynamicProxies
 
             MethodInfo
                 load = fieldDbContextAccessor.FieldType
-                    .GetMethod(!IsCollection ? "LoadProperty" : "LoadCollection", BindingFlags.Public | BindingFlags.Instance)
+                    .GetMethod(!isCollection ? "LoadProperty" : "LoadCollection", BindingFlags.Public | BindingFlags.Instance)
                     .MakeGenericMethod(new[] { baseType }.Union(propertyType.BuildGenericArgumentTypes()).ToArray()),
                 set = fieldDbContextAccessor.FieldType
                     .GetMethod("SetForeignKeyProperty", BindingFlags.Public | BindingFlags.Instance)
@@ -109,7 +112,7 @@ namespace SubSonic.Data.DynamicProxies
                 propertyInfo = iLGetGenerator.DeclareLocal(typeof(PropertyInfo)),
                 count = null;
             #region getter
-            if (IsCollection)
+            if (isCollection)
             {
                 count = iLGetGenerator.DeclareLocal(typeof(int));
             }
@@ -123,7 +126,7 @@ namespace SubSonic.Data.DynamicProxies
             iLGetGenerator.Emit(OpCodes.Ldarg_0);                                                       // this
             iLGetGenerator.Emit(OpCodes.Call, getter);       // propertyField
             iLGetGenerator.EmitCall(OpCodes.Call, isNull, null);                                        // use the static extension method IsNull
-            if (!IsCollection)
+            if (!isCollection)
             {
                 iLGetGenerator.Emit(OpCodes.Brfalse_S, fieldIsNotNullOrForeignKeyIsDefault);                 // value is not null
 
@@ -139,7 +142,7 @@ namespace SubSonic.Data.DynamicProxies
                 iLGetGenerator.Emit(OpCodes.Brtrue_S, fieldIsNull); // value is null
             }
 
-            if (IsCollection)
+            if (isCollection)
             {
                 iLGetGenerator.Emit(OpCodes.Ldarg_0);
                 iLGetGenerator.Emit(OpCodes.Call, getter);
@@ -165,13 +168,13 @@ namespace SubSonic.Data.DynamicProxies
                 iLGetGenerator.Emit(OpCodes.Ldloc, propertyInfo);               // local variable propertyInfo as the second parameter
                 iLGetGenerator.EmitCall(OpCodes.Call, load, null);              // call the LoadProperty or LoadCollection on the DBContextAccessor object
                 iLGetGenerator.Emit(OpCodes.Call, setter);              // store the return in the propertyField
-                if (IsCollection)
+                if (isCollection)
                 {
                     iLGetGenerator.MarkLabel(fieldCountIsNotZero);
                 }
             }
             iLGetGenerator.EndScope();
-            if (!IsCollection)
+            if (!isCollection)
             {
                 iLGetGenerator.MarkLabel(fieldIsNotNullOrForeignKeyIsDefault);               // jump here when propertyField is not null
             }
@@ -188,7 +191,7 @@ namespace SubSonic.Data.DynamicProxies
             iLSetGenerator.Emit(OpCodes.Ldarg_1);
             iLSetGenerator.Emit(OpCodes.Call, baseType.GetProperty(propertyName).GetSetMethod());
 
-            if (!IsCollection)
+            if (!isCollection)
             {
                 iLSetGenerator.Emit(OpCodes.Ldarg_0);                                                                               // this
                 iLSetGenerator.EmitCall(OpCodes.Call, typeof(object).GetMethod("GetType"), null);                                   // call GetType method
