@@ -1,8 +1,19 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<Project Sdk="Microsoft.NET.Sdk">  
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>x64;x86;AnyCPU</Platforms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Platform)'=='x64'">
+    <DefineConstants>X64</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Platform)'=='x86'">
+    <DefineConstants>X86</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Platform)'=='AnyCPU'">
+    <DefineConstants>X86</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

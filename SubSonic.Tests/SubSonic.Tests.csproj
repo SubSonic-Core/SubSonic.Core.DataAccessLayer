@@ -3,8 +3,21 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <IsPackable>false</IsPackable>
     <LangVersion>latest</LangVersion>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>x64;x86;AnyCPU</Platforms>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Platform)'=='x64'">
+    <DefineConstants>X64</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Platform)'=='x86'">
+    <DefineConstants>X86</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Platform)'=='AnyCPU'">
+    <DefineConstants>X86</DefineConstants>
+  </PropertyGroup>
+  
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.9.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.0.1" />
@@ -14,7 +27,7 @@
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SubSonic.Test.Rigging\SubSonic.Test.Rigging.csproj" />
+    <ProjectReference Include="..\SubSonic.Test.Rigging\SubSonic.Extensions.Test.csproj" />
     <ProjectReference Include="..\SubSonic\SubSonic.csproj" />
   </ItemGroup>
 </Project>

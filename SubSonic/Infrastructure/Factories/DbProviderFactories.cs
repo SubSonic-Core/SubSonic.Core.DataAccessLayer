@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Reflection;
 using System.Text;
 
-
+#if X86
 namespace SubSonic.Infrastructure.Factories
 {
     public static class DbProviderFactories
@@ -52,6 +53,24 @@ namespace SubSonic.Infrastructure.Factories
             }
         }
 
+        public static void RegisterFactory(string providerInvariantName, string factoryTypeAssembyQualifiedName)
+        {
+            if (string.IsNullOrEmpty(providerInvariantName))
+            {
+                throw new ArgumentException("", nameof(providerInvariantName));
+            }
+
+            if (string.IsNullOrEmpty(factoryTypeAssembyQualifiedName))
+            {
+                throw new ArgumentException("", nameof(factoryTypeAssembyQualifiedName));
+            }
+
+            string assemblyTypeName = factoryTypeAssembyQualifiedName;
+            _ = Assembly.Load(assemblyTypeName.Substring(assemblyTypeName.IndexOf(',', StringComparison.InvariantCultureIgnoreCase) + 1));
+
+            RegisterFactory(providerInvariantName, Type.GetType(assemblyTypeName));
+        }
+
         /// <summary>
         /// Removes the provider factory registration for the given invariant name  
         /// </summary>
@@ -72,3 +91,4 @@ namespace SubSonic.Infrastructure.Factories
         public static IEnumerable<string> GetProviderInvariantNames() => ProviderFactories.Keys;
     }
 }
+#endif

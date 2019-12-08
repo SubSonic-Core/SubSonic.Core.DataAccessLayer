@@ -2,7 +2,7 @@
 using System.Data;
 using System.Data.Common;
 
-namespace SubSonic.Test.Rigging.MockDbProvider.Syntax
+namespace SubSonic.Extensions.Test.MockDbProvider.Syntax
 {
 
     public class MockCommandBehavior

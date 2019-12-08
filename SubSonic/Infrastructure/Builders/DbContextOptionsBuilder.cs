@@ -5,6 +5,10 @@ using System.Text;
 
 namespace SubSonic.Infrastructure
 {
+#if X86
+    using Factories;
+#endif
+
     public class DbContextOptionsBuilder
     {
         private readonly DbContext dbContext;

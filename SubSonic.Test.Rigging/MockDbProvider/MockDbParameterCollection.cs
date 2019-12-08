@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Data.Common;
 
-namespace SubSonic.Test.Rigging.MockDbProvider
+namespace SubSonic.Extensions.Test.MockDbProvider
 {
-    public class MockDbParameterCollection 
+    public class MockDbParameterCollection
         : DbParameterCollection
         , IList<MockDbParameter>
     {

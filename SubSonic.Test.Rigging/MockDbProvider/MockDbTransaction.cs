@@ -5,7 +5,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Text;
 
-namespace SubSonic.Test.Rigging.MockDbProvider
+namespace SubSonic.Extensions.Test.MockDbProvider
 {
     public class MockDbTransaction
         : DbTransaction

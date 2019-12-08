@@ -6,12 +6,13 @@ using System.Data.Common;
 using System.Data;
 using System.Collections;
 
-namespace SubSonic.Test.Rigging.MockDbProvider
+namespace SubSonic.Extensions.Test.MockDbProvider
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1010:Collections should implement generic interface", Justification = "<Pending>")]
     public class MockDbDataReaderCollection
         : DbDataReader
     {
-        DbDataReader inner;
+        private readonly DbDataReader inner;
         public MockDbDataReaderCollection(DbDataReader inner)
         {
             this.inner = inner;

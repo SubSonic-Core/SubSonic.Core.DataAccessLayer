@@ -5,7 +5,7 @@ using System.Text;
 using System.Data;
 using System.Data.Common;
 
-namespace SubSonic.Test.Rigging.MockDbProvider
+namespace SubSonic.Extensions.Test.MockDbProvider
 {
     using Syntax;
     using System.Globalization;
@@ -15,6 +15,7 @@ namespace SubSonic.Test.Rigging.MockDbProvider
         private List<MockCommandBehavior> behaviors;
 
         public MockDbProviderFactory()
+            : base()
         {
             behaviors = new List<MockCommandBehavior>();
         }

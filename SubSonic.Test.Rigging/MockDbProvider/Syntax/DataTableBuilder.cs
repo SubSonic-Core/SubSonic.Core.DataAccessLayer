@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Data;
 
-namespace SubSonic.Test.Rigging.MockDbProvider.Syntax
+namespace SubSonic.Extensions.Test.MockDbProvider.Syntax
 {
     public class DataTableBuilder : IDisposable
     {
