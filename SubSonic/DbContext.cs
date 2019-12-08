@@ -32,10 +32,10 @@ namespace SubSonic
 
         public DbModel Model { get; }
 
-        public DbSet<TEntity> Set<TEntity>()
+        public DbSetCollection<TEntity> Set<TEntity>()
             where TEntity : class
         {
-            return new DbSet<TEntity>(new SubSonicDbSetProvider<TEntity>(this, new Infrastructure.Logging.SubSonicLogger<DbSet<TEntity>>(null)));
+            return new DbSetCollection<TEntity>(new SubSonicDbSetCollectionProvider<TEntity>(this, new Infrastructure.Logging.SubSonicLogger<DbSetCollection<TEntity>>(null)));
         }
 
         protected virtual void OnDbConfiguring(DbContextOptionsBuilder builder)

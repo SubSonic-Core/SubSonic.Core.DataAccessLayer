@@ -8,14 +8,14 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Infrastructure
 {
-    public class DbSet<TEntity>
+    public class DbSetCollection<TEntity>
         : IQueryable<TEntity>, IEnumerable<TEntity>, IQueryable, IEnumerable, IListSource
     {
         private readonly IQueryProvider provider;
         private readonly DbEntityModel model;
         private readonly List<TEntity> queryableData;
         
-        public DbSet(ISubSonicQueryProvider provider)
+        public DbSetCollection(ISubSonicQueryProvider provider)
         {
             this.provider = provider ?? throw new ArgumentNullException(nameof(provider));
 
@@ -26,7 +26,7 @@ namespace SubSonic.Infrastructure
 
         protected DbContext DbContext => ((ISubSonicQueryProvider)provider).DbContext;
 
-        public DbSet(ISubSonicQueryProvider provider, Expression expression)
+        public DbSetCollection(ISubSonicQueryProvider provider, Expression expression)
             : this(provider)
         {
             this.Expression = expression ?? throw new ArgumentNullException(nameof(expression));

@@ -7,12 +7,12 @@ using System.Text;
 
 namespace SubSonic.Infrastructure.Providers
 {
-    public class SubSonicDbSetProvider<TEntity>
+    public class SubSonicDbSetCollectionProvider<TEntity>
         : ISubSonicQueryProvider
     {
-        private readonly ISubSonicLogger<DbSet<TEntity>> logger;
+        private readonly ISubSonicLogger<DbSetCollection<TEntity>> logger;
 
-        public SubSonicDbSetProvider(DbContext dbContext, ISubSonicLogger<DbSet<TEntity>> logger)
+        public SubSonicDbSetCollectionProvider(DbContext dbContext, ISubSonicLogger<DbSetCollection<TEntity>> logger)
         {
             this.DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -22,7 +22,7 @@ namespace SubSonic.Infrastructure.Providers
 
         public IQueryable CreateQuery(Expression expression)
         {
-            using (IPerformanceLogger<DbSet<TEntity>> performance = logger.Start(nameof(CreateQuery)))
+            using (IPerformanceLogger<DbSetCollection<TEntity>> performance = logger.Start(nameof(CreateQuery)))
             {
                 throw new NotImplementedException();
             }
@@ -30,15 +30,15 @@ namespace SubSonic.Infrastructure.Providers
 
         public virtual IQueryable<TElement> CreateQuery<TElement>(Expression expression)
         {
-            using (IPerformanceLogger<DbSet<TEntity>> performance = logger.Start($"{nameof(CreateQuery)}<{typeof(TElement).GetQualifiedTypeName()}>"))
+            using (IPerformanceLogger<DbSetCollection<TEntity>> performance = logger.Start($"{nameof(CreateQuery)}<{typeof(TElement).GetQualifiedTypeName()}>"))
             {
-                return new DbSet<TElement>(this, expression);
+                return new DbSetCollection<TElement>(this, expression);
             }
         }
 
         public object Execute(Expression expression)
         {
-            using (IPerformanceLogger<DbSet<TEntity>> performance = logger.Start(nameof(Execute)))
+            using (IPerformanceLogger<DbSetCollection<TEntity>> performance = logger.Start(nameof(Execute)))
             {
                 throw new NotImplementedException();
             }
@@ -46,7 +46,7 @@ namespace SubSonic.Infrastructure.Providers
 
         public virtual TResult Execute<TResult>(Expression expression)
         {
-            using (IPerformanceLogger<DbSet<TEntity>> performance = logger.Start($"{nameof(Execute)}<{typeof(TResult).GetQualifiedTypeName()}>"))
+            using (IPerformanceLogger<DbSetCollection<TEntity>> performance = logger.Start($"{nameof(Execute)}<{typeof(TResult).GetQualifiedTypeName()}>"))
             {
                 throw new NotImplementedException();
             }
