@@ -13,6 +13,9 @@ namespace SubSonic.Infrastructure
 #endif
     public class DbDatabase
     {
+        [ThreadStatic]
+        private static DbConnection dBSharedConnection;
+
         private readonly ISubSonicLogger<DbDatabase> logger;
         private readonly DbContext dbContext;
         private readonly DbProviderFactory dbProvider;
@@ -22,6 +25,46 @@ namespace SubSonic.Infrastructure
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             this.dbProvider = dbProviderFactory ?? throw new ArgumentNullException(nameof(dbProviderFactory));
+        }
+
+        internal DbConnection CurrentSharedConnection
+        {
+            get
+            {
+                return dBSharedConnection;
+            }
+            set
+            {
+                if (value == null)
+                {
+                    dBSharedConnection.Dispose();
+                    dBSharedConnection = null;
+                }
+                else
+                {
+                    dBSharedConnection = value;
+                    dBSharedConnection.Disposed += dBSharedConnection_Disposed;
+                }
+            }
+        }
+
+        private static void dBSharedConnection_Disposed(object sender, EventArgs e)
+        {
+            dBSharedConnection = null;
+        }
+
+        public DbConnection InitializeSharedConnection()
+        {
+            if (CurrentSharedConnection == null)
+                CurrentSharedConnection = dbProvider.CreateConnection();
+
+            return CurrentSharedConnection;
+        }
+
+        public void ResetSharedConnection()
+        {
+            CurrentSharedConnection.IsNotNull(Con => Con.Dispose());
+            CurrentSharedConnection = null;
         }
 
         internal TResult ExecuteQuery<TResult>(Expression expression)

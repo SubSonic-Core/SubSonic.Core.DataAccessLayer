@@ -41,6 +41,14 @@ namespace SubSonic
             return @default;
         }
 
+        public static void IsNotNull<TType>(this TType source, Action<TType> action)
+        {
+            if (IsNotNull(source))
+            {
+                action(source);
+            }
+        }
+
         public static TType IsNullThrow<TType>(this TType source, Exception exception)
         {
             if (IsNull(source))
