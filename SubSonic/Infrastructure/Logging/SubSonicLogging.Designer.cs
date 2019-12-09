@@ -22,14 +22,14 @@ namespace SubSonic.Infrastructure.Logging {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class SubSonicPerformanceLogging {
+    internal class SubSonicLogging {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal SubSonicPerformanceLogging() {
+        internal SubSonicLogging() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace SubSonic.Infrastructure.Logging {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SubSonic.Infrastructure.Logging.SubSonicPerformanceLogging", typeof(SubSonicPerformanceLogging).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SubSonic.Infrastructure.Logging.SubSonicLogging", typeof(SubSonicLogging).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -63,18 +63,27 @@ namespace SubSonic.Infrastructure.Logging {
         /// <summary>
         ///   Looks up a localized string similar to End Execution of {name} elapsed time: {seconds} seconds..
         /// </summary>
-        internal static string End {
+        internal static string PerformanceEnd {
             get {
-                return ResourceManager.GetString("End", resourceCulture);
+                return ResourceManager.GetString("PerformanceEnd", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Start Execution of {name} at {time}.
         /// </summary>
-        internal static string Start {
+        internal static string PerformanceStart {
             get {
-                return ResourceManager.GetString("Start", resourceCulture);
+                return ResourceManager.GetString("PerformanceStart", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {method}: {message}.
+        /// </summary>
+        internal static string Trace {
+            get {
+                return ResourceManager.GetString("Trace", resourceCulture);
             }
         }
     }

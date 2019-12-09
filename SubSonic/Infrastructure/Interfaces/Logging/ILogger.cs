@@ -8,6 +8,11 @@ namespace SubSonic.Infrastructure.Logging
     public interface ISubSonicLogger<out TCategoryName>
         : ILogger
     {
+
+        ILogger Write { get; }
+
         IPerformanceLogger<TCategoryName> Start(string name);
+
+        void Trace(string method, string message);
     }
 }

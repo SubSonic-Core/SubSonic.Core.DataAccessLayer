@@ -9,11 +9,16 @@ namespace SubSonic.Infrastructure.Logging
         : ISubSonicLogger<TCategoryName>
     {
         private readonly ILogger logger;
+        private readonly ITraceLogger<TCategoryName> trace;
 
         public SubSonicLogger(ILogger<TCategoryName> logger)
         {
             this.logger = logger;
+            this.trace = new SubSonicTraceLogger<TCategoryName>(logger);
         }
+
+        public ILogger Write => this.logger;
+
         public IDisposable BeginScope<TState>(TState state)
         {
             return logger.BeginScope(state);
@@ -35,6 +40,11 @@ namespace SubSonic.Infrastructure.Logging
         public IPerformanceLogger<TCategoryName> Start(string name)
         {
             return new SubSonicPerformanceLogger<TCategoryName>(logger, name);
+        }
+
+        public void Trace(string method, string message)
+        {
+            trace.WriteTrace(method, message);
         }
     }
 }

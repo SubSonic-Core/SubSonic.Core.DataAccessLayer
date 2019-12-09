@@ -29,10 +29,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Infrastructure\Logging\SubSonicPerformanceLogging.Designer.cs">
+    <Compile Update="Infrastructure\Logging\SubSonicLogging.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
-      <DependentUpon>SubSonicPerformanceLogging.resx</DependentUpon>
+      <DependentUpon>SubSonicLogging.resx</DependentUpon>
     </Compile>
     <Compile Update="SubSonicErrorMessages.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -42,9 +42,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="Infrastructure\Logging\SubSonicPerformanceLogging.resx">
+    <EmbeddedResource Update="Infrastructure\Logging\SubSonicLogging.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>SubSonicPerformanceLogging.Designer.cs</LastGenOutput>
+      <LastGenOutput>SubSonicLogging.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Update="SubSonicErrorMessages.resx">
       <Generator>ResXFileCodeGenerator</Generator>

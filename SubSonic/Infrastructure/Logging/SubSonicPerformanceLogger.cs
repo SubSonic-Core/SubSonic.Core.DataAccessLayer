@@ -45,7 +45,7 @@ namespace SubSonic.Infrastructure.Logging
 
             if (IsPerformanceLoggingEnabled)
             {
-                logger.LogDebug(SubSonicPerformanceLogging.Start, NameOfScope, start);
+                logger.LogDebug(SubSonicLogging.PerformanceStart, NameOfScope, start);
             }
         }
 
@@ -55,7 +55,7 @@ namespace SubSonic.Infrastructure.Logging
 
             if (IsPerformanceLoggingEnabled)
             {
-                logger.LogDebug(SubSonicPerformanceLogging.End, NameOfScope, TotalSeconds);
+                logger.LogDebug(SubSonicLogging.PerformanceEnd, NameOfScope, TotalSeconds);
             }
         }
 
