@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SubSonic", "SubSonic.csproj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SubSonic.Tests", "..\SubSonic.Tests\SubSonic.Tests.csproj", "{A5DFA965-3513-4C9F-A55D-0D982257CD2E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SubSonic.Extensions.Test", "..\SubSonic.Test.Rigging\SubSonic.Extensions.Test.csproj", "{CE231745-A4BD-494D-8BAE-C50B1F54629D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SubSonic.Extensions.Test", "..\SubSonic.Extensions.Test\SubSonic.Extensions.Test.csproj", "{CE231745-A4BD-494D-8BAE-C50B1F54629D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{42C3BF85-EC35-404A-B25B-D77C8C43D1CD}"
 	ProjectSection(SolutionItems) = preProject
