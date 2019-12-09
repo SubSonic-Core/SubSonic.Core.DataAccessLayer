@@ -61,7 +61,7 @@ namespace SubSonic.Infrastructure.Logging {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to End Execution of {name} at {time} elapsed time: {milliseconds} ms.
+        ///   Looks up a localized string similar to End Execution of {name} elapsed time: {seconds} seconds..
         /// </summary>
         internal static string End {
             get {

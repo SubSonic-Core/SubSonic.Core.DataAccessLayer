@@ -13,10 +13,10 @@ namespace SubSonic.Infrastructure.Logging
     {
         private DateTime start;
         private DateTime end;
-        private readonly ILogger<TCategoryName> logger;
+        private readonly ILogger logger;
         private string name;
 
-        public SubSonicPerformanceLogger(ILogger<TCategoryName> logger, string name)
+        public SubSonicPerformanceLogger(ILogger logger, string name)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -55,7 +55,7 @@ namespace SubSonic.Infrastructure.Logging
 
             if (IsPerformanceLoggingEnabled)
             {
-                logger.LogDebug(SubSonicPerformanceLogging.End, NameOfScope, end, TotalMilliseconds);
+                logger.LogDebug(SubSonicPerformanceLogging.End, NameOfScope, TotalSeconds);
             }
         }
 

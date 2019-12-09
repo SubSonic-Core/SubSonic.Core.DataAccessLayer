@@ -4,45 +4,50 @@ using SubSonic.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using System.Text;
 
 namespace SubSonic.Extensions.Test
 {
     public static partial class SubSonicExtensions
     {
-        public static DbContextOptionsBuilder ConfigureServiceCollection(this DbContextOptionsBuilder builder)
+        public static DbContextOptionsBuilder ConfigureServiceCollection(this DbContextOptionsBuilder builder, IServiceCollection services = null)
         {
             if (builder is null)
             {
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            SubSonicRigging.Services = new ServiceCollection();
+            SubSonicRigging.Services = services ?? new ServiceCollection();
 
-            SubSonicRigging.Services
-                .AddLogging()
-                .AddSingleton(SubSonicRigging.Services);
+            if (!SubSonicRigging.Services.Any(service => service.ServiceType == typeof(IServiceCollection)))
+            {
+                SubSonicRigging.Services
+                    .AddSingleton<IServiceCollection, ServiceCollection>(provider => (ServiceCollection)SubSonicRigging.Services);
+            }
 
             builder.SetServiceProvider(SubSonicRigging.Services.BuildServiceProvider());
 
             return builder;
         }
 
-        public static DbContextOptionsBuilder UseLoggingProvider(this DbContextOptionsBuilder builder, ILoggerProvider provider)
+        public static DbContextOptionsBuilder AddLogging(this DbContextOptionsBuilder builder, Action<ILoggingBuilder> configure)
         {
             if (builder is null)
             {
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            if (provider is null)
+            if (configure is null)
             {
-                throw new ArgumentNullException(nameof(provider));
+                throw new ArgumentNullException(nameof(configure));
             }
 
-            ILoggerFactory loggerFactory = builder.ServiceProvider.GetService<ILoggerFactory>();
+            IServiceCollection services = builder.ServiceProvider.GetService<IServiceCollection>();
 
-            loggerFactory.AddProvider(provider);
+            services.AddLogging(configure);
+
+            builder.ConfigureServiceCollection(services);
 
             return builder;
         }

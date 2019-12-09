@@ -8,9 +8,9 @@ namespace SubSonic.Infrastructure.Logging
     class SubSonicLogger<TCategoryName>
         : ISubSonicLogger<TCategoryName>
     {
-        private readonly ILogger<TCategoryName> logger;
+        private readonly ILogger logger;
 
-        public SubSonicLogger(ILogger<TCategoryName> logger)
+        public SubSonicLogger(ILogger logger)
         {
             this.logger = logger;
         }

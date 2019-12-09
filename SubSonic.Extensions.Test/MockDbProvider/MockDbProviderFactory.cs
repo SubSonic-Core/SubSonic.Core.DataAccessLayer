@@ -14,7 +14,7 @@ namespace SubSonic.Extensions.Test.MockDbProvider
     {
         private List<MockCommandBehavior> behaviors;
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2211:Non-constant fields should not be visible", Justification = "<Pending>")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2211:Non-constant fields should not be visible", Justification = "ProviderFactory Pattern")]
         public static MockDbProviderFactory Instance = new MockDbProviderFactory();
 
         public MockDbProviderFactory()

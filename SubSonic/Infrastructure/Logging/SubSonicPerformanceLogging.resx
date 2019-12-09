@@ -118,7 +118,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="End" xml:space="preserve">
-    <value>End Execution of {name} at {time} elapsed time: {milliseconds} ms</value>
+    <value>End Execution of {name} elapsed time: {seconds} seconds.</value>
   </data>
   <data name="Start" xml:space="preserve">
     <value>Start Execution of {name} at {time}</value>

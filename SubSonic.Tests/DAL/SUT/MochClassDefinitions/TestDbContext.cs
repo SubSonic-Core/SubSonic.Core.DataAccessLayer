@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using SubSonic.Extensions.Test;
 using SubSonic.Extensions.Test.Models;
@@ -25,7 +26,7 @@ namespace SubSonic.Tests.DAL.SUT
 
             builder
                 .ConfigureServiceCollection()
-                .UseLoggingProvider(new NUnitLoggerProvider())
+                .AddLogging((config) => config.AddNUnitLogger<TestDbContext>(LogLevel.Debug))
                 .UseMockDbProviderFactory()
                 .EnableProxyGeneration();
         }

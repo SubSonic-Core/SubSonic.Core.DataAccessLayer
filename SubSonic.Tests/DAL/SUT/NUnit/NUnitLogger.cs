@@ -6,9 +6,16 @@ using System.Text;
 
 namespace SubSonic.Tests.DAL.SUT.NUnit
 {
-    public class NUnitLogger
+    public class NUnitLogger<TClassName>
         : ILogger
     {
+        private readonly LogLevel logLevel;
+
+        public NUnitLogger(LogLevel logLevel)
+        {
+            this.logLevel = logLevel;
+        }
+
         public IDisposable BeginScope<TState>(TState state)
         {
             return null;
@@ -16,7 +23,7 @@ namespace SubSonic.Tests.DAL.SUT.NUnit
 
         public bool IsEnabled(LogLevel logLevel)
         {
-            return true;
+            return logLevel >= this.logLevel;
         }
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
