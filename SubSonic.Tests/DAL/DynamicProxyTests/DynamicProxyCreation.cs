@@ -9,17 +9,12 @@ using System.Data.Common;
 
 namespace SubSonic.Tests.DAL.DynamicProxyTests
 {
+    using SUT;
+
     [TestFixture]
-    public class DynamicProxyCreation
-    {
-        DbContext DbContext { get => SetUpSubSonic.DbContext; }
-
-        [SetUp]
-        public void SetupTestFixture()
-        {
-            DbContext.Instance.GetService<DbProviderFactory, MockDbProviderFactory>().ClearBehaviors();
-        }
-
+    public partial class DynamicProxyTests
+        : BaseTestFixture
+    { 
         [Test]
         public void CanBuildProxyForElegibleType()
         {

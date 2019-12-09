@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Microsoft.Extensions.Logging;
-using NUnit.Framework;
+﻿using Microsoft.Extensions.Logging;
 using SubSonic.Extensions.Test;
-using SubSonic.Extensions.Test.Models;
 using SubSonic.Infrastructure;
 using SubSonic.Tests.DAL.SUT.NUnit;
 using Models = SubSonic.Extensions.Test.Models;
@@ -20,6 +15,12 @@ namespace SubSonic.Tests.DAL.SUT
 
         }
 
+        public DbSetCollection<Models.RealEstateProperty> RealEstateProperties { get; private set; }
+
+        public DbSetCollection<Models.Status> Statuses { get; private set; }
+
+        public DbSetCollection<Models.Unit> Units { get; private set; }
+
         protected override void OnDbConfiguring(DbContextOptionsBuilder builder)
         {
             base.OnDbConfiguring(builder);
@@ -34,9 +35,9 @@ namespace SubSonic.Tests.DAL.SUT
         protected override void OnDbModeling(DbModelBuilder builder)
         {
             builder
-                .AddEntityModel<RealEstateProperty>()
-                .AddEntityModel<Status>()
-                .AddEntityModel<Unit>();
+                .AddEntityModel<Models.RealEstateProperty>()
+                .AddEntityModel<Models.Status>()
+                .AddEntityModel<Models.Unit>();
         }
     }
 }

@@ -5,6 +5,7 @@ using SubSonic.Infrastructure.Logging;
 using SubSonic.Infrastructure.Providers;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -31,6 +32,8 @@ namespace SubSonic
             ConfigureSubSonic(new DbContextOptionsBuilder(this, Options));
             
             OnDbModeling(new DbModelBuilder(Model));
+
+            SetDbSetCollections();
         }
 
         public DbContextOptions Options { get; }
@@ -43,6 +46,19 @@ namespace SubSonic
             where TEntity : class
         {
             return Instance.GetService<DbSetCollection<TEntity>>();
+        }
+
+        private void SetDbSetCollections()
+        {
+            foreach(PropertyInfo info in GetType().GetProperties())
+            {
+                if(!info.PropertyType.IsGenericType || info.PropertyType.GetGenericTypeDefinition() != typeof(DbSetCollection<>))
+                {
+                    continue;
+                }
+
+                info.SetValue(this, Instance.GetService(info.PropertyType), null);
+            }
         }
 
         private void ConfigureSubSonic(DbContextOptionsBuilder builder)

@@ -7,7 +7,8 @@ namespace SubSonic.Tests.DAL
     [SetUpFixture]
     public class SetUpSubSonic
     {
-        public static DbContext DbContext { get; private set; }
+        public static TestDbContext DbContext { get; private set; }
+
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
