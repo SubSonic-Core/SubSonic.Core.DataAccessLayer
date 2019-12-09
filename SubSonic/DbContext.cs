@@ -42,7 +42,7 @@ namespace SubSonic
         public DbSetCollection<TEntity> Set<TEntity>()
             where TEntity : class
         {
-            return new DbSetCollection<TEntity>(new SubSonicDbSetCollectionProvider<TEntity>(this, new SubSonicLogger<DbSetCollection<TEntity>>(Instance.GetService<ILogger<TEntity>>())));
+            return Instance.GetService<DbSetCollection<TEntity>>();
         }
 
         private void ConfigureSubSonic(DbContextOptionsBuilder builder)
@@ -54,7 +54,11 @@ namespace SubSonic
             if (services.IsNotNull())
             {
                 services.AddSingleton(this);
-                
+
+                services.AddScoped(typeof(ISubSonicLogger<>), typeof(SubSonicLogger<>));
+                services.AddScoped(typeof(ISubSonicDbSetCollectionProvider<>), typeof(SubSonicDbSetCollectionProvider<>));
+                services.AddScoped(typeof(DbSetCollection<>));
+
                 Instance = services.BuildServiceProvider();
             }
         }

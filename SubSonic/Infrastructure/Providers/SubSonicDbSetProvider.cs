@@ -8,7 +8,7 @@ using System.Text;
 namespace SubSonic.Infrastructure.Providers
 {
     public class SubSonicDbSetCollectionProvider<TEntity>
-        : ISubSonicQueryProvider
+        : ISubSonicDbSetCollectionProvider<TEntity>
     {
         private readonly ISubSonicLogger<DbSetCollection<TEntity>> logger;
 
@@ -32,7 +32,7 @@ namespace SubSonic.Infrastructure.Providers
         {
             using (IPerformanceLogger<DbSetCollection<TEntity>> performance = logger.Start($"{nameof(CreateQuery)}<{typeof(TElement).GetQualifiedTypeName()}>"))
             {
-                return new DbSetCollection<TElement>(this, expression);
+                return new DbSetCollection<TElement>((ISubSonicDbSetCollectionProvider<TElement>)this, (Expression)expression);
             }
         }
 

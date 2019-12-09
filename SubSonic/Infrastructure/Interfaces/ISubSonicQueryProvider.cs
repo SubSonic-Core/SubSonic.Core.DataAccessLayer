@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SubSonic.Infrastructure
 {
-    public interface ISubSonicQueryProvider
+    public interface ISubSonicDbSetCollectionProvider<out TEntity>
         : IQueryProvider
     {
         DbContext DbContext { get; }

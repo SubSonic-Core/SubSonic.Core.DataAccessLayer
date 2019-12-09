@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace SubSonic.Infrastructure.Logging
 {
     public interface IPerformanceLogger<out TCategoryName>
-        : IDisposableAsync
+        : IDisposable
     {
         bool IsPerformanceLoggingEnabled { get; }
         double TotalMilliseconds { get; }
@@ -16,10 +16,5 @@ namespace SubSonic.Infrastructure.Logging
 
         void StartClock(string name);
         void EndClock();
-        /// <summary>
-        /// Sets the End Date for the performance logger
-        /// </summary>
-        /// <returns></returns>
-        Task EndClockAsync();
     }
 }

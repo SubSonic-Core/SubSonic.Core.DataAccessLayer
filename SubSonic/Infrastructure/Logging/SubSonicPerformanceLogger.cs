@@ -9,7 +9,7 @@ namespace SubSonic.Infrastructure.Logging
 {
     public class SubSonicPerformanceLogger<TCategoryName>
         : IPerformanceLogger<TCategoryName>
-        , IDisposableAsync
+        , IDisposable
     {
         private DateTime start;
         private DateTime end;
@@ -59,15 +59,15 @@ namespace SubSonic.Infrastructure.Logging
             }
         }
 
-        public async Task EndClockAsync()
-        {
-            await DisposeAsync().ConfigureAwait(true);
-        }
+        //public async Task EndClockAsync()
+        //{
+        //    EndClock();
+        //}
 
-        public async Task DisposeAsync()
-        {
-            EndClock();
-        }
+        //public async Task DisposeAsync()
+        //{
+        //    await EndClockAsync().ConfigureAwait(true);
+        //}
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
@@ -78,7 +78,8 @@ namespace SubSonic.Infrastructure.Logging
             {
                 if (disposing)
                 {
-                    Task.Factory.StartNew(async () => await DisposeAsync().ConfigureAwait(true), default(CancellationToken), TaskCreationOptions.AttachedToParent, TaskScheduler.Default);
+                    EndClock();
+                    //Task.Factory.StartNew(async () => await DisposeAsync().ConfigureAwait(true), default(CancellationToken), TaskCreationOptions.AttachedToParent, TaskScheduler.Default);
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.

@@ -15,7 +15,7 @@ namespace SubSonic.Infrastructure
         private readonly DbEntityModel model;
         private readonly List<TEntity> queryableData;
         
-        public DbSetCollection(ISubSonicQueryProvider provider)
+        public DbSetCollection(ISubSonicDbSetCollectionProvider<TEntity> provider)
         {
             this.provider = provider ?? throw new ArgumentNullException(nameof(provider));
 
@@ -24,9 +24,9 @@ namespace SubSonic.Infrastructure
             this.model = DbContext.Model.GetEntityModel<TEntity>();
         }
 
-        protected DbContext DbContext => ((ISubSonicQueryProvider)provider).DbContext;
+        protected DbContext DbContext => ((ISubSonicDbSetCollectionProvider<TEntity>)provider).DbContext;
 
-        public DbSetCollection(ISubSonicQueryProvider provider, Expression expression)
+        public DbSetCollection(ISubSonicDbSetCollectionProvider<TEntity> provider, Expression expression)
             : this(provider)
         {
             this.Expression = expression ?? throw new ArgumentNullException(nameof(expression));

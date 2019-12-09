@@ -10,7 +10,7 @@ namespace SubSonic.Infrastructure.Logging
     {
         private readonly ILogger logger;
 
-        public SubSonicLogger(ILogger logger)
+        public SubSonicLogger(ILogger<TCategoryName> logger)
         {
             this.logger = logger;
         }
