@@ -14,6 +14,9 @@ namespace SubSonic.Extensions.Test.MockDbProvider
     {
         private List<MockCommandBehavior> behaviors;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2211:Non-constant fields should not be visible", Justification = "<Pending>")]
+        public static MockDbProviderFactory Instance = new MockDbProviderFactory();
+
         public MockDbProviderFactory()
             : base()
         {
@@ -47,6 +50,11 @@ namespace SubSonic.Extensions.Test.MockDbProvider
         public override DbConnectionStringBuilder CreateConnectionStringBuilder()
         {
             return new MockDbConnectionStringBuilderDictionary();
+        }
+
+        public override DbDataSourceEnumerator CreateDataSourceEnumerator()
+        {
+            return base.CreateDataSourceEnumerator();
         }
 
         public override bool CanCreateDataSourceEnumerator

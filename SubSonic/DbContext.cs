@@ -6,6 +6,7 @@ using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Text;
 
+[assembly: InternalsVisibleTo("SubSonic.Exensions.Test", AllInternalsVisible = true)]
 [assembly: InternalsVisibleTo("SubSonic.Tests", AllInternalsVisible = true)]
 [assembly: NeutralResourcesLanguage("en")]
 
@@ -25,12 +26,17 @@ namespace SubSonic
         private void Initialize()
         {
             OnDbConfiguring(new DbContextOptionsBuilder(this, Options));
+
+
+
             OnDbModeling(new DbModelBuilder(Model));
         }
 
         public DbContextOptions Options { get; }
 
         public DbModel Model { get; }
+
+        
 
         public DbSetCollection<TEntity> Set<TEntity>()
             where TEntity : class

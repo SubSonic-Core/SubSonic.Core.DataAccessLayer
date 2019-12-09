@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using SubSonic.Extensions.Test;
 using SubSonic.Infrastructure;
 using Models = SubSonic.Test.Rigging.Models;
 
@@ -17,7 +18,11 @@ namespace SubSonic.Tests
 
         protected override void OnDbConfiguring(DbContextOptionsBuilder builder)
         {
+            base.OnDbConfiguring(builder);
+
             builder
+                .ConfigureServiceCollection()
+                .UseMockDbProviderFactory()
                 .EnableProxyGeneration();
         }
 

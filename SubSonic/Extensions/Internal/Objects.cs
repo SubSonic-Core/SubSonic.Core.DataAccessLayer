@@ -17,7 +17,17 @@ namespace SubSonic
             return source == null;
         }
 
+        public static bool IsNull<TType>(this TType source)
+        {
+            return source == null;
+        }
+
         public static bool IsNotNull(this object source)
+        {
+            return !IsNull(source);
+        }
+
+        public static bool IsNotNull<TType>(this TType source)
         {
             return !IsNull(source);
         }
