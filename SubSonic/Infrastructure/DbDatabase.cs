@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace SubSonic.Infrastructure
@@ -12,13 +14,22 @@ namespace SubSonic.Infrastructure
     public class DbDatabase
     {
         private readonly ISubSonicLogger<DbDatabase> logger;
+        private readonly DbContext dbContext;
+        private readonly DbProviderFactory dbProvider;
 
-        public DbDatabase(DbProviderFactory dbProviderFactory, ISubSonicLogger<DbDatabase> logger)
+        public DbDatabase(ISubSonicLogger<DbDatabase> logger, DbContext dbContext, DbProviderFactory dbProviderFactory)
         {
-            DbProviderFactory = dbProviderFactory ?? throw new ArgumentNullException(nameof(dbProviderFactory));
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            this.dbProvider = dbProviderFactory ?? throw new ArgumentNullException(nameof(dbProviderFactory));
         }
 
-        public DbProviderFactory DbProviderFactory { get; }
+        internal TResult ExecuteQuery<TResult>(Expression expression)
+        {
+            using (IPerformanceLogger<DbDatabase> performance = logger.Start($"{nameof(ExecuteQuery)}<{typeof(TResult).GetQualifiedTypeName()}>"))
+            {
+                throw new NotImplementedException();
+            }
+        }
     }
 }

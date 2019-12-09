@@ -37,7 +37,7 @@ namespace SubSonic
 
         public DbModel Model { get; }
 
-        
+        public DbDatabase Database => Instance.GetService<DbDatabase>();
 
         public DbSetCollection<TEntity> Set<TEntity>()
             where TEntity : class
@@ -58,8 +58,13 @@ namespace SubSonic
                 services.AddScoped(typeof(ISubSonicLogger<>), typeof(SubSonicLogger<>));
                 services.AddScoped(typeof(ISubSonicDbSetCollectionProvider<>), typeof(SubSonicDbSetCollectionProvider<>));
                 services.AddScoped(typeof(DbSetCollection<>));
+                services.AddScoped<DbDatabase>();
 
                 Instance = services.BuildServiceProvider();
+            }
+            else
+            {
+                throw new MissingServiceCollectionException();
             }
         }
 

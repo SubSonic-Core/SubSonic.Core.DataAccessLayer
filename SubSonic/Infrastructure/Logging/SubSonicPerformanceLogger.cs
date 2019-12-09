@@ -20,7 +20,7 @@ namespace SubSonic.Infrastructure.Logging
         {
             if (string.IsNullOrEmpty(name))
             {
-                throw new ArgumentException(SubSonicErrorMessages.MissingNameArgument, nameof(name));
+                throw new ArgumentException(SubSonicErrorMessages.MissingNameArgumentException, nameof(name));
             }
 
             this.logger = logger;// ?? throw new ArgumentNullException(nameof(logger));

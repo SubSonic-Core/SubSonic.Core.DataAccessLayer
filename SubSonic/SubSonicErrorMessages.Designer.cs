@@ -81,9 +81,18 @@ namespace SubSonic {
         /// <summary>
         ///   Looks up a localized string similar to Supply the name of the containing method..
         /// </summary>
-        internal static string MissingNameArgument {
+        internal static string MissingNameArgumentException {
             get {
-                return ResourceManager.GetString("MissingNameArgument", resourceCulture);
+                return ResourceManager.GetString("MissingNameArgumentException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to IServiceCollection is not found in the IOC container..
+        /// </summary>
+        internal static string MissingServiceCollectionException {
+            get {
+                return ResourceManager.GetString("MissingServiceCollectionException", resourceCulture);
             }
         }
     }

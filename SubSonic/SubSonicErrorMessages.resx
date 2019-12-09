@@ -123,7 +123,10 @@
   <data name="EntityTypeIsNotRegisteredException" xml:space="preserve">
     <value>Type {0}is not registed with the db model.</value>
   </data>
-  <data name="MissingNameArgument" xml:space="preserve">
+  <data name="MissingNameArgumentException" xml:space="preserve">
     <value>Supply the name of the containing method.</value>
+  </data>
+  <data name="MissingServiceCollectionException" xml:space="preserve">
+    <value>IServiceCollection is not found in the IOC container.</value>
   </data>
 </root>

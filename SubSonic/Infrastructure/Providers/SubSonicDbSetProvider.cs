@@ -48,7 +48,7 @@ namespace SubSonic.Infrastructure.Providers
         {
             using (IPerformanceLogger<DbSetCollection<TEntity>> performance = logger.Start($"{nameof(Execute)}<{typeof(TResult).GetQualifiedTypeName()}>"))
             {
-                throw new NotImplementedException();
+                return DbContext.Database.ExecuteQuery<TResult>(expression);
             }
         }
     }
