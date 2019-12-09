@@ -1,4 +1,7 @@
-﻿using SubSonic.Infrastructure;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using SubSonic.Infrastructure;
+using SubSonic.Infrastructure.Logging;
 using SubSonic.Infrastructure.Providers;
 using System;
 using System.Collections.Generic;
@@ -25,10 +28,8 @@ namespace SubSonic
 
         private void Initialize()
         {
-            OnDbConfiguring(new DbContextOptionsBuilder(this, Options));
-
-
-
+            ConfigureSubSonic(new DbContextOptionsBuilder(this, Options));
+            
             OnDbModeling(new DbModelBuilder(Model));
         }
 
@@ -41,7 +42,26 @@ namespace SubSonic
         public DbSetCollection<TEntity> Set<TEntity>()
             where TEntity : class
         {
-            return new DbSetCollection<TEntity>(new SubSonicDbSetCollectionProvider<TEntity>(this, new Infrastructure.Logging.SubSonicLogger<DbSetCollection<TEntity>>(null)));
+            return new DbSetCollection<TEntity>(new SubSonicDbSetCollectionProvider<TEntity>(this, new SubSonicLogger<DbSetCollection<TEntity>>(Instance.GetService<ILogger<DbSetCollection<TEntity>>>())));
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "<Pending>")]
+        private void ConfigureSubSonic(DbContextOptionsBuilder builder)
+        {
+            OnDbConfiguring(builder);
+
+            IServiceCollection services = Instance.GetService<IServiceCollection>();
+
+            if (services.IsNotNull())
+            {
+                services.AddSingleton(this);
+                
+                Instance = services.BuildServiceProvider();
+            }
+
+            ILoggerFactory loggerFactory = Instance.GetService<ILoggerFactory>();
+
+            loggerFactory.AddProvider(new SubSonicLoggerProvider(Instance));
         }
 
         protected virtual void OnDbConfiguring(DbContextOptionsBuilder builder)

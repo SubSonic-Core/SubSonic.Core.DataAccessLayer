@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SubSonic.Test.Rigging.Models
+namespace SubSonic.Extensions.Test.Models
 {
     public class Unit
     {

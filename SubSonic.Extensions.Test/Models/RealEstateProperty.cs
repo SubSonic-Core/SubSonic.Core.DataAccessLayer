@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
-namespace SubSonic.Test.Rigging.Models
+namespace SubSonic.Extensions.Test.Models
 {
     public class RealEstateProperty
     {
@@ -23,6 +23,8 @@ namespace SubSonic.Test.Rigging.Models
 
         public bool? HasParallelPowerGeneration { get; set; }
 
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2227:Collection properties should be read only", Justification = "<Pending>")]
         public virtual ICollection<Unit> Units { get; set; }
     }
 }

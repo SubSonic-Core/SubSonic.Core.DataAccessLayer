@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SubSonic.Infrastructure.Logging
 {
-    public class SubSonicLogger<TCategoryName>
+    class SubSonicLogger<TCategoryName>
         : ISubSonicLogger<TCategoryName>
     {
         private readonly ILogger<TCategoryName> logger;
@@ -28,7 +28,7 @@ namespace SubSonic.Infrastructure.Logging
         {
             if (IsEnabled(logLevel))
             {
-                logger.Log<TState>(logLevel, eventId, state, exception, formatter);
+                logger.Log(logLevel, eventId, state, exception, formatter);
             }
         }
 

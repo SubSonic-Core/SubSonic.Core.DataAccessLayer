@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SubSonic.Infrastructure;
 using System;
 using System.Collections.Generic;
@@ -18,9 +19,30 @@ namespace SubSonic.Extensions.Test
 
             SubSonicRigging.Services = new ServiceCollection();
 
-            SubSonicRigging.Services.AddSingleton(SubSonicRigging.Services);
+            SubSonicRigging.Services
+                .AddLogging()
+                .AddSingleton(SubSonicRigging.Services);
 
             builder.SetServiceProvider(SubSonicRigging.Services.BuildServiceProvider());
+
+            return builder;
+        }
+
+        public static DbContextOptionsBuilder UseLoggingProvider(this DbContextOptionsBuilder builder, ILoggerProvider provider)
+        {
+            if (builder is null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (provider is null)
+            {
+                throw new ArgumentNullException(nameof(provider));
+            }
+
+            ILoggerFactory loggerFactory = builder.ServiceProvider.GetService<ILoggerFactory>();
+
+            loggerFactory.AddProvider(provider);
 
             return builder;
         }

@@ -25,6 +25,16 @@ namespace SubSonic.Data.DynamicProxies
             where TEntity : class
             where TProperty : class
         {
+            if (entity is null)
+            {
+                throw new ArgumentNullException(nameof(entity));
+            }
+
+            if (info is null)
+            {
+                throw new ArgumentNullException(nameof(info));
+            }
+
             string[] keys = Ext.GetForeignKeyName(info);
             object[] keyData = GetKeyData(entity, keys);
 
@@ -32,7 +42,18 @@ namespace SubSonic.Data.DynamicProxies
         }
 
         public bool IsForeignKeyPropertySetToDefaultValue<TEntity>(TEntity entity, PropertyInfo info)
+            where TEntity : class
         {
+            if (entity is null)
+            {
+                throw new ArgumentNullException(nameof(entity));
+            }
+
+            if (info is null)
+            {
+                throw new ArgumentNullException(nameof(info));
+            }
+
             bool result = false;
 
             string[] keys = Ext.GetForeignKeyName(info);
@@ -49,6 +70,16 @@ namespace SubSonic.Data.DynamicProxies
             where TEntity : class
             where TProperty : class
         {
+            if (entity is null)
+            {
+                throw new ArgumentNullException(nameof(entity));
+            }
+
+            if (info is null)
+            {
+                throw new ArgumentNullException(nameof(info));
+            }
+
             string[] 
                 keys = dbContext.Model.GetEntityModel<TProperty>()
                     .GetPrimaryKey()
@@ -70,6 +101,16 @@ namespace SubSonic.Data.DynamicProxies
             where TEntity : class
             where TProperty : class
         {
+            if (entity is null)
+            {
+                throw new ArgumentNullException(nameof(entity));
+            }
+
+            if (info is null)
+            {
+                throw new ArgumentNullException(nameof(info));
+            }
+
             string[] keys = dbContext.Model.GetEntityModel<TProperty>()
                 .GetPrimaryKey()
                 .ToArray();

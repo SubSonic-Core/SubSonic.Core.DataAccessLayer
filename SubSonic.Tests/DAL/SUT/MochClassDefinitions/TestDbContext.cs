@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using NUnit.Framework;
 using SubSonic.Extensions.Test;
+using SubSonic.Extensions.Test.Models;
 using SubSonic.Infrastructure;
-using Models = SubSonic.Test.Rigging.Models;
+using SubSonic.Tests.DAL.SUT.NUnit;
+using Models = SubSonic.Extensions.Test.Models;
 
-namespace SubSonic.Tests
+namespace SubSonic.Tests.DAL.SUT
 {
     public class TestDbContext
         : DbContext
@@ -22,6 +25,7 @@ namespace SubSonic.Tests
 
             builder
                 .ConfigureServiceCollection()
+                .UseLoggingProvider(new NUnitLoggerProvider())
                 .UseMockDbProviderFactory()
                 .EnableProxyGeneration();
         }
@@ -29,9 +33,9 @@ namespace SubSonic.Tests
         protected override void OnDbModeling(DbModelBuilder builder)
         {
             builder
-                .AddEntityModel<Models.RealEstateProperty>()
-                .AddEntityModel<Models.Status>()
-                .AddEntityModel<Models.Unit>();
+                .AddEntityModel<RealEstateProperty>()
+                .AddEntityModel<Status>()
+                .AddEntityModel<Unit>();
         }
     }
 }
