@@ -9,7 +9,9 @@ using System.Text;
 
 namespace SubSonic.Extensions.Test
 {
-    public static partial class SubSonicExtensions
+    using SqlServer.SqlQueryProvider;
+
+    public static partial class SubSonicTestExtensions
     {
         public static DbContextOptionsBuilder ConfigureServiceCollection(this DbContextOptionsBuilder builder, IServiceCollection services = null)
         {
@@ -52,24 +54,26 @@ namespace SubSonic.Extensions.Test
             return builder;
         }
 
-        public static DbContextOptionsBuilder UseMockDbProviderFactory(this DbContextOptionsBuilder builder)
+        public static DbContextOptionsBuilder UseMockDbClient(this DbContextOptionsBuilder builder)
         {
             if (builder is null)
             {
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            Type providerFactoryType = typeof(MockDbProvider.MockDbProviderFactory);
+            Type providerFactoryType = typeof(MockDbClient.MockDbClientFactory);
 
             builder
                 .RegisterProviderFactory(providerFactoryType.FullName, providerFactoryType)
+                .RegisterSqlQueryProvider(DbProviderInvariantNames.MockDbProviderInvariantName, typeof(MockSqlQueryProvider))
+                .RegisterSqlQueryProvider(DbProviderInvariantNames.SqlServiceDbProviderInvariantName, typeof(SqlServerSqlQueryProvider))
                 .SetDefaultProviderFactory(providerFactoryType.FullName);
 
             IServiceCollection services = builder.ServiceProvider.GetService<IServiceCollection>();
 
             if (services.IsNotNull())
             {
-                services.AddSingleton(DbProviderFactories.GetFactory(providerFactoryType.FullName));
+                services.AddSingleton(DbProviderFactories.GetFactory(builder.Options.ProviderInvariantName));
             }
 
             return builder;

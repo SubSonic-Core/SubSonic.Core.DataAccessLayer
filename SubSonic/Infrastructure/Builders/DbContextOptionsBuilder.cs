@@ -23,6 +23,8 @@ namespace SubSonic.Infrastructure
             this.options = options ?? throw new ArgumentNullException(nameof(options));
         }
 
+        public DbContextOptions Options => options;
+
         public IServiceProvider ServiceProvider => dbContext.Instance;
 
         public void EnableProxyGeneration()
@@ -67,6 +69,23 @@ namespace SubSonic.Infrastructure
             }
 
             DbProviderFactories.RegisterFactory(providerInvariantName, factory);
+
+            return this;
+        }
+
+        public DbContextOptionsBuilder RegisterSqlQueryProvider(string dbProviderInvariantName, Type sqlQueryProviderType)
+        {
+            if (string.IsNullOrEmpty(dbProviderInvariantName))
+            {
+                throw new ArgumentException("", nameof(dbProviderInvariantName));
+            }
+
+            if (sqlQueryProviderType is null)
+            {
+                throw new ArgumentNullException(nameof(sqlQueryProviderType));
+            }
+
+            SqlQueryProviderFactory.RegisterFactory(dbProviderInvariantName, sqlQueryProviderType);
 
             return this;
         }

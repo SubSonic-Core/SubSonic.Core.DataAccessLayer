@@ -5,7 +5,7 @@ using System.Text;
 using System.Data.Common;
 using System.Data;
 
-namespace SubSonic.Extensions.Test.MockDbProvider
+namespace SubSonic.Extensions.Test.MockDbClient
 {
     public class MockDbConnection : DbConnection
     {

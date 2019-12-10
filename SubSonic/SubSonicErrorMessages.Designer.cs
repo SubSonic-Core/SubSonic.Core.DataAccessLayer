@@ -79,6 +79,15 @@ namespace SubSonic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} does not implement the {1} interface..
+        /// </summary>
+        internal static string MissingInterfaceImplementation {
+            get {
+                return ResourceManager.GetString("MissingInterfaceImplementation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Supply the name of the containing method..
         /// </summary>
         internal static string MissingNameArgumentException {
@@ -93,6 +102,15 @@ namespace SubSonic {
         internal static string MissingServiceCollectionException {
             get {
                 return ResourceManager.GetString("MissingServiceCollectionException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} SqlQueryProvider is null..
+        /// </summary>
+        internal static string SqlQueryProviderIsNull {
+            get {
+                return ResourceManager.GetString("SqlQueryProviderIsNull", resourceCulture);
             }
         }
     }

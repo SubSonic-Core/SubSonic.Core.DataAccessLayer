@@ -1,5 +1,5 @@
 ﻿using NUnit.Framework;
-using SubSonic.Extensions.Test.MockDbProvider;
+using SubSonic.Extensions.Test.MockDbClient;
 using System;
 using System.Data.Common;
 
@@ -8,7 +8,7 @@ namespace SubSonic.Tests.MockDbProviderFactoryTests
     [SetUpFixture]
     public class SetUpMockDb
     {
-        public static Type MockDbProviderFactoryType => typeof(MockDbProviderFactory);
+        public static Type MockDbProviderFactoryType => typeof(MockDbClientFactory);
 
         public static string ProviderInvariantName => MockDbProviderFactoryType.Name;
 

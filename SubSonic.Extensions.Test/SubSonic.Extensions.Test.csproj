@@ -28,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SubSonic.Extensions.SqlServer\SubSonic.Extensions.SqlServer.csproj" />
     <ProjectReference Include="..\SubSonic\SubSonic.csproj" />
   </ItemGroup>
 

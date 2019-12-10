@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Data.Common;
 
-namespace SubSonic.Extensions.Test.MockDbProvider
+namespace SubSonic.Extensions.Test.MockDbClient
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1010:Collections should implement generic interface", Justification = "<Pending>")]
     public class MockDbConnectionStringBuilderDictionary

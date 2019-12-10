@@ -1,5 +1,4 @@
-﻿#if X86
-// pretty sure the x86 SDK does not have this class
+﻿#if DB_PROVIDER_NOT_DEFINED
 using System;
 using System.Collections.Generic;
 using System.Data.Common;

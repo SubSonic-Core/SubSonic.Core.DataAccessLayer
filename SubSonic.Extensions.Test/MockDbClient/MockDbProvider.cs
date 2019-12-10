@@ -5,19 +5,19 @@ using System.Text;
 using System.Data;
 using System.Data.Common;
 
-namespace SubSonic.Extensions.Test.MockDbProvider
+namespace SubSonic.Extensions.Test.MockDbClient
 {
     using Syntax;
     using System.Globalization;
 
-    public class MockDbProviderFactory : DbProviderFactory, IMockCommandExecution
+    public class MockDbClientFactory : DbProviderFactory, IMockCommandExecution
     {
         private List<MockCommandBehavior> behaviors;
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2211:Non-constant fields should not be visible", Justification = "ProviderFactory Pattern")]
-        public static MockDbProviderFactory Instance = new MockDbProviderFactory();
+        public static readonly MockDbClientFactory Instance = new MockDbClientFactory();
 
-        public MockDbProviderFactory()
+        public MockDbClientFactory()
             : base()
         {
             behaviors = new List<MockCommandBehavior>();

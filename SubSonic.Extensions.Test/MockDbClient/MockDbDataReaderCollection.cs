@@ -6,7 +6,7 @@ using System.Data.Common;
 using System.Data;
 using System.Collections;
 
-namespace SubSonic.Extensions.Test.MockDbProvider
+namespace SubSonic.Extensions.Test.MockDbClient
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1010:Collections should implement generic interface", Justification = "<Pending>")]
     public class MockDbDataReaderCollection
@@ -84,7 +84,7 @@ namespace SubSonic.Extensions.Test.MockDbProvider
 
         public override IEnumerator GetEnumerator()
         {
-            return ((IEnumerable)inner).GetEnumerator();
+            return inner.GetEnumerator();
         }
 
         public override Type GetFieldType(int ordinal)

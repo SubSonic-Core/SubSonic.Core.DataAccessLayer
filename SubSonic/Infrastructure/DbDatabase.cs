@@ -43,12 +43,12 @@ namespace SubSonic.Infrastructure
                 else
                 {
                     dBSharedConnection = value;
-                    dBSharedConnection.Disposed += dBSharedConnection_Disposed;
+                    dBSharedConnection.Disposed += DBSharedConnection_Disposed;
                 }
             }
         }
 
-        private static void dBSharedConnection_Disposed(object sender, EventArgs e)
+        private static void DBSharedConnection_Disposed(object sender, EventArgs e)
         {
             dBSharedConnection = null;
         }

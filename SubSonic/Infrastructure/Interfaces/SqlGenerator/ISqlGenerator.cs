@@ -8,10 +8,6 @@ namespace SubSonic.Infrastructure.SqlGenerator
 
     public interface ISqlGenerator
     {
-        string ClientName { get; set; }
-
-        //SqlQuery Query { get; set; }
-
         /// <summary>
         /// SqlFragment. Field values may change depending on the inheriting Generator.
         /// </summary>
@@ -21,43 +17,43 @@ namespace SubSonic.Infrastructure.SqlGenerator
         /// Generates the command line.
         /// </summary>
         /// <returns></returns>
-        string GenerateCommandLine();
+        ISqlGenerator GenerateCommandLine();
 
         /// <summary>
         /// Generates the constraints.
         /// </summary>
         /// <returns></returns>
-        string GenerateConstraints();
+        ISqlGenerator GenerateConstraints();
 
         /// <summary>
         /// Generates from list.
         /// </summary>
         /// <returns></returns>
-        string GenerateFromList();
+        ISqlGenerator GenerateFromList();
 
         /// <summary>
         /// Generates the order by.
         /// </summary>
         /// <returns></returns>
-        string GenerateOrderBy();
+        ISqlGenerator GenerateOrderBy();
 
         /// <summary>
         /// Generates the group by.
         /// </summary>
         /// <returns></returns>
-        string GenerateGroupBy();
+        ISqlGenerator GenerateGroupBy();
 
         /// <summary>
         /// Generates the joins.
         /// </summary>
         /// <returns></returns>
-        string GenerateJoins();
+        ISqlGenerator GenerateJoins();
 
         /// <summary>
         /// Gets the paging SQL wrapper.
         /// </summary>
         /// <returns></returns>
-        string GetPagingSqlWrapper();
+        ISqlGenerator GetPagingSqlWrapper();
 
         /// <summary>
         /// Gets the select columns.
@@ -76,36 +72,30 @@ namespace SubSonic.Infrastructure.SqlGenerator
         /// Builds the select statement.
         /// </summary>
         /// <returns></returns>
-        string BuildSelectStatement();
+        ISqlGenerator BuildSelectStatement();
 
         /// <summary>
         /// Builds the paged select statement.
         /// </summary>
         /// <returns></returns>
-        string BuildPagedSelectStatement();
+        ISqlGenerator BuildPagedSelectStatement();
 
         /// <summary>
         /// Builds the update statement.
         /// </summary>
         /// <returns></returns>
-        string BuildUpdateStatement();
+        ISqlGenerator BuildUpdateStatement();
 
         /// <summary>
         /// Builds the insert statement.
         /// </summary>
         /// <returns></returns>
-        string BuildInsertStatement();
+        ISqlGenerator BuildInsertStatement();
 
         /// <summary>
         /// Builds the delete statement.
         /// </summary>
         /// <returns></returns>
-        string BuildDeleteStatement();
-
-        /// <summary>
-        /// Sets the insert query.
-        /// </summary>
-        /// <param name="q">The q.</param>
-        //void SetInsertQuery(Insert q);
+        ISqlGenerator BuildDeleteStatement();
     }
 }

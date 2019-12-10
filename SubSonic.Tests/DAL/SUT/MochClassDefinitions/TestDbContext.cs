@@ -28,7 +28,7 @@ namespace SubSonic.Tests.DAL.SUT
             builder
                 .ConfigureServiceCollection()
                 .AddLogging((config) => config.AddNUnitLogger<TestDbContext>(LogLevel.Debug))
-                .UseMockDbProviderFactory()
+                .UseMockDbClient()
                 .EnableProxyGeneration();
         }
 

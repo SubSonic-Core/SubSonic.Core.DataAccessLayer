@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Reflection;
-using System.Text;
-
-#if X86
+﻿#if DB_PROVIDER_NOT_DEFINED
 namespace SubSonic.Infrastructure.Factories
 {
     public static class DbProviderFactories

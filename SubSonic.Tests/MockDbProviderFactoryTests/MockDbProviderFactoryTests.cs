@@ -1,10 +1,11 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
-using SubSonic.Extensions.Test.MockDbProvider;
-using SubSonic.Extensions.Test.MockDbProvider.Syntax;
+using SubSonic.Extensions.Test.MockDbClient;
+using SubSonic.Extensions.Test.MockDbClient.Syntax;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
@@ -18,7 +19,7 @@ namespace SubSonic.Tests.MockDbProviderFactoryTests
     {
         private const string InstanceFieldName = "Instance";
 
-        private MockDbProviderFactory Factory => MockDbProviderFactory.Instance;
+        private MockDbClientFactory Factory => MockDbClientFactory.Instance;
 
         [SetUp]
         public void SetUp()
@@ -29,7 +30,7 @@ namespace SubSonic.Tests.MockDbProviderFactoryTests
         [Test]
         public void CanGetTheInstanceFieldOfMockDbProviderFactory()
         {
-            Type providerFactoryType = typeof(MockDbProviderFactory);
+            Type providerFactoryType = typeof(MockDbClientFactory);
 
             FieldInfo fieldInstance = providerFactoryType.GetField(InstanceFieldName, BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Static);
 
@@ -44,17 +45,23 @@ namespace SubSonic.Tests.MockDbProviderFactoryTests
         {
             var factory = DbProviderFactories.GetFactory(SetUpMockDb.ProviderInvariantName);
 
-            factory.Should().BeOfType<MockDbProviderFactory>();
+            factory.Should().BeOfType<MockDbClientFactory>();
         }
 
         [Test]
         public void CanSetupResultForSimpleForQuery()
         {
-            var customers = new DataTableBuilder()
-                .AddColumn("userid", typeof(Int32))
+            DataTable customers;
+
+            using (DataTableBuilder builder = new DataTableBuilder())
+            {
+                builder.AddColumn("userid", typeof(Int32))
                 .AddColumn("email", typeof(String))
                 .AddRow(1, "a@a.com")
-                .AddRow(10, "b@b.com").DataTable;
+                .AddRow(10, "b@b.com");
+
+                customers = builder.DataTable;
+            }
 
             var behavior = new MockCommandBehavior()
                 .When(c => c.CommandText.StartsWith("select *"))
@@ -70,23 +77,38 @@ namespace SubSonic.Tests.MockDbProviderFactoryTests
         }
 
         [Test]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0063:Use simple 'using' statement", Justification = "<Pending>")]
         public void CanFillDataSet()
         {
-            var users = new DataTableBuilder()
+            DataTable
+                users,
+                orders;
+
+            using (var builder = new DataTableBuilder())
+            {
+                builder
                 .AddColumn("customerid", typeof(Int32))
                 .AddColumn("firstname", typeof(String))
                 .AddColumn("lastname", typeof(String))
                 .AddRow(1, "joe", "black")
-                .AddRow(1, "kurt", "vonnegut").DataTable;
+                .AddRow(1, "kurt", "vonnegut");
 
-            var orders = new DataTableBuilder()
+                users = builder.DataTable;
+            }
+
+            using (var builder = new DataTableBuilder())
+            { 
+                builder
                 .AddColumn("orderid", typeof(Int32))
                 .AddColumn("userid", typeof(Int32))
                 .AddColumn("total", typeof(double))
                 .AddRow(100, 1, 10.10)
                 .AddRow(101, 1, 10.20)
                 .AddRow(202, 2, 20.10)
-                .AddRow(203, 2, 20.20).DataTable;
+                .AddRow(203, 2, 20.20);
+                
+                orders = builder.DataTable;
+            }
 
             Factory.AddBehavior(new MockCommandBehavior()
                 .When(cmd => cmd.CommandText.Contains("from customers"))
@@ -95,11 +117,12 @@ namespace SubSonic.Tests.MockDbProviderFactoryTests
                 .When(cmd => cmd.CommandText.Contains("from orders"))
                 .ReturnsData(orders));
 
-            var result = SUT.DataAccess.GetAllOrders();
-
-            Assert.AreEqual(2, result.Tables.Count);
-            Assert.AreEqual(2, result.Tables["customers"].Rows.Count);
-            Assert.AreEqual(4, result.Tables["orders"].Rows.Count);
+            using (var result = SUT.DataAccess.GetAllOrders())
+            {
+                Assert.AreEqual(2, result.Tables.Count);
+                Assert.AreEqual(2, result.Tables["customers"].Rows.Count);
+                Assert.AreEqual(4, result.Tables["orders"].Rows.Count);
+            }
         }
 
         [Test]
@@ -114,16 +137,15 @@ namespace SubSonic.Tests.MockDbProviderFactoryTests
         }
 
         [Test]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0063:Use simple 'using' statement", Justification = "<Pending>")]
         public void CanCreateTransaction()
         {
-            var factory = DbProviderFactories.GetFactory(SetUpMockDb.ProviderInvariantName) as MockDbProviderFactory;
+            var factory = DbProviderFactories.GetFactory(SetUpMockDb.ProviderInvariantName) as MockDbClientFactory;
 
             using (var conn = factory.CreateConnection())
+            using (var trn = conn.BeginTransaction())
             {
-                using (var trn = conn.BeginTransaction())
-                {
-                    Assert.IsNotNull(trn);
-                }
+                Assert.IsNotNull(trn);
             }
         }
     }

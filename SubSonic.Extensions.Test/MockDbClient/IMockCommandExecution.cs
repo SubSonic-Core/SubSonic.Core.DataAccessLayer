@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SubSonic.Extensions.Test.MockDbProvider
+namespace SubSonic.Extensions.Test.MockDbClient
 {
     using Syntax;
     interface IMockCommandExecution
