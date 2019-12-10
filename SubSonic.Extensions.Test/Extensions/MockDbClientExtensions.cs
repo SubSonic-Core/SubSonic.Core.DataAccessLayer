@@ -54,7 +54,7 @@ namespace SubSonic.Extensions.Test
             return builder;
         }
 
-        public static DbContextOptionsBuilder UseMockDbClient(this DbContextOptionsBuilder builder)
+        public static DbContextOptionsBuilder UseMockDbClient(this DbContextOptionsBuilder builder, Action<DbConnectionStringBuilder> connection = null)
         {
             if (builder is null)
             {
