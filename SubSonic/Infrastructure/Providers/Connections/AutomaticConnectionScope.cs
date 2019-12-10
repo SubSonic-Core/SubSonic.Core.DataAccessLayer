@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Text;
 
-namespace SubSonic.Infrastructure.Providers.Connections
+namespace SubSonic.Infrastructure
 {
     public class AutomaticConnectionScope
         : IDisposable

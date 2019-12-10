@@ -76,7 +76,10 @@ namespace SubSonic.Infrastructure
         {
             using (IPerformanceLogger<DbDatabase> performance = logger.Start($"{nameof(ExecuteQuery)}<{typeof(TResult).GetQualifiedTypeName()}>"))
             {
-                throw new NotImplementedException();
+                using (SharedDbConnectionScope scope = new SharedDbConnectionScope(this))
+                {
+                    throw new NotImplementedException();
+                }
             }
         }
     }

@@ -75,6 +75,8 @@ namespace SubSonic
                 services.AddScoped(typeof(ISubSonicDbSetCollectionProvider<>), typeof(SubSonicDbSetCollectionProvider<>));
                 services.AddScoped(typeof(DbSetCollection<>));
                 services.AddScoped<DbDatabase>();
+                services.AddScoped<SharedDbConnectionScope>();
+                services.AddScoped<AutomaticConnectionScope>();
 
                 Instance = services.BuildServiceProvider();
             }
