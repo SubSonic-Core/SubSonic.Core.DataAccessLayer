@@ -6,12 +6,13 @@ using SubSonic.Infrastructure.Providers;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using System.Reflection;
 using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-[assembly: InternalsVisibleTo("SubSonic.Exensions.Test", AllInternalsVisible = true)]
+[assembly: InternalsVisibleTo("SubSonic.Extensions.Test", AllInternalsVisible = true)]
 [assembly: InternalsVisibleTo("SubSonic.Tests", AllInternalsVisible = true)]
 [assembly: NeutralResourcesLanguage("en")]
 
@@ -106,7 +107,6 @@ namespace SubSonic
         /// </summary>
         /// <returns></returns>
         public SharedDbConnectionScope UseSharedDbConnection() => Instance.GetService<SharedDbConnectionScope>();
-        
         #endregion
 
         #region IDisposable Support
