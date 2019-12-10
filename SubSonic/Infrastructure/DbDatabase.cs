@@ -35,9 +35,9 @@ namespace SubSonic.Infrastructure
             }
             set
             {
-                if (value == null)
+                if (value.IsNull())
                 {
-                    dBSharedConnection.Dispose();
+                    dBSharedConnection.IsNotNull(Con => Con.Dispose());
                     dBSharedConnection = null;
                 }
                 else
@@ -69,14 +69,13 @@ namespace SubSonic.Infrastructure
         internal void ResetSharedConnection()
         {
             CurrentSharedConnection.IsNotNull(Con => Con.Dispose());
-            CurrentSharedConnection = null;
         }
 
         internal TResult ExecuteQuery<TResult>(Expression expression)
         {
             using (IPerformanceLogger<DbDatabase> performance = logger.Start($"{nameof(ExecuteQuery)}<{typeof(TResult).GetQualifiedTypeName()}>"))
             {
-                using (SharedDbConnectionScope scope = new SharedDbConnectionScope(this))
+                using (AutomaticConnectionScope scope = new AutomaticConnectionScope(this))
                 {
                     throw new NotImplementedException();
                 }

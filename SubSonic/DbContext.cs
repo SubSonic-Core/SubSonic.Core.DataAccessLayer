@@ -96,6 +96,15 @@ namespace SubSonic
 
         }
 
+        #region public methods
+        /// <summary>
+        /// Use a shared connection to get data faster and reduce connection overhead
+        /// </summary>
+        /// <returns></returns>
+        public SharedDbConnectionScope UseSharedDbConnection() => Instance.GetService<SharedDbConnectionScope>();
+        
+        #endregion
+
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 

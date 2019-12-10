@@ -8,6 +8,8 @@ using Ext = SubSonic.SubSonicExtensions;
 
 namespace SubSonic.Infrastructure
 {
+    using Schema;
+
     public class DbModelBuilder
     {
         private readonly DbModel model;
@@ -17,6 +19,12 @@ namespace SubSonic.Infrastructure
             this.model = model ?? throw new ArgumentNullException(nameof(model));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <returns></returns>
+        /// TODO::Requires follow up
         public DbModelBuilder AddEntityModel<TEntity>()
             where TEntity : class
         {
@@ -33,11 +41,11 @@ namespace SubSonic.Infrastructure
             {
                 var column = info.GetCustomAttribute<ColumnAttribute>();
 
-                DbEntityProperty property = new DbEntityProperty(column.IsNotNull(col => col.Name, info.Name))
+                DbEntityProperty property = new DbEntityProperty(entity, column.IsNotNull(col => col.Name, info.Name))
                 {
-                    RuntimeName = info.Name,
-                    Type = info.PropertyType,
-                    IsKey = info.GetCustomAttribute<KeyAttribute>().IsNotNull(),
+                    PropertyName = info.Name,
+                    PropertyType = info.PropertyType,
+                    IsPrimaryKey = info.GetCustomAttribute<KeyAttribute>().IsNotNull(),
                     IsRequired = info.GetCustomAttribute<RequiredAttribute>().IsNotNull() || !info.PropertyType.IsNullableType()
                 };
 

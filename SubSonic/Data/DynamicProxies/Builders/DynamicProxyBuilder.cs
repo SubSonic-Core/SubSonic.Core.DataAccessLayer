@@ -1,4 +1,5 @@
 ﻿using SubSonic.Infrastructure;
+using SubSonic.Infrastructure.Schema;
 using System;
 using System.Linq;
 using System.Reflection;
@@ -28,18 +29,18 @@ namespace SubSonic.Data.DynamicProxies
 
             DbEntityModel model = dbContext.Model.GetEntityModel(baseType);
 
-            foreach (DbEntityProperty property in model.Properties)
+            foreach (IDbEntityProperty property in model.Properties)
             {
-                PropertyInfo info = baseType.GetProperty(property.RuntimeName);
+                PropertyInfo info = baseType.GetProperty(property.PropertyName);
 
                 if(!info.GetMethod.IsVirtual)
                 {   // we cannot override this property
                     continue;
                 }
 
-                if (property.PropertyType == EnumDbEntityPropertyType.Navigation || property.PropertyType == EnumDbEntityPropertyType.Collection)
+                if (property.EntityPropertyType == EnumDbEntityPropertyType.Navigation || property.EntityPropertyType == EnumDbEntityPropertyType.Collection)
                 {
-                    BuildOverriddenProperty(property.RuntimeName, property.Type, property.PropertyType == EnumDbEntityPropertyType.Collection);
+                    BuildOverriddenProperty(property.PropertyName, property.PropertyType, property.EntityPropertyType == EnumDbEntityPropertyType.Collection);
                 }
             }
 
