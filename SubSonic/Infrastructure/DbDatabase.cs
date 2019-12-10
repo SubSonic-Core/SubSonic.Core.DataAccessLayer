@@ -53,15 +53,20 @@ namespace SubSonic.Infrastructure
             dBSharedConnection = null;
         }
 
-        public DbConnection InitializeSharedConnection()
+        internal DbConnection InitializeSharedConnection()
         {
             if (CurrentSharedConnection == null)
-                CurrentSharedConnection = dbProvider.CreateConnection();
+                CurrentSharedConnection = CreateConnection();
 
             return CurrentSharedConnection;
         }
 
-        public void ResetSharedConnection()
+        internal DbConnection CreateConnection()
+        {
+            return dbProvider.CreateConnection();
+        }
+
+        internal void ResetSharedConnection()
         {
             CurrentSharedConnection.IsNotNull(Con => Con.Dispose());
             CurrentSharedConnection = null;

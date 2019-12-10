@@ -3,29 +3,34 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Text;
 
-namespace SubSonic.Infrastructure
+namespace SubSonic.Infrastructure.Providers.Connections
 {
-    public class SharedDbConnectionScope
+    public class AutomaticConnectionScope
         : IDisposable
     {
-        [ThreadStatic]
-        private static Stack<SharedDbConnectionScope> __instances;
-
         private readonly DbDatabase dbDatabase;
+        private readonly DbConnection dbConnection;
 
-        public SharedDbConnectionScope(DbDatabase dbDatabase)
+        private bool isUsingSharedConnection;
+
+        public AutomaticConnectionScope(DbDatabase dbDatabase)
         {
             this.dbDatabase = dbDatabase ?? throw new ArgumentNullException(nameof(dbDatabase));
-            this.dbDatabase.InitializeSharedConnection();
 
-            if (__instances == null)
+            if (dbDatabase.CurrentSharedConnection.IsNotNull())
             {
-                __instances = new Stack<SharedDbConnectionScope>();
+                dbConnection = dbDatabase.CurrentSharedConnection;
+                isUsingSharedConnection = true;
             }
-            __instances.Push(this);
+            else
+            {
+                dbConnection = dbDatabase.CreateConnection();
+            }
         }
 
-        public DbConnection CurrentConnection => this.dbDatabase.CurrentSharedConnection;
+        public DbConnection Connection => dbConnection;
+
+        public bool IsUsingSharedConnection => isUsingSharedConnection;
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
@@ -36,11 +41,9 @@ namespace SubSonic.Infrastructure
             {
                 if (disposing)
                 {
-                    __instances.Pop();
-
-                    if(__instances.Count == 0)
+                    if(!isUsingSharedConnection)
                     {
-                        this.dbDatabase.ResetSharedConnection();
+                        dbConnection.Dispose();
                     }
 
                     disposedValue = true;
@@ -54,7 +57,7 @@ namespace SubSonic.Infrastructure
         }
 
         // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~SharedDbConnectionScope()
+        // ~AutomaticConnectionScope()
         // {
         //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
         //   Dispose(false);
