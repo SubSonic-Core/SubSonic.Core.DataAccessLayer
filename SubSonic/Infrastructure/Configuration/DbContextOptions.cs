@@ -11,7 +11,8 @@ namespace SubSonic.Infrastructure
         }
 
         public bool EnableProxyGeneration { get; internal set; }
-        public string ProviderInvariantName { get; internal set; }
+        public string DbProviderInvariantName { get; internal set; }
+        public string SqlQueryProviderInvariantName { get; internal set; }
         public bool UseMultipleActiveResultSets { get; internal set; }
     }
 }

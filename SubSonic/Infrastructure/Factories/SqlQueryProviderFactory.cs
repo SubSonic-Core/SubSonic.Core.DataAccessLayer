@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace SubSonic.Infrastructure
 {
-    using SqlGenerator;
     using System.Reflection;
 
     public static class SqlQueryProviderFactory
     {
-        private static Dictionary<string, ISqlQueryProvider> ProviderFactories = new Dictionary<string, ISqlQueryProvider>();
+        private static Dictionary<string, SqlQueryProvider> ProviderFactories = new Dictionary<string, SqlQueryProvider>();
 
         private const string InstanceFieldName = "Instance";
 
@@ -39,7 +37,7 @@ namespace SubSonic.Infrastructure
                 throw new NotImplementedException(SubSonicErrorMessages.MissingInterfaceImplementation.Format(sqlQueryProviderType.FullName, interfaceType.Name));
             }
 
-            ISqlQueryProvider sqlQueryProvider = (ISqlQueryProvider)fieldInstanceInfo.GetValue(null);
+            SqlQueryProvider sqlQueryProvider = (SqlQueryProvider)fieldInstanceInfo.GetValue(null);
 
             if(sqlQueryProvider.IsNull())
             {
@@ -52,14 +50,19 @@ namespace SubSonic.Infrastructure
             }
         }
 
-        public static ISqlQueryProvider GetProvider(string dBProviderInvariantName)
+        public static SqlQueryProvider GetProvider(string dBProviderInvariantName)
         {
             return ProviderFactories[dBProviderInvariantName];
         }
 
-        public static bool TryGetProvider(string dBProviderInvariantName, out ISqlQueryProvider provider)
+        public static bool TryGetProvider(string dBProviderInvariantName, out SqlQueryProvider provider)
         {
             return ProviderFactories.TryGetValue(dBProviderInvariantName, out provider);
+        }
+
+        public static IEnumerable<string> GetProviderInvariantNames()
+        {
+            return ProviderFactories.Keys;
         }
     }
 }

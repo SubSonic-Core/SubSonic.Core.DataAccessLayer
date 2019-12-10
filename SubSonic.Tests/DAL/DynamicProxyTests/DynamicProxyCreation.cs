@@ -1,11 +1,9 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 using SubSonic.Data.DynamicProxies;
-using SubSonic.Extensions.Test.MockDbProvider;
 using SubSonic.Extensions.Test.Models;
 using SubSonic.Infrastructure;
 using System.Collections.Generic;
-using System.Data.Common;
 
 namespace SubSonic.Tests.DAL.DynamicProxyTests
 {

@@ -64,17 +64,12 @@ namespace SubSonic.Extensions.Test
             Type providerFactoryType = typeof(MockDbClient.MockDbClientFactory);
 
             builder
-                .RegisterProviderFactory(providerFactoryType.FullName, providerFactoryType)
+                .RegisterProviderFactory(DbProviderInvariantNames.MockDbProviderInvariantName, providerFactoryType)
                 .RegisterSqlQueryProvider(DbProviderInvariantNames.MockDbProviderInvariantName, typeof(MockSqlQueryProvider))
                 .RegisterSqlQueryProvider(DbProviderInvariantNames.SqlServiceDbProviderInvariantName, typeof(SqlServerSqlQueryProvider))
-                .SetDefaultProviderFactory(providerFactoryType.FullName);
+                .SetDefaultProvider(DbProviderInvariantNames.MockDbProviderInvariantName);
 
             IServiceCollection services = builder.ServiceProvider.GetService<IServiceCollection>();
-
-            if (services.IsNotNull())
-            {
-                services.AddSingleton(DbProviderFactories.GetFactory(builder.Options.ProviderInvariantName));
-            }
 
             return builder;
         }

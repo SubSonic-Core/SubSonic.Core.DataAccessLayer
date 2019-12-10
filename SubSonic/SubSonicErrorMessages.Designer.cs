@@ -61,15 +61,6 @@ namespace SubSonic {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Provider Factory &quot;{0}&quot;, is not registered..
-        /// </summary>
-        internal static string DbProviderFactoryNotRegisteredException {
-            get {
-                return ResourceManager.GetString("DbProviderFactoryNotRegisteredException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Type {0}is not registed with the db model..
         /// </summary>
         internal static string EntityTypeIsNotRegisteredException {
@@ -102,6 +93,15 @@ namespace SubSonic {
         internal static string MissingServiceCollectionException {
             get {
                 return ResourceManager.GetString("MissingServiceCollectionException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Provider &quot;{0}&quot;, is not registered in {1}..
+        /// </summary>
+        internal static string ProviderInvariantNameNotRegisteredException {
+            get {
+                return ResourceManager.GetString("ProviderInvariantNameNotRegisteredException", resourceCulture);
             }
         }
         

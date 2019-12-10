@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace SubSonic.Infrastructure
 {
+    using Schema;
     using SqlGenerator;
-    using SubSonic.Infrastructure.Schema;
-    using System.IO;
 
     public class SqlQueryProvider
         : ISqlQueryProvider

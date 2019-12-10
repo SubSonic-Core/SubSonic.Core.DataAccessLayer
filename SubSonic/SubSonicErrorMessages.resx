@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="DbProviderFactoryNotRegisteredException" xml:space="preserve">
-    <value>Provider Factory "{0}", is not registered.</value>
-  </data>
   <data name="EntityTypeIsNotRegisteredException" xml:space="preserve">
     <value>Type {0}is not registed with the db model.</value>
   </data>
@@ -131,6 +128,9 @@
   </data>
   <data name="MissingServiceCollectionException" xml:space="preserve">
     <value>IServiceCollection is not found in the IOC container.</value>
+  </data>
+  <data name="ProviderInvariantNameNotRegisteredException" xml:space="preserve">
+    <value>Provider "{0}", is not registered in {1}.</value>
   </data>
   <data name="SqlQueryProviderIsNull" xml:space="preserve">
     <value>{0} SqlQueryProvider is null.</value>

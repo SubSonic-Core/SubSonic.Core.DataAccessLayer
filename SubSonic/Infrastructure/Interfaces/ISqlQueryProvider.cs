@@ -1,8 +1,9 @@
-﻿using System;
+﻿using SubSonic.Infrastructure.SqlGenerator;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SubSonic.Infrastructure.SqlGenerator
+namespace SubSonic.Infrastructure
 {
     public interface ISqlQueryProvider
         : ISqlGenerator

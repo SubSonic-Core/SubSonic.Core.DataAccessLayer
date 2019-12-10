@@ -32,19 +32,27 @@ namespace SubSonic.Infrastructure
             options.EnableProxyGeneration = true;
         }
 
-        public DbContextOptionsBuilder SetDefaultProviderFactory(string providerInvariantName)
+        public DbContextOptionsBuilder SetDefaultProvider(string dbProviderInvariantName, string sqlQueryProviderInvariantName = null)
         {
-            if (string.IsNullOrEmpty(providerInvariantName))
+            if (string.IsNullOrEmpty(dbProviderInvariantName))
             {
-                throw new ArgumentException("", nameof(providerInvariantName));
+                throw new ArgumentException("", nameof(dbProviderInvariantName));
             }
 
-            if (!DbProviderFactories.GetProviderInvariantNames().Any(provider => provider.Equals(providerInvariantName, StringComparison.OrdinalIgnoreCase)))
+            sqlQueryProviderInvariantName = sqlQueryProviderInvariantName ?? dbProviderInvariantName;
+
+            if (!DbProviderFactories.GetProviderInvariantNames().Any(provider => provider.Equals(dbProviderInvariantName, StringComparison.OrdinalIgnoreCase)))
             {
-                throw new DbProviderFactoryNotRegisteredException(providerInvariantName);
+                throw new ProviderInvariantNameNotRegisteredException(dbProviderInvariantName, typeof(DbProviderFactories).Name);
             }
 
-            options.ProviderInvariantName = providerInvariantName;
+            if (!SqlQueryProviderFactory.GetProviderInvariantNames().Any(provider => provider.Equals(sqlQueryProviderInvariantName, StringComparison.OrdinalIgnoreCase)))
+            {
+                throw new ProviderInvariantNameNotRegisteredException(sqlQueryProviderInvariantName, typeof(SqlQueryProviderFactory).Name);
+            }
+
+            options.DbProviderInvariantName = dbProviderInvariantName;
+            options.SqlQueryProviderInvariantName = sqlQueryProviderInvariantName;
 
             return this;
         }

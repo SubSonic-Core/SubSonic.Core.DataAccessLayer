@@ -5,6 +5,7 @@ using SubSonic.Infrastructure.Logging;
 using SubSonic.Infrastructure.Providers;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Reflection;
 using System.Resources;
 using System.Runtime.CompilerServices;
@@ -70,6 +71,9 @@ namespace SubSonic
             if (services.IsNotNull())
             {
                 services.AddSingleton(this);
+
+                services.AddScoped<DbProviderFactory>(provider => DbProviderFactories.GetFactory(Options.DbProviderInvariantName));
+                services.AddScoped<SqlQueryProvider>(provider => SqlQueryProviderFactory.GetProvider(Options.SqlQueryProviderInvariantName));
 
                 services.AddScoped(typeof(ISubSonicLogger<>), typeof(SubSonicLogger<>));
                 services.AddScoped(typeof(ISubSonicDbSetCollectionProvider<>), typeof(SubSonicDbSetCollectionProvider<>));
