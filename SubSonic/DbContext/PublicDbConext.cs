@@ -19,7 +19,7 @@ namespace SubSonic
 
         public DbDatabase Database => Instance.GetService<DbDatabase>();
 
-        public IServiceProvider Instance { get; internal set; }
+        public IServiceProvider Instance => ServiceProvider;
 
         /// <summary>
         /// Use a shared connection to get data faster and reduce connection overhead

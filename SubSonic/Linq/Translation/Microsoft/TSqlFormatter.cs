@@ -19,7 +19,7 @@ namespace SubSonic.Linq.Translation
     /// Formats a query expression into TSQL language syntax
     /// </summary>
     public class TSqlFormatter 
-        : DbExpressionVisitor
+        : DbExpressionVisitorOld
     {
         protected StringBuilder sb;
         int indent = 2;
@@ -127,7 +127,7 @@ namespace SubSonic.Linq.Translation
                 case (ExpressionType)DbExpressionType.Scalar:
                 case (ExpressionType)DbExpressionType.Exists:
                 case (ExpressionType)DbExpressionType.In:
-                case (ExpressionType)DbExpressionType.AggregateSubquery:
+                case (ExpressionType)DbExpressionType.AggregateSubQuery:
                 case (ExpressionType)DbExpressionType.IsNull:
                 case (ExpressionType)DbExpressionType.Between:
                 case (ExpressionType)DbExpressionType.RowCount:

@@ -14,7 +14,7 @@ namespace SubSonic.Linq.Translation
     /// their from clause expressions and rewriting any column expressions that may have referenced them to now
     /// reference the underlying data directly.
     /// </summary>
-    public class SubQueryRemover : DbExpressionVisitor
+    public class SubQueryRemover : DbExpressionVisitorOld
     {
         HashSet<DbSelectExpression> selectsToRemove;
         Dictionary<Table, Dictionary<string, Expression>> map;

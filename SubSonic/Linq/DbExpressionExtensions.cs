@@ -8,7 +8,7 @@ namespace SubSonic.Linq
     using Expressions;
     using Translation;
 
-    public static partial class Extensions
+    public static partial class SubSonicExtensions
     {
         public static DbSelectExpression SetColumns(this DbSelectExpression select, IEnumerable<DbColumnDeclaration> columns)
         {

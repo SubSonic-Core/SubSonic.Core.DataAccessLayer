@@ -12,6 +12,8 @@ namespace SubSonic.Linq.Expressions
             Type = type;
         }
 
+        public virtual DbExpression Expression { get; }
+
         public override ExpressionType NodeType { get; }
 
         public override Type Type { get; }

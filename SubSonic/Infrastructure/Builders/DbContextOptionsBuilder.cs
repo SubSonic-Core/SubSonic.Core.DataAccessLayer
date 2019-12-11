@@ -179,7 +179,7 @@ namespace SubSonic.Infrastructure
 
             if (!isDirtyServiceProvider)
             {
-                dbContext.Instance = provider;
+                DbContext.ServiceProvider = provider;
             }
         }
     }

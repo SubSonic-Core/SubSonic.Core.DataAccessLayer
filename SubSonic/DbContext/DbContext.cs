@@ -72,7 +72,7 @@ namespace SubSonic
                     .AddScoped<SharedDbConnectionScope>()
                     .AddScoped<AutomaticConnectionScope>();
 
-                Instance = services.BuildServiceProvider();
+                ServiceProvider = services.BuildServiceProvider();
             }
             else
             {

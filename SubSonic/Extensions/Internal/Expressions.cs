@@ -12,7 +12,7 @@ namespace SubSonic
                 case (ExpressionType)DbExpressionType.Column:
                 case (ExpressionType)DbExpressionType.Scalar:
                 case (ExpressionType)DbExpressionType.Exists:
-                case (ExpressionType)DbExpressionType.AggregateSubquery:
+                case (ExpressionType)DbExpressionType.AggregateSubQuery:
                 case (ExpressionType)DbExpressionType.Aggregate:
                     return true;
                 default:

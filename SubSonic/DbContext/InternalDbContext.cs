@@ -8,6 +8,7 @@ namespace SubSonic
 {
     public partial class DbContext
     {
+        internal static IServiceProvider ServiceProvider { get; set; }
         internal Func<DbConnectionStringBuilder, DbContextOptions, string> GetConnectionString { get; set; }
     }
 }

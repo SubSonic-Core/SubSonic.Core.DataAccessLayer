@@ -7,7 +7,7 @@ using System.Text;
 
 namespace SubSonic.Linq.Expressions
 {
-    public abstract class DbExpressionVisitor 
+    public abstract class DbExpressionVisitorOld 
         : ExpressionVisitor
     {
         public override Expression Visit(Expression exp)
@@ -33,8 +33,8 @@ namespace SubSonic.Linq.Expressions
                 case DbExpressionType.Scalar:
                 case DbExpressionType.Exists:
                 case DbExpressionType.In:
-                case DbExpressionType.AggregateSubquery:
-                    return this.VisitAggregateSubquery((DbAggregateSubqueryExpression)exp);
+                case DbExpressionType.AggregateSubQuery:
+                    return this.VisitAggregateSubquery((DbAggregateSubQueryExpression)exp);
                 case DbExpressionType.IsNull:
                     return this.VisitIsNull((DbIsNullExpression)exp);
                 case DbExpressionType.Between:
@@ -200,14 +200,14 @@ namespace SubSonic.Linq.Expressions
             return @in;
         }
 
-        protected virtual Expression VisitAggregateSubquery(DbAggregateSubqueryExpression aggregate)
+        protected virtual Expression VisitAggregateSubquery(DbAggregateSubQueryExpression aggregate)
         {
-            Expression e = this.Visit(aggregate.AggregateAsSubquery);
+            Expression e = this.Visit(aggregate.AggregateAsSubQuery);
             System.Diagnostics.Debug.Assert(e is DbScalarExpression);
             DbScalarExpression subquery = (DbScalarExpression)e;
-            if (subquery != aggregate.AggregateAsSubquery)
+            if (subquery != aggregate.AggregateAsSubQuery)
             {
-                return new DbAggregateSubqueryExpression(aggregate.GroupByAlias, aggregate.AggregateInGroupSelect, subquery);
+                return new DbAggregateSubQueryExpression(aggregate.GroupByAlias, aggregate.AggregateInGroupSelect, subquery);
             }
             return aggregate;
         }

@@ -18,7 +18,7 @@ namespace SubSonic.Linq.Expressions
         In,
         NotIn,
         Grouping,
-        AggregateSubquery,
+        AggregateSubQuery,
         IsNull,
         IsNotNull,
         Between,

@@ -21,6 +21,12 @@ namespace SubSonic.Linq.Expressions
         Expression take;
         Expression skip;
 
+        public DbSelectExpression(Table alias, Expression from)
+            : base(DbExpressionType.Select, typeof(void), alias)
+        {
+            From = from ?? throw new System.ArgumentNullException(nameof(from));
+        }
+
         public DbSelectExpression(
             Table alias,
             IEnumerable<DbColumnDeclaration> columns,
