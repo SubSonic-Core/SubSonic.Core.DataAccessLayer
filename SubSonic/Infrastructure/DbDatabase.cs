@@ -65,7 +65,14 @@ namespace SubSonic.Infrastructure
 
         internal DbConnection CreateConnection()
         {
-            return dbProvider.CreateConnection();
+            DbConnection connection = dbProvider.CreateConnection();
+            if (dbContext.GetConnectionString.IsNotNull())
+            {
+                DbConnectionStringBuilder builder = new DbConnectionStringBuilder();
+
+                connection.ConnectionString = dbContext.GetConnectionString(builder, dbContext.Options);
+            }
+            return connection;
         }
 
         internal void ResetSharedConnection()

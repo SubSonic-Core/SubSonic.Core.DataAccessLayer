@@ -7,6 +7,7 @@ namespace SubSonic.Extensions.Test
 {
     using Infrastructure;
     using System.Linq;
+    using static SubSonic.Infrastructure.DbContextOptionsBuilder;
 
     public static partial class SubSonicTestExtensions
     {
@@ -36,6 +37,25 @@ namespace SubSonic.Extensions.Test
 
             dbContext.Options.SetDbProviderInvariantName(dbProviderInvariantName);
             dbContext.Options.SetSqlQueryProviderInvariantName(sqlQueryProviderInvariantName);
+        }
+        public static void UpdateConnectionString(this DbContext dbContext, Action<DbConnectionStringBuilder, DbContextOptions> config)
+        {
+            if (dbContext is null)
+            {
+                throw new ArgumentNullException(nameof(dbContext));
+            }
+
+            if (config is null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
+            dbContext.GetConnectionString = (builder, options) =>
+            {
+                config(builder, options);
+
+                return builder.ConnectionString;
+            };
         }
     }
 }

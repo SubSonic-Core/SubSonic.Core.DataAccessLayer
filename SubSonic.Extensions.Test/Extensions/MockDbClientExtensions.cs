@@ -54,7 +54,7 @@ namespace SubSonic.Extensions.Test
             return builder;
         }
 
-        public static DbContextOptionsBuilder UseMockDbClient(this DbContextOptionsBuilder builder, Action<DbConnectionStringBuilder> connection = null)
+        public static DbContextOptionsBuilder UseMockDbClient(this DbContextOptionsBuilder builder, Action<DbConnectionStringBuilder, DbContextOptions> config = null)
         {
             if (builder is null)
             {
@@ -67,9 +67,8 @@ namespace SubSonic.Extensions.Test
                 .RegisterProviderFactory(DbProviderInvariantNames.MockDbProviderInvariantName, providerFactoryType)
                 .RegisterSqlQueryProvider(DbProviderInvariantNames.MockDbProviderInvariantName, typeof(MockSqlQueryProvider))
                 .RegisterSqlQueryProvider(DbProviderInvariantNames.SqlServiceDbProviderInvariantName, typeof(SqlServerSqlQueryProvider))
-                .SetDefaultProvider(DbProviderInvariantNames.MockDbProviderInvariantName);
-
-            IServiceCollection services = builder.ServiceProvider.GetService<IServiceCollection>();
+                .SetDefaultProvider(DbProviderInvariantNames.MockDbProviderInvariantName)
+                .SetConnectionStringBuilder(config);
 
             return builder;
         }

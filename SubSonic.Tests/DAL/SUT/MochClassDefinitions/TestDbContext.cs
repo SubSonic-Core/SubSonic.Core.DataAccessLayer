@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SubSonic.Extensions;
 using SubSonic.Extensions.Test;
 using SubSonic.Infrastructure;
 using SubSonic.Tests.DAL.SUT.NUnit;
@@ -21,15 +22,19 @@ namespace SubSonic.Tests.DAL.SUT
 
         public DbSetCollection<Models.Unit> Units { get; private set; }
 
-        protected override void OnDbConfiguring(DbContextOptionsBuilder builder)
+        protected override void OnDbConfiguring(DbContextOptionsBuilder config)
         {
-            base.OnDbConfiguring(builder);
-
-            builder
+            config
                 .ConfigureServiceCollection()
                 .AddLogging((config) => config.AddNUnitLogger<TestDbContext>(LogLevel.Debug))
-                .UseMockDbClient()
-                .EnableProxyGeneration();
+                .EnableProxyGeneration()
+                .UseMockDbClient((builder, options) =>
+                {
+                    builder
+                        .SetDatasource("localhost")
+                        .SetInitialCatalog("test")
+                        .SetIntegratedSecurity(true);
+                });
         }
 
         protected override void OnDbModeling(DbModelBuilder builder)

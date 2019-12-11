@@ -17,6 +17,30 @@ namespace SubSonic.Infrastructure
 
         private bool isDirtyServiceProvider = false;
 
+        internal class ConnectionStringKeys
+        {
+            public const string Async = "Async";
+            public const string MARS = "MultipleActiveResultSets";
+            public const string IntegratedSecurity = "Integrated Security";
+            public const string FailOverPartner = "Failover Partner";
+            public const string ConnectionTimeout = "Connection Timeout";
+            public const string AttachDBFilename = "AttachDBFilename";
+            public const string ConnectionLifetime = "Connection Lifetime";
+            public const string DataSource = "Data Source";
+            public const string Encrypt = "Encrypt";
+            public const string InitialCatalog = "Initial Catalog";
+            public const string LoadBalanceTimeout = "Load Balance Timeout";
+            public const string MaxPoolSize = "Max Pool Size";
+            public const string MinPoolSize = "Min Pool Size";
+            public const string ContextConnection = "Context Connection";
+            public const string PacketSize = "Packet Size";
+            public const string Password = "Password";
+            public const string PersistSecurityInfo = "Persist Security Info";
+            public const string Pooling = "Pooling";
+            public const string UserID = "User ID";
+            public const string WorkstationID = "Workstation  ID";
+        }
+
         public DbContextOptionsBuilder(DbContext dbContext, DbContextOptions options)
         {
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
@@ -27,9 +51,23 @@ namespace SubSonic.Infrastructure
 
         public IServiceProvider ServiceProvider => dbContext.Instance;
 
-        public void EnableProxyGeneration()
+        public DbContextOptionsBuilder EnableProxyGeneration()
         {
             options.EnableProxyGeneration = true;
+
+            return this;
+        }
+
+        public DbContextOptionsBuilder SetConnectionStringBuilder(Action<DbConnectionStringBuilder, DbContextOptions> connection)
+        {
+            dbContext.GetConnectionString = (builder, options) =>
+            {
+                connection(builder, options);
+
+                return builder.ConnectionString;
+            };
+
+            return this;
         }
 
         public DbContextOptionsBuilder SetDefaultProvider(string dbProviderInvariantName, string sqlQueryProviderInvariantName = null)
@@ -146,3 +184,4 @@ namespace SubSonic.Infrastructure
         }
     }
 }
+

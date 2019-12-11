@@ -18,7 +18,7 @@ using System.Text;
 
 namespace SubSonic
 {
-    public class DbContext
+    public partial class DbContext
         : IDisposable, IInfrastructure<IServiceProvider>
     {
         protected DbContext()
@@ -36,18 +36,6 @@ namespace SubSonic
             OnDbModeling(new DbModelBuilder(Model));
 
             SetDbSetCollections();
-        }
-
-        public DbContextOptions Options { get; }
-
-        public DbModel Model { get; }
-
-        public DbDatabase Database => Instance.GetService<DbDatabase>();
-
-        public DbSetCollection<TEntity> Set<TEntity>()
-            where TEntity : class
-        {
-            return Instance.GetService<DbSetCollection<TEntity>>();
         }
 
         private void SetDbSetCollections()
@@ -101,14 +89,6 @@ namespace SubSonic
 
         }
 
-        #region public methods
-        /// <summary>
-        /// Use a shared connection to get data faster and reduce connection overhead
-        /// </summary>
-        /// <returns></returns>
-        public SharedDbConnectionScope UseSharedDbConnection() => Instance.GetService<SharedDbConnectionScope>();
-        #endregion
-
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
@@ -144,7 +124,5 @@ namespace SubSonic
             GC.SuppressFinalize(this);
         }
         #endregion
-
-        public IServiceProvider Instance { get; internal set; }
     }
 }

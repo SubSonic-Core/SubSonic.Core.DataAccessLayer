@@ -10,6 +10,7 @@ namespace SubSonic.Tests.DAL.DbContextTests
 {
     using FluentAssertions;
     using SUT;
+    using System.Data.Common;
 
     [TestFixture]
     public partial class DbContextTests
@@ -33,6 +34,15 @@ namespace SubSonic.Tests.DAL.DbContextTests
         public void DbModelShouldBeInitialized()
         {
             DbContext.Model.Should().NotBeNull();
+        }
+
+        [Test]
+        public void ShouldBeAbleToCreateConnection()
+        {
+            DbConnection dbConnection = DbContext.Database.CreateConnection();
+
+            dbConnection.Should().NotBeNull();
+            dbConnection.ConnectionString.Should().NotBeNullOrEmpty();
         }
     }
 }

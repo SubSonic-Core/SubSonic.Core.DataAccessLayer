@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Text;
 
 namespace SubSonic.Infrastructure
@@ -15,7 +16,7 @@ namespace SubSonic.Infrastructure
         public string SqlQueryProviderInvariantName { get; internal set; }
         public bool UseMultipleActiveResultSets { get; internal set; }
 
-        internal void SetDbProviderInvariantName(string dbProviderInvariantName)
+        public void SetDbProviderInvariantName(string dbProviderInvariantName)
         {
             if (string.IsNullOrEmpty(dbProviderInvariantName))
             {
@@ -25,7 +26,7 @@ namespace SubSonic.Infrastructure
             DbProviderInvariantName = dbProviderInvariantName;
         }
 
-        internal void SetSqlQueryProviderInvariantName(string sqlQueryProviderInvariantName)
+        public void SetSqlQueryProviderInvariantName(string sqlQueryProviderInvariantName)
         {
             if (string.IsNullOrEmpty(sqlQueryProviderInvariantName))
             {
