@@ -58,6 +58,11 @@ namespace SubSonic
             return source;
         }
 
+        public static TType IsNullThrowMissingArgument<TType>(this TType source, string name)
+        {
+            return IsNullThrow(source, new ArgumentNullException(name));
+        }
+
         
 
         public static bool IsDefaultValue<TType>(this TType left)

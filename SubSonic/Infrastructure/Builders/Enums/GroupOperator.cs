@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SubSonic.Infrastructure
 {
-    internal enum EnumGroupOperator
+    internal enum GroupOperator
     {
         And = 0,
         AndAlso,

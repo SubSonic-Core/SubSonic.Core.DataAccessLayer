@@ -77,14 +77,14 @@ namespace SubSonic.Infrastructure
 
             for (int i = 0; i < keys.Length; i++)
             {
-                builder.BuildComparisonExpression(keys[i], keyData[i], EnumComparisonOperator.Equal, EnumGroupOperator.AndAlso);
+                builder.BuildComparisonExpression(keys[i], keyData[i], ComparisonOperator.Equal, GroupOperator.AndAlso);
             }
 
             return Provider.CreateQuery<TEntity>(
                 builder
-                    .CallExpression<TEntity>(EnumCallExpression.Where)
+                    .CallExpression<TEntity>(CallExpression.Where)
                     .ForEachProperty(keys, property => 
-                        builder.CallExpression<TEntity>(EnumCallExpression.OrderBy, property))
+                        builder.CallExpression<TEntity>(CallExpression.OrderBy, property))
                     .ToMethodCallExpression());
         }
     }

@@ -9,7 +9,7 @@ using System.Text;
 
 namespace SubSonic.Extensions.Test
 {
-    using SqlServer.SqlQueryProvider;
+    using SqlServer;
 
     public static partial class SubSonicTestExtensions
     {
@@ -65,9 +65,8 @@ namespace SubSonic.Extensions.Test
 
             builder
                 .RegisterProviderFactory(DbProviderInvariantNames.MockDbProviderInvariantName, providerFactoryType)
-                .RegisterSqlQueryProvider(DbProviderInvariantNames.MockDbProviderInvariantName, typeof(MockSqlQueryProvider))
                 .RegisterSqlQueryProvider(DbProviderInvariantNames.SqlServiceDbProviderInvariantName, typeof(SqlServerSqlQueryProvider))
-                .SetDefaultProvider(DbProviderInvariantNames.MockDbProviderInvariantName)
+                .SetDefaultProvider(DbProviderInvariantNames.MockDbProviderInvariantName, DbProviderInvariantNames.SqlServiceDbProviderInvariantName)
                 .SetConnectionStringBuilder(config);
 
             return builder;

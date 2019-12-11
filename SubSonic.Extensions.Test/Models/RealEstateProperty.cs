@@ -6,6 +6,7 @@ using System.Text;
 
 namespace SubSonic.Extensions.Test.Models
 {
+    [Table(nameof(RealEstateProperty))]
     public class RealEstateProperty
     {
         public RealEstateProperty()

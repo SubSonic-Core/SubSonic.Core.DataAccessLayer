@@ -38,9 +38,9 @@ namespace SubSonic.Data.DynamicProxies
                     continue;
                 }
 
-                if (property.EntityPropertyType == EnumDbEntityPropertyType.Navigation || property.EntityPropertyType == EnumDbEntityPropertyType.Collection)
+                if (property.EntityPropertyType == DbEntityPropertyType.Navigation || property.EntityPropertyType == DbEntityPropertyType.Collection)
                 {
-                    BuildOverriddenProperty(property.PropertyName, property.PropertyType, property.EntityPropertyType == EnumDbEntityPropertyType.Collection);
+                    BuildOverriddenProperty(property.PropertyName, property.PropertyType, property.EntityPropertyType == DbEntityPropertyType.Collection);
                 }
             }
 

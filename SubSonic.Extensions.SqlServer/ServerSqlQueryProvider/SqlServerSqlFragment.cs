@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SubSonic.Extensions.SqlServer.SqlQueryProvider
+namespace SubSonic.Extensions.SqlServer
 {
     using Infrastructure.SqlGenerator;
 

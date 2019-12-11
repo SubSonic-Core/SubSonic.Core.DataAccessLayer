@@ -30,20 +30,25 @@ namespace SubSonic.Infrastructure
         {
             Type entityModelType = typeof(TEntity);
 
+            var TableAttr = entityModelType.GetCustomAttribute<TableAttribute>();
+
             DbEntityModel entity = new DbEntityModel()
             {
-                EntityModelType = entityModelType
+                EntityModelType = entityModelType,
+                Name = TableAttr.IsNotNull(Table => Table.Name, entityModelType.Name),
+                SchemaName = TableAttr.IsNotNull(Table => Table.Schema, "dbo")
             };
 
             entity.SetPrimaryKey(Ext.GetPrimaryKeyName<TEntity>());
 
             foreach (PropertyInfo info in entityModelType.GetProperties())
             {
-                var column = info.GetCustomAttribute<ColumnAttribute>();
+                var ColumnAttr = info.GetCustomAttribute<ColumnAttribute>();
 
-                DbEntityProperty property = new DbEntityProperty(entity, column.IsNotNull(col => col.Name, info.Name))
+                DbEntityProperty property = new DbEntityProperty(entity, ColumnAttr.IsNotNull(Column => Column.Name, info.Name))
                 {
                     PropertyName = info.Name,
+                    SchemaName = entity.QualifiedName,
                     PropertyType = info.PropertyType,
                     IsPrimaryKey = info.GetCustomAttribute<KeyAttribute>().IsNotNull(),
                     IsRequired = info.GetCustomAttribute<RequiredAttribute>().IsNotNull() || !info.PropertyType.IsNullableType()

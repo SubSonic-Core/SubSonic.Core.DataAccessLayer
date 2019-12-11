@@ -1,10 +1,12 @@
-﻿using SubSonic.Infrastructure.Logging;
+﻿using SubSonic.Infrastructure.Builders;
+using SubSonic.Infrastructure.Logging;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SubSonic.Infrastructure
 {
@@ -29,6 +31,7 @@ namespace SubSonic.Infrastructure
             this.sqlQueryProvider = sqlQueryProvider ?? throw new ArgumentNullException(nameof(sqlQueryProvider));
         }
 
+        #region connections
         internal DbConnection CurrentSharedConnection
         {
             get
@@ -79,15 +82,35 @@ namespace SubSonic.Infrastructure
         {
             CurrentSharedConnection.IsNotNull(Con => Con.Dispose());
         }
+        #endregion
 
         internal TResult ExecuteQuery<TResult>(Expression expression)
         {
             using (IPerformanceLogger<DbDatabase> performance = logger.Start($"{nameof(ExecuteQuery)}<{typeof(TResult).GetQualifiedTypeName()}>"))
             {
-                using (AutomaticConnectionScope scope = new AutomaticConnectionScope(this))
+                using (AutomaticConnectionScope Scope = new AutomaticConnectionScope(this))
                 {
+                    var query = BuildSqlQuery<TResult>(SqlQueryType.Read, (builder) =>
+                    {
+                        builder.BuildSqlQuery(expression);
+
+                        return builder.ToQueryObject();
+                    });
+
                     throw new NotImplementedException();
                 }
+            }
+        }
+
+        internal async Task<object> BuildSqlQuery<TSqlQueryResult>(SqlQueryType sqlQueryType, Func<IDbSqlQueryBuilder, object> builder)
+        {
+            using (IPerformanceLogger<DbDatabase> performance = logger.Start($"{nameof(ExecuteQuery)}<{typeof(TSqlQueryResult).GetQualifiedTypeName()}>"))
+            {
+                IDbSqlQueryBuilder dbSqlQueryBuilder = dbContext.Instance.GetService<DbSqlQueryBuilder<TSqlQueryResult>>();
+
+                return await Task
+                    .Run(() => builder(dbSqlQueryBuilder.BuildSqlQuery(sqlQueryType, sqlQueryProvider)))
+                    .ConfigureAwait(false);
             }
         }
     }

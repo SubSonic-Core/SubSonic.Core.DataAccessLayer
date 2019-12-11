@@ -4,9 +4,10 @@ using System.Text;
 
 namespace SubSonic.Infrastructure
 {
-    internal enum EnumCallExpression
+    public enum DbEntityPropertyType
     {
-        Where = 0,
-        OrderBy
+        Value = 0,
+        Navigation,
+        Collection
     }
 }

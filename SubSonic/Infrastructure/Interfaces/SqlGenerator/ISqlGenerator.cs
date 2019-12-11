@@ -11,7 +11,7 @@ namespace SubSonic.Infrastructure.SqlGenerator
         /// <summary>
         /// SqlFragment. Field values may change depending on the inheriting Generator.
         /// </summary>
-        ISqlFragment sqlFragment { get; }
+        ISqlFragment SqlFragment { get; }
 
         /// <summary>
         /// Generates the command line.
@@ -53,7 +53,7 @@ namespace SubSonic.Infrastructure.SqlGenerator
         /// Gets the paging SQL wrapper.
         /// </summary>
         /// <returns></returns>
-        ISqlGenerator GetPagingSqlWrapper();
+        string GetPagingSqlWrapper();
 
         /// <summary>
         /// Gets the select columns.

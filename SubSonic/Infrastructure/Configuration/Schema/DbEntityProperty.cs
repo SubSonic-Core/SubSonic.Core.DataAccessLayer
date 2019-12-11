@@ -41,22 +41,22 @@ namespace SubSonic.Infrastructure.Schema
         public bool IsComputed { get; internal set; }
         public bool IsAutoIncrement { get; internal set; }
 
-        public EnumDbEntityPropertyType EntityPropertyType
+        public DbEntityPropertyType EntityPropertyType
         {
             get
             {
-                EnumDbEntityPropertyType result;
+                DbEntityPropertyType result;
                 if (PropertyType.GetUnderlyingType().IsValueType)
                 {
-                    result = EnumDbEntityPropertyType.Value;
+                    result = DbEntityPropertyType.Value;
                 }
                 else if (PropertyType.IsClass)
                 {
-                    result = EnumDbEntityPropertyType.Navigation;
+                    result = DbEntityPropertyType.Navigation;
                 }
                 else if(PropertyType.GetGenericTypeDefinition() == typeof(ICollection<>) || PropertyType.GetInterface(typeof(IEnumerable<>).Name).IsNotNull())
                 {
-                    result = EnumDbEntityPropertyType.Collection;
+                    result = DbEntityPropertyType.Collection;
                 }
                 else
                 {

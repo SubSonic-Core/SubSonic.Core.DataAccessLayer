@@ -16,7 +16,7 @@ namespace SubSonic.Data.DynamicProxies
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public bool IsElegibleForProxy => baseType.GetProperties().Any(property => property.GetMethod.IsVirtual);
+        public bool IsElegibleForProxy => dbContext.Options.EnableProxyGeneration;
 
         private Type proxyType;
 

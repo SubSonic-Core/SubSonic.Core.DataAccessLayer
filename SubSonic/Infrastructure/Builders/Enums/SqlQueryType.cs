@@ -4,10 +4,11 @@ using System.Text;
 
 namespace SubSonic.Infrastructure
 {
-    public enum EnumDbEntityPropertyType
+    public enum SqlQueryType
     {
-        Value = 0,
-        Navigation,
-        Collection
+        Create = 0,
+        Read,
+        Update,
+        Delete
     }
 }

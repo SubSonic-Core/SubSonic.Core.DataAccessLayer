@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SubSonic.Infrastructure;
+using SubSonic.Infrastructure.Builders;
 using SubSonic.Infrastructure.Logging;
 using SubSonic.Infrastructure.Providers;
 using System;
@@ -59,17 +60,17 @@ namespace SubSonic
 
             if (services.IsNotNull())
             {
-                services.AddSingleton(this);
-
-                services.AddScoped<DbProviderFactory>(provider => DbProviderFactories.GetFactory(Options.DbProviderInvariantName));
-                services.AddScoped<SqlQueryProvider>(provider => SqlQueryProviderFactory.GetProvider(Options.SqlQueryProviderInvariantName));
-
-                services.AddScoped(typeof(ISubSonicLogger<>), typeof(SubSonicLogger<>));
-                services.AddScoped(typeof(ISubSonicDbSetCollectionProvider<>), typeof(SubSonicDbSetCollectionProvider<>));
-                services.AddScoped(typeof(DbSetCollection<>));
-                services.AddScoped<DbDatabase>();
-                services.AddScoped<SharedDbConnectionScope>();
-                services.AddScoped<AutomaticConnectionScope>();
+                services
+                    .AddSingleton(this)
+                    .AddScoped(provider => DbProviderFactories.GetFactory(Options.DbProviderInvariantName))
+                    .AddScoped(provider => SqlQueryProviderFactory.GetProvider(Options.SqlQueryProviderInvariantName))
+                    .AddScoped(typeof(ISubSonicLogger<>), typeof(SubSonicLogger<>))
+                    .AddScoped(typeof(ISubSonicDbSetCollectionProvider<>), typeof(SubSonicDbSetCollectionProvider<>))
+                    .AddScoped(typeof(DbSetCollection<>))
+                    .AddScoped<DbDatabase>()
+                    .AddScoped(typeof(DbSqlQueryBuilder<>))
+                    .AddScoped<SharedDbConnectionScope>()
+                    .AddScoped<AutomaticConnectionScope>();
 
                 Instance = services.BuildServiceProvider();
             }

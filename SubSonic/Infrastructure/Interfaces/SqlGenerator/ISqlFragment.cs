@@ -8,8 +8,6 @@ namespace SubSonic.Infrastructure.SqlGenerator
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "<Pending>")]
     public interface ISqlFragment
     {
-        string ClientName { get; set; }
-
         string AND { get; }
         string AS { get; }
         string ASC { get; }

@@ -21,6 +21,6 @@ namespace SubSonic.Infrastructure.Schema
         bool IsReadOnly { get; }
         bool IsComputed { get; }
         bool IsAutoIncrement { get; }
-        EnumDbEntityPropertyType EntityPropertyType { get; }   
+        DbEntityPropertyType EntityPropertyType { get; }   
     }
 }

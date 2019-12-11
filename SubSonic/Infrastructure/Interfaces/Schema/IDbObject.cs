@@ -8,7 +8,7 @@ namespace SubSonic.Infrastructure.Schema
     {
         string Name { get; set; }
         string FriendlyName { get; set; }
-        string QualifiedName { get; set; }
+        string QualifiedName { get; }
         string SchemaName { get; set; }
     }
 }

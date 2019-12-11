@@ -25,7 +25,7 @@ namespace SubSonic.Infrastructure
 
         public Expression ToMethodCallExpression() => call;
 
-        public DbExpressionBuilder BuildComparisonExpression(string property, object value, EnumComparisonOperator @operator, EnumGroupOperator @group)
+        public DbExpressionBuilder BuildComparisonExpression(string property, object value, ComparisonOperator @operator, GroupOperator @group)
         {
             PropertyInfo propertyInfo = parameter.Type.GetProperty(property);
 
@@ -58,7 +58,7 @@ namespace SubSonic.Infrastructure
         }
             
 
-        public DbExpressionBuilder CallExpression<TEntity>(EnumCallExpression @enum, params string[] properties)
+        public DbExpressionBuilder CallExpression<TEntity>(CallExpression @enum, params string[] properties)
         {
             Expression lambda = GetExpressionArgument<TEntity>(@enum, properties);
 
@@ -72,18 +72,18 @@ namespace SubSonic.Infrastructure
             return this;
         }
 
-        private static Type[] GetTypeArguments(EnumCallExpression @enum, Expression expression)
+        private static Type[] GetTypeArguments(CallExpression @enum, Expression expression)
         {
             IEnumerable<Type> types = Array.Empty<Type>();
             
             switch(@enum)
             {
-                case EnumCallExpression.Where:
+                case Infrastructure.CallExpression.Where:
                     {
                         types = GetParameterTypes((LambdaExpression)expression);
                     }
                     break;
-                case EnumCallExpression.OrderBy:
+                case Infrastructure.CallExpression.OrderBy:
                     {
                         types = GetParameterTypes((LambdaExpression)expression)
                             .Union(GetMemberType((LambdaExpression)expression));
@@ -99,17 +99,17 @@ namespace SubSonic.Infrastructure
         private static IEnumerable<Type> GetParameterTypes(LambdaExpression expression) => expression.Parameters.Select(Param => Param.Type);
         private static IEnumerable<Type> GetMemberType(LambdaExpression expression) => new[] { expression.Body.Type };
 
-        private Expression GetExpressionArgument<TEntity>(EnumCallExpression @call, params string[] properties)
+        private Expression GetExpressionArgument<TEntity>(CallExpression @call, params string[] properties)
         {
             Expression result;
-            switch(@call)
+            switch(call)
             {
-                case EnumCallExpression.Where:
+                case Infrastructure.CallExpression.Where:
                     {
                         result = Expression.Lambda<Func<TEntity, bool>>(body, parameter);
                     }
                     break;
-                case EnumCallExpression.OrderBy:
+                case Infrastructure.CallExpression.OrderBy:
                     {
                         PropertyInfo info = typeof(TEntity).GetProperty(properties[0]);
                         Expression property = Expression.Property(parameter, info);
@@ -123,28 +123,28 @@ namespace SubSonic.Infrastructure
             return result;
         }
 
-        private Expression GetBodyExpression(Expression right, EnumGroupOperator @group)
+        private Expression GetBodyExpression(Expression right, GroupOperator @group)
         {
             Expression result;
 
             switch(group)
             {
-                case EnumGroupOperator.And:
+                case GroupOperator.And:
                     {
                         result = Expression.And(body, right);
                     }
                     break;
-                case EnumGroupOperator.AndAlso:
+                case GroupOperator.AndAlso:
                     {
                         result = Expression.AndAlso(body, right);
                     }
                     break;
-                case EnumGroupOperator.Or:
+                case GroupOperator.Or:
                     {
                         result = Expression.Or(body, right);
                     }
                     break;
-                case EnumGroupOperator.OrElse:
+                case GroupOperator.OrElse:
                     {
                         result = Expression.OrElse(body, right);
                     }
@@ -156,80 +156,80 @@ namespace SubSonic.Infrastructure
             return result;
         }
 
-        private static Expression GetComparisonExpression(Expression left, Expression right, EnumComparisonOperator @operator)
+        private static Expression GetComparisonExpression(Expression left, Expression right, ComparisonOperator @operator)
         {
             Expression result;
 
             switch(@operator)
             {
-                case EnumComparisonOperator.Contains:
-                case EnumComparisonOperator.NotContains:
+                case ComparisonOperator.Contains:
+                case ComparisonOperator.NotContains:
                     {
                         MethodInfo
                             oMethod = left.Type.GetMethod("Contains", new Type[] { right.Type });
 
                         result = Expression.Call(left, oMethod, right);
 
-                        if (@operator == EnumComparisonOperator.NotContains)
+                        if (@operator == ComparisonOperator.NotContains)
                         {
                             result = Expression.Not(result);
                         }
                     }
                     break;
-                case EnumComparisonOperator.StartsWith:
-                case EnumComparisonOperator.NotStartsWith:
+                case ComparisonOperator.StartsWith:
+                case ComparisonOperator.NotStartsWith:
                     {
                         MethodInfo
                             oMethod = left.Type.GetMethod("StartsWith", new Type[] { right.Type });
 
                         result = Expression.Call(left, oMethod, right);
 
-                        if (@operator == EnumComparisonOperator.NotContains)
+                        if (@operator == ComparisonOperator.NotContains)
                         {
                             result = Expression.Not(result);
                         }
                     }
                     break;
-                case EnumComparisonOperator.EndsWith:
-                case EnumComparisonOperator.NotEndsWith:
+                case ComparisonOperator.EndsWith:
+                case ComparisonOperator.NotEndsWith:
                     {
                         MethodInfo
                             oMethod = left.Type.GetMethod("EndsWith", new Type[] { right.Type });
 
                         result = Expression.Call(left, oMethod, right);
 
-                        if (@operator == EnumComparisonOperator.NotContains)
+                        if (@operator == ComparisonOperator.NotContains)
                         {
                             result = Expression.Not(result);
                         }
                     }
                     break;
-                case EnumComparisonOperator.Equal:
+                case ComparisonOperator.Equal:
                     {
                         result = Expression.Equal(left, right);
                     }
                     break;
-                case EnumComparisonOperator.NotEqual:
+                case ComparisonOperator.NotEqual:
                     {
                         result = Expression.NotEqual(left, right);
                     }
                     break;
-                case EnumComparisonOperator.GreaterThan:
+                case ComparisonOperator.GreaterThan:
                     {
                         result = Expression.GreaterThan(left, right);
                     }
                     break;
-                case EnumComparisonOperator.GreaterThanOrEqual:
+                case ComparisonOperator.GreaterThanOrEqual:
                     {
                         result = Expression.GreaterThanOrEqual(left, right);
                     }
                     break;
-                case EnumComparisonOperator.LessThan:
+                case ComparisonOperator.LessThan:
                     {
                         result = Expression.LessThan(left, right);
                     }
                     break;
-                case EnumComparisonOperator.LessThanOrEqual:
+                case ComparisonOperator.LessThanOrEqual:
                     {
                         result = Expression.LessThanOrEqual(left, right);
                     }

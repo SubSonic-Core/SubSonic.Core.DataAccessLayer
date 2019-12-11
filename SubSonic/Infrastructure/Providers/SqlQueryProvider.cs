@@ -15,17 +15,44 @@ namespace SubSonic.Infrastructure
         private readonly StringBuilder sql;
         private TextWriter sqlWriter;
 
+        private const string PAGING_SQL =
+@"
+DECLARE @Page int;
+DECLARE @PageSize int;
+
+SELECT @Page = {4}, @PageSize = {5};
+
+SET NOCOUNT ON;
+
+-- create a temp table to hold order ids
+DECLARE @TempTable TABLE (IndexId int identity, _keyID {6});
+
+-- insert the table ids and row numbers into the memory table
+INSERT INTO @TempTable
+(
+	_keyID
+)
+SELECT 
+	{0}
+	{1}
+	{2}
+-- select only those rows belonging to the proper page
+	{3}
+INNER JOIN @TempTable t ON {0} = t._keyID
+WHERE t.IndexId BETWEEN ((@Page - 1) * @PageSize + 1) AND (@Page * @PageSize);";
+
         protected SqlQueryProvider(ISqlFragment sqlFragment)
         {
-            this.sqlFragment = sqlFragment ?? throw new ArgumentNullException(nameof(sqlFragment));
+            this.SqlFragment = sqlFragment ?? throw new ArgumentNullException(nameof(sqlFragment));
             this.sql = new StringBuilder();
             this.sqlWriter = new StringWriter(sql);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1065:Do not raise exceptions in unexpected locations", Justification = "really this should throw if not overridden")]
-        public virtual string ClientName => throw new NotImplementedException();
+        public IDbEntityModel EntityModel { get; set; }
 
-        public ISqlFragment sqlFragment { get; }
+        public virtual string ClientName => string.Empty;
+
+        public ISqlFragment SqlFragment { get; }
 
         public void WriteSqlSegment(string segment, bool debug = false)
         {
@@ -104,9 +131,9 @@ namespace SubSonic.Infrastructure
             throw new NotImplementedException();
         }
 
-        public virtual ISqlGenerator GetPagingSqlWrapper()
+        public virtual string GetPagingSqlWrapper()
         {
-            throw new NotImplementedException();
+            return PAGING_SQL;
         }
 
         public virtual List<string> GetSelectColumns()
