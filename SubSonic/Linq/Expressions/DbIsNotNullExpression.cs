@@ -6,13 +6,14 @@ namespace SubSonic.Linq.Expressions
     /// Allows is-not-null tests against value-types like int and float
     /// </summary>
     public class DbIsNotNullExpression
-        : DbExpression
+        : DbIsNullExpression
     {
         public DbIsNotNullExpression(Expression expression)
-            : base(DbExpressionType.IsNotNull, typeof(bool))
+            : base(DbExpressionType.IsNotNull)
         {
             Expression = expression;
         }
-        public Expression Expression { get; }
+
+        public override Expression Expression { get; }
     }
 }

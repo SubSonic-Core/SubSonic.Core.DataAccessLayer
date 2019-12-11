@@ -8,7 +8,7 @@ namespace SubSonic.Linq.Expressions
         : DbExpression
     {
         public DbAggregateSubQueryExpression(Table groupByAlias, Expression aggregateInGroupSelect, DbScalarExpression aggregateAsSubquery)
-            : base(DbExpressionType.AggregateSubQuery, aggregateAsSubquery.IsNullThrowMissingArgument(nameof(aggregateAsSubquery)).Type)
+            : base(DbExpressionType.AggregateSubQuery, aggregateAsSubquery.IsNullThrowArgumentNull(nameof(aggregateAsSubquery)).Type)
         {
             AggregateInGroupSelect = aggregateInGroupSelect ?? throw new ArgumentNullException(nameof(aggregateInGroupSelect));
             GroupByAlias = groupByAlias ?? throw new ArgumentNullException(nameof(groupByAlias));

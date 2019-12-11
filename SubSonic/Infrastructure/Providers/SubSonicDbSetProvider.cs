@@ -30,7 +30,7 @@ namespace SubSonic.Infrastructure.Providers
 
         public virtual IQueryable<TElement> CreateQuery<TElement>(Expression expression)
         {
-            using (IPerformanceLogger<DbSetCollection<TEntity>> performance = logger.Start($"{nameof(CreateQuery)}<{typeof(TElement).GetQualifiedTypeName()}>"))
+            using (IPerformanceLogger<DbSetCollection<TEntity>> performance = logger.Start($"{nameof(CreateQuery)}<{typeof(TElement).GetTypeName()}>"))
             {
                 return new DbSetCollection<TElement>((ISubSonicDbSetCollectionProvider<TElement>)this, (Expression)expression);
             }
@@ -46,7 +46,7 @@ namespace SubSonic.Infrastructure.Providers
 
         public virtual TResult Execute<TResult>(Expression expression)
         {
-            using (IPerformanceLogger<DbSetCollection<TEntity>> performance = logger.Start($"{nameof(Execute)}<{typeof(TResult).GetQualifiedTypeName()}>"))
+            using (IPerformanceLogger<DbSetCollection<TEntity>> performance = logger.Start($"{nameof(Execute)}<{typeof(TResult).GetTypeName()}>"))
             {
                 return DbContext.Database.ExecuteQuery<TResult>(expression);
             }

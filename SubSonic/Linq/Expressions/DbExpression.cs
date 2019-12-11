@@ -12,7 +12,7 @@ namespace SubSonic.Linq.Expressions
             Type = type;
         }
 
-        public virtual DbExpression Expression { get; }
+        public virtual Expression Expression { get; }
 
         public override ExpressionType NodeType { get; }
 
@@ -20,7 +20,7 @@ namespace SubSonic.Linq.Expressions
 
         public override string ToString()
         {
-            return DbExpressionWriter.WriteToString(this);
+            return DbExpressionWriterOld.WriteToString(this);
         }
     }
 }

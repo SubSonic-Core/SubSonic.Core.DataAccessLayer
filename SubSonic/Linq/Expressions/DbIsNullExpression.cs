@@ -9,10 +9,14 @@ namespace SubSonic.Linq.Expressions
         : DbExpression
     {
         public DbIsNullExpression(Expression expression)
-            : base(DbExpressionType.IsNull, typeof(bool))
+            : this(DbExpressionType.IsNull)
         {
             Expression = expression;
         }
-        public Expression Expression { get; }
+
+        protected DbIsNullExpression(DbExpressionType eType)
+            : base(eType, typeof(bool)) { }
+
+        public override Expression Expression { get; }
     }
 }

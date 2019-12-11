@@ -22,6 +22,7 @@ namespace SubSonic.Linq.Expressions
         IsNull,
         IsNotNull,
         Between,
+        NotBetween,
         RowCount,
         NamedValue,
         OuterJoined,

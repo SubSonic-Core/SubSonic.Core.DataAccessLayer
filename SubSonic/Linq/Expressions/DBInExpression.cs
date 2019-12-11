@@ -8,12 +8,12 @@ namespace SubSonic.Linq.Expressions
         : DbSubQueryExpression
     {
         public DbInExpression(Expression expression, DbSelectExpression select)
-            : base(DbExpressionType.In, typeof(bool), select)
+            : this(DbExpressionType.In, select)
         {
             Expression = expression;
         }
         public DbInExpression(Expression expression, IEnumerable<Expression> values)
-            : base(DbExpressionType.In, typeof(bool), null)
+            : this(DbExpressionType.In)
         {
             Expression = expression;
             Values = values as ReadOnlyCollection<Expression>;
@@ -22,7 +22,14 @@ namespace SubSonic.Linq.Expressions
                 Values = new List<Expression>(values).AsReadOnly();
             }
         }
-        public Expression Expression { get; }
-        public ReadOnlyCollection<Expression> Values { get; }
+
+        protected DbInExpression(DbExpressionType eType, DbExpression expression = null)
+            : base(eType, typeof(bool), expression)
+        {
+
+        }
+
+        public override Expression Expression { get; }
+        public virtual ReadOnlyCollection<Expression> Values { get; }
     }
 }

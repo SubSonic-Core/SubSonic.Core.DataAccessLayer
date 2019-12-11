@@ -15,7 +15,7 @@ namespace SubSonic.Linq.Expressions
         {
         }
         public DbProjectionExpression(DbSelectExpression source, Expression projector, LambdaExpression aggregator)
-            : base(DbExpressionType.Projection, aggregator != null ? aggregator.Body.Type : typeof(IEnumerable<>).MakeGenericType(projector.IsNullThrowMissingArgument(nameof(projector)).Type))
+            : base(DbExpressionType.Projection, aggregator != null ? aggregator.Body.Type : typeof(IEnumerable<>).MakeGenericType(projector.IsNullThrowArgumentNull(nameof(projector)).Type))
         {
             Source = source;
             Projector = projector;
@@ -30,7 +30,7 @@ namespace SubSonic.Linq.Expressions
         }
         public override string ToString()
         {
-            return DbExpressionWriter.WriteToString(this);
+            return DbExpressionWriterOld.WriteToString(this);
         }
         public string QueryText
         {

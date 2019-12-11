@@ -36,20 +36,6 @@ namespace SubSonic
             return type.IsGenericType ? type.GetGenericArguments().First() : type;
         }
 
-        public static string GetQualifiedTypeName(this Type type)
-        {
-            string result;
-            if(type.IsGenericType)
-            {
-                result = $"{type.Name}<{string.Join(',', type.GetGenericArguments().Select(t => t.Name))}>";
-            }
-            else
-            {
-                result = type.Name;
-            }
-            return result;
-        }
-
         public static Type FindIEnumerable(this Type seqType)
         {
             if (seqType == null || seqType == typeof(string))
@@ -107,6 +93,43 @@ namespace SubSonic
                 default:
                     return true;
             }
+        }
+
+        public static string GetTypeName(this Type type)
+        {
+            if (type is null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
+
+            string name = type.Name;
+            name = name.Replace('+', '.');
+            int iGeneneric = name.IndexOf('`', StringComparison.CurrentCulture);
+            if (iGeneneric > 0)
+            {
+                name = name.Substring(0, iGeneneric);
+            }
+            if (type.IsGenericType || type.IsGenericTypeDefinition)
+            {
+                StringBuilder sb = new StringBuilder();
+                sb.Append(name);
+                sb.Append("<");
+                var args = type.GetGenericArguments();
+                for (int i = 0, n = args.Length; i < n; i++)
+                {
+                    if (i > 0)
+                    {
+                        sb.Append(",");
+                    }
+                    if (type.IsGenericType)
+                    {
+                        sb.Append(GetTypeName(args[i]));
+                    }
+                }
+                sb.Append(">");
+                name = sb.ToString();
+            }
+            return name;
         }
     }
 }

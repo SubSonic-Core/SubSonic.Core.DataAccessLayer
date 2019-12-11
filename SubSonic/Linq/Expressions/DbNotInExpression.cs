@@ -5,15 +5,15 @@ using System.Linq.Expressions;
 namespace SubSonic.Linq.Expressions
 {
     public class DbNotInExpression
-        : DbSubQueryExpression
+        : DbInExpression
     {
         public DbNotInExpression(Expression expression, DbSelectExpression select)
-            : base(DbExpressionType.NotIn, typeof(bool), select)
+            : base(DbExpressionType.NotIn, select)
         {
             Expression = expression;
         }
         public DbNotInExpression(Expression expression, IEnumerable<Expression> values)
-            : base(DbExpressionType.NotIn, typeof(bool), null)
+            : base(DbExpressionType.NotIn)
         {
             Expression = expression;
             Values = values as ReadOnlyCollection<Expression>;
@@ -22,7 +22,8 @@ namespace SubSonic.Linq.Expressions
                 Values = new List<Expression>(values).AsReadOnly();
             }
         }
-        public Expression Expression { get; }
-        public ReadOnlyCollection<Expression> Values { get; }
+
+        public override Expression Expression { get; }
+        public override ReadOnlyCollection<Expression> Values { get; }
     }
 }

@@ -39,20 +39,99 @@ namespace SubSonic.Linq.Expressions.Structure
                     return this.VisitAggregateSubQuery((DbAggregateSubQueryExpression)node);
                 case DbExpressionType.IsNull:
                 case DbExpressionType.IsNotNull:
-                    return this.VisitNull((DbExpression)node);
+                    return this.VisitNull((DbIsNullExpression)node);
                 case DbExpressionType.Between:
+                case DbExpressionType.NotBetween:
                     return this.VisitBetween((DbBetweenExpression)node);
                 case DbExpressionType.RowCount:
                     return this.VisitRowNumber((DbRowNumberExpression)node);
                 case DbExpressionType.Projection:
                     return this.VisitProjection((DbProjectionExpression)node);
                 case DbExpressionType.NamedValue:
-                    return this.VisitNamedValue((DbNamedValueExpression)node);
+                    return this.VisitExpression((DbNamedValueExpression)node);
                 case DbExpressionType.ClientJoin:
                     return this.VisitClientJoin((DbClientJoinExpression)node);
                 default:
                     return base.Visit(node);
             }
+        }
+
+        protected virtual Expression VisitClientJoin(DbClientJoinExpression join)
+        {
+            if (join is null)
+            {
+                return join;
+            }
+
+            DbProjectionExpression projection = (DbProjectionExpression)this.Visit(join.Projection);
+
+            var outerKey = this.VisitExpressionList(join.OuterKey);
+            var innerKey = this.VisitExpressionList(join.InnerKey);
+
+            if (projection != join.Projection || outerKey != join.OuterKey || innerKey != join.InnerKey)
+            {
+                return new DbClientJoinExpression(projection, outerKey, innerKey);
+            }
+
+            return join;
+        }
+
+        protected virtual Expression VisitProjection(DbProjectionExpression projection)
+        {
+            if(projection is null)
+            {
+                return projection;
+            }
+
+            DbSelectExpression source = (DbSelectExpression)this.Visit(projection.Source);
+            Expression projector = this.Visit(projection.Projector);
+            if (source != projection.Source || projector != projection.Projector)
+            {
+                return new DbProjectionExpression(source, projector, projection.Aggregator);
+            }
+            return projection;
+        }
+
+        protected virtual Expression VisitRowNumber(DbRowNumberExpression rowNumber)
+        {
+            if(rowNumber is null)
+            {
+                return rowNumber;
+            }
+
+            var orderby = this.VisitOrderBy(rowNumber.OrderBy);
+
+            if (orderby != rowNumber.OrderBy)
+            {
+                return new DbRowNumberExpression(orderby);
+            }
+
+            return rowNumber;
+        }
+
+        protected virtual Expression VisitBetween(DbBetweenExpression between)
+        {
+            if (between is null)
+            {
+                return between;
+            }
+
+            Expression expr = this.Visit(between.Expression);
+            Expression lower = this.Visit(between.Lower);
+            Expression upper = this.Visit(between.Upper);
+
+            if (expr != between.Expression || lower != between.Lower || upper != between.Upper)
+            {
+                switch ((DbExpressionType)between.NodeType)
+                {
+                    case DbExpressionType.Between:
+                        return new DbBetweenExpression(expr, lower, upper);
+                    case DbExpressionType.NotBetween:
+                        return new DbNotBetweenExpression(expr, lower, upper);
+                }
+            }
+
+            return between;
         }
 
         protected virtual Expression VisitAggregateSubQuery(DbAggregateSubQueryExpression aggregate)
@@ -95,9 +174,8 @@ namespace SubSonic.Linq.Expressions.Structure
                 case DbExpressionType.Exists:
                     return this.VisitExists((DbExistsExpression)subquery);
                 case DbExpressionType.In:
-                    return this.VisitIn((DbInExpression)subquery);
                 case DbExpressionType.NotIn:
-                    return this.VisitNotIn((DbNotInExpression)subquery);
+                    return this.VisitIn((DbInExpression)subquery);
             }
             return subquery;
         }
@@ -146,7 +224,13 @@ namespace SubSonic.Linq.Expressions.Structure
                 DbSelectExpression select = (DbSelectExpression)this.Visit(inExp.Select);
                 if (expr != inExp.Expression || select != inExp.Select)
                 {
-                    return new DbInExpression(expr, select);
+                    switch ((DbExpressionType)inExp.NodeType)
+                    {
+                        case DbExpressionType.In:
+                            return new DbInExpression(expr, select);
+                        case DbExpressionType.NotIn:
+                            return new DbNotInExpression(expr, select);
+                    }
                 }
             }
             else
@@ -154,41 +238,19 @@ namespace SubSonic.Linq.Expressions.Structure
                 IEnumerable<Expression> values = this.VisitExpressionList(inExp.Values);
                 if (expr != inExp.Expression || values != inExp.Values)
                 {
-                    return new DbInExpression(expr, values);
+                    switch ((DbExpressionType)inExp.NodeType)
+                    {
+                        case DbExpressionType.In:
+                            return new DbInExpression(expr, values);
+                        case DbExpressionType.NotIn:
+                            return new DbNotInExpression(expr, values);
+                    }
                 }
             }
             return inExp;
         }
 
-        protected virtual Expression VisitNotIn(DbNotInExpression notInExp)
-        {
-            if (notInExp is null)
-            {
-                return notInExp;
-            }
-
-            Expression expr = this.Visit(notInExp.Expression);
-
-            if (notInExp.Select != null)
-            {
-                DbSelectExpression select = (DbSelectExpression)this.Visit(notInExp.Select);
-                if (expr != notInExp.Expression || select != notInExp.Select)
-                {
-                    return new DbNotInExpression(expr, select);
-                }
-            }
-            else
-            {
-                IEnumerable<Expression> values = this.VisitExpressionList(notInExp.Values);
-                if (expr != notInExp.Expression || values != notInExp.Values)
-                {
-                    return new DbNotInExpression(expr, values);
-                }
-            }
-            return notInExp;
-        }
-
-        protected virtual Expression VisitNull(DbExpression isnull)
+        protected virtual Expression VisitNull(DbIsNullExpression isnull)
         {
             if(isnull is null)
             {

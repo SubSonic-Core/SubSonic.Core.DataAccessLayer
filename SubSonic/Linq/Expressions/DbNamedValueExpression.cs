@@ -7,7 +7,7 @@ namespace SubSonic.Linq.Expressions
         : DbExpression
     {
         public DbNamedValueExpression(string name, Expression value)
-            : base(DbExpressionType.NamedValue, value.IsNullThrowMissingArgument(nameof(value)).Type)
+            : base(DbExpressionType.NamedValue, value.IsNullThrowArgumentNull(nameof(value)).Type)
         {
             if (string.IsNullOrEmpty(name))
             {

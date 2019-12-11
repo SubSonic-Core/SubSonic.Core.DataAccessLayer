@@ -86,7 +86,7 @@ namespace SubSonic.Infrastructure
 
         internal TResult ExecuteQuery<TResult>(Expression expression)
         {
-            using (IPerformanceLogger<DbDatabase> performance = logger.Start($"{nameof(ExecuteQuery)}<{typeof(TResult).GetQualifiedTypeName()}>"))
+            using (IPerformanceLogger<DbDatabase> performance = logger.Start($"{nameof(ExecuteQuery)}<{typeof(TResult).GetTypeName()}>"))
             {
                 using (AutomaticConnectionScope Scope = new AutomaticConnectionScope(this))
                 {
@@ -104,7 +104,7 @@ namespace SubSonic.Infrastructure
 
         internal async Task<object> BuildSqlQuery<TSqlQueryResult>(SqlQueryType sqlQueryType, Func<IDbSqlQueryBuilder, object> builder)
         {
-            using (IPerformanceLogger<DbDatabase> performance = logger.Start($"{nameof(ExecuteQuery)}<{typeof(TSqlQueryResult).GetQualifiedTypeName()}>"))
+            using (IPerformanceLogger<DbDatabase> performance = logger.Start($"{nameof(ExecuteQuery)}<{typeof(TSqlQueryResult).GetTypeName()}>"))
             {
                 IDbSqlQueryBuilder dbSqlQueryBuilder = dbContext.Instance.GetService<DbSqlQueryBuilder<TSqlQueryResult>>();
 

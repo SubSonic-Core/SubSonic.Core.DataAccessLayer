@@ -60,7 +60,7 @@ namespace SubSonic.Infrastructure.Schema
                 }
                 else
                 {
-                    throw new NotSupportedException($"Property Type \"{PropertyType.GetQualifiedTypeName()}\", is not supported.");
+                    throw new NotSupportedException($"Property Type \"{PropertyType.GetTypeName()}\", is not supported.");
                 }
 
                 return result;

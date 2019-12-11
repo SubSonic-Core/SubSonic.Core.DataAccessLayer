@@ -7,7 +7,7 @@ namespace SubSonic.Linq.Expressions
         : DbExpression
     {
         public DbLimitExpression(int skip, int take, Expression value)
-            : base(DbExpressionType.Limit, value.IsNullThrowMissingArgument(nameof(value)).Type)
+            : base(DbExpressionType.Limit, value.IsNullThrowArgumentNull(nameof(value)).Type)
         {
             Skip = skip;
             Take = take;

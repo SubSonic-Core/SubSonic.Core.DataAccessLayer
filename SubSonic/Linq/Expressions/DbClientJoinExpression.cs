@@ -7,7 +7,7 @@ namespace SubSonic.Linq.Expressions
     public class DbClientJoinExpression : DbExpression
     {
         public DbClientJoinExpression(DbProjectionExpression projection, IEnumerable<Expression> outerKey, IEnumerable<Expression> innerKey)
-            : base(DbExpressionType.ClientJoin, projection.IsNullThrowMissingArgument(nameof(projection)).Type)
+            : base(DbExpressionType.ClientJoin, projection.IsNullThrowArgumentNull(nameof(projection)).Type)
         {
             OuterKey = outerKey as ReadOnlyCollection<Expression>;
             if (OuterKey == null)

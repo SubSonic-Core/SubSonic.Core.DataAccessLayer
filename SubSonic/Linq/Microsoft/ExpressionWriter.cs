@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -15,26 +16,13 @@ namespace SubSonic.Linq.Microsoft
         private static readonly char[] splitters = new char[] { '\n', '\r' };
         private static readonly char[] special = new char[] { '\n', '\n', '\\' };
 
-        TextWriter writer;
-        int indent = 2;
-        int depth;
+        private int indent = 2, depth;
 
         protected enum Indentation
         {
             Same,
             Inner,
             Outer
-        }
-
-        protected ExpressionWriter(TextWriter writer)
-        {
-            this.writer = writer;
-        }
-
-        protected int IndentationWidth
-        {
-            get { return indent; }
-            set { indent = value; }
         }
 
         public static void Write(TextWriter writer, Expression expression)
@@ -59,9 +47,25 @@ namespace SubSonic.Linq.Microsoft
                 throw new ArgumentNullException(nameof(expression));
             }
 
-            StringWriter sw = new StringWriter();
-            Write(sw, expression);
-            return sw.ToString();
+            using (StringWriter writer = new StringWriter())
+            {
+                Write(writer, expression);
+
+                return writer.ToString();
+            }
+        }
+
+        protected ExpressionWriter(TextWriter writer)
+        {
+            this.writer = writer ?? throw new ArgumentNullException(nameof(writer));
+        }
+
+        protected TextWriter writer { get; }
+
+        protected int IndentationWidth
+        {
+            get { return indent; }
+            set { indent = value; }
         }
 
         protected void Indent(Indentation style)
@@ -89,7 +93,12 @@ namespace SubSonic.Linq.Microsoft
 
         protected void Write(string text)
         {
-            if (text.IndexOf('\n') >= 0)
+            if (text is null)
+            {
+                throw new ArgumentNullException(nameof(text));
+            }
+
+            if (text.IndexOf('\n', StringComparison.CurrentCulture) >= 0)
             {
                 string[] lines = text.Split(splitters, StringSplitOptions.RemoveEmptyEntries);
                 for (int i = 0, n = lines.Length; i < n; i++)
@@ -161,8 +170,14 @@ namespace SubSonic.Linq.Microsoft
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected override Expression VisitBinary(BinaryExpression b)
         {
+            if (b is null)
+            {
+                throw new ArgumentNullException(nameof(b));
+            }
+
             switch (b.NodeType)
             {
                 case ExpressionType.ArrayIndex:
@@ -189,14 +204,20 @@ namespace SubSonic.Linq.Microsoft
             return b;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected override Expression VisitUnary(UnaryExpression u)
         {
+            if (u is null)
+            {
+                throw new ArgumentNullException(nameof(u));
+            }
+
             switch (u.NodeType)
             {
                 case ExpressionType.Convert:
                 case ExpressionType.ConvertChecked:
                     Write("((");
-                    Write(GetTypeName(u.Type));
+                    Write(u.Type.GetTypeName());
                     Write(")");
                     Visit(u.Operand);
                     Write(")");
@@ -211,7 +232,7 @@ namespace SubSonic.Linq.Microsoft
                 case ExpressionType.TypeAs:
                     Visit(u.Operand);
                     Write(" as ");
-                    Write(GetTypeName(u.Type));
+                    Write(u.Type.GetTypeName());
                     break;
                 case ExpressionType.UnaryPlus:
                     Visit(u.Operand);
@@ -224,40 +245,14 @@ namespace SubSonic.Linq.Microsoft
             return u;
         }
 
-        protected virtual string GetTypeName(Type type)
-        {
-            string name = type.Name;
-            name = name.Replace('+', '.');
-            int iGeneneric = name.IndexOf('`');
-            if (iGeneneric > 0)
-            {
-                name = name.Substring(0, iGeneneric);
-            }
-            if (type.IsGenericType || type.IsGenericTypeDefinition)
-            {
-                StringBuilder sb = new StringBuilder();
-                sb.Append(name);
-                sb.Append("<");
-                var args = type.GetGenericArguments();
-                for (int i = 0, n = args.Length; i < n; i++)
-                {
-                    if (i > 0)
-                    {
-                        sb.Append(",");
-                    }
-                    if (type.IsGenericType)
-                    {
-                        sb.Append(GetTypeName(args[i]));
-                    }
-                }
-                sb.Append(">");
-                name = sb.ToString();
-            }
-            return name;
-        }
-
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected override Expression VisitConditional(ConditionalExpression c)
         {
+            if (c is null)
+            {
+                throw new ArgumentNullException(nameof(c));
+            }
+
             Visit(c.Test);
             WriteLine(Indentation.Inner);
             Write("? ");
@@ -271,6 +266,11 @@ namespace SubSonic.Linq.Microsoft
 
         protected virtual MemberBinding VisitBinding(MemberBinding binding)
         {
+            if (binding is null)
+            {
+                throw new ArgumentNullException(nameof(binding));
+            }
+
             switch (binding.BindingType)
             {
                 case MemberBindingType.Assignment:
@@ -280,10 +280,11 @@ namespace SubSonic.Linq.Microsoft
                 case MemberBindingType.ListBinding:
                     return VisitMemberListBinding((MemberListBinding)binding);
                 default:
-                    throw new Exception(string.Format("Unhandled binding type '{0}'", binding.BindingType));
+                    throw new Exception(string.Format(CultureInfo.CurrentCulture, "Unhandled binding type '{0}'", binding.BindingType));
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected virtual IEnumerable<MemberBinding> VisitBindingList(ReadOnlyCollection<MemberBinding> original)
         {
             if (original is null)
@@ -303,6 +304,7 @@ namespace SubSonic.Linq.Microsoft
             return original;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected override Expression VisitConstant(ConstantExpression c)
         {
             if (c is null)
@@ -345,6 +347,7 @@ namespace SubSonic.Linq.Microsoft
             return c;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected virtual ElementInit VisitElementInitializer(ElementInit initializer)
         {
             if (initializer is null)
@@ -372,6 +375,7 @@ namespace SubSonic.Linq.Microsoft
             return initializer;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected virtual IEnumerable<ElementInit> VisitElementInitializerList(ReadOnlyCollection<ElementInit> original)
         {
             if (original is null)
@@ -391,6 +395,7 @@ namespace SubSonic.Linq.Microsoft
             return original;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected virtual ReadOnlyCollection<Expression> VisitExpressionList(ReadOnlyCollection<Expression> original)
         {
             if (original is null)
@@ -410,6 +415,7 @@ namespace SubSonic.Linq.Microsoft
             return original;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected override Expression VisitInvocation(InvocationExpression iv)
         {
             if (iv is null)
@@ -429,6 +435,7 @@ namespace SubSonic.Linq.Microsoft
             return iv;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected virtual Expression VisitLambda(LambdaExpression lambda)
         {
             if (lambda is null)
@@ -458,6 +465,7 @@ namespace SubSonic.Linq.Microsoft
             return lambda;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected override Expression VisitListInit(ListInitExpression init)
         {
             if (init is null)
@@ -474,6 +482,7 @@ namespace SubSonic.Linq.Microsoft
             return init;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected virtual Expression VisitMemberAccess(MemberExpression m)
         {
             if (m is null)
@@ -487,6 +496,7 @@ namespace SubSonic.Linq.Microsoft
             return m;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected override MemberAssignment VisitMemberAssignment(MemberAssignment assignment)
         {
             if (assignment is null)
@@ -500,6 +510,7 @@ namespace SubSonic.Linq.Microsoft
             return assignment;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected override Expression VisitMemberInit(MemberInitExpression init)
         {
             if (init is null)
@@ -516,6 +527,7 @@ namespace SubSonic.Linq.Microsoft
             return init;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected override MemberListBinding VisitMemberListBinding(MemberListBinding binding)
         {
             if (binding is null)
@@ -532,6 +544,7 @@ namespace SubSonic.Linq.Microsoft
             return binding;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected override MemberMemberBinding VisitMemberMemberBinding(MemberMemberBinding binding)
         {
             if (binding is null)
@@ -548,6 +561,7 @@ namespace SubSonic.Linq.Microsoft
             return binding;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected override Expression VisitMethodCall(MethodCallExpression m)
         {
             if (m is null)
@@ -561,7 +575,7 @@ namespace SubSonic.Linq.Microsoft
             }
             else
             {
-                Write(GetTypeName(m.Method.DeclaringType));
+                Write(m.Method.DeclaringType.GetTypeName());
             }
             Write(".");
             Write(m.Method.Name);
@@ -575,6 +589,7 @@ namespace SubSonic.Linq.Microsoft
             return m;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected override Expression VisitNew(NewExpression nex)
         {
             if (nex is null)
@@ -583,7 +598,7 @@ namespace SubSonic.Linq.Microsoft
             }
 
             Write("new ");
-            Write(GetTypeName(nex.Constructor.DeclaringType));
+            Write(nex.Constructor.DeclaringType.GetTypeName());
             Write("(");
             if (nex.Arguments.Count > 1)
                 WriteLine(Indentation.Inner);
@@ -594,6 +609,7 @@ namespace SubSonic.Linq.Microsoft
             return nex;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected override Expression VisitNewArray(NewArrayExpression na)
         {
             if (na is null)
@@ -602,7 +618,7 @@ namespace SubSonic.Linq.Microsoft
             }
 
             Write("new ");
-            Write(GetTypeName(na.Type.GetElementType()));
+            Write(na.Type.GetElementType().GetTypeName());
             Write("[] {");
             if (na.Expressions.Count > 1)
                 WriteLine(Indentation.Inner);
@@ -624,6 +640,7 @@ namespace SubSonic.Linq.Microsoft
             return p;
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected virtual Expression VisitTypeIs(TypeBinaryExpression b)
         {
             if (b is null)
@@ -633,7 +650,7 @@ namespace SubSonic.Linq.Microsoft
 
             Visit(b.Expression);
             Write(" is ");
-            Write(GetTypeName(b.TypeOperand));
+            Write(b.TypeOperand.GetTypeName());
             return b;
         }
 

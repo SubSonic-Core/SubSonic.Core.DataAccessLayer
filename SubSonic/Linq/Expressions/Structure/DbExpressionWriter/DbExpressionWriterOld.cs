@@ -10,41 +10,14 @@ namespace SubSonic.Linq.Expressions
 {
     using Translation;
 
-    public class DbExpressionWriter
+    public class DbExpressionWriterOld
         : Microsoft.ExpressionWriter
     {
         Dictionary<Table, int> aliasMap = new Dictionary<Table, int>();
 
-        protected DbExpressionWriter(TextWriter writer)
+        protected DbExpressionWriterOld(TextWriter writer)
             : base(writer)
         {
-        }
-
-        public new static void Write(TextWriter writer, Expression expression)
-        {
-            if (writer is null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
-
-            if (expression is null)
-            {
-                throw new ArgumentNullException(nameof(expression));
-            }
-
-            new DbExpressionWriter(writer).Visit(expression);
-        }
-
-        public new static string WriteToString(Expression expression)
-        {
-            if (expression is null)
-            {
-                throw new ArgumentNullException(nameof(expression));
-            }
-
-            StringWriter sw = new StringWriter();
-            Write(sw, expression);
-            return sw.ToString();
         }
 
         public override Expression Visit(Expression exp)
