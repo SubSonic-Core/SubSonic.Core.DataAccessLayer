@@ -10,7 +10,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace SubSonic.Linq.Microsoft
 {
@@ -20,7 +19,8 @@ namespace SubSonic.Linq.Microsoft
         private static readonly char[] splitters = new char[] { '\n', '\r' };
         private static readonly char[] special = new char[] { '\n', '\n', '\\' };
 
-        private int indent = 2, depth;
+        private TextWriter writer;
+        private int depth;
 
         protected enum Indentation
         {
@@ -29,48 +29,42 @@ namespace SubSonic.Linq.Microsoft
             Outer
         }
 
-        public static void Write(TextWriter writer, Expression expression)
-        {
-            if (writer is null)
-            {
-                throw new ArgumentNullException(nameof(writer));
-            }
+        //public static void Write(TextWriter writer, Expression expression)
+        //{
+        //    if (writer is null)
+        //    {
+        //        throw new ArgumentNullException(nameof(writer));
+        //    }
 
-            if (expression is null)
-            {
-                throw new ArgumentNullException(nameof(expression));
-            }
+        //    if (expression is null)
+        //    {
+        //        throw new ArgumentNullException(nameof(expression));
+        //    }
 
-            new ExpressionWriter(writer).Visit(expression);
-        }
+        //    new ExpressionWriter(writer).Visit(expression);
+        //}
 
-        public static string WriteToString(Expression expression)
-        {
-            if (expression is null)
-            {
-                throw new ArgumentNullException(nameof(expression));
-            }
+        //public static string WriteToString(Expression expression)
+        //{
+        //    if (expression is null)
+        //    {
+        //        throw new ArgumentNullException(nameof(expression));
+        //    }
 
-            using (StringWriter writer = new StringWriter())
-            {
-                Write(writer, expression);
+        //    using (StringWriter writer = new StringWriter())
+        //    {
+        //        Write(writer, expression);
 
-                return writer.ToString();
-            }
-        }
+        //        return writer.ToString();
+        //    }
+        //}
 
         protected ExpressionWriter(TextWriter writer)
         {
             this.writer = writer ?? throw new ArgumentNullException(nameof(writer));
         }
 
-        protected TextWriter writer { get; }
-
-        protected int IndentationWidth
-        {
-            get { return indent; }
-            set { indent = value; }
-        }
+        protected int IndentationWidth { get; set; } = 2;
 
         protected void Indent(Indentation style)
         {
@@ -89,7 +83,7 @@ namespace SubSonic.Linq.Microsoft
         {
             writer.WriteLine();
             Indent(style);
-            for (int i = 0, n = depth * indent; i < n; i++)
+            for (int i = 0, n = (depth * IndentationWidth); i < n; i++)
             {
                 writer.Write(" ");
             }

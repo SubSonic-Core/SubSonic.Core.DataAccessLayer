@@ -9,7 +9,7 @@ namespace SubSonic.Linq.Expressions.Structure
     public partial class DbExpressionWriter
         : ExpressionWriter
     {
-        public new static void Write(TextWriter writer, Expression expression)
+        public static void Write(TextWriter writer, Expression expression)
         {
             if (writer is null)
             {
@@ -24,7 +24,7 @@ namespace SubSonic.Linq.Expressions.Structure
             new DbExpressionWriter(writer).Visit(expression);
         }
 
-        public new static string WriteToString(Expression expression)
+        public static string WriteToString(Expression expression)
         {
             if (expression is null)
             {
