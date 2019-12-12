@@ -5,6 +5,8 @@ using System.Text;
 
 namespace SubSonic.Infrastructure.Schema
 {
+    using Linq.Expressions;
+    using Linq.Expressions.Alias;
     public class DbEntityProperty
         : DbObject
         , IDbEntityProperty
@@ -30,7 +32,7 @@ namespace SubSonic.Infrastructure.Schema
 
         public bool IsPrimaryKey { get; internal set; }
 
-        public IEnumerable<string> ForeignKeys { get; internal set;}
+        public IEnumerable<string> ForeignKeys { get; internal set; }
 
         public int MaxLength { get; internal set; }
         public int NumericScale { get; internal set; }
@@ -54,7 +56,7 @@ namespace SubSonic.Infrastructure.Schema
                 {
                     result = DbEntityPropertyType.Navigation;
                 }
-                else if(PropertyType.GetGenericTypeDefinition() == typeof(ICollection<>) || PropertyType.GetInterface(typeof(IEnumerable<>).Name).IsNotNull())
+                else if (PropertyType.GetGenericTypeDefinition() == typeof(ICollection<>) || PropertyType.GetInterface(typeof(IEnumerable<>).Name).IsNotNull())
                 {
                     result = DbEntityPropertyType.Collection;
                 }
@@ -67,6 +69,15 @@ namespace SubSonic.Infrastructure.Schema
             }
         }
 
+        public DbColumnExpression Expression
+        {
+            get
+            {
+                DbColumnExpression expression = new DbColumnExpression(PropertyType, new Table(Name), PropertyName);
+
+                return expression;
+            }
+        }
         public override string ToString()
         {
             return PropertyName;

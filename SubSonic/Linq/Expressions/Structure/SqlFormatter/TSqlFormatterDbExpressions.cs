@@ -9,11 +9,11 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             if (expression.IsNotNull())
             {
-                if (expression.OfType<DbColumnExpression>())
+                if (expression.IsOfType<DbColumnExpression>())
                 {
                     return VisitColumn((DbColumnExpression)expression);
                 }
-                else if (expression.OfType<DbNamedValueExpression>())
+                else if (expression.IsOfType<DbNamedValueExpression>())
                 {
                     return VisitNamedValue((DbNamedValueExpression)expression);
                 }

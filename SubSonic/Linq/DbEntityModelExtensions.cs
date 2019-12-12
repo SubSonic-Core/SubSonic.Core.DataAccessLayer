@@ -25,6 +25,17 @@ namespace SubSonic.Linq
         {
             ICollection<DbColumnDeclaration> columns = new List<DbColumnDeclaration>();
 
+            if (properties.IsNotNull())
+            {
+                foreach (IDbEntityProperty property in properties)
+                {
+                    if (property.EntityPropertyType == DbEntityPropertyType.Value)
+                    {
+                        columns.Add(new DbColumnDeclaration(property.Name, property.Expression));
+                    }
+                }
+            }
+
             return columns;
         }
     }

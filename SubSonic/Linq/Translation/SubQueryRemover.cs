@@ -68,7 +68,7 @@ namespace SubSonic.Linq.Translation
         {
             if(expression.IsNotNull())
             {
-                if(expression.OfType<DbColumnExpression>())
+                if(expression.IsOfType<DbColumnExpression>())
                 {
                     return VisitColumn((DbColumnExpression)expression);
                 }

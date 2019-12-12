@@ -12,7 +12,7 @@ namespace SubSonic
     /// </remarks>
     internal static partial class InternalExtensions
     {
-        public static bool OfType<TType>(this object source)
+        public static bool IsOfType<TType>(this object source)
         {
             return source.GetType().Equals(typeof(TType));
         }

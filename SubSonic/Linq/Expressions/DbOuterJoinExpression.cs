@@ -14,6 +14,6 @@ namespace SubSonic.Linq.Expressions
 
         public Expression Test { get; }
 
-        public Expression Expression { get; }
+        public override Expression Expression { get; }
     }
 }

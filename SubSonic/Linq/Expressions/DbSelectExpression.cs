@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
+    using Infrastructure;
     using Structure;
     /// <summary>
     /// A custom expression node used to represent a SQL SELECT expression
@@ -116,7 +117,7 @@ namespace SubSonic.Linq.Expressions
         }
         public string QueryText
         {
-            get { return TSqlFormatter.Format(this); }
+            get { return TSqlFormatter.Format(this, DbContext.ServiceProvider.GetService<SqlQueryProvider>().SqlContext); }
         }
 
     }

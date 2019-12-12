@@ -14,24 +14,30 @@ namespace SubSonic.Tests.DAL.SqlQueryProvider
     using FluentAssertions;
     using Infrastructure;
     using Linq;
+    using Linq.Expressions;
 
     [TestFixture]
     public partial class SqlQueryProviderTests
         : BaseTestFixture
     {
         [Test]
-        public async Task ShouldBeAbleToGenerateSelectSql()
+        public void ShouldBeAbleToGenerateSelectSql()
         {
             Expression expression = DbContext.RealEstateProperties.Select().Expression;
 
-            object sql = await DbContext.Database.BuildSqlQuery<Models.RealEstateProperty>(SqlQueryType.Read, (sqlBuilder) =>
+            expression.Should().BeOfType<DbSelectExpression>();
+
+            DbSelectExpression dbSelect = (DbSelectExpression)expression;
+
+            string sql = null;
+
+            FluentActions.Invoking(() =>
             {
-                sqlBuilder.BuildSqlQuery(expression);
+                sql = dbSelect.QueryText;
+            }).Should().NotThrow();
 
-                return sqlBuilder.ToQueryObject();
-            });
-
-            sql.Should().NotBeNull();
+            sql.Should().NotBeNullOrEmpty();
+            sql.Should().StartWith("SELECT");
         }
     }
 }

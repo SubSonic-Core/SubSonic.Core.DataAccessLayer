@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SubSonic.Infrastructure
 {
-#if X86
+#if DB_PROVIDER_NOT_DEFINED
     using Factories;
 #endif
     public class DbDatabase

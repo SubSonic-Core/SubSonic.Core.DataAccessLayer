@@ -4,6 +4,8 @@ using System.Text;
 
 namespace SubSonic.Infrastructure.Schema
 {
+    using Linq.Expressions;
+
     public interface IDbEntityProperty
         : IDbObject
     {
@@ -21,6 +23,8 @@ namespace SubSonic.Infrastructure.Schema
         bool IsReadOnly { get; }
         bool IsComputed { get; }
         bool IsAutoIncrement { get; }
-        DbEntityPropertyType EntityPropertyType { get; }   
+        DbEntityPropertyType EntityPropertyType { get; }
+
+        DbColumnExpression Expression { get; }
     }
 }

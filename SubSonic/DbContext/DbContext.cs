@@ -61,17 +61,8 @@ namespace SubSonic
 
             if (services.IsNotNull())
             {
-                services
-                    .AddSingleton(this)
-                    .AddScoped(provider => DbProviderFactories.GetFactory(Options.DbProviderInvariantName))
-                    .AddScoped(provider => SqlQueryProviderFactory.GetProvider(Options.SqlQueryProviderInvariantName))
-                    .AddScoped(typeof(ISubSonicLogger<>), typeof(SubSonicLogger<>))
-                    .AddScoped(typeof(ISubSonicDbSetCollectionProvider<>), typeof(SubSonicDbSetCollectionProvider<>))
-                    .AddScoped(typeof(DbSetCollection<>))
-                    .AddScoped<DbDatabase>()
-                    .AddScoped(typeof(DbSqlQueryBuilder<>))
-                    .AddScoped<SharedDbConnectionScope>()
-                    .AddScoped<AutomaticConnectionScope>();
+                this.SetupIOC(services, Options);
+                
 
                 ServiceProvider = services.BuildServiceProvider();
             }
