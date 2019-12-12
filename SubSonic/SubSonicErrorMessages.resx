@@ -136,7 +136,10 @@
     <value>{0} SqlQueryProvider is null.</value>
   </data>
   <data name="UnSupportedMemberException" xml:space="preserve">
-    <value>The LINQ member {0} is not supported.</value>
+    <value>The member {0} is not supported.</value>
+  </data>
+  <data name="UnSupportedMethodException" xml:space="preserve">
+    <value>The method {0} is not supported.</value>
   </data>
   <data name="UnSupportedNodeException" xml:space="preserve">
     <value>The LINQ expression node of type {0} is not supported.</value>

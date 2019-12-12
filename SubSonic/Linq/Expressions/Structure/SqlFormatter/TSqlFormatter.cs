@@ -21,17 +21,17 @@ namespace SubSonic.Linq.Expressions.Structure
         private static readonly char[] splitters = new char[] { '\n', '\r' };
         private static readonly char[] special = new char[] { '\n', '\n', '\\' };
         private int depth = 0;
-        private TextWriter writer;
-        private ISqlFragment sqlFragment;
-        private Dictionary<Table, string> aliases;
+        private readonly TextWriter writer;
+        private readonly ISqlContext sqlContext;
+        private readonly Dictionary<Table, string> aliases;
 
-        public static string Format(Expression expression, ISqlFragment sqlFragment = null)
+        public static string Format(Expression expression, ISqlContext sqlContext = null)
         {
             StringBuilder builder = new StringBuilder();
 
             using (TextWriter writer = new StringWriter(builder))
             {
-                TSqlFormatter sqlFormatter = new TSqlFormatter(writer, sqlFragment);
+                TSqlFormatter sqlFormatter = new TSqlFormatter(writer, sqlContext);
 
                 sqlFormatter.Visit(expression);
 
@@ -39,10 +39,10 @@ namespace SubSonic.Linq.Expressions.Structure
             }
         }
 
-        protected TSqlFormatter(TextWriter writer, ISqlFragment sqlFragment)
+        protected TSqlFormatter(TextWriter writer, ISqlContext sqlContext)
         {
             this.writer = writer ?? throw new ArgumentNullException(nameof(writer));
-            this.sqlFragment = sqlFragment ?? new AnsiSqlFragment();
+            this.sqlContext = sqlContext ?? throw new ArgumentNullException(nameof(sqlContext));
             this.aliases = new Dictionary<Table, string>();
         }
 
@@ -69,7 +69,7 @@ namespace SubSonic.Linq.Expressions.Structure
 
             for (int i = 0, n = (depth * IndentationWidth); i < n; i++)
             {
-                Write(sqlFragment.SPACE);
+                Write(sqlContext.SqlFragment.SPACE);
             }
 
             return this;

@@ -41,9 +41,14 @@ SELECT
 INNER JOIN @TempTable t ON {0} = t._keyID
 WHERE t.IndexId BETWEEN ((@Page - 1) * @PageSize + 1) AND (@Page * @PageSize);";
 
-        protected SqlQueryProvider(ISqlFragment sqlFragment)
+        public static ISqlContext CreateContext<TSqlFragment, TSqlMethods>()
         {
-            this.SqlFragment = sqlFragment ?? throw new ArgumentNullException(nameof(sqlFragment));
+            throw new NotImplementedException();
+        }
+
+        protected SqlQueryProvider(ISqlContext sqlContext)
+        {
+            this.SqlContext = sqlContext ?? throw new ArgumentNullException(nameof(sqlContext));
             this.sql = new StringBuilder();
             this.sqlWriter = new StringWriter(sql);
         }
@@ -52,7 +57,7 @@ WHERE t.IndexId BETWEEN ((@Page - 1) * @PageSize + 1) AND (@Page * @PageSize);";
 
         public virtual string ClientName => string.Empty;
 
-        public ISqlFragment SqlFragment { get; }
+        public ISqlContext SqlContext { get; }
 
         public void WriteSqlSegment(string segment, bool debug = false)
         {

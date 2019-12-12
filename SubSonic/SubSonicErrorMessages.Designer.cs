@@ -115,11 +115,20 @@ namespace SubSonic {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The LINQ member {0} is not supported..
+        ///   Looks up a localized string similar to The member {0} is not supported..
         /// </summary>
         internal static string UnSupportedMemberException {
             get {
                 return ResourceManager.GetString("UnSupportedMemberException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The method {0} is not supported..
+        /// </summary>
+        internal static string UnSupportedMethodException {
+            get {
+                return ResourceManager.GetString("UnSupportedMethodException", resourceCulture);
             }
         }
         

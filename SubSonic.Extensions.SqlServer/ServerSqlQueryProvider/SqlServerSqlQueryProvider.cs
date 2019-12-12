@@ -10,7 +10,7 @@
         public static readonly SqlServerSqlQueryProvider Instance = new SqlServerSqlQueryProvider();
 
         public SqlServerSqlQueryProvider()
-            : base(new AnsiSqlFragment())
+            : base(SqlQueryProvider.CreateContext<AnsiSqlFragment, SqlServerSqlMethods>())
         {
 
         }

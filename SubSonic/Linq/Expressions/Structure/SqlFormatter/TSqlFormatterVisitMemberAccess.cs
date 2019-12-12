@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
+using System.Reflection;
 
 namespace SubSonic.Linq.Expressions.Structure
 {
-    using Alias;
-    using Infrastructure.SqlGenerator;
-    using System.Linq;
-    using System.Reflection;
-
     public partial class TSqlFormatter
     {
         protected virtual Expression VisitMemberAccess(MemberExpression member)
@@ -29,7 +23,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 }
                 else
                 {
-                    throw new NotSupportedException(SubSonicErrorMessages.UnSupportedMemberException.Format(info.Name));
+                    ThrowMemberNotSupported(info);
                 }
 
                 return member;
@@ -91,7 +85,8 @@ namespace SubSonic.Linq.Expressions.Structure
                         Write(") - 1)");
                         return;
                     default:
-                        throw new NotSupportedException(SubSonicErrorMessages.UnSupportedMemberException.Format(info.Name));
+                        ThrowMemberNotSupported(info);
+                        return;
                 }
             }
         }
@@ -111,9 +106,13 @@ namespace SubSonic.Linq.Expressions.Structure
                         }
                         return;
                     default:
-                        throw new NotSupportedException(SubSonicErrorMessages.UnSupportedMemberException.Format(info.Name));
+                        ThrowMemberNotSupported(info);
+                        return;
                 }
             }
         }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1062:Validate arguments of public methods", Justification = "<Pending>")]
+        protected void ThrowMemberNotSupported(MemberInfo info) => throw new NotSupportedException(SubSonicErrorMessages.UnSupportedMemberException.Format($"{info.DeclaringType}.{info.Name}"));
     }
 }
