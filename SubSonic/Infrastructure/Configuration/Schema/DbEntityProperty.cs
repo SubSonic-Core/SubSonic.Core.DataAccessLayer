@@ -73,7 +73,7 @@ namespace SubSonic.Infrastructure.Schema
         {
             get
             {
-                DbColumnExpression expression = new DbColumnExpression(PropertyType, new Table(Name), PropertyName);
+                DbColumnExpression expression = new DbColumnExpression(PropertyType, new Table(dbEntityModel.Name), Name);
 
                 return expression;
             }

@@ -117,7 +117,7 @@ namespace SubSonic.Linq.Expressions
         }
         public string QueryText
         {
-            get { return TSqlFormatter.Format(this, DbContext.ServiceProvider.GetService<SqlQueryProvider>().SqlContext); }
+            get { return TSqlFormatter.Format(this, DbContext.ServiceProvider.GetService<SqlQueryProvider>().Context); }
         }
 
     }

@@ -36,7 +36,7 @@ namespace SubSonic.Infrastructure
             {
                 EntityModelType = entityModelType,
                 Name = TableAttr.IsNotNull(Table => Table.Name, entityModelType.Name),
-                SchemaName = TableAttr.IsNotNull(Table => Table.Schema, "dbo")
+                SchemaName = TableAttr.IsNotNull(Table => Table.Schema).IsNull(SubSonicDefaults.SchemaName)
             };
 
             entity.SetPrimaryKey(Ext.GetPrimaryKeyName<TEntity>());

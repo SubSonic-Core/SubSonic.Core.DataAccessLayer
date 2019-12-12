@@ -6,8 +6,8 @@ namespace SubSonic.Infrastructure.SqlGenerator
 {
     public interface ISqlContext
     {
-        ISqlFragment SqlFragment { get; }
+        ISqlFragment Fragments { get; }
 
-        ISqlMethods SqlMethods { get; }
+        ISqlMethods Methods { get; }
     }
 }

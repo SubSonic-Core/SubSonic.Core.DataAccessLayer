@@ -38,6 +38,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>SubSonicLogging.resx</DependentUpon>
     </Compile>
+    <Compile Update="SubSonicDefaults.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SubSonicDefaults.resx</DependentUpon>
+    </Compile>
     <Compile Update="SubSonicErrorMessages.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -49,6 +54,10 @@
     <EmbeddedResource Update="Infrastructure\Logging\SubSonicLogging.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>SubSonicLogging.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="SubSonicDefaults.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>SubSonicDefaults.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Update="SubSonicErrorMessages.resx">
       <Generator>ResXFileCodeGenerator</Generator>

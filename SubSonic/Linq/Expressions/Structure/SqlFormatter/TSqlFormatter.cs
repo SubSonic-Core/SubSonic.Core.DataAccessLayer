@@ -23,7 +23,7 @@ namespace SubSonic.Linq.Expressions.Structure
         private static readonly char[] special = new char[] { '\n', '\n', '\\' };
         private int depth = 0;
         private readonly TextWriter writer;
-        private readonly ISqlContext sqlContext;
+        private readonly ISqlContext context;
         private readonly Dictionary<Table, string> aliases;
 
         
@@ -45,7 +45,7 @@ namespace SubSonic.Linq.Expressions.Structure
         protected TSqlFormatter(TextWriter writer, ISqlContext sqlContext)
         {
             this.writer = writer ?? throw new ArgumentNullException(nameof(writer));
-            this.sqlContext = sqlContext ?? throw new ArgumentNullException(nameof(sqlContext));
+            this.context = sqlContext ?? throw new ArgumentNullException(nameof(sqlContext));
             this.aliases = new Dictionary<Table, string>();
         }
 
@@ -53,7 +53,7 @@ namespace SubSonic.Linq.Expressions.Structure
 
         protected bool IsNested { get; set; } = false;
 
-        protected void Indent(Indentation style)
+        protected TSqlFormatter Indent(Indentation style)
         {
             if (style == Indentation.Inner)
             {
@@ -64,17 +64,35 @@ namespace SubSonic.Linq.Expressions.Structure
                 this.depth--;
                 System.Diagnostics.Debug.Assert(this.depth >= 0);
             }
+            return this;
         }
 
         protected TSqlFormatter WriteNewLine(Indentation style)
         {
-            writer.WriteLine();
-
             Indent(style);
+
+            return WriteNewLine();
+        }
+
+        protected TSqlFormatter WriteNewLine(string text)
+        {
+            if (text.IsNotNullOrEmpty())
+            {
+                Write(text);
+            }
+
+            WriteNewLine();
+
+            return this;
+        }
+
+        protected TSqlFormatter WriteNewLine()
+        {
+            writer.WriteLine();
 
             for (int i = 0, n = (depth * IndentationWidth); i < n; i++)
             {
-                Write(sqlContext.SqlFragment.SPACE);
+                Write(context.Fragments.SPACE);
             }
 
             return this;
@@ -94,7 +112,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 throw new ArgumentNullException(nameof(text));
             }
 
-            if (text.IndexOf('\n', StringComparison.CurrentCulture) >= 0)
+            if (text.IndexOf(special[0], StringComparison.CurrentCulture) >= 0)
             {
                 string[] lines = text.Split(splitters, StringSplitOptions.RemoveEmptyEntries);
                 for (int i = 0, n = lines.Length; i < n; i++)
@@ -125,17 +143,16 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             if (value.IsNotNullOrEmpty())
             {
-                return value.Replace("'", "''", StringComparison.CurrentCulture);
+                return value.Replace(context.Fragments.QOUTE, $"{context.Fragments.QOUTE}{context.Fragments.QOUTE}", StringComparison.CurrentCulture);
             }
             return string.Empty;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected virtual void WriteValue(object value)
         {
             if (value == null)
             {
-                Write("NULL");
+                Write(context.Fragments.NULL);
             }
             else
             {
@@ -145,9 +162,9 @@ namespace SubSonic.Linq.Expressions.Structure
                         Write(((bool)value) ? 1 : 0);
                         break;
                     case TypeCode.String:
-                        Write("'");
+                        Write(context.Fragments.QOUTE);
                         Write(EscapeString((string)value));
-                        Write("'");
+                        Write(context.Fragments.QOUTE);
                         break;
                     case TypeCode.Decimal:
                         Write(((Decimal)value).ToString(CultureInfo.InvariantCulture));
@@ -198,7 +215,7 @@ namespace SubSonic.Linq.Expressions.Structure
             string name;
             if (!aliases.TryGetValue(alias, out name))
             {
-                name = $"T:{aliases.Count}";
+                name = $"A{aliases.Count}";
                 aliases.Add(alias, name);
             }
             return name;
@@ -208,11 +225,11 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             switch (aggregateType)
             {
-                case AggregateType.Count: return "COUNT";
-                case AggregateType.Min: return "MIN";
-                case AggregateType.Max: return "MAX";
-                case AggregateType.Sum: return "SUM";
-                case AggregateType.Average: return "AVG";
+                case AggregateType.Count: return context.Fragments.COUNT;
+                case AggregateType.Min: return context.Fragments.MIN;
+                case AggregateType.Max: return context.Fragments.MAX;
+                case AggregateType.Sum: return context.Fragments.SUM;
+                case AggregateType.Average: return context.Fragments.AVG;
                 default: throw new Exception(SubSonicErrorMessages.UnknownAggregate.Format(aggregateType));
             }
         }

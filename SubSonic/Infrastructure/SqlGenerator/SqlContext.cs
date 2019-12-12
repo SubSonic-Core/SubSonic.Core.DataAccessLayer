@@ -11,9 +11,9 @@ namespace SubSonic.Infrastructure.SqlGenerator
     {
         private ISqlFragment sqlFragment;
         private ISqlMethods sqlMethods;
-        ISqlFragment ISqlContext.SqlFragment => sqlFragment ?? (sqlFragment = new TSqlFragment());
+        ISqlFragment ISqlContext.Fragments => sqlFragment ?? (sqlFragment = new TSqlFragment());
 
-        ISqlMethods ISqlContext.SqlMethods => sqlMethods ?? (sqlMethods = new TSqlMethods());
+        ISqlMethods ISqlContext.Methods => sqlMethods ?? (sqlMethods = new TSqlMethods());
 
         public SqlContext()
         {

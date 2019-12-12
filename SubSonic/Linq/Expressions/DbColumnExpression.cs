@@ -8,16 +8,16 @@ namespace SubSonic.Linq.Expressions
     /// </summary>
     public class DbColumnExpression : DbExpression, IEquatable<DbColumnExpression>
     {
-        public DbColumnExpression(Type type, Table alias, string name)
+        public DbColumnExpression(Type type, Table alias, string columnName)
             : base(DbExpressionType.Column, type)
         {
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(columnName))
             {
-                throw new ArgumentException("", nameof(name));
+                throw new ArgumentException("", nameof(columnName));
             }
 
             this.Alias = alias ?? throw new ArgumentNullException(nameof(alias));
-            this.Name = name;
+            this.Name = columnName;
         }
 
         public Table Alias { get; }
@@ -42,8 +42,26 @@ namespace SubSonic.Linq.Expressions
         public bool Equals(DbColumnExpression other)
         {
             return other != null &&
-                ((this) == (object)other ||
-                 Alias == other.Alias && Name == other.Name);
+                ((this == other) || (Alias == other.Alias && Name == other.Name));
+        }
+
+        public static bool operator ==(DbColumnExpression left, DbColumnExpression right)
+        {
+            if (left is null && right is null)
+            {
+                return true;
+            } 
+            else if (left is null || right is null)
+            {
+                return false;
+            }
+
+            return left.GetHashCode() == right.GetHashCode();
+        }
+
+        public static bool operator !=(DbColumnExpression left, DbColumnExpression right)
+        {
+            return !(left == right);
         }
     }
 }

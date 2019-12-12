@@ -1,20 +1,14 @@
 ﻿using NUnit.Framework;
 using SubSonic.Tests.DAL.SUT;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Linq.Expressions;
-using Models = SubSonic.Extensions.Test.Models;
 
 namespace SubSonic.Tests.DAL.SqlQueryProvider
 {
     using FluentAssertions;
-    using Infrastructure;
+    using Infrastructure.Logging;
     using Linq;
     using Linq.Expressions;
+    using Microsoft.Extensions.Logging;
 
     [TestFixture]
     public partial class SqlQueryProviderTests
@@ -31,13 +25,20 @@ namespace SubSonic.Tests.DAL.SqlQueryProvider
 
             string sql = null;
 
-            FluentActions.Invoking(() =>
+            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
             {
-                sql = dbSelect.QueryText;
-            }).Should().NotThrow();
+                FluentActions.Invoking(() =>
+                {
+                    sql = dbSelect.QueryText;
+                }).Should().NotThrow();
+            }
 
             sql.Should().NotBeNullOrEmpty();
             sql.Should().StartWith("SELECT");
+
+            logging.LogInformation("\n\r" + sql);
         }
     }
 }

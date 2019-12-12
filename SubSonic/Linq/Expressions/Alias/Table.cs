@@ -1,14 +1,15 @@
-﻿using System.Globalization;
-
-namespace SubSonic.Linq.Expressions.Alias
+﻿namespace SubSonic.Linq.Expressions.Alias
 {
     public class Table
+        : BaseAlias
     {
         public Table()
+            : base()
         {
         }
 
         public Table(string name)
+            : this()
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -16,13 +17,6 @@ namespace SubSonic.Linq.Expressions.Alias
             }
 
             Name = name;
-        }
-
-        public string Name { get; }
-
-        public override string ToString()
-        {
-            return $"A:{Name ?? GetHashCode().ToString(CultureInfo.CurrentCulture)}";
         }
     }
 }

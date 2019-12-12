@@ -56,17 +56,17 @@ namespace SubSonic.Linq.Expressions.Structure
                             if (left.Type.IsBoolean())
                             {
                                 this.VisitPredicate(left);
-                                Write(sqlContext.SqlFragment.SPACE);
+                                Write(context.Fragments.SPACE);
                                 Write(op);
-                                Write(sqlContext.SqlFragment.SPACE);
+                                Write(context.Fragments.SPACE);
                                 this.VisitPredicate(right);
                             }
                             else
                             {
                                 this.VisitValue(left);
-                                Write(sqlContext.SqlFragment.SPACE);
+                                Write(context.Fragments.SPACE);
                                 Write(op);
-                                Write(sqlContext.SqlFragment.SPACE);
+                                Write(context.Fragments.SPACE);
                                 this.VisitValue(right);
                             }
                             break;
@@ -150,9 +150,9 @@ namespace SubSonic.Linq.Expressions.Structure
                         case ExpressionType.Modulo:
                         case ExpressionType.ExclusiveOr:
                             this.VisitValue(left);
-                            Write(sqlContext.SqlFragment.SPACE);
+                            Write(context.Fragments.SPACE);
                             Write(op);
-                            Write(sqlContext.SqlFragment.SPACE);
+                            Write(context.Fragments.SPACE);
                             this.VisitValue(right);
                             break;
                         case ExpressionType.RightShift:

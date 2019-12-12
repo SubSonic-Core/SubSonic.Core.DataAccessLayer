@@ -38,7 +38,7 @@ namespace SubSonic.Linq
             DbContext context = DbContext.ServiceProvider.GetService<DbContext>();
             IDbEntityModel model = context.Model.GetEntityModel<TEntity>();
 
-            return query.Provider.CreateQuery<TEntity>(new DbSelectExpression(model.ToAlias(), query.Expression).SetColumns(model.Properties.ToColumnList()));
+            return query.Provider.CreateQuery<TEntity>(new DbSelectExpression(model.ToAlias(), model.Expression).SetColumns(model.Properties.ToColumnList()));
         }
     }
 }

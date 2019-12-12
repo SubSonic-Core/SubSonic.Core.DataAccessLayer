@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace SubSonic.Infrastructure.Schema
 {
+    using Linq.Expressions;
     public interface IDbEntityModel
         : IDbObject
     {
@@ -14,6 +14,7 @@ namespace SubSonic.Infrastructure.Schema
         ICollection<IDbEntityProperty> Properties { get; }
         bool HasRelationships { get; }
         Type EntityModelType { get; }
+        DbTableExpression Expression { get; }
 
         IEnumerable<string> GetPrimaryKey();
     }

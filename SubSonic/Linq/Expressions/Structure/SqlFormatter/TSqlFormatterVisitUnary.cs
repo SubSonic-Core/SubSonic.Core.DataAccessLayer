@@ -19,7 +19,7 @@ namespace SubSonic.Linq.Expressions.Structure
                         if (unary.Operand.Type.IsBoolean())
                         {
                             Write(op);
-                            Write(sqlContext.SqlFragment.SPACE);
+                            Write(context.Fragments.SPACE);
                             this.VisitPredicate(unary.Operand);
                         }
                         else

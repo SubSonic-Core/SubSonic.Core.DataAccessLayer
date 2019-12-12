@@ -16,17 +16,17 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             if (select.IsNotNull())
             {
-                Write("SELECT ");
+                Write($"{context.Fragments.SELECT} ");
                 if (select.IsDistinct)
                 {
-                    Write("DISTINCT ");
+                    Write($"{context.Fragments.DISTINCT} ");
                 }
                 if (select.Take != null)
                 {
 
-                    Write("TOP (");
+                    Write($"{context.Fragments.TOP} {context.Fragments.LEFT_PARENTHESIS}");
                     this.Visit(select.Take);
-                    Write(") ");
+                    Write($"{context.Fragments.RIGHT_PARENTHESIS} ");
                 }
                 if (select.Columns.Count > 0)
                 {
@@ -35,64 +35,64 @@ namespace SubSonic.Linq.Expressions.Structure
                         DbColumnDeclaration column = select.Columns[i];
                         if (i > 0)
                         {
-                            Write(", ");
+                            Write($"{context.Fragments.COMMA} ");
                         }
                         DbColumnExpression c = this.VisitValue(column.Expression) as DbColumnExpression;
                         if (!string.IsNullOrEmpty(column.Name) && (c == null || c.Name != column.Name))
                         {
-                            Write(" AS ");
+                            Write($" {context.Fragments.AS} ");
                             Write(column.Name);
                         }
                     }
                 }
                 else
                 {
-                    Write("NULL ");
+                    Write($"{context.Fragments.NULL} ");
                     if (IsNested)
                     {
-                        Write("AS tmp ");
+                        Write($"{context.Fragments.AS} tmp ");
                     }
                 }
                 if (select.From != null)
                 {
-                    WriteNewLine(Indentation.Same);
-                    Write("FROM ");
+                    WriteNewLine();
+                    Write($"{context.Fragments.FROM} ");
                     this.VisitSource(select.From);
                 }
                 if (select.Where != null)
                 {
-                    WriteNewLine(Indentation.Same);
-                    Write("WHERE ");
+                    WriteNewLine();
+                    Write($"{context.Fragments.WHERE} ");
                     this.VisitPredicate(select.Where);
                 }
                 if (select.GroupBy != null && select.GroupBy.Count > 0)
                 {
-                    WriteNewLine(Indentation.Same);
-                    Write("GROUP BY ");
+                    WriteNewLine();
+                    Write($"{context.Fragments.GROUP_BY} ");
                     for (int i = 0, n = select.GroupBy.Count; i < n; i++)
                     {
                         if (i > 0)
                         {
-                            Write(", ");
+                            Write($"{context.Fragments.COMMA} ");
                         }
                         this.VisitValue(select.GroupBy[i]);
                     }
                 }
                 if (select.OrderBy != null && select.OrderBy.Count > 0)
                 {
-                    WriteNewLine(Indentation.Same);
-                    Write("ORDER BY ");
+                    WriteNewLine();
+                    Write($"{context.Fragments.ORDER_BY} ");
                     for (int i = 0, n = select.OrderBy.Count; i < n; i++)
                     {
                         DbOrderByDeclaration exp = select.OrderBy[i];
                         if (i > 0)
                         {
-                            Write(", ");
+                            Write($"{context.Fragments.COMMA} ");
                         }
                         this.VisitValue(exp.Expression);
                         if (exp.OrderByType != OrderByType.Ascending)
                         {
-                            Write(" DESC");
+                            Write($" {context.Fragments.DESC}");
                         }
                     }
                 }

@@ -59,7 +59,7 @@ namespace SubSonic.Linq.Expressions.Structure
                         {
                             Write("(");
                             this.Visit(method.Arguments[0]);
-                            Write(sqlContext.SqlFragment.EQUAL_TO);
+                            Write(context.Fragments.EQUAL_TO);
                             this.Visit(method.Arguments[1]);
                             Write(")");
                         }
@@ -67,7 +67,7 @@ namespace SubSonic.Linq.Expressions.Structure
                         {
                             Write("(");
                             this.Visit(method.Object);
-                            Write(sqlContext.SqlFragment.EQUAL_TO);
+                            Write(context.Fragments.EQUAL_TO);
                             this.Visit(method.Arguments[0]);
                             Write(")");
                         }
@@ -76,7 +76,7 @@ namespace SubSonic.Linq.Expressions.Structure
                             //Note: Not sure if this is best solution for fixing side issue with Issue #66
                             Write("(");
                             this.Visit(method.Arguments[0]);
-                            Write(sqlContext.SqlFragment.EQUAL_TO);
+                            Write(context.Fragments.EQUAL_TO);
                             this.Visit(method.Arguments[1]);
                             Write(")");
                         }
@@ -182,9 +182,9 @@ namespace SubSonic.Linq.Expressions.Structure
                     case "Remainder":
                         Write("(");
                         this.VisitValue(method.Arguments[0]);
-                        Write(sqlContext.SqlFragment.SPACE);
+                        Write(context.Fragments.SPACE);
                         Write(GetOperator(method.Method.Name));
-                        Write(sqlContext.SqlFragment.SPACE);
+                        Write(context.Fragments.SPACE);
                         this.VisitValue(method.Arguments[1]);
                         Write(")");
                         return;

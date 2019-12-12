@@ -82,17 +82,17 @@ namespace SubSonic.Linq.Expressions.Structure
             switch((DbExpressionType)node.NodeType)
             {
                 case DbExpressionType.In:
-                    return sqlContext.SqlFragment.IN;
+                    return context.Fragments.IN;
                 case DbExpressionType.NotIn:
-                    return sqlContext.SqlFragment.NOT_IN;
+                    return context.Fragments.NOT_IN;
                 case DbExpressionType.IsNull:
-                    return sqlContext.SqlFragment.IS_NULL;
+                    return context.Fragments.IS_NULL;
                 case DbExpressionType.IsNotNull:
-                    return sqlContext.SqlFragment.IS_NOT_NULL;
+                    return context.Fragments.IS_NOT_NULL;
                 case DbExpressionType.Between:
-                    return sqlContext.SqlFragment.BETWEEN;
+                    return context.Fragments.BETWEEN;
                 case DbExpressionType.NotBetween:
-                    return sqlContext.SqlFragment.NOT_BETWEEN;
+                    return context.Fragments.NOT_BETWEEN;
                 default:
                     return "";
             }

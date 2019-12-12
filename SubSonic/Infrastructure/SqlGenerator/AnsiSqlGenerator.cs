@@ -10,10 +10,10 @@ namespace SubSonic.Infrastructure.SqlGenerator
     {
         public AnsiSqlGenerator(ISqlContext sqlContext)
         {
-            SqlContext = sqlContext ?? throw new ArgumentNullException(nameof(sqlContext));
+            Context = sqlContext ?? throw new ArgumentNullException(nameof(sqlContext));
         }
 
-        public ISqlContext SqlContext { get; }
+        public ISqlContext Context { get; }
 
         public ISqlGenerator BuildDeleteStatement()
         {

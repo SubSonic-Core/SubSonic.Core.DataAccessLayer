@@ -83,7 +83,7 @@ namespace SubSonic.Linq.Expressions.Structure
                         Write("CROSS JOIN ");
                         break;
                     case JoinType.InnerJoin:
-                        Write(sqlContext.SqlFragment.INNER_JOIN);
+                        Write(context.Fragments.INNER_JOIN);
                         break;
                     case JoinType.CrossApply:
                         Write("CROSS APPLY ");
@@ -92,7 +92,7 @@ namespace SubSonic.Linq.Expressions.Structure
                         Write("OUTER APPLY ");
                         break;
                     case JoinType.LeftOuter:
-                        Write(sqlContext.SqlFragment.LEFT_OUTER_JOIN);
+                        Write(context.Fragments.LEFT_OUTER_JOIN);
                         break;
                 }
 
@@ -101,7 +101,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 if (join.Condition != null)
                 {
                     WriteNewLine(Indentation.Inner);
-                    Write(sqlContext.SqlFragment.ON);
+                    Write(context.Fragments.ON);
                     this.VisitPredicate(join.Condition);
                     this.Indent(Indentation.Outer);
                 }
@@ -109,7 +109,6 @@ namespace SubSonic.Linq.Expressions.Structure
             return join;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected override Expression VisitSource(Expression source)
         {
             if (source.IsNotNull())
@@ -121,17 +120,17 @@ namespace SubSonic.Linq.Expressions.Structure
                     case DbExpressionType.Table:
                         DbTableExpression table = (DbTableExpression)source;
                         Write(table.Name);
-                        Write(sqlContext.SqlFragment.AS);
-                        Write(GetAliasName(table.Alias));
+                        Write($" {context.Fragments.AS} ");
+                        Write($"[{GetAliasName(table.Alias)}]");
                         break;
                     case DbExpressionType.Select:
                         DbSelectExpression select = (DbSelectExpression)source;
-                        Write("(");
+                        Write(context.Fragments.LEFT_PARENTHESIS);
                         WriteNewLine(Indentation.Inner);
                         this.Visit(select);
-                        WriteNewLine(Indentation.Same);
-                        Write(")");
-                        Write(sqlContext.SqlFragment.AS);
+                        WriteNewLine();
+                        Write(context.Fragments.RIGHT_PARENTHESIS);
+                        Write($" {context.Fragments.AS} ");
                         Write(GetAliasName(select.Alias));
                         this.Indent(Indentation.Outer);
                         break;
@@ -155,7 +154,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 Write("(");
                 if (aggregate.IsDistinct)
                 {
-                    Write(sqlContext.SqlFragment.DISTINCT);
+                    Write(context.Fragments.DISTINCT);
                 }
                 if (aggregate.Argument != null)
                 {
@@ -188,7 +187,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 this.VisitValue(between.Expression);
                 Write(GetOperator(between));
                 this.VisitValue(between.Lower);
-                Write(sqlContext.SqlFragment.AND);
+                Write(context.Fragments.AND);
                 this.VisitValue(between.Upper);
             }
             return between;
@@ -199,10 +198,10 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             if (rowNumber.IsNotNull())
             {
-                Write(sqlContext.SqlFragment.ROW_NUMBER);
+                Write(context.Fragments.ROW_NUMBER);
                 if (rowNumber.OrderBy != null && rowNumber.OrderBy.Count > 0)
                 {
-                    Write(sqlContext.SqlFragment.ORDER_BY);
+                    Write(context.Fragments.ORDER_BY);
                     for (int i = 0, n = rowNumber.OrderBy.Count; i < n; i++)
                     {
                         DbOrderByDeclaration exp = rowNumber.OrderBy[i];
@@ -213,7 +212,7 @@ namespace SubSonic.Linq.Expressions.Structure
                         this.VisitValue(exp.Expression);
                         if (exp.OrderByType != OrderByType.Ascending)
                         {
-                            Write(sqlContext.SqlFragment.DESC);
+                            Write(context.Fragments.DESC);
                         }
                     }
                 }

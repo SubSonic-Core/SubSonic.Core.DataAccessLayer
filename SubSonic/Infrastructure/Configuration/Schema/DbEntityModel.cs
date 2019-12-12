@@ -5,6 +5,8 @@ using System.Text;
 
 namespace SubSonic.Infrastructure
 {
+    using Linq.Expressions;
+    using Linq.Expressions.Alias;
     using Schema;
 
     public class DbEntityModel
@@ -31,6 +33,16 @@ namespace SubSonic.Infrastructure
 
         public Type EntityModelType { get; internal set; }
 
+        public DbTableExpression Expression
+        {
+            get
+            {
+                DbTableExpression expression = new DbTableExpression(new Table(Name), QualifiedName);
+
+                return expression;
+            }
+        }
+
         public IEnumerable<string> GetPrimaryKey()
         {
             return primaryKey;
@@ -40,5 +52,6 @@ namespace SubSonic.Infrastructure
         {
             primaryKey = value;
         }
+
     }
 }

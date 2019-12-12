@@ -50,7 +50,7 @@ WHERE t.IndexId BETWEEN ((@Page - 1) * @PageSize + 1) AND (@Page * @PageSize);";
 
         protected SqlQueryProvider(ISqlContext sqlContext)
         {
-            this.SqlContext = sqlContext ?? throw new ArgumentNullException(nameof(sqlContext));
+            this.Context = sqlContext ?? throw new ArgumentNullException(nameof(sqlContext));
             this.sql = new StringBuilder();
             this.sqlWriter = new StringWriter(sql);
         }
@@ -59,7 +59,7 @@ WHERE t.IndexId BETWEEN ((@Page - 1) * @PageSize + 1) AND (@Page * @PageSize);";
 
         public virtual string ClientName => string.Empty;
 
-        public ISqlContext SqlContext { get; }
+        public ISqlContext Context { get; }
 
         public void WriteSqlSegment(string segment, bool debug = false)
         {
