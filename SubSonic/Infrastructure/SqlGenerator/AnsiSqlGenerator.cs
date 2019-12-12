@@ -8,11 +8,12 @@ namespace SubSonic.Infrastructure.SqlGenerator
     public class AnsiSqlGenerator
         : ISqlGenerator
     {
-        public AnsiSqlGenerator(ISqlFragment sqlFragment)
+        public AnsiSqlGenerator(ISqlContext sqlContext)
         {
+            SqlContext = sqlContext ?? throw new ArgumentNullException(nameof(sqlContext));
         }
 
-        public ISqlFragment SqlFragment { get; }
+        public ISqlContext SqlContext { get; }
 
         public ISqlGenerator BuildDeleteStatement()
         {

@@ -867,6 +867,7 @@ namespace SubSonic.Linq.Translation
                 }
                 sb.Append(")");
             }
+
             return b;
         }
 

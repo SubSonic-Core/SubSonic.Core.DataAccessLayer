@@ -12,6 +12,7 @@ namespace SubSonic.Infrastructure.SqlGenerator
         string AS { get; }
         string ASC { get; }
         string BETWEEN { get; }
+        string NOT_BETWEEN { get; }
         string CROSS_JOIN { get; }
         string DELETE_FROM { get; }
         string DESC { get; }
@@ -45,5 +46,8 @@ namespace SubSonic.Infrastructure.SqlGenerator
         string UNEQUAL_JOIN { get; }
         string UPDATE { get; }
         string WHERE { get; }
+        string IS_NULL { get; }
+        string IS_NOT_NULL { get; }
+        string ROW_NUMBER { get; }
     }
 }

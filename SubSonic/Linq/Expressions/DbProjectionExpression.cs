@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
+    using Structure;
     /// <summary>
     /// A custom expression representing the construction of one or more result objects from a 
     /// SQL select expression
@@ -30,7 +31,7 @@ namespace SubSonic.Linq.Expressions
         }
         public override string ToString()
         {
-            return DbExpressionWriterOld.WriteToString(this);
+            return DbExpressionWriter.WriteToString(this);
         }
         public string QueryText
         {

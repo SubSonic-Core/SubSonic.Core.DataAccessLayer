@@ -11,5 +11,15 @@ namespace SubSonic
         {
             return string.Format(CultureInfo.CurrentCulture, instance, args);
         }
+
+        public static bool IsNullOrEmpty(this string instance)
+        {
+            return string.IsNullOrEmpty(instance.IsNotNull(str => str.Trim()));
+        }
+
+        public static bool IsNotNullOrEmpty(this string instance)
+        {
+            return IsNullOrEmpty(instance);
+        }
     }
 }

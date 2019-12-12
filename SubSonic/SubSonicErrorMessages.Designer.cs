@@ -97,11 +97,29 @@ namespace SubSonic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Non-scalar projections cannot be translated to SQL..
+        /// </summary>
+        internal static string NonScalarProjection {
+            get {
+                return ResourceManager.GetString("NonScalarProjection", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Provider &quot;{0}&quot;, is not registered in {1}..
         /// </summary>
         internal static string ProviderInvariantNameNotRegisteredException {
             get {
                 return ResourceManager.GetString("ProviderInvariantNameNotRegisteredException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select source is not valid type..
+        /// </summary>
+        internal static string SelectSourceIsNotValid {
+            get {
+                return ResourceManager.GetString("SelectSourceIsNotValid", resourceCulture);
             }
         }
         
@@ -120,6 +138,42 @@ namespace SubSonic {
         internal static string SqlQueryProviderIsNull {
             get {
                 return ResourceManager.GetString("SqlQueryProviderIsNull", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Reference to undefined column..
+        /// </summary>
+        internal static string UndefinedReferenceColumn {
+            get {
+                return ResourceManager.GetString("UndefinedReferenceColumn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown aggregate type: {0}.
+        /// </summary>
+        internal static string UnknownAggregate {
+            get {
+                return ResourceManager.GetString("UnknownAggregate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The binary operator &apos;{0}&apos; is not supported..
+        /// </summary>
+        internal static string UnSupportedBinaryOperator {
+            get {
+                return ResourceManager.GetString("UnSupportedBinaryOperator", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The constant for &apos;{0}&apos; is not supported..
+        /// </summary>
+        internal static string UnSupportedConstant {
+            get {
+                return ResourceManager.GetString("UnSupportedConstant", resourceCulture);
             }
         }
         

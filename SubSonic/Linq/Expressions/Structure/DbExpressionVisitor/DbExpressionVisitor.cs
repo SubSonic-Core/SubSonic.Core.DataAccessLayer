@@ -438,8 +438,8 @@ namespace SubSonic.Linq.Expressions.Structure
             return this.Visit(source);
         }
 
-        protected virtual Expression VisitExpression<TExpression>(TExpression expression)
-            where TExpression : DbExpression
+        protected virtual DbExpression VisitExpression(DbExpression expression)
+            //where TExpression : DbExpression
         {
             return expression;
         }

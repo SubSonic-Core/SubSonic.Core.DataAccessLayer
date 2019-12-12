@@ -129,14 +129,32 @@
   <data name="MissingServiceCollectionException" xml:space="preserve">
     <value>IServiceCollection is not found in the IOC container.</value>
   </data>
+  <data name="NonScalarProjection" xml:space="preserve">
+    <value>Non-scalar projections cannot be translated to SQL.</value>
+  </data>
   <data name="ProviderInvariantNameNotRegisteredException" xml:space="preserve">
     <value>Provider "{0}", is not registered in {1}.</value>
+  </data>
+  <data name="SelectSourceIsNotValid" xml:space="preserve">
+    <value>Select source is not valid type.</value>
   </data>
   <data name="SqlMethodOnlyForSql" xml:space="preserve">
     <value>The method {0} is a placeholder for a server-side method.</value>
   </data>
   <data name="SqlQueryProviderIsNull" xml:space="preserve">
     <value>{0} SqlQueryProvider is null.</value>
+  </data>
+  <data name="UndefinedReferenceColumn" xml:space="preserve">
+    <value>Reference to undefined column.</value>
+  </data>
+  <data name="UnknownAggregate" xml:space="preserve">
+    <value>Unknown aggregate type: {0}</value>
+  </data>
+  <data name="UnSupportedBinaryOperator" xml:space="preserve">
+    <value>The binary operator '{0}' is not supported.</value>
+  </data>
+  <data name="UnSupportedConstant" xml:space="preserve">
+    <value>The constant for '{0}' is not supported.</value>
   </data>
   <data name="UnSupportedConstructor" xml:space="preserve">
     <value>The construtor '{0}' is not supported.</value>

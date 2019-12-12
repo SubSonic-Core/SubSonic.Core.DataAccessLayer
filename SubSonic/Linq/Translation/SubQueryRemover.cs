@@ -1,20 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace SubSonic.Linq.Translation
 {
     using Expressions;
     using Expressions.Alias;
-    using System.Linq;
-    using System.Linq.Expressions;
-
+    using Expressions.Structure;
+    
     /// <summary>
     /// Removes one or more DbSelectExpression's by rewriting the expression tree to not include them, promoting
     /// their from clause expressions and rewriting any column expressions that may have referenced them to now
     /// reference the underlying data directly.
     /// </summary>
-    public class SubQueryRemover : DbExpressionVisitorOld
+    public class SubQueryRemover 
+        : DbExpressionVisitor
     {
         HashSet<DbSelectExpression> selectsToRemove;
         Dictionary<Table, Dictionary<string, Expression>> map;
@@ -62,7 +64,19 @@ namespace SubSonic.Linq.Translation
             }
         }
 
-        protected override Expression VisitColumn(DbColumnExpression column)
+        protected override DbExpression VisitExpression(DbExpression expression)
+        {
+            if(expression.IsNotNull())
+            {
+                if(expression.OfType<DbColumnExpression>())
+                {
+                    return VisitColumn((DbColumnExpression)expression);
+                }
+            }
+            return expression;
+        }
+
+        protected virtual DbExpression VisitColumn(DbColumnExpression column)
         {
             if (column is null)
             {
@@ -75,9 +89,9 @@ namespace SubSonic.Linq.Translation
                 Expression expr;
                 if (nameMap.TryGetValue(column.Name, out expr))
                 {
-                    return this.Visit(expr);
+                    return (DbExpression)this.Visit(expr);
                 }
-                throw new Exception("Reference to undefined column");
+                throw new Exception(SubSonicErrorMessages.UndefinedReferenceColumn);
             }
             return column;
         }

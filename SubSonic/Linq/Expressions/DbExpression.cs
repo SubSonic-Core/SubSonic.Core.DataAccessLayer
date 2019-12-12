@@ -3,6 +3,8 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
+    using Structure;
+
     public abstract class DbExpression : Expression
     {
         protected DbExpression(DbExpressionType eType, Type type)
@@ -20,7 +22,7 @@ namespace SubSonic.Linq.Expressions
 
         public override string ToString()
         {
-            return DbExpressionWriterOld.WriteToString(this);
+            return DbExpressionWriter.WriteToString(this);
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
+    using Structure;
     /// <summary>
     /// A custom expression node used to represent a SQL SELECT expression
     /// </summary>

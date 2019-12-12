@@ -9,7 +9,7 @@ namespace SubSonic
     {
         public static bool IsBoolean(this Type type)
         {
-            return type == typeof(bool);
+            return type == typeof(bool) || type == typeof(bool?);
         }
 
         public static bool IsNullableType(this Type type)

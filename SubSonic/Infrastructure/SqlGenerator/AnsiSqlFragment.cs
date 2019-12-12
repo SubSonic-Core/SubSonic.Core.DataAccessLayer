@@ -19,6 +19,9 @@ namespace SubSonic.Infrastructure.SqlGenerator
         private string _between = " BETWEEN ";
         public string BETWEEN { get { return _between; } set { _between = value; } }
 
+        private string _not_between = " NOT BETWEEN ";
+        public string NOT_BETWEEN { get { return _not_between; } set { _not_between = value; } }
+
         private string _cross_join = " CROSS JOIN ";
         public string CROSS_JOIN { get { return _cross_join; } set { _cross_join = value; } }
 
@@ -46,7 +49,7 @@ namespace SubSonic.Infrastructure.SqlGenerator
         private string _in = " IN ";
         public string IN { get { return _in; } set { _in = value; } }
 
-        private string _inner_join = " INNER JOIN ";
+        private string _inner_join = "INNER JOIN ";
         public string INNER_JOIN { get { return _inner_join; } set { _inner_join = value; } }
 
         private string _insert_into = "INSERT INTO ";
@@ -55,13 +58,13 @@ namespace SubSonic.Infrastructure.SqlGenerator
         private string _join_prefix = "J";
         public string JOIN_PREFIX { get { return _join_prefix; } set { _join_prefix = value; } }
 
-        private string _left_inner_join = " LEFT INNER JOIN ";
+        private string _left_inner_join = "LEFT INNER JOIN ";
         public string LEFT_INNER_JOIN { get { return _left_inner_join; } set { _left_inner_join = value; } }
 
-        private string _left_join = " LEFT JOIN ";
+        private string _left_join = "LEFT JOIN ";
         public string LEFT_JOIN { get { return _left_join; } set { _left_join = value; } }
 
-        private string _left_outer_join = " LEFT OUTER JOIN ";
+        private string _left_outer_join = "LEFT OUTER JOIN ";
         public string LEFT_OUTER_JOIN { get { return _left_outer_join; } set { _left_outer_join = value; } }
 
         private string _not_equal_to = " <> ";
@@ -70,13 +73,19 @@ namespace SubSonic.Infrastructure.SqlGenerator
         private string _not_in = " NOT IN ";
         public string NOT_IN { get { return _not_in; } set { _not_in = value; } }
 
-        private string _on = " ON ";
+        private string _on = "ON ";
         public string ON { get { return _on; } set { _on = value; } }
+
+        private string _is_null = " IS NULL";
+        public string IS_NULL { get { return _is_null; } set { _is_null = value; } }
+
+        private string _is_not_null = " IS NOT NULL";
+        public string IS_NOT_NULL { get { return _is_not_null; } set { _is_not_null = value; } }
 
         private string _or = " OR ";
         public string OR { get { return _or; } set { _or = value; } }
 
-        private string _order_by = " ORDER BY ";
+        private string _order_by = "ORDER BY ";
         public string ORDER_BY { get { return _order_by; } set { _order_by = value; } }
 
         private string _outer_join = " OUTER JOIN ";
@@ -111,5 +120,8 @@ namespace SubSonic.Infrastructure.SqlGenerator
 
         private string _where = " WHERE ";
         public string WHERE { get { return _where; } set { _where = value; } }
+
+        private string _row_number = "ROW_NUMBER() OVER(";
+        public string ROW_NUMBER { get { return _row_number; } set { _row_number = value; } }
     }
 }
