@@ -124,6 +124,15 @@ namespace SubSonic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The construtor &apos;{0}&apos; is not supported..
+        /// </summary>
+        internal static string UnSupportedConstructor {
+            get {
+                return ResourceManager.GetString("UnSupportedConstructor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The member {0} is not supported..
         /// </summary>
         internal static string UnSupportedMemberException {
@@ -147,6 +156,15 @@ namespace SubSonic {
         internal static string UnSupportedNodeException {
             get {
                 return ResourceManager.GetString("UnSupportedNodeException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The unary operator &apos;{0}&apos; is not supported..
+        /// </summary>
+        internal static string UnSupportedUnaryOperator {
+            get {
+                return ResourceManager.GetString("UnSupportedUnaryOperator", resourceCulture);
             }
         }
     }

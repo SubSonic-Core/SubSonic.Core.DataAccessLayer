@@ -13,13 +13,14 @@ namespace SubSonic.Linq.Translation
     using Expressions.Alias;
     using Expressions;
     using System.Globalization;
+    using SubSonic.Linq.Expressions.Structure;
 
 
     /// <summary>
     /// Formats a query expression into TSQL language syntax
     /// </summary>
     public class TSqlFormatter 
-        : DbExpressionVisitorOld
+        : DbExpressionVisitor
     {
         protected StringBuilder sb;
         int indent = 2;

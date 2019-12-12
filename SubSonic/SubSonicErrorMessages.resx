@@ -138,6 +138,9 @@
   <data name="SqlQueryProviderIsNull" xml:space="preserve">
     <value>{0} SqlQueryProvider is null.</value>
   </data>
+  <data name="UnSupportedConstructor" xml:space="preserve">
+    <value>The construtor '{0}' is not supported.</value>
+  </data>
   <data name="UnSupportedMemberException" xml:space="preserve">
     <value>The member {0} is not supported.</value>
   </data>
@@ -146,5 +149,8 @@
   </data>
   <data name="UnSupportedNodeException" xml:space="preserve">
     <value>The LINQ expression node of type {0} is not supported.</value>
+  </data>
+  <data name="UnSupportedUnaryOperator" xml:space="preserve">
+    <value>The unary operator '{0}' is not supported.</value>
   </data>
 </root>
