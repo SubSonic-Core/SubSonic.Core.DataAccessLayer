@@ -106,6 +106,15 @@ namespace SubSonic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The method {0} is a placeholder for a server-side method..
+        /// </summary>
+        internal static string SqlMethodOnlyForSql {
+            get {
+                return ResourceManager.GetString("SqlMethodOnlyForSql", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} SqlQueryProvider is null..
         /// </summary>
         internal static string SqlQueryProviderIsNull {

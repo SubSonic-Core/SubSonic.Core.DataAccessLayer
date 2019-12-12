@@ -14,6 +14,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 
 [assembly: InternalsVisibleTo("SubSonic.Extensions.Test", AllInternalsVisible = true)]
+[assembly: InternalsVisibleTo("SubSonic.Extensions.SqlServer", AllInternalsVisible = true)]
 [assembly: InternalsVisibleTo("SubSonic.Tests", AllInternalsVisible = true)]
 [assembly: NeutralResourcesLanguage("en")]
 

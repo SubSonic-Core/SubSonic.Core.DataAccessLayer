@@ -7,9 +7,11 @@ using System.Reflection;
 namespace SubSonic.Linq.Expressions.Structure
 {
     using Infrastructure.SqlGenerator;
+    using System.Globalization;
 
     public partial class TSqlFormatter
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected override Expression VisitMethodCall(MethodCallExpression method)
         {
             if (method.IsNotNull())
@@ -24,13 +26,65 @@ namespace SubSonic.Linq.Expressions.Structure
                 {
                     VisitDateTimeMethods(info, method);
                 }
-                else if(info.DeclaringType.GetInterface(typeof(ISqlMethods).FullName).IsNotNull())
+                else if (info.DeclaringType.GetInterface(typeof(ISqlMethods).FullName).IsNotNull())
                 {
                     VisitSqlMethods(info, method);
                 }
+                else if (info.DeclaringType == typeof(Decimal))
+                {
+                    VisitDecimalMethods(info, method);
+                }
+                else if (info.DeclaringType == typeof(Math))
+                {
+                    VisitMathMethods(info, method);
+                }
                 else
                 {
-                    ThrowMethodNotSupported(info);
+                    if (info.Name == "ToString")
+                    {
+                        if (method.Object.Type == typeof(string))
+                        {
+                            this.Visit(method.Object);  // no op
+                        }
+                        else
+                        {
+                            Write("CONVERT(VARCHAR(MAX), ");
+                            this.Visit(method.Object);
+                            Write(")");
+                        }
+                    }
+                    else if (info.Name == "Equals")
+                    {
+                        if (info.IsStatic && info.DeclaringType == typeof(object))
+                        {
+                            Write("(");
+                            this.Visit(method.Arguments[0]);
+                            Write(sqlContext.SqlFragment.EQUAL_TO);
+                            this.Visit(method.Arguments[1]);
+                            Write(")");
+                        }
+                        else if (!info.IsStatic && method.Arguments.Count == 1 && method.Arguments[0].Type == method.Object.Type)
+                        {
+                            Write("(");
+                            this.Visit(method.Object);
+                            Write(sqlContext.SqlFragment.EQUAL_TO);
+                            this.Visit(method.Arguments[0]);
+                            Write(")");
+                        }
+                        else if (info.IsStatic && info.DeclaringType == typeof(string))
+                        {
+                            //Note: Not sure if this is best solution for fixing side issue with Issue #66
+                            Write("(");
+                            this.Visit(method.Arguments[0]);
+                            Write(sqlContext.SqlFragment.EQUAL_TO);
+                            this.Visit(method.Arguments[1]);
+                            Write(")");
+                        }
+                    }
+                    else
+                    {
+                        ThrowMethodNotSupported(info);
+                    }
                 }
 
                 return method;
@@ -40,12 +94,248 @@ namespace SubSonic.Linq.Expressions.Structure
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
+        protected virtual void VisitMathMethods(MethodInfo info, MethodCallExpression method)
+        {
+            if (info.IsNotNull() && method.IsNotNull())
+            {
+                switch (info.Name)
+                {
+                    case "Abs":
+                    case "Acos":
+                    case "Asin":
+                    case "Atan":
+                    case "Cos":
+                    case "Exp":
+                    case "Log10":
+                    case "Sin":
+                    case "Tan":
+                    case "Sqrt":
+                    case "Sign":
+                    case "Ceiling":
+                    case "Floor":
+                        Write(info.Name.ToUpper(CultureInfo.CurrentCulture));
+                        Write("(");
+                        this.Visit(method.Arguments[0]);
+                        Write(")");
+                        return;
+                    case "Atan2":
+                        Write("ATN2(");
+                        this.Visit(method.Arguments[0]);
+                        Write(", ");
+                        this.Visit(method.Arguments[1]);
+                        Write(")");
+                        return;
+                    case "Log":
+                        if (method.Arguments.Count == 1)
+                        {
+                            goto case "Log10";
+                        }
+                        break;
+                    case "Pow":
+                        Write("POWER(");
+                        this.Visit(method.Arguments[0]);
+                        Write(", ");
+                        this.Visit(method.Arguments[1]);
+                        Write(")");
+                        return;
+                    case "Round":
+                        if (method.Arguments.Count == 1)
+                        {
+                            Write("ROUND(");
+                            this.Visit(method.Arguments[0]);
+                            Write(", 0)");
+                            return;
+                        }
+                        else if (method.Arguments.Count == 2 && method.Arguments[1].Type == typeof(int))
+                        {
+                            Write("ROUND(");
+                            this.Visit(method.Arguments[0]);
+                            Write(", ");
+                            this.Visit(method.Arguments[1]);
+                            Write(")");
+                            return;
+                        }
+                        break;
+                    case "Truncate":
+                        Write("ROUND(");
+                        this.Visit(method.Arguments[0]);
+                        Write(", 0, 1)");
+                        return;
+                    default:
+                        ThrowMethodNotSupported(info);
+                        return;
+                }
+            }
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
+        protected virtual void VisitDecimalMethods(MethodInfo info, MethodCallExpression method)
+        {
+            if (info.IsNotNull() && method.IsNotNull())
+            {
+                switch (info.Name)
+                {
+                    case "Add":
+                    case "Subtract":
+                    case "Multiply":
+                    case "Divide":
+                    case "Remainder":
+                        Write("(");
+                        this.VisitValue(method.Arguments[0]);
+                        Write(sqlContext.SqlFragment.SPACE);
+                        Write(GetOperator(method.Method.Name));
+                        Write(sqlContext.SqlFragment.SPACE);
+                        this.VisitValue(method.Arguments[1]);
+                        Write(")");
+                        return;
+                    case "Negate":
+                        Write("-");
+                        this.Visit(method.Arguments[0]);
+                        Write("");
+                        return;
+                    case "Ceiling":
+                    case "Floor":
+                        Write(info.Name.ToUpper(CultureInfo.CurrentCulture));
+                        Write("(");
+                        this.Visit(method.Arguments[0]);
+                        Write(")");
+                        return;
+                    case "Round":
+                        if (method.Arguments.Count == 1)
+                        {
+                            Write("ROUND(");
+                            this.Visit(method.Arguments[0]);
+                            Write(", 0)");
+                            return;
+                        }
+                        else if (method.Arguments.Count == 2 && method.Arguments[1].Type == typeof(int))
+                        {
+                            Write("ROUND(");
+                            this.Visit(method.Arguments[0]);
+                            Write(", ");
+                            this.Visit(method.Arguments[1]);
+                            Write(")");
+                            return;
+                        }
+                        break;
+                    case "Truncate":
+                        Write("ROUND(");
+                        this.Visit(method.Arguments[0]);
+                        Write(", 0, 1)");
+                        return;
+                    default:
+                        ThrowMethodNotSupported(info);
+                        return;
+                }
+            }
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected virtual void VisitSqlMethods(MethodInfo info, MethodCallExpression method)
         {
             if (info.IsNotNull() && method.IsNotNull())
             {
                 switch(info.Name)
                 {
+                    case "DateDiffDay":
+                        if (method.Arguments[1].Type == typeof(DateTime))
+                        {
+                            Write("DATEDIFF(DAY,");
+                            this.Visit(method.Arguments[0]);
+                            Write(", ");
+                            this.Visit(method.Arguments[1]);
+                            Write(")");
+                            return;
+                        }
+                        break;
+                    case "DateDiffHour":
+                        if (method.Arguments[1].Type == typeof(DateTime))
+                        {
+                            Write("DATEDIFF(HOUR,");
+                            this.Visit(method.Arguments[0]);
+                            Write(", ");
+                            this.Visit(method.Arguments[1]);
+                            Write(")");
+                            return;
+                        }
+                        break;
+                    case "DateDiffMicrosecond":
+                        if (method.Arguments[1].Type == typeof(DateTime))
+                        {
+                            Write("DATEDIFF(MICROSECOND,");
+                            this.Visit(method.Arguments[0]);
+                            Write(", ");
+                            this.Visit(method.Arguments[1]);
+                            Write(")");
+                            return;
+                        }
+                        break;
+                    case "DateDiffMillisecond":
+                        if (method.Arguments[1].Type == typeof(DateTime))
+                        {
+                            Write("DATEDIFF(MILLISECOND,");
+                            this.Visit(method.Arguments[0]);
+                            Write(", ");
+                            this.Visit(method.Arguments[1]);
+                            Write(")");
+                            return;
+                        }
+                        break;
+                    case "DateDiffMinute":
+                        if (method.Arguments[1].Type == typeof(DateTime))
+                        {
+                            Write("DATEDIFF(MINUTE,");
+                            this.Visit(method.Arguments[0]);
+                            Write(", ");
+                            this.Visit(method.Arguments[1]);
+                            Write(")");
+                            return;
+                        }
+                        break;
+                    case "DateDiffMonth":
+                        if (method.Arguments[1].Type == typeof(DateTime))
+                        {
+                            Write("DATEDIFF(MONTH,");
+                            this.Visit(method.Arguments[0]);
+                            Write(", ");
+                            this.Visit(method.Arguments[1]);
+                            Write(")");
+                            return;
+                        }
+                        break;
+                    case "DateDiffNanosecond":
+                        if (method.Arguments[1].Type == typeof(DateTime))
+                        {
+                            Write("DATEDIFF(NANOSECOND,");
+                            this.Visit(method.Arguments[0]);
+                            Write(", ");
+                            this.Visit(method.Arguments[1]);
+                            Write(")");
+                            return;
+                        }
+                        break;
+                    case "DateDiffSecond":
+                        if (method.Arguments[1].Type == typeof(DateTime))
+                        {
+                            Write("DATEDIFF(SECOND,");
+                            this.Visit(method.Arguments[0]);
+                            Write(", ");
+                            this.Visit(method.Arguments[1]);
+                            Write(")");
+                            return;
+                        }
+                        break;
+                    case "DateDiffYear":
+                        if (method.Arguments[1].Type == typeof(DateTime))
+                        {
+                            Write("DATEDIFF(YEAR,");
+                            this.Visit(method.Arguments[0]);
+                            Write(", ");
+                            this.Visit(method.Arguments[1]);
+                            Write(")");
+                            return;
+                        }
+                        break;
                     default:
                         ThrowMethodNotSupported(info);
                         return;
