@@ -113,5 +113,23 @@ namespace SubSonic {
                 return ResourceManager.GetString("SqlQueryProviderIsNull", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The LINQ member {0} is not supported..
+        /// </summary>
+        internal static string UnSupportedMemberException {
+            get {
+                return ResourceManager.GetString("UnSupportedMemberException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The LINQ expression node of type {0} is not supported..
+        /// </summary>
+        internal static string UnSupportedNodeException {
+            get {
+                return ResourceManager.GetString("UnSupportedNodeException", resourceCulture);
+            }
+        }
     }
 }

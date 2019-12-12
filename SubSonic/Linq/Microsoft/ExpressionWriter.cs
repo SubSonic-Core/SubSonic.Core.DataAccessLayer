@@ -13,21 +13,16 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Microsoft
 {
+    using Expressions.Structure;
+
     public class ExpressionWriter
-        : ExpressionVisitor
+        : DbExpressionVisitor
     {
         private static readonly char[] splitters = new char[] { '\n', '\r' };
         private static readonly char[] special = new char[] { '\n', '\n', '\\' };
 
         private TextWriter writer;
         private int depth;
-
-        protected enum Indentation
-        {
-            Same,
-            Inner,
-            Outer
-        }
 
         //public static void Write(TextWriter writer, Expression expression)
         //{
@@ -348,27 +343,25 @@ namespace SubSonic.Linq.Microsoft
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected virtual ElementInit VisitElementInitializer(ElementInit initializer)
         {
-            if (initializer is null)
+            if (initializer != null)
             {
-                throw new ArgumentNullException(nameof(initializer));
-            }
-
-            if (initializer.Arguments.Count > 1)
-            {
-                Write("{");
-                for (int i = 0, n = initializer.Arguments.Count; i < n; i++)
+                if (initializer.Arguments.Count > 1)
                 {
-                    Visit(initializer.Arguments[i]);
-                    if (i < n - 1)
+                    Write("{");
+                    for (int i = 0, n = initializer.Arguments.Count; i < n; i++)
                     {
-                        Write(", ");
+                        Visit(initializer.Arguments[i]);
+                        if (i < n - 1)
+                        {
+                            Write(", ");
+                        }
                     }
+                    Write("}");
                 }
-                Write("}");
-            }
-            else
-            {
-                Visit(initializer.Arguments[0]);
+                else
+                {
+                    Visit(initializer.Arguments[0]);
+                }
             }
             return initializer;
         }
@@ -376,38 +369,35 @@ namespace SubSonic.Linq.Microsoft
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected virtual IEnumerable<ElementInit> VisitElementInitializerList(ReadOnlyCollection<ElementInit> original)
         {
-            if (original is null)
+            if (original != null)
             {
-                throw new ArgumentNullException(nameof(original));
-            }
-
-            for (int i = 0, n = original.Count; i < n; i++)
-            {
-                VisitElementInitializer(original[i]);
-                if (i < n - 1)
+                for (int i = 0, n = original.Count; i < n; i++)
                 {
-                    Write(",");
-                    WriteLine(Indentation.Same);
+                    VisitElementInitializer(original[i]);
+                    if (i < n - 1)
+                    {
+                        Write(",");
+                        WriteLine(Indentation.Same);
+                    }
                 }
             }
+
             return original;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
-        protected virtual ReadOnlyCollection<Expression> VisitExpressionList(ReadOnlyCollection<Expression> original)
+        protected override ReadOnlyCollection<Expression> VisitExpressionList(ReadOnlyCollection<Expression> original)
         {
-            if (original is null)
+            if (original != null)
             {
-                throw new ArgumentNullException(nameof(original));
-            }
-
-            for (int i = 0, n = original.Count; i < n; i++)
-            {
-                Visit(original[i]);
-                if (i < n - 1)
+                for (int i = 0, n = original.Count; i < n; i++)
                 {
-                    Write(",");
-                    WriteLine(Indentation.Same);
+                    Visit(original[i]);
+                    if (i < n - 1)
+                    {
+                        Write(",");
+                        WriteLine(Indentation.Same);
+                    }
                 }
             }
             return original;
