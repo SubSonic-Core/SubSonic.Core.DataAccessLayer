@@ -59,5 +59,7 @@ namespace SubSonic.Infrastructure.SqlGenerator
         string AVG { get; set; }
         string MAX { get; set; }
         string SUM { get; set; }
+        string CROSS_APPLY { get; set; }
+        string OUTER_APPLY { get; set; }
     }
 }

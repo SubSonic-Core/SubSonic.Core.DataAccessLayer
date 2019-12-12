@@ -21,6 +21,8 @@ namespace SubSonic.Infrastructure.SqlGenerator
         public string GROUP_BY { get; set; } = "GROUP BY";
         public string HAVING { get; set; } = "HAVING";
         public string IN { get; set; } = "IN";
+        public string CROSS_APPLY { get; set; } = "CROSS APPLY";
+        public string OUTER_APPLY { get; set; } = "OUTER APPLY";
         public string INNER_JOIN { get; set; } = "INNER JOIN";
         public string INSERT_INTO { get; set; } = "INSERT INTO";
         public string JOIN_PREFIX { get; set; } = "J";
@@ -58,3 +60,4 @@ namespace SubSonic.Infrastructure.SqlGenerator
         public string SUM { get; set; } = "SUM";
     }
 }
+

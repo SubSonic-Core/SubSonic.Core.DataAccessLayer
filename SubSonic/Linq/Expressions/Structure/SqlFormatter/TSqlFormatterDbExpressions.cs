@@ -46,7 +46,6 @@ namespace SubSonic.Linq.Expressions.Structure
             return expression;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected override Expression VisitProjection(DbProjectionExpression projection)
         {
             if (projection.IsNotNull())
@@ -54,10 +53,10 @@ namespace SubSonic.Linq.Expressions.Structure
                 // treat these like scalar subqueries
                 if (projection.Projector is DbColumnExpression)
                 {
-                    Write("(");
+                    Write(context.Fragments.LEFT_PARENTHESIS);
                     WriteNewLine(Indentation.Inner);
                     this.Visit(projection.Source);
-                    Write(")");
+                    Write(context.Fragments.RIGHT_PARENTHESIS);
                     this.Indent(Indentation.Outer);
                 }
                 else
@@ -68,31 +67,30 @@ namespace SubSonic.Linq.Expressions.Structure
             return projection;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected override Expression VisitJoin(DbJoinExpression join)
         {
             if (join.IsNotNull())
             {
                 this.VisitSource(join.Left);
 
-                WriteNewLine(Indentation.Same);
+                WriteNewLine();
 
                 switch (join.Join)
                 {
                     case JoinType.CrossJoin:
-                        Write("CROSS JOIN ");
+                        Write($"{context.Fragments.CROSS_JOIN} ");
                         break;
                     case JoinType.InnerJoin:
-                        Write(context.Fragments.INNER_JOIN);
+                        Write($"{context.Fragments.INNER_JOIN} ");
                         break;
                     case JoinType.CrossApply:
-                        Write("CROSS APPLY ");
+                        Write($"{context.Fragments.CROSS_APPLY} ");
                         break;
                     case JoinType.OuterApply:
-                        Write("OUTER APPLY ");
+                        Write($"{context.Fragments.OUTER_APPLY} ");
                         break;
                     case JoinType.LeftOuter:
-                        Write(context.Fragments.LEFT_OUTER_JOIN);
+                        Write($"{context.Fragments.LEFT_OUTER_JOIN} ");
                         break;
                 }
 
