@@ -1,31 +1,52 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
-using System.Linq.Expressions;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace SubSonic.Infrastructure.Builders
 {
-    using Schema;
+    using Linq.Expressions;
     using Logging;
+    using Schema;
+    using System.Globalization;
+    using System.Reflection;
 
     public class DbSqlQueryBuilder<TEntity>
-        : IDbSqlQueryBuilder
+        : DbSqlQueryBuilder
+        , ISubSonicQueryProvider<TEntity>
     {
-        private readonly DbContext dbContext;
-        private readonly ISubSonicLogger<DbSqlQueryBuilder<TEntity>> logger;
+        public DbSqlQueryBuilder(ISubSonicLogger<TEntity> logger)
+            : base(typeof(TEntity), logger)
+        {
+
+        }
+    }
+
+    public class DbSqlQueryBuilder
+        : DbExpressionAccessor
+        , IDbSqlQueryBuilder
+    {
+        private readonly ISubSonicLogger logger;
         private readonly IDbEntityModel dbEntityModel;
 
-        public DbSqlQueryBuilder(DbContext dbContext, ISubSonicLogger<DbSqlQueryBuilder<TEntity>> logger)
+        private Expression body;
+
+        public DbSqlQueryBuilder(Type dbModelType, ISubSonicLogger logger = null)
         {
-            this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            this.dbEntityModel = this.dbContext.Model.GetEntityModel(typeof(TEntity).GetQualifiedType());
+            if (dbModelType is null)
+            {
+                throw new ArgumentNullException(nameof(dbModelType));
+            }
+
+            this.logger = logger ?? DbContext.ServiceProvider.GetService<ISubSonicLogger>();
+            this.dbEntityModel = DbContext.DbModel.GetEntityModel(dbModelType.GetQualifiedType());
         }
 
         public SqlQueryType SqlQueryType { get; private set; }
 
-        public Expression Expression { get; private set; }
+        //public Expression Expression { get; private set; }
+
+        protected ParameterExpression Parameter => Expression.Parameter(dbEntityModel.EntityModelType, dbEntityModel.Name);
 
         public ISqlQueryProvider SqlQueryProvider { get; private set; }
 
@@ -45,56 +66,266 @@ namespace SubSonic.Infrastructure.Builders
             return this;
         }
 
-        public IDbSqlQueryBuilder BuildSqlQuery(Expression expression)
+        public IQueryable CreateQuery(Expression expression)
         {
-            using (var _perf = logger.Start("BuildSqlQuery"))
+            using (IPerformanceLogger performance = logger.Start(GetType(), nameof(CreateQuery)))
             {
-                CheckBuilderState();
-
-                Expression = expression ?? throw new ArgumentNullException(nameof(expression));
-
-                SqlQueryProvider.EntityModel = dbEntityModel;
-
-                switch(SqlQueryType)
-                {
-                    case SqlQueryType.Create:
-                        BuildCreateQuery();
-                        break;
-                    case SqlQueryType.Read:
-                        BuildReadQuery();
-                        break;
-                    case SqlQueryType.Update:
-                        BuildUpdateQuery();
-                        break;
-                    case SqlQueryType.Delete:
-                        BuildDeleteQuery();
-                        break;
-                }
-
-                return this;
+                return new SubSonicCollection(dbEntityModel.EntityModelType, BuildQuery(expression));
             }
         }
 
-        public IDbSqlQueryBuilder BuildCreateQuery()
+        public IQueryable<TEntity> CreateQuery<TEntity>(Expression expression)
+        {
+            return new SubSonicCollection<TEntity>(BuildQuery(expression));
+        }
+
+        public TResult Execute<TResult>(Expression expression)
+        {
+            return (TResult)Execute(expression);
+        }
+
+        public object Execute(Expression expression)
         {
             throw new NotImplementedException();
         }
 
-        public IDbSqlQueryBuilder BuildReadQuery()
+        protected virtual Expression BuildQuery(Expression expression)
         {
-            SqlQueryProvider.BuildSelectStatement();
+            if (expression.IsNotNull())
+            {
+                SqlQueryType = GetQueryType(expression);
+            }
 
-            return this;
+            return expression ?? dbEntityModel.Expression;
         }
 
-        public IDbSqlQueryBuilder BuildUpdateQuery()
+        protected virtual SqlQueryType GetQueryType(Expression expression)
         {
-            throw new NotImplementedException();
+            if (expression.IsNotNull())
+            {
+                if (!expression.NodeType.IsDbExpression())
+                {
+                    throw new NotImplementedException();
+                }
+
+                switch((DbExpressionType)expression.NodeType)
+                {
+                    case DbExpressionType.Select:
+                        return SqlQueryType.Read;
+                    default:
+                        throw new NotSupportedException();
+                }
+            }
+
+            throw new ArgumentNullException(nameof(expression));
         }
 
-        public IDbSqlQueryBuilder BuildDeleteQuery()
+        public Expression CallExpression(Expression source, Expression body, ExpressionCallType callType , params string[] properties)
         {
-            throw new NotImplementedException();
+            if (body.IsNotNull())
+            {
+                Expression lambda = GetExpressionArgument(body, callType, properties);
+
+                return Expression.Call(
+                    typeof(Queryable),
+                    callType.ToString(),
+                    GetTypeArguments(callType, lambda),
+                    GetMethodCall(source) ?? Expression.Parameter(source.Type),
+                    lambda);
+            }
+            return body;
+        }
+
+        private Expression GetExpressionArgument(Expression body, ExpressionCallType @call, params string[] properties)
+        {
+            Expression result = null;
+            switch (call)
+            {
+                case Infrastructure.ExpressionCallType.Where:
+                    {
+                        Type fnType = Expression.GetFuncType(Parameter.Type, typeof(bool));
+
+                        result = Expression.Lambda(fnType, body, Parameter);
+                    }
+                    break;
+                case Infrastructure.ExpressionCallType.OrderBy:
+                    {
+                        PropertyInfo info = Parameter.Type.GetProperty(properties[0]);
+                        Expression property = Expression.Property(Parameter, info);
+
+                        result = Expression.Lambda(Expression.GetFuncType(Parameter.Type, info.PropertyType), property, Parameter);
+                    }
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+            return result;
+        }
+
+        private static Type[] GetTypeArguments(ExpressionCallType @enum, Expression expression)
+        {
+            IEnumerable<Type> types = Array.Empty<Type>();
+
+            switch (@enum)
+            {
+                case Infrastructure.ExpressionCallType.Where:
+                    {
+                        types = GetParameterTypes((LambdaExpression)expression);
+                    }
+                    break;
+                case Infrastructure.ExpressionCallType.OrderBy:
+                    {
+                        types = GetParameterTypes((LambdaExpression)expression)
+                            .Union(GetMemberType((LambdaExpression)expression));
+                    }
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+
+            return types.ToArray();
+        }
+
+        private static IEnumerable<Type> GetParameterTypes(LambdaExpression expression) => expression.Parameters.Select(Param => Param.Type);
+
+        private static IEnumerable<Type> GetMemberType(LambdaExpression expression) => new[] { expression.Body.Type };
+
+        public Expression BuildComparisonExpression(Expression body, string property, object value, ComparisonOperator @operator, GroupOperator @group)
+        {
+            PropertyInfo propertyInfo = dbEntityModel.EntityModelType.GetProperty(property);
+
+            Type ConstantType = propertyInfo.PropertyType.GetUnderlyingType();
+
+            Expression
+                left = Expression.Property(Parameter, propertyInfo),
+                right = Expression.Constant(Convert.ChangeType(value, ConstantType, CultureInfo.CurrentCulture), ConstantType);
+
+            if (body.IsNull())
+            {
+                return GetComparisonExpression(left, right, @operator);
+            }
+            else
+            {
+                return GetBodyExpression(body, GetComparisonExpression(left, right, @operator), @group);
+            }
+        }
+
+        private Expression GetBodyExpression(Expression body, Expression right, GroupOperator @group)
+        {
+            Expression result;
+
+            switch (group)
+            {
+                case GroupOperator.And:
+                    {
+                        result = Expression.And(body, right);
+                    }
+                    break;
+                case GroupOperator.AndAlso:
+                    {
+                        result = Expression.AndAlso(body, right);
+                    }
+                    break;
+                case GroupOperator.Or:
+                    {
+                        result = Expression.Or(body, right);
+                    }
+                    break;
+                case GroupOperator.OrElse:
+                    {
+                        result = Expression.OrElse(body, right);
+                    }
+                    break;
+                default:
+                    throw new NotImplementedException($"{@group} operation is not implemented.");
+            }
+
+            return result;
+        }
+
+        private static Expression GetComparisonExpression(Expression left, Expression right, ComparisonOperator @operator)
+        {
+            Expression result;
+
+            switch (@operator)
+            {
+                case ComparisonOperator.Contains:
+                case ComparisonOperator.NotContains:
+                    {
+                        MethodInfo
+                            oMethod = left.Type.GetMethod("Contains", new Type[] { right.Type });
+
+                        result = Expression.Call(left, oMethod, right);
+
+                        if (@operator == ComparisonOperator.NotContains)
+                        {
+                            result = Expression.Not(result);
+                        }
+                    }
+                    break;
+                case ComparisonOperator.StartsWith:
+                case ComparisonOperator.NotStartsWith:
+                    {
+                        MethodInfo
+                            oMethod = left.Type.GetMethod("StartsWith", new Type[] { right.Type });
+
+                        result = Expression.Call(left, oMethod, right);
+
+                        if (@operator == ComparisonOperator.NotContains)
+                        {
+                            result = Expression.Not(result);
+                        }
+                    }
+                    break;
+                case ComparisonOperator.EndsWith:
+                case ComparisonOperator.NotEndsWith:
+                    {
+                        MethodInfo
+                            oMethod = left.Type.GetMethod("EndsWith", new Type[] { right.Type });
+
+                        result = Expression.Call(left, oMethod, right);
+
+                        if (@operator == ComparisonOperator.NotContains)
+                        {
+                            result = Expression.Not(result);
+                        }
+                    }
+                    break;
+                case ComparisonOperator.Equal:
+                    {
+                        result = Expression.Equal(left, right);
+                    }
+                    break;
+                case ComparisonOperator.NotEqual:
+                    {
+                        result = Expression.NotEqual(left, right);
+                    }
+                    break;
+                case ComparisonOperator.GreaterThan:
+                    {
+                        result = Expression.GreaterThan(left, right);
+                    }
+                    break;
+                case ComparisonOperator.GreaterThanOrEqual:
+                    {
+                        result = Expression.GreaterThanOrEqual(left, right);
+                    }
+                    break;
+                case ComparisonOperator.LessThan:
+                    {
+                        result = Expression.LessThan(left, right);
+                    }
+                    break;
+                case ComparisonOperator.LessThanOrEqual:
+                    {
+                        result = Expression.LessThanOrEqual(left, right);
+                    }
+                    break;
+                default:
+                    throw new NotImplementedException($"{@operator} operation is not implemented.");
+            }
+
+            return result;
         }
 
         public object ToQueryObject()

@@ -36,19 +36,6 @@ namespace SubSonic.Tests.DAL.DynamicProxyTests
         }
 
         [Test]
-        public void WillNotBuildProxyForInElegibleType()
-        {
-            DynamicProxyWrapper proxyWrapper = DynamicProxy.GetProxyWrapper<Status>(DbContext);
-
-            proxyWrapper.IsElegibleForProxy.Should().BeFalse();
-            proxyWrapper.Type.Should().BeNull();
-
-            Status instance = DynamicProxy.CreateProxyInstanceOf<Status>(DbContext);
-
-            instance.Should().BeAssignableTo<Status>();
-        }
-
-        [Test]
         public void ProxyNavigationPropertyWillSetForeignKeysOnSet()
         {
             RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(DbContext);

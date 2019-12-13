@@ -11,6 +11,8 @@ namespace SubSonic.Infrastructure
         {
         }
 
+        internal Action<DbModel> PreLoadHandler { get; set; }
+
         public bool EnableProxyGeneration { get; internal set; }
         public string DbProviderInvariantName { get; internal set; }
         public string SqlQueryProviderInvariantName { get; internal set; }

@@ -1,13 +1,14 @@
-﻿using SubSonic;
-using SubSonic.Linq.Expressions.Alias;
+﻿using SubSonic.Linq.Expressions.Alias;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
     using Infrastructure;
     using Structure;
+
     /// <summary>
     /// A custom expression node used to represent a SQL SELECT expression
     /// </summary>
@@ -24,7 +25,7 @@ namespace SubSonic.Linq.Expressions
         Expression skip;
 
         public DbSelectExpression(TableAlias alias, Expression from)
-            : base(DbExpressionType.Select, typeof(void), alias)
+            : base(DbExpressionType.Select, typeof(Queryable), alias)
         {
             From = from ?? throw new System.ArgumentNullException(nameof(from));
         }
@@ -39,7 +40,7 @@ namespace SubSonic.Linq.Expressions
             bool isDistinct,
             Expression skip,
             Expression take)
-            : base(DbExpressionType.Select, typeof(void), alias)
+            : base(DbExpressionType.Select, typeof(Queryable), alias)
         {
             this.columns = columns as ReadOnlyCollection<DbColumnDeclaration>;
             if (this.columns == null)

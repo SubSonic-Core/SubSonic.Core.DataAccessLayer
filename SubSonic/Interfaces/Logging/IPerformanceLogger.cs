@@ -6,6 +6,12 @@ using System.Threading.Tasks;
 namespace SubSonic.Infrastructure.Logging
 {
     public interface IPerformanceLogger<out TCategoryName>
+        : IPerformanceLogger
+    {
+
+    }
+
+    public interface IPerformanceLogger
         : IDisposable
     {
         bool IsPerformanceLoggingEnabled { get; }

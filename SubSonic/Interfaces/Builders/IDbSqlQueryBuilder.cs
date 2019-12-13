@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 
-namespace SubSonic.Infrastructure.Builders
+namespace SubSonic.Infrastructure
 {
     public interface IDbSqlQueryBuilder
+        : IQueryProvider
     {
-        IDbSqlQueryBuilder BuildSqlQuery(SqlQueryType sqlQueryType, ISqlQueryProvider sqlQueryProvider);
-
-        IDbSqlQueryBuilder BuildSqlQuery(Expression expression);
-
-        IDbSqlQueryBuilder BuildCreateQuery();
-
+        Expression BuildComparisonExpression(Expression body, string property, object value, ComparisonOperator @operator, GroupOperator group);
+        Expression CallExpression(Expression call, Expression body, ExpressionCallType callType, params string[] properties);
         object ToQueryObject();
     }
 }

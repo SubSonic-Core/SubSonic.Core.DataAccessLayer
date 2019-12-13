@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
@@ -14,7 +15,27 @@ namespace SubSonic
     {
         public static bool IsOfType<TType>(this object source)
         {
-            return source.GetType().Equals(typeof(TType));
+            return IsOfType(source, typeof(TType));
+        }
+
+        public static bool IsOfType(this object source, Type type)
+        {
+            return source.GetType().Equals(type);
+        }
+
+        public static IEnumerable<TType> Convert<TType>(this IEnumerable array)
+        {
+            List<TType> result = new List<TType>();
+
+            foreach(object obj in array)
+            {
+                if (obj.IsOfType<TType>())
+                {
+                    result.Add((TType)obj);
+                }
+            }
+
+            return result;
         }
 
         public static bool IsNull(this object source)

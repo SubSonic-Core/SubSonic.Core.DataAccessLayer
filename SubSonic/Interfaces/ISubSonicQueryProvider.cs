@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace SubSonic.Infrastructure
 {
-    public interface ISubSonicDbSetCollectionProvider<out TEntity>
-        : IQueryProvider
+    public interface ISubSonicQueryProvider<out TEntity>
+        : IDbSqlQueryBuilder
     {
-        DbContext DbContext { get; }
+        
     }
 }

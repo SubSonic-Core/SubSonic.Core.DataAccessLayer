@@ -48,11 +48,9 @@ FROM [dbo].[RealEstateProperty] AS [{0}]".Format("T1");
             sql.Should().NotBeNullOrEmpty();
             sql.Should().StartWith("SELECT");
 
-            logging.LogInformation("\n\r" + sql);
+            logging.LogInformation("\n" + sql + "\n");
 
             sql.Should().Be(expected);
-
-            logging.LogInformation("\n\r");
 
             sql.Should().Be(DbContext.RealEstateProperties.Select().Expression.ToString());
         }
@@ -85,11 +83,9 @@ FROM [dbo].[Status] AS [{0}]".Format("T1");
             sql.Should().NotBeNullOrEmpty();
             sql.Should().StartWith("SELECT");
 
-            logging.LogInformation("\n\r" + sql);
+            logging.LogInformation("\n" + sql + "\n");
 
             sql.Should().Be(expected);
-
-            logging.LogInformation("\n\r");
 
             sql.Should().Be(DbContext.Statuses.Select().Expression.ToString());
         }
@@ -122,13 +118,47 @@ FROM [dbo].[Unit] AS [{0}]".Format("T1");
             sql.Should().NotBeNullOrEmpty();
             sql.Should().StartWith("SELECT");
 
-            logging.LogInformation("\n\r" + sql);
+            logging.LogInformation("\n" + sql + "\n");
 
             sql.Should().Be(expected);
 
-            logging.LogInformation("\n\r");
-
             sql.Should().Be(DbContext.Units.Select().Expression.ToString());
+        }
+
+        [Test]
+        public void CanGenerateSelectWithConstraints()
+        {
+            string expected =
+@"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
+FROM [dbo].[Status] AS [{0}]
+WHERE [{0}].[ID] = 1".Format("T1");
+
+            Expression expression = DbContext.Statuses.FindByID(1).Expression;
+
+            expression.Should().BeOfType<DbSelectExpression>();
+
+            DbSelectExpression dbSelect = (DbSelectExpression)expression;
+
+            string sql = null;
+
+            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    sql = dbSelect.QueryText;
+                }).Should().NotThrow();
+            }
+
+            sql.Should().NotBeNullOrEmpty();
+            sql.Should().StartWith("SELECT");
+
+            logging.LogInformation("\n" + sql + "\n");
+
+            sql.Should().Be(expected);
+
+            sql.Should().Be(DbContext.Statuses.FindByID(1).Expression.ToString());
         }
     }
 }

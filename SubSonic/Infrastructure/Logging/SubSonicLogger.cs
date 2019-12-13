@@ -10,11 +10,13 @@ namespace SubSonic.Infrastructure.Logging
     {
         private readonly ILogger logger;
         private readonly ITraceLogger<TCategoryName> trace;
+        private Type categoryType;
 
         public SubSonicLogger(ILogger<TCategoryName> logger)
         {
             this.logger = logger;
             this.trace = new SubSonicTraceLogger<TCategoryName>(logger);
+            this.categoryType = typeof(TCategoryName);
         }
 
         public ILogger Write => this.logger;
@@ -40,6 +42,28 @@ namespace SubSonic.Infrastructure.Logging
         public IPerformanceLogger<TCategoryName> Start(string name)
         {
             return new SubSonicPerformanceLogger<TCategoryName>(logger, name);
+        }
+
+        public IPerformanceLogger Start(Type categoryType, string name)
+        {
+            if (name is null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            this.categoryType = categoryType ?? throw new ArgumentNullException(nameof(categoryType));
+
+            return ((ISubSonicLogger)this).Start(name);
+        }
+
+        IPerformanceLogger ISubSonicLogger.Start(string name)
+        {
+            if (name is null)
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            return new SubSonicPerformanceLogger(categoryType, logger, name);
         }
 
         public void Trace(string method, string message)

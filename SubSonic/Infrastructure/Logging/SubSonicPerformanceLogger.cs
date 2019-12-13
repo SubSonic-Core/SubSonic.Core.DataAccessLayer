@@ -8,29 +8,42 @@ using System.Threading.Tasks;
 namespace SubSonic.Infrastructure.Logging
 {
     public class SubSonicPerformanceLogger<TCategoryName>
-        : IPerformanceLogger<TCategoryName>
+        : SubSonicPerformanceLogger
+        , IPerformanceLogger<TCategoryName>
+    {
+        public SubSonicPerformanceLogger(ILogger logger, string name)
+            : base(typeof(TCategoryName), logger, name)
+        {
+
+        }
+
+    }
+    public class SubSonicPerformanceLogger
+        : IPerformanceLogger
         , IDisposable
     {
         private DateTime start;
         private DateTime end;
+        private readonly Type category;
         private readonly ILogger logger;
         private string name;
 
-        public SubSonicPerformanceLogger(ILogger logger, string name)
+        public SubSonicPerformanceLogger(Type category, ILogger logger, string name)
         {
             if (string.IsNullOrEmpty(name))
             {
                 throw new ArgumentException(SubSonicErrorMessages.MissingNameArgumentException, nameof(name));
             }
 
-            this.logger = logger;// ?? throw new ArgumentNullException(nameof(logger));
+            this.category = category ?? throw new ArgumentNullException(nameof(category));
+            this.logger = logger;
             
             StartClock(name);
         }
 
         public bool IsPerformanceLoggingEnabled => logger.IsNotNull() && logger.IsEnabled(LogLevel.Debug);
 
-        public string NameOfScope => $"{typeof(TCategoryName).Name}::{name}";
+        public string NameOfScope => $"{category.Name}::{name}";
 
         public double TotalMilliseconds => (end - start).TotalMilliseconds;
 

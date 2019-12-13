@@ -1,5 +1,6 @@
 ﻿using SubSonic.Linq.Expressions.Alias;
 using System;
+using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
@@ -11,14 +12,13 @@ namespace SubSonic.Linq.Expressions
     {
         private readonly string name;
 
-        public DbTableExpression(TableAlias alias, string name)
-            : base(DbExpressionType.Table, typeof(void), alias)
+        public DbTableExpression(Type tableType, TableAlias alias, string name)
+            : base(DbExpressionType.Table, tableType, alias)
         {
             if (string.IsNullOrEmpty(name))
             {
                 throw new ArgumentException("", nameof(name));
             }
-
             this.name = name;
             Alias.IsNotNull(Al => Al.SetTable(this));
         }
@@ -28,7 +28,7 @@ namespace SubSonic.Linq.Expressions
             get { return name; }
         }
 
-
+        public new ParameterExpression Parameter => Expression.Parameter(Type, Name);
 
         public override string ToString()
         {

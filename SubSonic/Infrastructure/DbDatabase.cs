@@ -90,27 +90,8 @@ namespace SubSonic.Infrastructure
             {
                 using (AutomaticConnectionScope Scope = new AutomaticConnectionScope(this))
                 {
-                    var query = BuildSqlQuery<TResult>(SqlQueryType.Read, (builder) =>
-                    {
-                        builder.BuildSqlQuery(expression);
-
-                        return builder.ToQueryObject();
-                    });
-
                     throw new NotImplementedException();
                 }
-            }
-        }
-
-        internal async Task<object> BuildSqlQuery<TSqlQueryResult>(SqlQueryType sqlQueryType, Func<IDbSqlQueryBuilder, object> builder)
-        {
-            using (IPerformanceLogger<DbDatabase> performance = logger.Start($"{nameof(ExecuteQuery)}<{typeof(TSqlQueryResult).GetTypeName()}>"))
-            {
-                IDbSqlQueryBuilder dbSqlQueryBuilder = dbContext.Instance.GetService<DbSqlQueryBuilder<TSqlQueryResult>>();
-
-                return await Task
-                    .Run(() => builder(dbSqlQueryBuilder.BuildSqlQuery(sqlQueryType, sqlQueryProvider)))
-                    .ConfigureAwait(false);
             }
         }
     }

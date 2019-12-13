@@ -19,7 +19,7 @@ namespace SubSonic.Infrastructure
         private readonly DbEntityModel model;
         private readonly List<TEntity> queryableData;
         
-        public DbSetCollection(ISubSonicDbSetCollectionProvider<TEntity> provider)
+        public DbSetCollection(ISubSonicQueryProvider<TEntity> provider)
         {
             this.provider = provider ?? throw new ArgumentNullException(nameof(provider));
 
@@ -28,9 +28,9 @@ namespace SubSonic.Infrastructure
             Expression = model.Expression;
         }
 
-        protected DbContext DbContext => ((ISubSonicDbSetCollectionProvider<TEntity>)provider).DbContext;
+        protected DbContext DbContext => DbContext.ServiceProvider.GetService<DbContext>();
 
-        public DbSetCollection(ISubSonicDbSetCollectionProvider<TEntity> provider, Expression expression)
+        public DbSetCollection(ISubSonicQueryProvider<TEntity> provider, Expression expression)
             : this(provider)
         {
             this.Expression = expression ?? throw new ArgumentNullException(nameof(expression));
@@ -75,21 +75,36 @@ namespace SubSonic.Infrastructure
 
         public IQueryable<TEntity> FindByID(params object[] keyData)
         {
-            DbExpressionBuilder builder = new DbExpressionBuilder(Expression.Parameter(ElementType, ElementType.Name.ToLower(CultureInfo.CurrentCulture)), (ConstantExpression)Expression);
+            ISubSonicQueryProvider<TEntity> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<TEntity>>();
+
+            Expression 
+                body = null, 
+                where = null;
 
             string[] keys = model.GetPrimaryKey().ToArray();
 
             for (int i = 0; i < keys.Length; i++)
             {
-                builder.BuildComparisonExpression(keys[i], keyData[i], ComparisonOperator.Equal, GroupOperator.AndAlso);
+               body = builder.BuildComparisonExpression(body, keys[i], keyData[i], ComparisonOperator.Equal, GroupOperator.AndAlso);
             }
 
-            return Provider.CreateQuery<TEntity>(
-                builder
-                    .CallExpression<TEntity>(CallExpression.Where)
-                    .ForEachProperty(keys, property => 
-                        builder.CallExpression<TEntity>(CallExpression.OrderBy, property))
-                    .ToMethodCallExpression());
+            where = builder.CallExpression(queryableData.AsQueryable().Expression, body, ExpressionCallType.Where);
+
+            return builder.CreateQuery<TEntity>(new DbSelectExpression(model.ToAlias(), model.Properties.ToColumnList((DbTableExpression)Expression), Expression, where));
+
+            //
+
+            //for (int i = 0; i < keys.Length; i++)
+            //{
+            //    builder.BuildComparisonExpression(keys[i], keyData[i], ComparisonOperator.Equal, GroupOperator.AndAlso);
+            //}
+
+            //return Provider.CreateQuery<TEntity>(
+            //    builder
+            //        .CallExpression<TEntity>(ExpressionCallType.Where)
+            //        .ForEachProperty(keys, property => 
+            //            builder.CallExpression<TEntity>(ExpressionCallType.OrderBy, property))
+            //        .ToMethodCallExpression());
         }
     }
 }

@@ -1,17 +1,9 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using SubSonic.Infrastructure;
-using SubSonic.Infrastructure.Builders;
-using SubSonic.Infrastructure.Logging;
-using SubSonic.Infrastructure.Providers;
 using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.Linq;
 using System.Reflection;
 using System.Resources;
 using System.Runtime.CompilerServices;
-using System.Text;
 
 [assembly: InternalsVisibleTo("SubSonic.Extensions.Test", AllInternalsVisible = true)]
 [assembly: InternalsVisibleTo("SubSonic.Extensions.SqlServer", AllInternalsVisible = true)]
@@ -34,8 +26,8 @@ namespace SubSonic
         private void Initialize()
         {
             ConfigureSubSonic(new DbContextOptionsBuilder(this, Options));
-            
-            OnDbModeling(new DbModelBuilder(Model));
+
+            RegisterDbModel(new DbModelBuilder(Model));
 
             SetDbSetCollections();
         }
@@ -63,12 +55,23 @@ namespace SubSonic
             {
                 this.SetupIOC(services, Options);
                 
-
                 ServiceProvider = services.BuildServiceProvider();
             }
             else
             {
                 throw new MissingServiceCollectionException();
+            }
+        }
+
+        private void RegisterDbModel(DbModelBuilder builder)
+        {
+            OnDbModeling(builder);
+
+            if(Options.PreLoadHandler.IsNotNull())
+            {
+                Options.PreLoadHandler(Model);
+
+                this.PreCompile();
             }
         }
 
