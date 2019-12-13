@@ -84,7 +84,7 @@ namespace SubSonic.Linq
         {
             foreach (var col in select.Columns)
             {
-                if (col.Name == name)
+                if (col.PropertyName == name)
                 {
                     return false;
                 }
@@ -303,7 +303,7 @@ namespace SubSonic.Linq
                 throw new ArgumentNullException(nameof(newAlias));
             }
 
-            var newColumns = select.Columns.Select(d => new DbColumnDeclaration(d.Name, d.Order, new DbColumnExpression(d.Expression.Type, newAlias, d.Name)));
+            var newColumns = select.Columns.Select(d => new DbColumnDeclaration(d.PropertyName, d.Order, new DbColumnExpression(d.Expression.Type, newAlias, d.PropertyName)));
             var newFrom = new DbSelectExpression(newAlias, select.Columns, select.From, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Skip, select.Take);
             return new DbSelectExpression(select.Alias, newColumns, newFrom, null, null, null, false, null, null);
         }

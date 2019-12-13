@@ -9,7 +9,7 @@ namespace SubSonic.Tests.DAL.SUT
         protected TestDbContext DbContext { get => SetUpSubSonic.DbContext; }
 
         [SetUp]
-        public void SetupTestFixture()
+        public virtual void SetupTestFixture()
         {
             DbContext.Instance.GetService<DbProviderFactory, MockDbClientFactory>().ClearBehaviors();
         }

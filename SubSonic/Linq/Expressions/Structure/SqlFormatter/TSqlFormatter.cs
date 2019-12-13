@@ -24,8 +24,8 @@ namespace SubSonic.Linq.Expressions.Structure
         private int depth = 0;
         private readonly TextWriter writer;
         private readonly ISqlContext context;
+        private readonly TableAliasCollection aliases = new TableAliasCollection();
 
-        
 
         public static string Format(Expression expression, ISqlContext sqlContext = null)
         {
@@ -50,6 +50,8 @@ namespace SubSonic.Linq.Expressions.Structure
         protected int IndentationWidth { get; set; } = 2;
 
         protected bool IsNested { get; set; } = false;
+
+        protected ISqlFragment Fragments => context.Fragments;
 
         protected TSqlFormatter Indent(Indentation style)
         {
@@ -208,7 +210,7 @@ namespace SubSonic.Linq.Expressions.Structure
             }
         }
 
-        protected static string GetAliasName(TableAlias alias) => TableAliasCollection.GetAliasName(alias);
+        protected string GetAliasName(TableAlias alias) => aliases.GetAliasName(alias);
 
         private string GetAggregateName(AggregateType aggregateType)
         {

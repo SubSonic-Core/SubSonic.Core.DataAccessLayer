@@ -12,6 +12,7 @@ namespace SubSonic.Extensions.Test.Models
         [Key]
         public int ID { get; set; }
 
+        [Column("name")]
         public string Name { get; set; }
 
         public bool IsAvailableStatus { get; set; }

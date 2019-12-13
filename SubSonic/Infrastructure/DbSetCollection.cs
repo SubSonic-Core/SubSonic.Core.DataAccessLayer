@@ -8,6 +8,10 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Infrastructure
 {
+    using Linq;
+    using Linq.Expressions;
+    using Linq.Expressions.Alias;
+
     public class DbSetCollection<TEntity>
         : IQueryable<TEntity>, IEnumerable<TEntity>, IQueryable, IEnumerable, IListSource
     {
@@ -19,9 +23,9 @@ namespace SubSonic.Infrastructure
         {
             this.provider = provider ?? throw new ArgumentNullException(nameof(provider));
 
-            this.queryableData = new List<TEntity>();
-            this.Expression = queryableData.AsQueryable().Expression;
-            this.model = DbContext.Model.GetEntityModel<TEntity>();
+            queryableData = new List<TEntity>();
+            model = DbContext.Model.GetEntityModel<TEntity>();
+            Expression = model.Expression;
         }
 
         protected DbContext DbContext => ((ISubSonicDbSetCollectionProvider<TEntity>)provider).DbContext;

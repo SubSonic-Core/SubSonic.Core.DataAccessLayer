@@ -43,7 +43,7 @@ namespace SubSonic.Linq
                     {
                         property.SetExpression(expression.Alias);
 
-                        columns.Add(new DbColumnDeclaration(property.Name, property.Order, property.Expression));
+                        columns.Add(new DbColumnDeclaration(property.PropertyName, property.Order, property.Expression));
                     }
                 }
             }

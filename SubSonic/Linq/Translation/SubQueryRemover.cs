@@ -24,7 +24,7 @@ namespace SubSonic.Linq.Translation
         private SubQueryRemover(IEnumerable<DbSelectExpression> selectsToRemove)
         {
             this.selectsToRemove = new HashSet<DbSelectExpression>(selectsToRemove);
-            this.map = this.selectsToRemove.ToDictionary(d => d.Alias, d => d.Columns.ToDictionary(d2 => d2.Name, d2 => d2.Expression));
+            this.map = this.selectsToRemove.ToDictionary(d => d.Alias, d => d.Columns.ToDictionary(d2 => d2.PropertyName, d2 => d2.Expression));
         }
 
         public static DbSelectExpression Remove(DbSelectExpression outerSelect, params DbSelectExpression[] selectsToRemove)

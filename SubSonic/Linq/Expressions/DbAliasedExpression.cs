@@ -10,8 +10,6 @@ namespace SubSonic.Linq.Expressions
             : base(nodeType, type)
         {
             this.Alias = alias;
-
-            TableAliasCollection.GetAliasName(alias);
         }
 
         public TableAlias Alias { get; }

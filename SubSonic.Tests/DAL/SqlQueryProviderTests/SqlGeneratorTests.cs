@@ -15,12 +15,17 @@ namespace SubSonic.Tests.DAL.SqlQueryProvider
     public partial class SqlQueryProviderTests
         : BaseTestFixture
     {
+        public override void SetupTestFixture()
+        {
+            base.SetupTestFixture();
+        }
+
         [Test]
         public void CanGenerateSelectSqlForRealEstateProperty()
         {
             string expected =
 @"SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
-FROM [dbo].[RealEstateProperty] AS [{0}]".Format(TableAliasCollection.NextAlias);
+FROM [dbo].[RealEstateProperty] AS [{0}]".Format("T1");
 
             Expression expression = DbContext.RealEstateProperties.Select().Expression;
 
@@ -46,14 +51,18 @@ FROM [dbo].[RealEstateProperty] AS [{0}]".Format(TableAliasCollection.NextAlias)
             logging.LogInformation("\n\r" + sql);
 
             sql.Should().Be(expected);
+
+            logging.LogInformation("\n\r");
+
+            sql.Should().Be(DbContext.RealEstateProperties.Select().Expression.ToString());
         }
 
         [Test]
         public void CanGenerateSelectSqlForStatus()
         {
             string expected =
-@"SELECT [{0}].[ID], [{0}].[Name], [{0}].[IsAvailableStatus]
-FROM [dbo].[Status] AS [{0}]".Format(TableAliasCollection.NextAlias);
+@"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
+FROM [dbo].[Status] AS [{0}]".Format("T1");
 
             Expression expression = DbContext.Statuses.Select().Expression;
 
@@ -79,6 +88,10 @@ FROM [dbo].[Status] AS [{0}]".Format(TableAliasCollection.NextAlias);
             logging.LogInformation("\n\r" + sql);
 
             sql.Should().Be(expected);
+
+            logging.LogInformation("\n\r");
+
+            sql.Should().Be(DbContext.Statuses.Select().Expression.ToString());
         }
 
         [Test]
@@ -86,7 +99,7 @@ FROM [dbo].[Status] AS [{0}]".Format(TableAliasCollection.NextAlias);
         {
             string expected =
 @"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID]
-FROM [dbo].[Unit] AS [{0}]".Format(TableAliasCollection.NextAlias);
+FROM [dbo].[Unit] AS [{0}]".Format("T1");
 
             Expression expression = DbContext.Units.Select().Expression;
 
@@ -112,6 +125,10 @@ FROM [dbo].[Unit] AS [{0}]".Format(TableAliasCollection.NextAlias);
             logging.LogInformation("\n\r" + sql);
 
             sql.Should().Be(expected);
+
+            logging.LogInformation("\n\r");
+
+            sql.Should().Be(DbContext.Units.Select().Expression.ToString());
         }
     }
 }

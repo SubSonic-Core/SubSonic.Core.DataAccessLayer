@@ -16,17 +16,17 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             if (select.IsNotNull())
             {
-                Write($"{context.Fragments.SELECT} ");
+                Write($"{Fragments.SELECT} ");
                 if (select.IsDistinct)
                 {
-                    Write($"{context.Fragments.DISTINCT} ");
+                    Write($"{Fragments.DISTINCT} ");
                 }
                 if (select.Take != null)
                 {
 
-                    Write($"{context.Fragments.TOP} {context.Fragments.LEFT_PARENTHESIS}");
+                    Write($"{Fragments.TOP} {Fragments.LEFT_PARENTHESIS}");
                     this.Visit(select.Take);
-                    Write($"{context.Fragments.RIGHT_PARENTHESIS} ");
+                    Write($"{Fragments.RIGHT_PARENTHESIS} ");
                 }
                 if (select.Columns.Count > 0)
                 {
@@ -35,45 +35,45 @@ namespace SubSonic.Linq.Expressions.Structure
                         DbColumnDeclaration column = select.Columns[i];
                         if (i > 0)
                         {
-                            Write($"{context.Fragments.COMMA} ");
+                            Write($"{Fragments.COMMA} ");
                         }
                         DbColumnExpression c = this.VisitValue(column.Expression) as DbColumnExpression;
-                        if (!string.IsNullOrEmpty(column.Name) && (c == null || c.Name != column.Name))
+                        if (!string.IsNullOrEmpty(column.PropertyName) && (c == null || c.Name != column.PropertyName))
                         {
-                            Write($" {context.Fragments.AS} ");
-                            Write(column.Name);
+                            Write($" {Fragments.AS} ");
+                            Write($"[{column.PropertyName}]");
                         }
                     }
                 }
                 else
                 {
-                    Write($"{context.Fragments.NULL} ");
+                    Write($"{Fragments.NULL} ");
                     if (IsNested)
                     {
-                        Write($"{context.Fragments.AS} tmp ");
+                        Write($"{Fragments.AS} tmp ");
                     }
                 }
                 if (select.From != null)
                 {
                     WriteNewLine();
-                    Write($"{context.Fragments.FROM} ");
+                    Write($"{Fragments.FROM} ");
                     this.VisitSource(select.From);
                 }
                 if (select.Where != null)
                 {
                     WriteNewLine();
-                    Write($"{context.Fragments.WHERE} ");
+                    Write($"{Fragments.WHERE} ");
                     this.VisitPredicate(select.Where);
                 }
                 if (select.GroupBy != null && select.GroupBy.Count > 0)
                 {
                     WriteNewLine();
-                    Write($"{context.Fragments.GROUP_BY} ");
+                    Write($"{Fragments.GROUP_BY} ");
                     for (int i = 0, n = select.GroupBy.Count; i < n; i++)
                     {
                         if (i > 0)
                         {
-                            Write($"{context.Fragments.COMMA} ");
+                            Write($"{Fragments.COMMA} ");
                         }
                         this.VisitValue(select.GroupBy[i]);
                     }
@@ -81,18 +81,18 @@ namespace SubSonic.Linq.Expressions.Structure
                 if (select.OrderBy != null && select.OrderBy.Count > 0)
                 {
                     WriteNewLine();
-                    Write($"{context.Fragments.ORDER_BY} ");
+                    Write($"{Fragments.ORDER_BY} ");
                     for (int i = 0, n = select.OrderBy.Count; i < n; i++)
                     {
                         DbOrderByDeclaration exp = select.OrderBy[i];
                         if (i > 0)
                         {
-                            Write($"{context.Fragments.COMMA} ");
+                            Write($"{Fragments.COMMA} ");
                         }
                         this.VisitValue(exp.Expression);
                         if (exp.OrderByType != OrderByType.Ascending)
                         {
-                            Write($" {context.Fragments.DESC}");
+                            Write($" {Fragments.DESC}");
                         }
                     }
                 }

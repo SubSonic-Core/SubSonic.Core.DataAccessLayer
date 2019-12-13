@@ -35,11 +35,11 @@ namespace SubSonic.Linq
                 throw new ArgumentNullException(nameof(query));
             }
 
-            DbContext context = DbContext.ServiceProvider.GetService<DbContext>();
-            IDbEntityModel model = context.Model.GetEntityModel<TEntity>();
-            DbTableExpression table = model.Expression;
+            IDbEntityModel model = DbContext.DbModel.GetEntityModel<TEntity>();
 
-            return query.Provider.CreateQuery<TEntity>(new DbSelectExpression(model.ToAlias(), table).SetColumns(model.Properties.ToColumnList(table)));
+            return query.Provider.CreateQuery<TEntity>(
+                    new DbSelectExpression(new Expressions.Alias.TableAlias(), query.Expression)
+                    .SetColumns(model.Properties.ToColumnList((DbAliasedExpression)query.Expression)));
         }
     }
 }

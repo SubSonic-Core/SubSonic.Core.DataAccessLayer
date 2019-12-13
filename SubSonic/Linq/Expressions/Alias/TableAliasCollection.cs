@@ -8,10 +8,9 @@ namespace SubSonic.Linq.Expressions.Alias
     internal class TableAliasCollection
         : IEnumerable<TableAlias>
     {
-        [ThreadStatic]
-        private static Dictionary<TableAlias, string> __aliases = new Dictionary<TableAlias, string>();
+        private readonly Dictionary<TableAlias, string> __aliases = new Dictionary<TableAlias, string>();
 
-        public static string GetAliasName(TableAlias alias)
+        public string GetAliasName(TableAlias alias)
         {
             string name;
 
@@ -25,7 +24,9 @@ namespace SubSonic.Linq.Expressions.Alias
             return name;
         }
 
-        public static string NextAlias => $"T{__aliases.Keys.Count + 1}";
+        public string NextAlias => $"T{__aliases.Keys.Count + 1}";
+
+        public void Reset() => __aliases.Clear();
 
         public TableAliasCollection() { }
 

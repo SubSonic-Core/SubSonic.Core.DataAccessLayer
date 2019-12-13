@@ -50,16 +50,18 @@ namespace SubSonic.Infrastructure.SqlGenerator
         string IS_NOT_NULL { get; }
         string ROW_NUMBER { get; }
         string NULL { get; }
-        string COMMA { get; set; }
-        string LEFT_PARENTHESIS { get; set; }
-        string RIGHT_PARENTHESIS { get; set; }
-        string QOUTE { get; set; }
-        string COUNT { get; set; }
-        string MIN { get; set; }
-        string AVG { get; set; }
-        string MAX { get; set; }
-        string SUM { get; set; }
-        string CROSS_APPLY { get; set; }
-        string OUTER_APPLY { get; set; }
+        string COMMA { get; }
+        string LEFT_PARENTHESIS { get; }
+        string RIGHT_PARENTHESIS { get; }
+        string QOUTE { get; }
+        string COUNT { get; }
+        string MIN { get; }
+        string AVG { get; }
+        string MAX { get; }
+        string SUM { get; }
+        string CROSS_APPLY { get; }
+        string OUTER_APPLY { get; }
+        string ASTRIX { get; }
+        string EXISTS { get; }
     }
 }

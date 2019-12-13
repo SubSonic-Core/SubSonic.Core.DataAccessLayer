@@ -367,7 +367,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 }
                 if (alternate != null)
                 {
-                    alternate.Add(new DbColumnDeclaration(column.Name, alternate.Count, e));
+                    alternate.Add(new DbColumnDeclaration(column.PropertyName, alternate.Count, e));
                 }
             }
             if (alternate != null)

@@ -31,17 +31,15 @@ namespace SubSonic.Linq.Expressions.Structure
             return value;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected virtual DbExpression VisitColumn(DbColumnExpression expression)
         {
             if (expression.IsNotNull())
             {
                 if (expression.Alias != null)
                 {
-                    WriteFormat("[{0}]", GetAliasName(expression.Alias));
-                    Write(".");
+                    Write($"[{GetAliasName(expression.Alias)}].");
                 }
-                WriteFormat("[{0}]", expression.Name);
+                WriteFormat($"[{expression.Name}]");
             }
             return expression;
         }
@@ -143,13 +141,12 @@ namespace SubSonic.Linq.Expressions.Structure
             return source;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected override Expression VisitAggregate(DbAggregateExpression aggregate)
         {
             if (aggregate.IsNotNull())
             {
                 Write(GetAggregateName(aggregate.AggregateType));
-                Write("(");
+                Write(context.Fragments.RIGHT_PARENTHESIS);
                 if (aggregate.IsDistinct)
                 {
                     Write(context.Fragments.DISTINCT);
@@ -160,9 +157,9 @@ namespace SubSonic.Linq.Expressions.Structure
                 }
                 else if (RequiresAsteriskWhenNoArgument(aggregate.AggregateType))
                 {
-                    Write("*");
+                    Write(context.Fragments.ASTRIX);
                 }
-                Write(")");
+                Write(context.Fragments.LEFT_PARENTHESIS);
             }
             return aggregate;
         }
@@ -173,7 +170,7 @@ namespace SubSonic.Linq.Expressions.Structure
             {
                 this.VisitValue(isNull.Expression);
 
-                Write(GetOperator(isNull));
+                Write($" {GetOperator(isNull)}");
             }
             return isNull;
         }
@@ -183,20 +180,20 @@ namespace SubSonic.Linq.Expressions.Structure
             if (between.IsNotNull())
             {
                 this.VisitValue(between.Expression);
-                Write(GetOperator(between));
+                Write($" {GetOperator(between)} ");
                 this.VisitValue(between.Lower);
-                Write(context.Fragments.AND);
+                Write($" {Fragments.AND} ");
                 this.VisitValue(between.Upper);
             }
             return between;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
         protected override Expression VisitRowNumber(DbRowNumberExpression rowNumber)
         {
             if (rowNumber.IsNotNull())
             {
-                Write(context.Fragments.ROW_NUMBER);
+                Write(Fragments.ROW_NUMBER);
+                Write(Fragments.RIGHT_PARENTHESIS);
                 if (rowNumber.OrderBy != null && rowNumber.OrderBy.Count > 0)
                 {
                     Write(context.Fragments.ORDER_BY);
@@ -205,7 +202,7 @@ namespace SubSonic.Linq.Expressions.Structure
                         DbOrderByDeclaration exp = rowNumber.OrderBy[i];
                         if (i > 0)
                         {
-                            Write(", ");
+                            Write($"{Fragments.COMMA} ");
                         }
                         this.VisitValue(exp.Expression);
                         if (exp.OrderByType != OrderByType.Ascending)
@@ -214,7 +211,7 @@ namespace SubSonic.Linq.Expressions.Structure
                         }
                     }
                 }
-                Write(")");
+                Write(Fragments.LEFT_PARENTHESIS);
             }
             return rowNumber;
         }
@@ -223,11 +220,11 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             if (subquery.IsNotNull())
             {
-                this.Write("(");
+                this.Write(Fragments.RIGHT_PARENTHESIS);
                 WriteNewLine(Indentation.Inner);
                 this.Visit(subquery.Select);
-                WriteNewLine(Indentation.Same);
-                Write(")");
+                WriteNewLine();
+                Write(Fragments.LEFT_PARENTHESIS);
                 this.Indent(Indentation.Outer);
             }
 
@@ -238,11 +235,11 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             if (exists.IsNotNull())
             {
-                Write("EXISTS(");
+                Write($"{Fragments.EXISTS}{Fragments.RIGHT_PARENTHESIS}");
                 WriteNewLine(Indentation.Inner);
                 this.Visit(exists.Select);
                 WriteNewLine(Indentation.Same);
-                Write(")");
+                Write(Fragments.LEFT_PARENTHESIS);
                 this.Indent(Indentation.Outer);
             }
             return exists;
@@ -253,23 +250,24 @@ namespace SubSonic.Linq.Expressions.Structure
             if (@in.IsNotNull())
             {
                 this.VisitValue(@in.Expression);
-                Write(" IN (");
+                Write($" {Fragments.IN} ");
+                Write(Fragments.RIGHT_PARENTHESIS);
                 if (@in.Select != null)
                 {
                     WriteNewLine(Indentation.Inner);
                     this.Visit(@in.Select);
-                    WriteNewLine(Indentation.Same);
-                    Write(")");
+                    WriteNewLine();
+                    Write(Fragments.LEFT_PARENTHESIS);
                     this.Indent(Indentation.Outer);
                 }
                 else if (@in.Values != null)
                 {
                     for (int i = 0, n = @in.Values.Count; i < n; i++)
                     {
-                        if (i > 0) Write(", ");
+                        if (i > 0) Write($"{Fragments.COMMA} ");
                         this.VisitValue(@in.Values[i]);
                     }
-                    Write(")");
+                    Write(Fragments.LEFT_PARENTHESIS);
                 }
             }
             return @in;
