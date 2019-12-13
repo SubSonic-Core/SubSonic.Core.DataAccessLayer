@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 
 namespace SubSonic
@@ -20,6 +21,14 @@ namespace SubSonic
         public static bool IsNotNullOrEmpty(this string instance)
         {
             return IsNullOrEmpty(instance);
+        }
+
+        public static string EncapsulateQualifiedName(this string source)
+        {
+            return string.Join('.', source
+                .Split('.')
+                .Select(name => $"[{name}]")
+                .ToArray());            
         }
     }
 }

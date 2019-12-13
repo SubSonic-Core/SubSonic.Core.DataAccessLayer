@@ -5,25 +5,19 @@ namespace SubSonic.Linq.Expressions
 {
     public class DbColumnDeclaration
     {
-        string name;
-        Expression expression;
-        public DbColumnDeclaration(string name, Expression expression)
+        public DbColumnDeclaration(string name, int order, Expression expression)
         {
             if (string.IsNullOrEmpty(name))
             {
                 throw new ArgumentException("", nameof(name));
             }
 
-            this.name = name;
-            this.expression = expression ?? throw new ArgumentNullException(nameof(expression));
+            Name = name;
+            Order = order;
+            Expression = expression ?? throw new ArgumentNullException(nameof(expression));
         }
-        public string Name
-        {
-            get { return name; }
-        }
-        public Expression Expression
-        {
-            get { return expression; }
-        }
+        public string Name { get; }
+        public int Order { get; }
+        public Expression Expression { get; }
     }
 }

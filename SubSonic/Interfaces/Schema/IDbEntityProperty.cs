@@ -26,5 +26,6 @@ namespace SubSonic.Infrastructure.Schema
         DbEntityPropertyType EntityPropertyType { get; }
 
         DbColumnExpression Expression { get; }
+        int Order { get; set; }
     }
 }

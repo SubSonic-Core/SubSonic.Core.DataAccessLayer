@@ -42,13 +42,14 @@ namespace SubSonic.Infrastructure.Schema
         public bool IsReadOnly { get; internal set; }
         public bool IsComputed { get; internal set; }
         public bool IsAutoIncrement { get; internal set; }
+        public int Order { get; set; }
 
         public DbEntityPropertyType EntityPropertyType
         {
             get
             {
                 DbEntityPropertyType result;
-                if (PropertyType.GetUnderlyingType().IsValueType)
+                if (PropertyType.GetUnderlyingType().IsValueType || PropertyType.IsAssignableFrom(typeof(string)))
                 {
                     result = DbEntityPropertyType.Value;
                 }
@@ -69,15 +70,13 @@ namespace SubSonic.Infrastructure.Schema
             }
         }
 
-        public DbColumnExpression Expression
-        {
-            get
-            {
-                DbColumnExpression expression = new DbColumnExpression(PropertyType, new Table(dbEntityModel.Name), Name);
+        public DbColumnExpression Expression { get; private set; }
 
-                return expression;
-            }
+        internal void SetExpression(TableAlias table)
+        {
+            Expression = new DbColumnExpression(PropertyType, table, Name);
         }
+
         public override string ToString()
         {
             return PropertyName;

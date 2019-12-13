@@ -33,6 +33,7 @@ namespace SubSonic.Infrastructure
 
             if (item.EntityModel.Equals(dbEntityModel))
             {
+                item.Order = dbEntityProperties.Count;
                 dbEntityProperties.Add(item);
             }
         }

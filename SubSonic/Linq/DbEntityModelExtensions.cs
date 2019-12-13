@@ -11,27 +11,39 @@ namespace SubSonic.Linq
 
     public static partial class SubSonicExtensions
     {
-        public static Alias.Table ToAlias(this IDbEntityModel model)
+        public static Alias.TableAlias ToAlias(this IDbEntityModel model)
         {
             if (model is null)
             {
                 throw new ArgumentNullException(nameof(model));
             }
 
-            return new Alias.Table(model.ToString());
+            return new Alias.TableAlias(model.ToString());
         }
 
-        public static IEnumerable<DbColumnDeclaration> ToColumnList(this ICollection<IDbEntityProperty> properties)
+        public static IEnumerable<DbColumnDeclaration> ToColumnList(this ICollection<IDbEntityProperty> properties, DbAliasedExpression expression)
         {
+            if (properties is null)
+            {
+                throw new ArgumentNullException(nameof(properties));
+            }
+
+            if (expression is null)
+            {
+                throw new ArgumentNullException(nameof(expression));
+            }
+
             ICollection<DbColumnDeclaration> columns = new List<DbColumnDeclaration>();
 
             if (properties.IsNotNull())
             {
-                foreach (IDbEntityProperty property in properties)
+                foreach (DbEntityProperty property in properties)
                 {
                     if (property.EntityPropertyType == DbEntityPropertyType.Value)
                     {
-                        columns.Add(new DbColumnDeclaration(property.Name, property.Expression));
+                        property.SetExpression(expression.Alias);
+
+                        columns.Add(new DbColumnDeclaration(property.Name, property.Order, property.Expression));
                     }
                 }
             }

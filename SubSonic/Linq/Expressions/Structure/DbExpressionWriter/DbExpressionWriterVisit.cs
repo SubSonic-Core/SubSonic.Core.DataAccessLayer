@@ -9,7 +9,7 @@ namespace SubSonic.Linq.Expressions.Structure
 
     public partial class DbExpressionWriter
     {
-        Dictionary<Table, int> aliasMap = new Dictionary<Table, int>();
+        Dictionary<TableAlias, int> aliasMap = new Dictionary<TableAlias, int>();
 
         public override Expression Visit(Expression exp)
         {
@@ -41,7 +41,7 @@ namespace SubSonic.Linq.Expressions.Structure
             }
         }
 
-        protected void AddAlias(Table alias)
+        protected void AddAlias(TableAlias alias)
         {
             if (!aliasMap.ContainsKey(alias))
             {

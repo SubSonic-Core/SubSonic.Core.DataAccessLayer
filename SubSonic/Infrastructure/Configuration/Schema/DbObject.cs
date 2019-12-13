@@ -14,7 +14,7 @@ namespace SubSonic.Infrastructure.Schema
 
         public string Name { get; set; }
         public string FriendlyName { get; set; }
-        public string QualifiedName { get => $"{SchemaName}.{Name}"; }
+        public string QualifiedName { get => $"{SchemaName}.{Name}".EncapsulateQualifiedName(); }
         public string SchemaName { get; set; }
 
         public override string ToString()

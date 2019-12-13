@@ -13,5 +13,7 @@ namespace SubSonic.Extensions.Test.Models
         public int ID { get; set; }
 
         public string Name { get; set; }
+
+        public bool IsAvailableStatus { get; set; }
     }
 }

@@ -24,7 +24,6 @@ namespace SubSonic.Linq.Expressions.Structure
         private int depth = 0;
         private readonly TextWriter writer;
         private readonly ISqlContext context;
-        private readonly Dictionary<Table, string> aliases;
 
         
 
@@ -46,7 +45,6 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             this.writer = writer ?? throw new ArgumentNullException(nameof(writer));
             this.context = sqlContext ?? throw new ArgumentNullException(nameof(sqlContext));
-            this.aliases = new Dictionary<Table, string>();
         }
 
         protected int IndentationWidth { get; set; } = 2;
@@ -210,16 +208,7 @@ namespace SubSonic.Linq.Expressions.Structure
             }
         }
 
-        protected string GetAliasName(Table alias)
-        {
-            string name;
-            if (!aliases.TryGetValue(alias, out name))
-            {
-                name = $"A{aliases.Count}";
-                aliases.Add(alias, name);
-            }
-            return name;
-        }
+        protected static string GetAliasName(TableAlias alias) => TableAliasCollection.GetAliasName(alias);
 
         private string GetAggregateName(AggregateType aggregateType)
         {

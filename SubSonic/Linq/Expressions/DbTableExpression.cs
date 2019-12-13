@@ -11,7 +11,7 @@ namespace SubSonic.Linq.Expressions
     {
         private readonly string name;
 
-        public DbTableExpression(Table alias, string name)
+        public DbTableExpression(TableAlias alias, string name)
             : base(DbExpressionType.Table, typeof(void), alias)
         {
             if (string.IsNullOrEmpty(name))
@@ -20,12 +20,15 @@ namespace SubSonic.Linq.Expressions
             }
 
             this.name = name;
+            Alias.IsNotNull(Al => Al.SetTable(this));
         }
 
         public string Name
         {
             get { return name; }
         }
+
+
 
         public override string ToString()
         {

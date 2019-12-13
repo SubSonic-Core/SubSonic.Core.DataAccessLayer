@@ -22,7 +22,7 @@ namespace SubSonic.Linq
                 throw new ArgumentNullException(nameof(columns));
             }
 
-            return new DbSelectExpression(select.Alias, columns.OrderBy(c => c.Name), select.From, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Skip, select.Take);
+            return new DbSelectExpression(select.Alias, columns.OrderBy(c => c.Order), select.From, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Skip, select.Take);
         }
 
         public static DbSelectExpression AddColumn(this DbSelectExpression select, DbColumnDeclaration column)
@@ -100,7 +100,7 @@ namespace SubSonic.Linq
             }
 
             string colName = projection.Source.GetAvailableColumnName("Test");
-            DbSelectExpression newSource = projection.Source.AddColumn(new DbColumnDeclaration(colName, Expression.Constant(1, typeof(int?))));
+            DbSelectExpression newSource = projection.Source.AddColumn(new DbColumnDeclaration(colName, projection.Source.Columns.Count, Expression.Constant(1, typeof(int?))));
             Expression newProjector =
                 new DbOuterJoinedExpression(
                     new DbColumnExpression(typeof(int?), newSource.Alias, colName),
@@ -291,7 +291,7 @@ namespace SubSonic.Linq
             return select;
         }
 
-        public static DbSelectExpression AddRedundantSelect(this DbSelectExpression select, Expressions.Alias.Table newAlias)
+        public static DbSelectExpression AddRedundantSelect(this DbSelectExpression select, Expressions.Alias.TableAlias newAlias)
         {
             if (select is null)
             {
@@ -303,7 +303,7 @@ namespace SubSonic.Linq
                 throw new ArgumentNullException(nameof(newAlias));
             }
 
-            var newColumns = select.Columns.Select(d => new DbColumnDeclaration(d.Name, new DbColumnExpression(d.Expression.Type, newAlias, d.Name)));
+            var newColumns = select.Columns.Select(d => new DbColumnDeclaration(d.Name, d.Order, new DbColumnExpression(d.Expression.Type, newAlias, d.Name)));
             var newFrom = new DbSelectExpression(newAlias, select.Columns, select.From, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Skip, select.Take);
             return new DbSelectExpression(select.Alias, newColumns, newFrom, null, null, null, false, null, null);
         }

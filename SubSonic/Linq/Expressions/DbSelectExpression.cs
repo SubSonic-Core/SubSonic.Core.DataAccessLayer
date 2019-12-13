@@ -23,14 +23,14 @@ namespace SubSonic.Linq.Expressions
         Expression take;
         Expression skip;
 
-        public DbSelectExpression(Table alias, Expression from)
+        public DbSelectExpression(TableAlias alias, Expression from)
             : base(DbExpressionType.Select, typeof(void), alias)
         {
             From = from ?? throw new System.ArgumentNullException(nameof(from));
         }
 
         public DbSelectExpression(
-            Table alias,
+            TableAlias alias,
             IEnumerable<DbColumnDeclaration> columns,
             Expression from,
             Expression where,
@@ -63,7 +63,7 @@ namespace SubSonic.Linq.Expressions
             this.skip = skip;
         }
         public DbSelectExpression(
-            Table alias,
+            TableAlias alias,
             IEnumerable<DbColumnDeclaration> columns,
             Expression from,
             Expression where,
@@ -74,7 +74,7 @@ namespace SubSonic.Linq.Expressions
         {
         }
         public DbSelectExpression(
-            Table alias, IEnumerable<DbColumnDeclaration> columns,
+            TableAlias alias, IEnumerable<DbColumnDeclaration> columns,
             Expression from, Expression where
             )
             : this(alias, columns, from, where, null, null)

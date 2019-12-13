@@ -6,16 +6,14 @@ namespace SubSonic.Linq.Expressions
     public abstract class DbAliasedExpression
         : DbExpression
     {
-        Table alias;
-        protected DbAliasedExpression(DbExpressionType nodeType, Type type, Table alias)
+        protected DbAliasedExpression(DbExpressionType nodeType, Type type, TableAlias alias)
             : base(nodeType, type)
         {
-            this.alias = alias;
+            this.Alias = alias;
+
+            TableAliasCollection.GetAliasName(alias);
         }
-        public Table Alias
-        {
-            get { return alias; }
-            set { alias = value; }
-        }
+
+        public TableAlias Alias { get; }
     }
 }

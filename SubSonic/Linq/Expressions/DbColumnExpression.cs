@@ -8,7 +8,7 @@ namespace SubSonic.Linq.Expressions
     /// </summary>
     public class DbColumnExpression : DbExpression, IEquatable<DbColumnExpression>
     {
-        public DbColumnExpression(Type type, Table alias, string columnName)
+        public DbColumnExpression(Type type, TableAlias alias, string columnName)
             : base(DbExpressionType.Column, type)
         {
             if (string.IsNullOrEmpty(columnName))
@@ -20,7 +20,7 @@ namespace SubSonic.Linq.Expressions
             this.Name = columnName;
         }
 
-        public Table Alias { get; }
+        public TableAlias Alias { get; }
 
         public string Name { get; }
 

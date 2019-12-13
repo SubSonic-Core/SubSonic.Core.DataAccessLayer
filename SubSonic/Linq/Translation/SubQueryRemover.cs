@@ -19,7 +19,7 @@ namespace SubSonic.Linq.Translation
         : DbExpressionVisitor
     {
         HashSet<DbSelectExpression> selectsToRemove;
-        Dictionary<Table, Dictionary<string, Expression>> map;
+        Dictionary<TableAlias, Dictionary<string, Expression>> map;
 
         private SubQueryRemover(IEnumerable<DbSelectExpression> selectsToRemove)
         {
