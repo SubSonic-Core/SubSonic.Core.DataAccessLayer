@@ -35,6 +35,7 @@ namespace SubSonic.Linq.Expressions
             IEnumerable<DbColumnDeclaration> columns,
             Expression from,
             Expression where,
+            IReadOnlyCollection<SubSonicParameter> parameters,
             IEnumerable<DbOrderByDeclaration> orderBy,
             IEnumerable<Expression> groupBy,
             bool isDistinct,
@@ -50,6 +51,12 @@ namespace SubSonic.Linq.Expressions
             this.isDistinct = isDistinct;
             this.from = from;
             this.where = where;
+
+            if (where.IsNotNull() && parameters.IsNotNull())
+            {
+                Parameters = parameters;
+            }
+
             this.orderBy = orderBy as ReadOnlyCollection<DbOrderByDeclaration>;
             if (this.orderBy == null && orderBy != null)
             {
@@ -68,17 +75,18 @@ namespace SubSonic.Linq.Expressions
             IEnumerable<DbColumnDeclaration> columns,
             Expression from,
             Expression where,
+            IReadOnlyCollection<SubSonicParameter> parameters,
             IEnumerable<DbOrderByDeclaration> orderBy,
             IEnumerable<Expression> groupBy
             )
-            : this(alias, columns, from, where, orderBy, groupBy, false, null, null)
+            : this(alias, columns, from, where, parameters, orderBy, groupBy, false, null, null)
         {
         }
         public DbSelectExpression(
             TableAlias alias, IEnumerable<DbColumnDeclaration> columns,
-            Expression from, Expression where
+            Expression from, Expression where, IReadOnlyCollection<SubSonicParameter> parameters
             )
-            : this(alias, columns, from, where, null, null)
+            : this(alias, columns, from, where, parameters, null, null)
         {
         }
         public ReadOnlyCollection<DbColumnDeclaration> Columns
@@ -94,6 +102,9 @@ namespace SubSonic.Linq.Expressions
         {
             get { return where; }
         }
+
+        public IReadOnlyCollection<SubSonicParameter> Parameters { get; }
+
         public ReadOnlyCollection<DbOrderByDeclaration> OrderBy
         {
             get { return orderBy; }

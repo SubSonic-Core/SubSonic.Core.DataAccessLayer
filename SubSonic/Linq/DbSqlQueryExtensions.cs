@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace SubSonic.Linq
 {
+    using Infrastructure;
     using Infrastructure.Schema;
     using Expressions;
 
@@ -28,18 +30,37 @@ namespace SubSonic.Linq
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="query"></param>
         /// <returns></returns>
-        public static IQueryable<TEntity> Select<TEntity>(this IQueryable<TEntity> query)
+        public static ISubSonicCollection<TEntity> Select<TEntity>(this ISubSonicCollection<TEntity> query)
         {
             if (query is null)
             {
                 throw new ArgumentNullException(nameof(query));
             }
 
-            IDbEntityModel model = DbContext.DbModel.GetEntityModel<TEntity>();
+            ISubSonicQueryProvider<TEntity> builder = DbContext.ServiceProvider.GetService<ISubSonicQueryProvider<TEntity>>();
 
-            return query.Provider.CreateQuery<TEntity>(
-                    new DbSelectExpression(model.ToAlias(), query.Expression)
-                    .SetColumns(model.Properties.ToColumnList((DbAliasedExpression)query.Expression)));
+            Expression where = null;
+            IReadOnlyCollection<SubSonicParameter> parameters = null;
+
+            if(query.Expression is DbSelectExpression)
+            {
+                DbSelectExpression select = (DbSelectExpression)query.Expression;
+
+                where = select.Where;
+                parameters = select.Parameters;
+            }
+            return (ISubSonicCollection<TEntity>)builder.CreateQuery<TEntity>(builder.BuildSelect(null, where, parameters));
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1720:Identifier contains type name", Justification = "Microsoft already named a IQueryable.Single and it would be confusing not to.")]
+        public static TEntity Single<TEntity>(this ISubSonicCollection<TEntity> query)
+        {
+            if (query is null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+
+            return query.Provider.Execute<IEnumerable<TEntity>>(query.Expression).Single();
         }
     }
 }

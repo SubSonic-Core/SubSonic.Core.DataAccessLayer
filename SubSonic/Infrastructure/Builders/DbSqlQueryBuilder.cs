@@ -8,6 +8,7 @@ namespace SubSonic.Infrastructure.Builders
     using Linq.Expressions;
     using Logging;
     using Schema;
+    using System.Data.Common;
     using System.Globalization;
     using System.Reflection;
 
@@ -27,9 +28,7 @@ namespace SubSonic.Infrastructure.Builders
         , IDbSqlQueryBuilder
     {
         private readonly ISubSonicLogger logger;
-        private readonly IDbEntityModel dbEntityModel;
-
-        private Expression body;
+        private readonly SubSonicParameterCollection parameters;
 
         public DbSqlQueryBuilder(Type dbModelType, ISubSonicLogger logger = null)
         {
@@ -39,14 +38,17 @@ namespace SubSonic.Infrastructure.Builders
             }
 
             this.logger = logger ?? DbContext.ServiceProvider.GetService<ISubSonicLogger>();
-            this.dbEntityModel = DbContext.DbModel.GetEntityModel(dbModelType.GetQualifiedType());
+            DbEntity = DbContext.DbModel.GetEntityModel(dbModelType.GetQualifiedType());
+            DbTable = DbEntity.Expression;
+            parameters = new SubSonicParameterCollection();
         }
 
         public SqlQueryType SqlQueryType { get; private set; }
 
-        //public Expression Expression { get; private set; }
+        public IDbEntityModel DbEntity { get; }
+        public DbTableExpression DbTable { get; }
 
-        protected ParameterExpression Parameter => Expression.Parameter(dbEntityModel.EntityModelType, dbEntityModel.Name);
+        protected ParameterExpression Parameter => Expression.Parameter(DbEntity.EntityModelType, DbEntity.Name);
 
         public ISqlQueryProvider SqlQueryProvider { get; private set; }
 
@@ -56,6 +58,11 @@ namespace SubSonic.Infrastructure.Builders
             {
                 throw new InvalidOperationException();
             }
+        }
+
+        public Expression BuildSelect(IEnumerable<DbColumnDeclaration> columns, Expression where, IReadOnlyCollection<SubSonicParameter> parameters = null)
+        {
+            return new DbSelectExpression(DbTable.Alias, columns ?? DbTable.Columns, DbTable, where, parameters ?? this.parameters.ToReadOnly());
         }
 
         public IDbSqlQueryBuilder BuildSqlQuery(SqlQueryType sqlQueryType, ISqlQueryProvider sqlQueryProvider)
@@ -70,7 +77,7 @@ namespace SubSonic.Infrastructure.Builders
         {
             using (IPerformanceLogger performance = logger.Start(GetType(), nameof(CreateQuery)))
             {
-                return new SubSonicCollection(dbEntityModel.EntityModelType, BuildQuery(expression));
+                return new SubSonicCollection(DbEntity.EntityModelType, BuildQuery(expression));
             }
         }
 
@@ -86,7 +93,11 @@ namespace SubSonic.Infrastructure.Builders
 
         public object Execute(Expression expression)
         {
-            throw new NotImplementedException();
+            using (AutomaticConnectionScope Scope = DbContext.ServiceProvider.GetService<AutomaticConnectionScope>())
+            using (var perf = logger.Start(GetType(), nameof(Execute)))
+            {
+                throw new NotImplementedException();
+            }
         }
 
         protected virtual Expression BuildQuery(Expression expression)
@@ -96,7 +107,7 @@ namespace SubSonic.Infrastructure.Builders
                 SqlQueryType = GetQueryType(expression);
             }
 
-            return expression ?? dbEntityModel.Expression;
+            return expression ?? DbEntity.Expression;
         }
 
         protected virtual SqlQueryType GetQueryType(Expression expression)
@@ -130,10 +141,15 @@ namespace SubSonic.Infrastructure.Builders
                     typeof(Queryable),
                     callType.ToString(),
                     GetTypeArguments(callType, lambda),
-                    GetMethodCall(source) ?? Expression.Parameter(source.Type),
+                    GetMethodCall(source) ?? Expression.Parameter(GetTypeOf(typeof(ISubSonicCollection<>), DbEntity.EntityModelType)),
                     lambda);
             }
             return body;
+        }
+
+        private Type GetTypeOf(Type type, params Type[] types)
+        {
+            return type.IsGenericType ? type.MakeGenericType(types) : type;
         }
 
         private Expression GetExpressionArgument(Expression body, ExpressionCallType @call, params string[] properties)
@@ -192,13 +208,11 @@ namespace SubSonic.Infrastructure.Builders
 
         public Expression BuildComparisonExpression(Expression body, string property, object value, ComparisonOperator @operator, GroupOperator @group)
         {
-            PropertyInfo propertyInfo = dbEntityModel.EntityModelType.GetProperty(property);
-
-            Type ConstantType = propertyInfo.PropertyType.GetUnderlyingType();
+            PropertyInfo propertyInfo = DbEntity.EntityModelType.GetProperty(property);
 
             Expression
-                left = Expression.Property(Parameter, propertyInfo),
-                right = Expression.Constant(Convert.ChangeType(value, ConstantType, CultureInfo.CurrentCulture), ConstantType);
+                left = GetDbColumnExpression(propertyInfo),
+                right = GetNamedExpression(propertyInfo, value);
 
             if (body.IsNull())
             {
@@ -208,6 +222,31 @@ namespace SubSonic.Infrastructure.Builders
             {
                 return GetBodyExpression(body, GetComparisonExpression(left, right, @operator), @group);
             }
+        }
+
+        private Expression GetNamedExpression(PropertyInfo info, object value)
+        {
+            IDbEntityProperty property = DbEntity[info.Name];
+
+            parameters.Add(new SubSonicParameter(property, $"@{property.Name}") { Value = value });
+
+            Type ConstantType = info.PropertyType.GetUnderlyingType();
+
+            return new DbNamedValueExpression(
+                property.Name,
+                Expression.Constant(Convert.ChangeType(value, ConstantType, CultureInfo.CurrentCulture), ConstantType));
+        }
+
+        private Expression GetDbColumnExpression(PropertyInfo info)
+        {
+            foreach(DbColumnDeclaration column in DbTable.Columns)
+            {
+                if(column.PropertyName == info.Name)
+                {
+                    return column.Expression;
+                }
+            }
+            return null;
         }
 
         private Expression GetBodyExpression(Expression body, Expression right, GroupOperator @group)

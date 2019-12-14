@@ -66,13 +66,14 @@ namespace SubSonic.Linq.Expressions.Structure
                 case (ExpressionType)DbExpressionType.Projection:
                 case (ExpressionType)DbExpressionType.NamedValue:
                     return base.Visit(node);
-
-                case ExpressionType.ArrayLength:
+                case ExpressionType.Parameter:
+                    return node;
                 case ExpressionType.Quote:
+                    return base.Visit(((UnaryExpression)node).Operand);
+                case ExpressionType.ArrayLength:
                 case ExpressionType.TypeAs:
                 case ExpressionType.ArrayIndex:
                 case ExpressionType.TypeIs:
-                case ExpressionType.Parameter:
                 case ExpressionType.Lambda:
                 case ExpressionType.NewArrayInit:
                 case ExpressionType.NewArrayBounds:

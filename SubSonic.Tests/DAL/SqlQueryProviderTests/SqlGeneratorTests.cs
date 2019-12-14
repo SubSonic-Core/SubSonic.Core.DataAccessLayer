@@ -131,7 +131,7 @@ FROM [dbo].[Unit] AS [{0}]".Format("T1");
             string expected =
 @"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
 FROM [dbo].[Status] AS [{0}]
-WHERE [{0}].[ID] = 1".Format("T1");
+WHERE ([{0}].[ID] = @ID) <> 0".Format("T1");
 
             Expression expression = DbContext.Statuses.FindByID(1).Expression;
 
@@ -158,7 +158,10 @@ WHERE [{0}].[ID] = 1".Format("T1");
 
             sql.Should().Be(expected);
 
-            sql.Should().Be(DbContext.Statuses.FindByID(1).Expression.ToString());
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                sql.Should().Be(DbContext.Statuses.FindByID(1).Expression.ToString());
+            }
         }
     }
 }

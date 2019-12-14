@@ -13,7 +13,7 @@ namespace SubSonic.Infrastructure
     using Linq.Expressions.Alias;
 
     public class DbSetCollection<TEntity>
-        : IQueryable<TEntity>, IEnumerable<TEntity>, IQueryable, IEnumerable, IListSource
+        : ISubSonicCollection<TEntity>, IListSource
     {
         private readonly IQueryProvider provider;
         private readonly DbEntityModel model;
@@ -73,7 +73,7 @@ namespace SubSonic.Infrastructure
             return ((IEnumerable<TEntity>)queryableData).GetEnumerator();
         }
 
-        public IQueryable<TEntity> FindByID(params object[] keyData)
+        public ISubSonicCollection<TEntity> FindByID(params object[] keyData)
         {
             ISubSonicQueryProvider<TEntity> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<TEntity>>();
 
@@ -88,23 +88,9 @@ namespace SubSonic.Infrastructure
                body = builder.BuildComparisonExpression(body, keys[i], keyData[i], ComparisonOperator.Equal, GroupOperator.AndAlso);
             }
 
-            where = builder.CallExpression(queryableData.AsQueryable().Expression, body, ExpressionCallType.Where);
+            where = builder.CallExpression(null, body, ExpressionCallType.Where);
 
-            return builder.CreateQuery<TEntity>(new DbSelectExpression(model.ToAlias(), model.Properties.ToColumnList((DbTableExpression)Expression), Expression, where));
-
-            //
-
-            //for (int i = 0; i < keys.Length; i++)
-            //{
-            //    builder.BuildComparisonExpression(keys[i], keyData[i], ComparisonOperator.Equal, GroupOperator.AndAlso);
-            //}
-
-            //return Provider.CreateQuery<TEntity>(
-            //    builder
-            //        .CallExpression<TEntity>(ExpressionCallType.Where)
-            //        .ForEachProperty(keys, property => 
-            //            builder.CallExpression<TEntity>(ExpressionCallType.OrderBy, property))
-            //        .ToMethodCallExpression());
+            return (ISubSonicCollection<TEntity>)builder.CreateQuery<TEntity>(builder.BuildSelect(null, where));
         }
     }
 }

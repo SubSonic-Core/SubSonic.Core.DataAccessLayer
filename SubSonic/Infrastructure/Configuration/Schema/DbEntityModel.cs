@@ -33,7 +33,7 @@ namespace SubSonic.Infrastructure
 
         public Type EntityModelType { get; internal set; }
 
-        public DbTableExpression Expression => new DbTableExpression(EntityModelType, new TableAlias(Name), QualifiedName);
+        public DbTableExpression Expression => new DbTableExpression(this);
 
         public IEnumerable<string> GetPrimaryKey()
         {

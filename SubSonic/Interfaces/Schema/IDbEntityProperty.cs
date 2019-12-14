@@ -5,9 +5,11 @@ using System.Text;
 namespace SubSonic.Infrastructure.Schema
 {
     using Linq.Expressions;
+    using System.Data;
 
     public interface IDbEntityProperty
         : IDbObject
+
     {
         IDbEntityModel EntityModel { get; }
 
@@ -15,17 +17,17 @@ namespace SubSonic.Infrastructure.Schema
         Type PropertyType { get; }
         bool IsPrimaryKey { get; }
         IEnumerable<string> ForeignKeys { get; }
-        int MaxLength { get; }
-        int NumericScale { get; }
-        int NumericPrecision { get; }
+        int Size { get; }
+        int Scale { get; }
+        int Precision { get; }
         bool IsRequired { get; }
         bool IsNullable { get; }
         bool IsReadOnly { get; }
         bool IsComputed { get; }
         bool IsAutoIncrement { get; }
-        DbEntityPropertyType EntityPropertyType { get; }
-
-        DbColumnExpression Expression { get; }
         int Order { get; set; }
+        DbType DbType { get; set; }
+        DbEntityPropertyType EntityPropertyType { get; }
+        DbColumnExpression Expression { get; }
     }
 }

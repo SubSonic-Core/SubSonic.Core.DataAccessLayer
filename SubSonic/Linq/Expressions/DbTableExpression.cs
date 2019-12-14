@@ -4,35 +4,40 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
+    using Infrastructure.Schema;
+    using System.Collections.Generic;
+
     /// <summary>
     /// A custom expression node that represents a table reference in a SQL query
     /// </summary>
     public class DbTableExpression
         : DbAliasedExpression
     {
-        private readonly string name;
+        private readonly IDbEntityModel model;
 
-        public DbTableExpression(Type tableType, TableAlias alias, string name)
+        public DbTableExpression(IDbEntityModel model)
+            : this(model.IsNullThrowArgumentNull(nameof(model)).EntityModelType, model.ToAlias())
+        {
+            this.model = model;
+        }
+        public DbTableExpression(Type tableType, TableAlias alias)
             : base(DbExpressionType.Table, tableType, alias)
         {
-            if (string.IsNullOrEmpty(name))
-            {
-                throw new ArgumentException("", nameof(name));
-            }
-            this.name = name;
             Alias.IsNotNull(Al => Al.SetTable(this));
         }
 
-        public string Name
+        public IDbEntityModel Model
         {
-            get { return name; }
+            get { return model; }
         }
 
-        public new ParameterExpression Parameter => Expression.Parameter(Type, Name);
+        public IEnumerable<DbColumnDeclaration> Columns => model.Properties.ToColumnList(this);
+
+        public new ParameterExpression Parameter => Expression.Parameter(Type, Model.Name);
 
         public override string ToString()
         {
-            return "T(" + name + ")";
+            return "T(" + model.IsNotNull(M => M.QualifiedName, Type.Name) + ")";
         }
     }
 }

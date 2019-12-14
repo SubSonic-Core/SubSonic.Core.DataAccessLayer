@@ -115,7 +115,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 {
                     case DbExpressionType.Table:
                         DbTableExpression table = (DbTableExpression)source;
-                        Write(table.Name);
+                        Write(table.Model);
                         Write($" {context.Fragments.AS} ");
                         Write($"[{GetAliasName(table.Alias)}]");
                         break;

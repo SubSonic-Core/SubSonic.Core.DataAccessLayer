@@ -7,6 +7,8 @@ namespace SubSonic.Infrastructure.Schema
 {
     using Linq.Expressions;
     using Linq.Expressions.Alias;
+    using System.Data;
+
     public class DbEntityProperty
         : DbObject
         , IDbEntityProperty
@@ -34,15 +36,16 @@ namespace SubSonic.Infrastructure.Schema
 
         public IEnumerable<string> ForeignKeys { get; internal set; }
 
-        public int MaxLength { get; internal set; }
-        public int NumericScale { get; internal set; }
-        public int NumericPrecision { get; internal set; }
+        public int Size { get; internal set; }
+        public int Scale { get; internal set; }
+        public int Precision { get; internal set; }
         public bool IsRequired { get; internal set; }
         public bool IsNullable { get; internal set; }
         public bool IsReadOnly { get; internal set; }
         public bool IsComputed { get; internal set; }
         public bool IsAutoIncrement { get; internal set; }
         public int Order { get; set; }
+        public DbType DbType { get; set; }
 
         public DbEntityPropertyType EntityPropertyType
         {

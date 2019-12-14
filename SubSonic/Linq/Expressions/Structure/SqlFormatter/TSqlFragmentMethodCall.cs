@@ -26,6 +26,10 @@ namespace SubSonic.Linq.Expressions.Structure
                 {
                     VisitDateTimeMethods(info, method);
                 }
+                else if (info.DeclaringType == typeof(Queryable))
+                {
+                    VisitQueryableMethods(info, method);
+                }
                 else if (info.DeclaringType.GetInterface(typeof(ISqlMethods).FullName).IsNotNull())
                 {
                     VisitSqlMethods(info, method);
@@ -50,35 +54,35 @@ namespace SubSonic.Linq.Expressions.Structure
                         {
                             Write("CONVERT(VARCHAR(MAX), ");
                             this.Visit(method.Object);
-                            Write(")");
+                            Write(Fragments.RIGHT_PARENTHESIS);
                         }
                     }
                     else if (info.Name == "Equals")
                     {
                         if (info.IsStatic && info.DeclaringType == typeof(object))
                         {
-                            Write("(");
+                            Write(Fragments.LEFT_PARENTHESIS);
                             this.Visit(method.Arguments[0]);
                             Write(context.Fragments.EQUAL_TO);
                             this.Visit(method.Arguments[1]);
-                            Write(")");
+                            Write(Fragments.RIGHT_PARENTHESIS);
                         }
                         else if (!info.IsStatic && method.Arguments.Count == 1 && method.Arguments[0].Type == method.Object.Type)
                         {
-                            Write("(");
+                            Write(Fragments.LEFT_PARENTHESIS);
                             this.Visit(method.Object);
                             Write(context.Fragments.EQUAL_TO);
                             this.Visit(method.Arguments[0]);
-                            Write(")");
+                            Write(Fragments.RIGHT_PARENTHESIS);
                         }
                         else if (info.IsStatic && info.DeclaringType == typeof(string))
                         {
                             //Note: Not sure if this is best solution for fixing side issue with Issue #66
-                            Write("(");
+                            Write(Fragments.LEFT_PARENTHESIS);
                             this.Visit(method.Arguments[0]);
                             Write(context.Fragments.EQUAL_TO);
                             this.Visit(method.Arguments[1]);
-                            Write(")");
+                            Write(Fragments.RIGHT_PARENTHESIS);
                         }
                     }
                     else
@@ -93,7 +97,22 @@ namespace SubSonic.Linq.Expressions.Structure
             return method;
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
+        protected virtual void VisitQueryableMethods(MethodInfo info, MethodCallExpression method)
+        {
+            if (info.IsNotNull() && method.IsNotNull())
+            {
+                switch(info.Name)
+                {
+                    case "Where":
+                        Visit(method.Arguments[1]);
+                        return;
+                    default:
+                        ThrowMethodNotSupported(info);
+                        return;
+                }
+            }
+        }
+
         protected virtual void VisitMathMethods(MethodInfo info, MethodCallExpression method)
         {
             if (info.IsNotNull() && method.IsNotNull())
@@ -114,16 +133,16 @@ namespace SubSonic.Linq.Expressions.Structure
                     case "Ceiling":
                     case "Floor":
                         Write(info.Name.ToUpper(CultureInfo.CurrentCulture));
-                        Write("(");
+                        Write(Fragments.LEFT_PARENTHESIS);
                         this.Visit(method.Arguments[0]);
-                        Write(")");
+                        Write(Fragments.RIGHT_PARENTHESIS);
                         return;
                     case "Atan2":
-                        Write("ATN2(");
+                        Write($"ATN2{Fragments.LEFT_PARENTHESIS}");
                         this.Visit(method.Arguments[0]);
-                        Write(", ");
+                        Write($"{Fragments.COMMA} ");
                         this.Visit(method.Arguments[1]);
-                        Write(")");
+                        Write(Fragments.RIGHT_PARENTHESIS);
                         return;
                     case "Log":
                         if (method.Arguments.Count == 1)
@@ -132,34 +151,34 @@ namespace SubSonic.Linq.Expressions.Structure
                         }
                         break;
                     case "Pow":
-                        Write("POWER(");
+                        Write($"POWER{Fragments.LEFT_PARENTHESIS}");
                         this.Visit(method.Arguments[0]);
-                        Write(", ");
+                        Write($"{Fragments.COMMA} ");
                         this.Visit(method.Arguments[1]);
-                        Write(")");
+                        Write(Fragments.RIGHT_PARENTHESIS);
                         return;
                     case "Round":
                         if (method.Arguments.Count == 1)
                         {
-                            Write("ROUND(");
+                            Write($"ROUND{Fragments.LEFT_PARENTHESIS}");
                             this.Visit(method.Arguments[0]);
-                            Write(", 0)");
+                            Write($"{Fragments.COMMA} 0{Fragments.RIGHT_PARENTHESIS}");
                             return;
                         }
                         else if (method.Arguments.Count == 2 && method.Arguments[1].Type == typeof(int))
                         {
-                            Write("ROUND(");
+                            Write($"ROUND{Fragments.LEFT_PARENTHESIS}");
                             this.Visit(method.Arguments[0]);
-                            Write(", ");
+                            Write($"{Fragments.COMMA} ");
                             this.Visit(method.Arguments[1]);
-                            Write(")");
+                            Write(Fragments.RIGHT_PARENTHESIS);
                             return;
                         }
                         break;
                     case "Truncate":
-                        Write("ROUND(");
+                        Write($"ROUND{Fragments.LEFT_PARENTHESIS}");
                         this.Visit(method.Arguments[0]);
-                        Write(", 0, 1)");
+                        Write($"{Fragments.COMMA} 0{Fragments.COMMA} 1{Fragments.RIGHT_PARENTHESIS}");
                         return;
                     default:
                         ThrowMethodNotSupported(info);
@@ -180,13 +199,13 @@ namespace SubSonic.Linq.Expressions.Structure
                     case "Multiply":
                     case "Divide":
                     case "Remainder":
-                        Write("(");
+                        Write(Fragments.LEFT_PARENTHESIS);
                         this.VisitValue(method.Arguments[0]);
                         Write(context.Fragments.SPACE);
                         Write(GetOperator(method.Method.Name));
                         Write(context.Fragments.SPACE);
                         this.VisitValue(method.Arguments[1]);
-                        Write(")");
+                        Write(Fragments.RIGHT_PARENTHESIS);
                         return;
                     case "Negate":
                         Write("-");
@@ -196,9 +215,9 @@ namespace SubSonic.Linq.Expressions.Structure
                     case "Ceiling":
                     case "Floor":
                         Write(info.Name.ToUpper(CultureInfo.CurrentCulture));
-                        Write("(");
+                        Write(Fragments.LEFT_PARENTHESIS);
                         this.Visit(method.Arguments[0]);
-                        Write(")");
+                        Write(Fragments.RIGHT_PARENTHESIS);
                         return;
                     case "Round":
                         if (method.Arguments.Count == 1)
@@ -212,9 +231,9 @@ namespace SubSonic.Linq.Expressions.Structure
                         {
                             Write("ROUND(");
                             this.Visit(method.Arguments[0]);
-                            Write(", ");
+                            Write($"{Fragments.COMMA} ");
                             this.Visit(method.Arguments[1]);
-                            Write(")");
+                            Write(Fragments.RIGHT_PARENTHESIS);
                             return;
                         }
                         break;
@@ -242,9 +261,9 @@ namespace SubSonic.Linq.Expressions.Structure
                         {
                             Write("DATEDIFF(DAY,");
                             this.Visit(method.Arguments[0]);
-                            Write(", ");
+                            Write($"{Fragments.COMMA} ");
                             this.Visit(method.Arguments[1]);
-                            Write(")");
+                            Write(Fragments.RIGHT_PARENTHESIS);
                             return;
                         }
                         break;
@@ -253,9 +272,9 @@ namespace SubSonic.Linq.Expressions.Structure
                         {
                             Write("DATEDIFF(HOUR,");
                             this.Visit(method.Arguments[0]);
-                            Write(", ");
+                            Write($"{Fragments.COMMA} ");
                             this.Visit(method.Arguments[1]);
-                            Write(")");
+                            Write(Fragments.RIGHT_PARENTHESIS);
                             return;
                         }
                         break;
@@ -264,9 +283,9 @@ namespace SubSonic.Linq.Expressions.Structure
                         {
                             Write("DATEDIFF(MICROSECOND,");
                             this.Visit(method.Arguments[0]);
-                            Write(", ");
+                            Write($"{Fragments.COMMA} ");
                             this.Visit(method.Arguments[1]);
-                            Write(")");
+                            Write(Fragments.RIGHT_PARENTHESIS);
                             return;
                         }
                         break;
@@ -275,9 +294,9 @@ namespace SubSonic.Linq.Expressions.Structure
                         {
                             Write("DATEDIFF(MILLISECOND,");
                             this.Visit(method.Arguments[0]);
-                            Write(", ");
+                            Write($"{Fragments.COMMA} ");
                             this.Visit(method.Arguments[1]);
-                            Write(")");
+                            Write(Fragments.RIGHT_PARENTHESIS);
                             return;
                         }
                         break;
@@ -286,9 +305,9 @@ namespace SubSonic.Linq.Expressions.Structure
                         {
                             Write("DATEDIFF(MINUTE,");
                             this.Visit(method.Arguments[0]);
-                            Write(", ");
+                            Write($"{Fragments.COMMA} ");
                             this.Visit(method.Arguments[1]);
-                            Write(")");
+                            Write(Fragments.RIGHT_PARENTHESIS);
                             return;
                         }
                         break;
@@ -297,9 +316,9 @@ namespace SubSonic.Linq.Expressions.Structure
                         {
                             Write("DATEDIFF(MONTH,");
                             this.Visit(method.Arguments[0]);
-                            Write(", ");
+                            Write($"{Fragments.COMMA} ");
                             this.Visit(method.Arguments[1]);
-                            Write(")");
+                            Write(Fragments.RIGHT_PARENTHESIS);
                             return;
                         }
                         break;
@@ -308,9 +327,9 @@ namespace SubSonic.Linq.Expressions.Structure
                         {
                             Write("DATEDIFF(NANOSECOND,");
                             this.Visit(method.Arguments[0]);
-                            Write(", ");
+                            Write($"{Fragments.COMMA} ");
                             this.Visit(method.Arguments[1]);
-                            Write(")");
+                            Write(Fragments.RIGHT_PARENTHESIS);
                             return;
                         }
                         break;
@@ -319,9 +338,9 @@ namespace SubSonic.Linq.Expressions.Structure
                         {
                             Write("DATEDIFF(SECOND,");
                             this.Visit(method.Arguments[0]);
-                            Write(", ");
+                            Write($"{Fragments.COMMA} ");
                             this.Visit(method.Arguments[1]);
-                            Write(")");
+                            Write(Fragments.RIGHT_PARENTHESIS);
                             return;
                         }
                         break;
@@ -330,9 +349,9 @@ namespace SubSonic.Linq.Expressions.Structure
                         {
                             Write("DATEDIFF(YEAR,");
                             this.Visit(method.Arguments[0]);
-                            Write(", ");
+                            Write($"{Fragments.COMMA} ");
                             this.Visit(method.Arguments[1]);
-                            Write(")");
+                            Write(Fragments.RIGHT_PARENTHESIS);
                             return;
                         }
                         break;
@@ -355,9 +374,9 @@ namespace SubSonic.Linq.Expressions.Structure
                         {
                             Write("DATEDIFF(");
                             this.Visit(method.Arguments[0]);
-                            Write(", ");
+                            Write($"{Fragments.COMMA} ");
                             this.Visit(method.Arguments[1]);
-                            Write(")");
+                            Write(Fragments.RIGHT_PARENTHESIS);
                             return;
                         }
                         return;
@@ -376,21 +395,21 @@ namespace SubSonic.Linq.Expressions.Structure
                 switch (info.Name)
                 {
                     case "StartsWith":
-                        Write("(");
+                        Write(Fragments.LEFT_PARENTHESIS);
                         Visit(method.Object);
                         Write(" LIKE ");
                         Visit(method.Arguments[0]);
                         Write(" + '%')");
                         return;
                     case "EndsWith":
-                        Write("(");
+                        Write(Fragments.LEFT_PARENTHESIS);
                         Visit(method.Object);
                         Write(" LIKE '%' + ");
                         Visit(method.Arguments[0]);
-                        Write(")");
+                        Write(Fragments.RIGHT_PARENTHESIS);
                         return;
                     case "Contains":
-                        Write("(");
+                        Write(Fragments.LEFT_PARENTHESIS);
                         Visit(method.Object);
                         Write(" LIKE '%' + ");
                         Visit(method.Arguments[0]);
@@ -409,7 +428,7 @@ namespace SubSonic.Linq.Expressions.Structure
                         }
                         return;
                     case "IsNullOrEmpty":
-                        Write("(");
+                        Write(Fragments.LEFT_PARENTHESIS);
                         Visit(method.Arguments[0]);
                         Write(" IS NULL OR ");
                         Visit(method.Arguments[0]);
@@ -418,26 +437,26 @@ namespace SubSonic.Linq.Expressions.Structure
                     case "ToUpper":
                         Write("UPPER(");
                         Visit(method.Object);
-                        Write(")");
+                        Write(Fragments.RIGHT_PARENTHESIS);
                         return;
                     case "ToLower":
                         Write("LOWER(");
                         Visit(method.Object);
-                        Write(")");
+                        Write(Fragments.RIGHT_PARENTHESIS);
                         return;
                     case "Replace":
                         Write("REPLACE(");
                         Visit(method.Object);
-                        Write(", ");
+                        Write($"{Fragments.COMMA} ");
                         Visit(method.Arguments[0]);
-                        Write(", ");
+                        Write($"{Fragments.COMMA} ");
                         Visit(method.Arguments[1]);
-                        Write(")");
+                        Write(Fragments.RIGHT_PARENTHESIS);
                         return;
                     case "Substring":
                         Write("SUBSTRING(");
                         Visit(method.Object);
-                        Write(", ");
+                        Write($"{Fragments.COMMA} ");
                         Visit(method.Arguments[0]);
                         Write(" + 1, ");
                         if (method.Arguments.Count == 2)
@@ -448,12 +467,12 @@ namespace SubSonic.Linq.Expressions.Structure
                         {
                             Write("8000");
                         }
-                        Write(")");
+                        Write(Fragments.RIGHT_PARENTHESIS);
                         return;
                     case "Remove":
                         Write("STUFF(");
                         Visit(method.Object);
-                        Write(", ");
+                        Write($"{Fragments.COMMA} ");
                         Visit(method.Arguments[0]);
                         Write(" + 1, ");
                         if (method.Arguments.Count == 2)
@@ -469,11 +488,11 @@ namespace SubSonic.Linq.Expressions.Structure
                     case "IndexOf":
                         Write("(CHARINDEX(");
                         Visit(method.Object);
-                        Write(", ");
+                        Write($"{Fragments.COMMA} ");
                         Visit(method.Arguments[0]);
                         if (method.Arguments.Count == 2 && method.Arguments[1].Type == typeof(int))
                         {
-                            Write(", ");
+                            Write($"{Fragments.COMMA} ");
                             Visit(method.Arguments[1]);
                         }
                         Write(") - 1)");

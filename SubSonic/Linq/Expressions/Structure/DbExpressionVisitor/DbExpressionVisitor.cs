@@ -7,6 +7,8 @@ using System.Text;
 
 namespace SubSonic.Linq.Expressions.Structure
 {
+    using Infrastructure;
+
     public abstract partial class DbExpressionVisitor
         : ExpressionVisitor
     {
@@ -344,7 +346,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 || columns != selectExp.Columns
                 )
             {
-                return new DbSelectExpression(selectExp.Alias, columns, from, where, orderBy, groupBy, selectExp.IsDistinct, skip, take);
+                return new DbSelectExpression(selectExp.Alias, columns, from, where, selectExp.Parameters, orderBy, groupBy, selectExp.IsDistinct, skip, take);
             }
             return selectExp;
         }
@@ -367,7 +369,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 }
                 if (alternate != null)
                 {
-                    alternate.Add(new DbColumnDeclaration(column.PropertyName, alternate.Count, e));
+                    alternate.Add(new DbColumnDeclaration(column.Property));
                 }
             }
             if (alternate != null)

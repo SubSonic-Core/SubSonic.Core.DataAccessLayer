@@ -9,7 +9,10 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             if(binary.IsNotNull())
             {
-                binary = VisitAndConvert(binary, binary.Method.Name);
+                if (binary.Conversion.IsNotNull())
+                {
+                    binary = VisitAndConvert(binary, binary.Method.Name);
+                }
 
                 string op = GetOperator(binary);
 
@@ -99,7 +102,7 @@ namespace SubSonic.Linq.Expressions.Structure
                                 if (ce.Value == null)
                                 {
                                     this.Visit(left);
-                                    Write(" IS NOT NULL");
+                                    Write($" {Fragments.IS_NOT_NULL}");
                                     break;
                                 }
                             }
@@ -109,7 +112,7 @@ namespace SubSonic.Linq.Expressions.Structure
                                 if (ce.Value == null)
                                 {
                                     this.Visit(right);
-                                    Write(" IS NOT NULL");
+                                    Write($" {Fragments.IS_NOT_NULL}");
                                     break;
                                 }
                             }
@@ -159,18 +162,18 @@ namespace SubSonic.Linq.Expressions.Structure
                             this.VisitValue(left);
                             Write(" / POWER(2, ");
                             this.VisitValue(right);
-                            Write(")");
+                            Write(Fragments.RIGHT_PARENTHESIS);
                             break;
                         case ExpressionType.LeftShift:
                             this.VisitValue(left);
                             Write(" * POWER(2, ");
                             this.VisitValue(right);
-                            Write(")");
+                            Write(Fragments.RIGHT_PARENTHESIS);
                             break;
                         default:
                             throw new NotSupportedException(SubSonicErrorMessages.UnSupportedBinaryOperator.Format(binary.NodeType));
                     }
-                    Write(")");
+                    Write(Fragments.RIGHT_PARENTHESIS);
                 }
 
             }

@@ -36,6 +36,8 @@ namespace SubSonic.Linq.Expressions.Structure
                     return true;
                 case ExpressionType.Call:
                     return ((MethodCallExpression)expr).Type.IsBoolean();
+                case ExpressionType.MemberAccess:
+                    return ((MemberExpression)expr).Type.IsBoolean();
                 default:
                     return false;
             }
