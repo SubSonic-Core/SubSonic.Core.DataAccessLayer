@@ -60,7 +60,7 @@ namespace SubSonic.Infrastructure.Builders
             }
         }
 
-        public Expression BuildSelect(IEnumerable<DbColumnDeclaration> columns, Expression where, IReadOnlyCollection<SubSonicParameter> parameters = null)
+        public Expression BuildSelect(IEnumerable<DbColumnDeclaration> columns = null, Expression where = null, IReadOnlyCollection<SubSonicParameter> parameters = null)
         {
             return new DbSelectExpression(DbTable.Alias, columns ?? DbTable.Columns, DbTable, where, parameters ?? this.parameters.ToReadOnly());
         }
@@ -367,13 +367,15 @@ namespace SubSonic.Infrastructure.Builders
             return result;
         }
 
-        public object ToQueryObject()
+        public IDbQueryObject ToQueryObject(Expression exp)
         {
-            return new
+            if (exp is DbSelectExpression)
             {
-                sql = (string)null,
-                parameters = new object[] { new { } }
-            };
+                DbSelectExpression select = exp as DbSelectExpression;
+
+                return new DbQueryObject(select.ToString(), select.Parameters);
+            }
+            return null;
         }
 
         

@@ -9,8 +9,8 @@ namespace SubSonic.Infrastructure
         : IQueryProvider
     {
         Expression BuildComparisonExpression(Expression body, string name, object value, ComparisonOperator op, GroupOperator group);
-        Expression BuildSelect(IEnumerable<DbColumnDeclaration> columns, Expression where, IReadOnlyCollection<SubSonicParameter> parameters = null);
-        Expression CallExpression(Expression call, Expression body, ExpressionCallType callType, params string[] properties);
-        object ToQueryObject();
+        Expression BuildSelect(IEnumerable<DbColumnDeclaration> columns = null, Expression where = null, IReadOnlyCollection<SubSonicParameter> parameters = null);
+        Expression CallExpression(Expression caller, Expression body, ExpressionCallType callType, params string[] properties);
+        IDbQueryObject ToQueryObject(Expression expr);
     }
 }
