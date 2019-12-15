@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 
@@ -7,6 +8,124 @@ namespace SubSonic
 {
     internal static partial class InternalExtensions
     {
+        public static SqlDbType GetSqlDbType(this Type type, bool unicode = false)
+        {
+            SqlDbType result = SqlDbType.Variant;
+
+            if (type == typeof(int))
+            {
+                result = SqlDbType.Int;
+            }
+            else if (type == typeof(short))
+            {
+                result = SqlDbType.SmallInt;
+            }
+            else if (type == typeof(long))
+            {
+                result = SqlDbType.BigInt;
+            }
+            else if (type == typeof(DateTime))
+            {
+                result = SqlDbType.DateTime;
+            }
+            else if (type == typeof(float))
+            {
+                result = SqlDbType.Real;
+            }
+            else if (type == typeof(decimal))
+            {
+                result = SqlDbType.Decimal;
+            }
+            else if (type == typeof(double))
+            {
+                result = SqlDbType.Float;
+            }
+            else if (type == typeof(Guid))
+            {
+                result = SqlDbType.UniqueIdentifier;
+            }
+            else if (type == typeof(bool))
+            {
+                result = SqlDbType.Bit;
+            }
+            else if (type == typeof(byte))
+            {
+                result = SqlDbType.TinyInt;
+            }
+            else if (type == typeof(byte[]))
+            {
+                result = SqlDbType.Binary;
+            }
+            else if (type == typeof(string))
+            {
+                result = unicode ? SqlDbType.NVarChar : SqlDbType.VarChar;
+            }
+            else if (type == typeof(char))
+            {
+                result = unicode ? SqlDbType.NChar : SqlDbType.Char;
+            }
+            else if (type.IsSubclassOf(typeof(object)))
+            {
+                result = SqlDbType.Structured;
+            }
+
+            return result;
+        }
+        public static DbType GetDbType(this Type type, bool unicode = false)
+        {
+            DbType result;
+
+            if (type == typeof(int))
+            {
+                result = DbType.Int32;
+            }
+            else if (type == typeof(short))
+            {
+                result = DbType.Int16;
+            }
+            else if (type == typeof(long))
+            {
+                result = DbType.Int64;
+            }
+            else if (type == typeof(DateTime))
+            {
+                result = DbType.DateTime;
+            }
+            else if (type == typeof(float))
+            {
+                result = DbType.Single;
+            }
+            else if (type == typeof(decimal))
+            {
+                result = DbType.Decimal;
+            }
+            else if (type == typeof(double))
+            {
+                result = DbType.Double;
+            }
+            else if (type == typeof(Guid))
+            {
+                result = DbType.Guid;
+            }
+            else if (type == typeof(bool))
+            {
+                result = DbType.Boolean;
+            }
+            else if (type == typeof(byte[]))
+            {
+                result = DbType.Binary;
+            }
+            else if (type == typeof(char))
+            {
+                result = unicode ? DbType.StringFixedLength : DbType.AnsiStringFixedLength;
+            }
+            else
+            {
+                result = unicode ? DbType.String : DbType.AnsiString;
+            }
+
+            return result;
+        }
         public static bool IsBoolean(this Type type)
         {
             return type == typeof(bool) || type == typeof(bool?);
@@ -24,7 +143,7 @@ namespace SubSonic
 
         public static object GetDefault(this Type type)
         {
-            if(type.IsValueType)
+            if (type.IsValueType)
             {
                 return Activator.CreateInstance(type);
             }

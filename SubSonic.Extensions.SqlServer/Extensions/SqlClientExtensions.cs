@@ -6,6 +6,7 @@ using System.Text;
 namespace SubSonic.Extensions.SqlServer
 {
     using Infrastructure;
+    using System.Data;
     using System.Data.Common;
 
     public static partial class SqlServerExtensions

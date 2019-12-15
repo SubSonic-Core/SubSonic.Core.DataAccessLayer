@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace SubSonic
 {
@@ -52,5 +51,25 @@ namespace SubSonic
             return (TType)source.GetValue(value, index);
         }
 
+        public static void Map<TDestination, TSource>(this TDestination destination, TSource source, Func<string, string> nameOf = null)
+        {
+            if(nameOf.IsNull())
+            {
+                nameOf = (name) => name;
+            }
+
+            Type
+                destinationType = typeof(TDestination),
+                sourceType = typeof(TSource);
+
+            foreach (PropertyInfo property in destinationType.GetProperties())
+            {
+                PropertyInfo sourceInfo = sourceType.GetProperty(nameOf(property.Name));
+                if (sourceInfo.IsNotNull())
+                {
+                    property.SetValue(destination, Convert.ChangeType(sourceInfo.GetValue(source), property.PropertyType, CultureInfo.CurrentCulture));
+                }
+            }
+        }
     }
 }

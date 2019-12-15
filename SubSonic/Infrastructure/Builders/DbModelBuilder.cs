@@ -51,7 +51,11 @@ namespace SubSonic.Infrastructure
                     SchemaName = entity.QualifiedName,
                     PropertyType = info.PropertyType,
                     IsPrimaryKey = info.GetCustomAttribute<KeyAttribute>().IsNotNull(),
-                    IsRequired = info.GetCustomAttribute<RequiredAttribute>().IsNotNull() || !info.PropertyType.IsNullableType()
+                    IsRequired = info.GetCustomAttribute<RequiredAttribute>().IsNotNull() || !info.PropertyType.IsNullableType(),
+                    Size = info.GetCustomAttribute<MaxLengthAttribute>().IsNotNull(Max => Max.Length),
+                    Scale = info.PropertyType.IsOfType<decimal>() ? 18 : 0,
+                    Precision = info.PropertyType.IsOfType<decimal>() ? 2 : 0,
+                    DbType = info.PropertyType.GetDbType()
                 };
 
                 entity.Properties.Add(property);

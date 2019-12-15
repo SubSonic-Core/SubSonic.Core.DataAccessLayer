@@ -46,7 +46,17 @@ namespace SubSonic.Infrastructure
 
         protected virtual void OnInitialize()
         {
-            
+            this.Map(property);
+            this.Map<SubSonicParameter, IDbObject>(property, (dst) =>
+            {
+                switch (dst)
+                {
+                    case nameof(SourceColumn):
+                        return nameof(property.Name);
+                    default:
+                        return dst;
+                }
+            });
         }
     }
 }

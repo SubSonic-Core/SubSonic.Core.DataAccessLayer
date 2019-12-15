@@ -13,5 +13,10 @@ namespace SubSonic.Extensions.Test.Models
         public int ID { get; set; }
 
         public int RealEstatePropertyID { get; set; }
+
+        public int StatusID { get; set; }
+
+        [ForeignKey(nameof(StatusID))]
+        public virtual Status Status { get; set; }
     }
 }

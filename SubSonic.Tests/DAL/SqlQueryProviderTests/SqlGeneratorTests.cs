@@ -12,6 +12,7 @@ namespace SubSonic.Tests.DAL.SqlQueryProvider
     using Linq.Expressions.Alias;
     using SubSonic.Extensions.Test.Models;
     using SubSonic.Infrastructure;
+    using System.Data;
     using System.Linq;
 
     [TestFixture]
@@ -97,7 +98,7 @@ FROM [dbo].[Status] AS [{0}]".Format("T1");
         public void CanGenerateSelectSqlForUnit()
         {
             string expected =
-@"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID]
+@"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID]
 FROM [dbo].[Unit] AS [{0}]".Format("T1");
 
             Expression expression = DbContext.Units.Select().Expression;
@@ -203,6 +204,7 @@ WHERE ([{0}].[IsAvailableStatus] = @IsAvailableStatus) <> 0".Format("T1");
 
             query.Parameters.Should().NotBeEmpty();
             query.Parameters.ElementAt(0).ParameterName.Should().Be("@IsAvailableStatus");
+            query.Parameters.ElementAt(0).DbType.Should().Be(DbType.Boolean);
         }
 
         [Test]
@@ -246,6 +248,7 @@ WHERE ([{0}].[IsAvailableStatus] = @IsAvailableStatus) <> 0".Format("T1");
 
             query.Parameters.Should().NotBeEmpty();
             query.Parameters.ElementAt(0).ParameterName.Should().Be("@IsAvailableStatus");
+            query.Parameters.ElementAt(0).DbType.Should().Be(DbType.Boolean);
         }
     }
 }
