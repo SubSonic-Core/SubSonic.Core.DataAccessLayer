@@ -19,8 +19,9 @@ namespace SubSonic.Infrastructure.Builders
         public DbSqlQueryBuilder(ISubSonicLogger<TEntity> logger)
             : base(typeof(TEntity), logger)
         {
-
         }
+
+        public DbAliasedExpression GetAliasedTable() => DbTable;
     }
 
     public class DbSqlQueryBuilder
@@ -82,9 +83,21 @@ namespace SubSonic.Infrastructure.Builders
             return select;
         }
 
-        public Expression BuildSelect<TEntity, TColumn>(Expression select, Expression<Func<TEntity, TColumn>> selector)
+        public Expression BuildSelect<TEntity, TColumn>(Expression expression, Expression<Func<TEntity, TColumn>> selector)
         {
-            throw new NotImplementedException();
+            if (expression is DbSelectExpression)
+            {
+                DbSelectExpression _select = (DbSelectExpression)expression;
+
+                return new DbSelectExpression(_select.Alias, _select.Columns.Where(col => col.PropertyName == selector.GetPropertyName()), _select.From, _select.Where, _select.OrderBy, _select.GroupBy, _select.IsDistinct, _select.Skip, _select.Take);
+            }
+            else if (expression is DbTableExpression)
+            {
+                DbTableExpression table = expression as DbTableExpression;
+
+                return new DbSelectExpression(table.Alias, table.Columns.Where(col => col.PropertyName == selector.GetPropertyName()), table);
+            }
+            return expression;
         }
 
         public Expression BuildWhere(Type type, Expression predicate)
@@ -101,13 +114,13 @@ namespace SubSonic.Infrastructure.Builders
         {
             using (IPerformanceLogger performance = logger.Start(GetType(), nameof(CreateQuery)))
             {
-                return new SubSonicCollection(DbEntity.EntityModelType, BuildQuery(expression));
+                return new SubSonicCollection(DbEntity.EntityModelType, this, BuildQuery(expression));
             }
         }
 
         public IQueryable<TEntity> CreateQuery<TEntity>(Expression expression)
         {
-            return new SubSonicCollection<TEntity>(BuildQuery(expression));
+            return new SubSonicCollection<TEntity>(this, BuildQuery(expression));
         }
 
         public TResult Execute<TResult>(Expression expression)
@@ -145,6 +158,8 @@ namespace SubSonic.Infrastructure.Builders
 
                 switch((DbExpressionType)expression.NodeType)
                 {
+                    case DbExpressionType.Table:
+                        return SqlQueryType.Unknown;
                     case DbExpressionType.Select:
                         return SqlQueryType.Read;
                     default:

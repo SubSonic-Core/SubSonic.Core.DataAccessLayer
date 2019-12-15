@@ -3,8 +3,20 @@
 namespace SubSonic
 {
     using Linq.Expressions;
+    using System;
+    using System.Reflection;
+
     internal static partial class InternalExtensions
     {
+        public static string GetPropertyName<TEntity, TColumn>(this Expression<Func<TEntity, TColumn>> lambda)
+        {
+            return ((LambdaExpression)lambda).GetProperty()?.Name;
+        }
+
+        public static PropertyInfo GetProperty(this LambdaExpression lambda)
+        {
+            return ((MemberExpression)lambda.Body).Member as PropertyInfo;
+        }
         public static bool CanBeColumn(this Expression expression)
         {
             switch (expression.NodeType)

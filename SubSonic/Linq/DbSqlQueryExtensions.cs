@@ -60,7 +60,7 @@ namespace SubSonic.Linq
             {
                 IDbSqlQueryBuilderProvider provider = (IDbSqlQueryBuilderProvider)query.Provider;
 
-                return (ISubSonicCollection<TEntity>)provider.CreateQuery(provider.BuildSelect(query.Expression, selector));
+                return (ISubSonicCollection<TEntity>)provider.CreateQuery<TEntity>(provider.BuildSelect(query.Expression, selector));
             }
             return query;
         }
@@ -71,8 +71,18 @@ namespace SubSonic.Linq
             {
                 ISubSonicQueryProvider<TEntity> provider = (ISubSonicQueryProvider<TEntity>)query.Provider;
 
-                Expression
-                    where = provider.BuildWhere((DbTableExpression)query.Expression, query.GetType(), predicate);
+                Expression where = null;
+
+                if (query.Expression is DbTableExpression)
+                {
+                    where = provider.BuildWhere((DbTableExpression)provider.GetAliasedTable(), query.GetType(), predicate);
+                }
+                else if (query.Expression is DbSelectExpression)
+                {
+                    DbSelectExpression select = query.Expression as DbSelectExpression;
+
+                    where = provider.BuildWhere((DbTableExpression)select.From, query.GetType(), predicate);
+                }
 
                 return (ISubSonicCollection<TEntity>)provider.CreateQuery<TEntity>(provider.BuildSelect(query.Expression, where));
             }

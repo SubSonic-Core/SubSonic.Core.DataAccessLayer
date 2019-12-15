@@ -204,5 +204,48 @@ WHERE ([{0}].[IsAvailableStatus] = @IsAvailableStatus) <> 0".Format("T1");
             query.Parameters.Should().NotBeEmpty();
             query.Parameters.ElementAt(0).ParameterName.Should().Be("@IsAvailableStatus");
         }
+
+        [Test]
+        public void CanGenerateSelectWithKeyColumnWithContraintsReversed()
+        {
+            string expected =
+@"SELECT [{0}].[ID]
+FROM [dbo].[Status] AS [{0}]
+WHERE ([{0}].[IsAvailableStatus] = @IsAvailableStatus) <> 0".Format("T1");
+
+            Expression select = DbContext
+                .Statuses
+                .Select(Status => Status.ID)
+                .Where(Status => Status.IsAvailableStatus == true)
+                .Expression;
+
+            select.Should().BeOfType<DbSelectExpression>();
+
+            IDbQueryObject query = null;
+
+            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+
+                    query = builder.ToQueryObject(select);
+                }).Should().NotThrow();
+            }
+
+            query.Should().NotBeNull();
+
+            query.Sql.Should().NotBeNullOrEmpty();
+            query.Sql.Should().StartWith("SELECT");
+
+            logging.LogInformation("\n" + query.Sql + "\n");
+
+            query.Sql.Should().Be(expected);
+
+            query.Parameters.Should().NotBeEmpty();
+            query.Parameters.ElementAt(0).ParameterName.Should().Be("@IsAvailableStatus");
+        }
     }
 }

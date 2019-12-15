@@ -19,14 +19,14 @@ namespace SubSonic.Infrastructure
         {
 
         }
-        public SubSonicCollection(Expression expression)
-            : base(typeof(TElement), expression)
+        public SubSonicCollection(IQueryProvider provider, Expression expression)
+            : base(typeof(TElement), provider, expression)
         {
 
         }
 
-        public SubSonicCollection(Expression expression, IEnumerable<TElement> enumerable)
-            : base(typeof(TElement), expression, enumerable)
+        public SubSonicCollection(IQueryProvider provider, Expression expression, IEnumerable<TElement> enumerable)
+            : base(typeof(TElement), provider, expression, enumerable)
         {
 
         }
@@ -46,16 +46,16 @@ namespace SubSonic.Infrastructure
             ElementType = elementType ?? throw new ArgumentNullException(nameof(elementType));
             Expression = DbContext.DbModel.GetEntityModel(elementType).Expression;
         }
-        public SubSonicCollection(Type elementType, Expression expression)
+        public SubSonicCollection(Type elementType, IQueryProvider provider, Expression expression)
             : this(elementType)
         {
             Expression = expression ?? DbContext.DbModel.GetEntityModel(elementType).Expression;
-            Provider = new DbSqlQueryBuilder(ElementType, DbContext.ServiceProvider.GetService<ISubSonicLogger>());
+            Provider = provider ?? new DbSqlQueryBuilder(ElementType, DbContext.ServiceProvider.GetService<ISubSonicLogger>());
             Table = new ArrayList();
         }
 
-        public SubSonicCollection(Type elementType, Expression expression, IEnumerable enumerable)
-            : this(elementType, expression)
+        public SubSonicCollection(Type elementType, IQueryProvider provider, Expression expression, IEnumerable enumerable)
+            : this(elementType, provider, expression)
         {
             Table = new ArrayList(enumerable as ICollection);
 

@@ -6,7 +6,8 @@ namespace SubSonic.Infrastructure
 {
     public enum SqlQueryType
     {
-        Create = 0,
+        Unknown = 0,
+        Create,
         Read,
         Update,
         Delete

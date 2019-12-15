@@ -22,6 +22,8 @@ namespace SubSonic.Linq.Expressions.Alias
             }
 
             Name = name;
+
+            GetHashCode();
         }
 
         public DbTableExpression Table { get; private set; }

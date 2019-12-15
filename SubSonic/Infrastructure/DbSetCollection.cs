@@ -25,7 +25,7 @@ namespace SubSonic.Infrastructure
 
             queryableData = new List<TEntity>();
             model = DbContext.Model.GetEntityModel<TEntity>();
-            Expression = model.Expression;
+            Expression = provider.GetAliasedTable();
         }
 
         protected DbContext DbContext => DbContext.ServiceProvider.GetService<DbContext>();
