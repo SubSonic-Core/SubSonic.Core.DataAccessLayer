@@ -40,16 +40,14 @@ namespace SubSonic.Linq
             ISubSonicQueryProvider<TEntity> builder = DbContext.ServiceProvider.GetService<ISubSonicQueryProvider<TEntity>>();
 
             Expression where = null;
-            IReadOnlyCollection<SubSonicParameter> parameters = null;
 
             if(query.Expression is DbSelectExpression)
             {
                 DbSelectExpression select = (DbSelectExpression)query.Expression;
 
                 where = select.Where;
-                parameters = select.Parameters;
             }
-            return (ISubSonicCollection<TEntity>)builder.CreateQuery<TEntity>(builder.BuildSelect(null, where, parameters));
+            return (ISubSonicCollection<TEntity>)builder.CreateQuery<TEntity>(builder.BuildSelect(null, where));
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1720:Identifier contains type name", Justification = "Microsoft already named a IQueryable.Single and it would be confusing not to.")]

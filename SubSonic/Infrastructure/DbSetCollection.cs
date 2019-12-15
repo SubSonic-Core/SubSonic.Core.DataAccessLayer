@@ -78,17 +78,17 @@ namespace SubSonic.Infrastructure
             ISubSonicQueryProvider<TEntity> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<TEntity>>();
 
             Expression 
-                body = null, 
+                predicate = null, 
                 where = null;
 
             string[] keys = model.GetPrimaryKey().ToArray();
 
             for (int i = 0; i < keys.Length; i++)
             {
-               body = builder.BuildComparisonExpression(body, keys[i], keyData[i], ComparisonOperator.Equal, GroupOperator.AndAlso);
+               predicate = builder.BuildPredicate(predicate, DbExpressionType.Where, keys[i], keyData[i], ComparisonOperator.Equal, GroupOperator.AndAlso);
             }
 
-            where = builder.CallExpression(null, body, ExpressionCallType.Where);
+            where = builder.BuildWhere(typeof(ISubSonicCollection<TEntity>), predicate);
 
             return (ISubSonicCollection<TEntity>)builder.CreateQuery<TEntity>(builder.BuildSelect(null, where));
         }

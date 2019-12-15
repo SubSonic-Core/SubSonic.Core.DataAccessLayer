@@ -7,58 +7,62 @@ using System.Collections.ObjectModel;
 
 namespace SubSonic.Infrastructure
 {
-    public class SubSonicParameterCollection
-        : ICollection<SubSonicParameter>
-    {
-        private readonly IList<SubSonicParameter> parameters;
+    using Linq.Expressions;
 
-        public SubSonicParameterCollection()
+    public class SubSonicParameterDictionary
+        : IDictionary<DbExpressionType, List<SubSonicParameter>>
+    {
+        private readonly IDictionary<DbExpressionType, List<SubSonicParameter>> parameters;
+
+        public SubSonicParameterDictionary()
         {
-            parameters = new List<SubSonicParameter>();
+            parameters = new Dictionary<DbExpressionType, List<SubSonicParameter>>();
         }
 
         public int Count => parameters.Count;
 
         public bool IsReadOnly => parameters.IsReadOnly;
 
-        public void Add(SubSonicParameter item)
+        public List<SubSonicParameter> this[DbExpressionType key] { get => parameters[key]; set => parameters[key] = value;}
+
+        public ICollection<DbExpressionType> Keys => parameters.Keys;
+
+        public ICollection<List<SubSonicParameter>> Values => parameters.Values;
+
+        public void Add(DbExpressionType key, SubSonicParameter parameter)
         {
-            parameters.Add(item);
+            if(parameters.ContainsKey(key))
+            {
+                parameters[key].Add(parameter);
+            }
+            else
+            {
+                Add(new KeyValuePair<DbExpressionType, List<SubSonicParameter>>(key, new List<SubSonicParameter>() { parameter }));
+            }
         }
 
-        public void Clear()
-        {
-            parameters.Clear();
-        }
+        public void Add(DbExpressionType key, List<SubSonicParameter> list) => parameters.Add(key, list);
 
-        public bool Contains(SubSonicParameter item)
-        {
-            return parameters.Contains(item);
-        }
+        public void Add(KeyValuePair<DbExpressionType, List<SubSonicParameter>> item) => parameters.Add(item);
 
-        public void CopyTo(SubSonicParameter[] array, int arrayIndex)
-        {
-            parameters.CopyTo(array, arrayIndex);
-        }
+        public bool TryGetValue(DbExpressionType key, out List<SubSonicParameter> parameters) => (parameters = this.parameters[key]).IsNotNull();
 
-        public IEnumerator<SubSonicParameter> GetEnumerator()
-        {
-            return parameters.GetEnumerator();
-        }
+        public void Clear() => parameters.Clear();
 
-        public bool Remove(SubSonicParameter item)
-        {
-            return parameters.Remove(item);
-        }
+        public bool ContainsKey(DbExpressionType key) => parameters.ContainsKey(key);
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable)parameters).GetEnumerator();
-        }
+        public bool Contains(KeyValuePair<DbExpressionType, List<SubSonicParameter>> keyValuePair) => parameters.Contains(keyValuePair);
 
-        public IReadOnlyCollection<SubSonicParameter> ToReadOnly()
-        {
-            return new ReadOnlyCollection<SubSonicParameter>(parameters);
-        }
+        public void CopyTo(KeyValuePair<DbExpressionType, List<SubSonicParameter>>[] array, int arrayIndex) => parameters.CopyTo(array, arrayIndex);
+
+        public IEnumerator<KeyValuePair<DbExpressionType, List<SubSonicParameter>>> GetEnumerator() => parameters.GetEnumerator();
+
+        public bool Remove(DbExpressionType key) => parameters.Remove(key);
+
+        public bool Remove(KeyValuePair<DbExpressionType, List<SubSonicParameter>> item) => parameters.Remove(item);
+
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)parameters).GetEnumerator();
+
+        public IReadOnlyCollection<SubSonicParameter> ToReadOnlyCollection(DbExpressionType key) => new ReadOnlyCollection<SubSonicParameter>(parameters[key]);
     }
 }

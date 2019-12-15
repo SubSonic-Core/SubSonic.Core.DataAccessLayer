@@ -27,6 +27,8 @@ namespace SubSonic.Linq.Expressions.Structure
                     return this.VisitExpression((DbColumnExpression)node);
                 case DbExpressionType.Select:
                     return this.VisitSelect((DbSelectExpression)node);
+                case DbExpressionType.Where:
+                    return VisitWhere((DbWhereExpression)node);
                 case DbExpressionType.Join:
                     return this.VisitJoin((DbJoinExpression)node);
                 case DbExpressionType.OuterJoined:
@@ -331,7 +333,7 @@ namespace SubSonic.Linq.Expressions.Structure
             }
 
             Expression from = this.VisitSource(selectExp.From);
-            Expression where = this.Visit(selectExp.Where);
+            Expression where = selectExp.Where;
             ReadOnlyCollection<DbOrderByDeclaration> orderBy = this.VisitOrderBy(selectExp.OrderBy);
             ReadOnlyCollection<Expression> groupBy = this.VisitExpressionList(selectExp.GroupBy);
             Expression skip = this.Visit(selectExp.Skip);
@@ -346,7 +348,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 || columns != selectExp.Columns
                 )
             {
-                return new DbSelectExpression(selectExp.Alias, columns, from, where, selectExp.Parameters, orderBy, groupBy, selectExp.IsDistinct, skip, take);
+                return new DbSelectExpression(selectExp.Alias, columns, from, where, orderBy, groupBy, selectExp.IsDistinct, skip, take);
             }
             return selectExp;
         }

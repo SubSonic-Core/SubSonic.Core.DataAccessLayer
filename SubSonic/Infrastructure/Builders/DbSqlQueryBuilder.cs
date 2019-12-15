@@ -28,7 +28,7 @@ namespace SubSonic.Infrastructure.Builders
         , IDbSqlQueryBuilder
     {
         private readonly ISubSonicLogger logger;
-        private readonly SubSonicParameterCollection parameters;
+        private readonly SubSonicParameterDictionary parameters;
 
         public DbSqlQueryBuilder(Type dbModelType, ISubSonicLogger logger = null)
         {
@@ -40,7 +40,7 @@ namespace SubSonic.Infrastructure.Builders
             this.logger = logger ?? DbContext.ServiceProvider.GetService<ISubSonicLogger>();
             DbEntity = DbContext.DbModel.GetEntityModel(dbModelType.GetQualifiedType());
             DbTable = DbEntity.Expression;
-            parameters = new SubSonicParameterCollection();
+            parameters = new SubSonicParameterDictionary();
         }
 
         public SqlQueryType SqlQueryType { get; private set; }
@@ -52,25 +52,14 @@ namespace SubSonic.Infrastructure.Builders
 
         public ISqlQueryProvider SqlQueryProvider { get; private set; }
 
-        private void CheckBuilderState()
+        public Expression BuildSelect(IEnumerable<DbColumnDeclaration> columns = null, Expression where = null)
         {
-            if (SqlQueryProvider.IsNull())
-            {
-                throw new InvalidOperationException();
-            }
+            return new DbSelectExpression(DbTable.Alias, columns ?? DbTable.Columns, DbTable, where);
         }
 
-        public Expression BuildSelect(IEnumerable<DbColumnDeclaration> columns = null, Expression where = null, IReadOnlyCollection<SubSonicParameter> parameters = null)
+        public Expression BuildWhere(Type type, Expression predicate)
         {
-            return new DbSelectExpression(DbTable.Alias, columns ?? DbTable.Columns, DbTable, where, parameters ?? this.parameters.ToReadOnly());
-        }
-
-        public IDbSqlQueryBuilder BuildSqlQuery(SqlQueryType sqlQueryType, ISqlQueryProvider sqlQueryProvider)
-        {
-            SqlQueryType = sqlQueryType;
-            SqlQueryProvider = sqlQueryProvider ?? throw new ArgumentNullException(nameof(sqlQueryProvider));
-
-            return this;
+            return DbExpression.Where(type, predicate, parameters.ToReadOnlyCollection(DbExpressionType.Where));
         }
 
         public IQueryable CreateQuery(Expression expression)
@@ -206,13 +195,13 @@ namespace SubSonic.Infrastructure.Builders
 
         private static IEnumerable<Type> GetMemberType(LambdaExpression expression) => new[] { expression.Body.Type };
 
-        public Expression BuildComparisonExpression(Expression body, string property, object value, ComparisonOperator @operator, GroupOperator @group)
+        public Expression BuildPredicate(Expression body, DbExpressionType type, string property, object value, ComparisonOperator @operator, GroupOperator @group)
         {
             PropertyInfo propertyInfo = DbEntity.EntityModelType.GetProperty(property);
 
             Expression
                 left = GetDbColumnExpression(propertyInfo),
-                right = GetNamedExpression(propertyInfo, value);
+                right = GetNamedExpression(type, propertyInfo, value);
 
             if (body.IsNull())
             {
@@ -224,11 +213,11 @@ namespace SubSonic.Infrastructure.Builders
             }
         }
 
-        private Expression GetNamedExpression(PropertyInfo info, object value)
+        private Expression GetNamedExpression(DbExpressionType type, PropertyInfo info, object value)
         {
             IDbEntityProperty property = DbEntity[info.Name];
 
-            parameters.Add(new SubSonicParameter(property, $"@{property.Name}") { Value = value });
+            parameters.Add(type, new SubSonicParameter(property, $"@{property.Name}") { Value = value });
 
             Type ConstantType = info.PropertyType.GetUnderlyingType();
 
@@ -373,7 +362,7 @@ namespace SubSonic.Infrastructure.Builders
             {
                 DbSelectExpression select = exp as DbSelectExpression;
 
-                return new DbQueryObject(select.ToString(), select.Parameters);
+                return new DbQueryObject(select.ToString(), ((DbWhereExpression)select.Where)?.Parameters);
             }
             return null;
         }

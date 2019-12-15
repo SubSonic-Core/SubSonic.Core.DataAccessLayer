@@ -3,7 +3,9 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
+    using Infrastructure;
     using Structure;
+    using System.Collections.Generic;
 
     public abstract class DbExpression : Expression
     {
@@ -23,6 +25,11 @@ namespace SubSonic.Linq.Expressions
         public override string ToString()
         {
             return DbExpressionWriter.WriteToString(this);
+        }
+
+        public static DbWhereExpression Where(Type type, Expression predicate, IReadOnlyCollection<SubSonicParameter> parameters = null)
+        {
+            return new DbWhereExpression(type, predicate, parameters);
         }
     }
 }

@@ -18,7 +18,6 @@ namespace SubSonic.Linq.Expressions
         ReadOnlyCollection<DbColumnDeclaration> columns;
         bool isDistinct;
         Expression from;
-        Expression where;
         ReadOnlyCollection<DbOrderByDeclaration> orderBy;
         ReadOnlyCollection<Expression> groupBy;
         Expression take;
@@ -35,7 +34,6 @@ namespace SubSonic.Linq.Expressions
             IEnumerable<DbColumnDeclaration> columns,
             Expression from,
             Expression where,
-            IReadOnlyCollection<SubSonicParameter> parameters,
             IEnumerable<DbOrderByDeclaration> orderBy,
             IEnumerable<Expression> groupBy,
             bool isDistinct,
@@ -50,12 +48,7 @@ namespace SubSonic.Linq.Expressions
             }
             this.isDistinct = isDistinct;
             this.from = from;
-            this.where = where;
-
-            if (where.IsNotNull() && parameters.IsNotNull())
-            {
-                Parameters = parameters;
-            }
+            Where = where;
 
             this.orderBy = orderBy as ReadOnlyCollection<DbOrderByDeclaration>;
             if (this.orderBy == null && orderBy != null)
@@ -75,18 +68,16 @@ namespace SubSonic.Linq.Expressions
             IEnumerable<DbColumnDeclaration> columns,
             Expression from,
             Expression where,
-            IReadOnlyCollection<SubSonicParameter> parameters,
             IEnumerable<DbOrderByDeclaration> orderBy,
             IEnumerable<Expression> groupBy
             )
-            : this(alias, columns, from, where, parameters, orderBy, groupBy, false, null, null)
+            : this(alias, columns, from, where, orderBy, groupBy, false, null, null)
         {
         }
         public DbSelectExpression(
             TableAlias alias, IEnumerable<DbColumnDeclaration> columns,
-            Expression from, Expression where, IReadOnlyCollection<SubSonicParameter> parameters
-            )
-            : this(alias, columns, from, where, parameters, null, null)
+            Expression from, Expression where)
+            : this(alias, columns, from, where, null, null)
         {
         }
         public ReadOnlyCollection<DbColumnDeclaration> Columns
@@ -98,12 +89,7 @@ namespace SubSonic.Linq.Expressions
             get { return from; }
             set { from = value; }
         }
-        public Expression Where
-        {
-            get { return where; }
-        }
-
-        public IReadOnlyCollection<SubSonicParameter> Parameters { get; }
+        public new Expression Where { get; }
 
         public ReadOnlyCollection<DbOrderByDeclaration> OrderBy
         {
