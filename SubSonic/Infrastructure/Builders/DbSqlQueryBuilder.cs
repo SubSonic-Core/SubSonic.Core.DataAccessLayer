@@ -25,7 +25,7 @@ namespace SubSonic.Infrastructure.Builders
 
     public class DbSqlQueryBuilder
         : DbExpressionAccessor
-        , IDbSqlQueryBuilder
+        , IDbSqlQueryBuilderProvider
     {
         private readonly ISubSonicLogger logger;
         private readonly SubSonicParameterDictionary parameters;
@@ -52,14 +52,49 @@ namespace SubSonic.Infrastructure.Builders
 
         public ISqlQueryProvider SqlQueryProvider { get; private set; }
 
-        public Expression BuildSelect(IEnumerable<DbColumnDeclaration> columns = null, Expression where = null)
+        public Expression BuildSelect()
         {
-            return new DbSelectExpression(DbTable.Alias, columns ?? DbTable.Columns, DbTable, where);
+            return new DbSelectExpression(DbTable.Alias, DbTable.Columns, DbTable);
+        }
+
+        public Expression BuildSelect(Expression where)
+        {
+            return new DbSelectExpression(DbTable.Alias, DbTable.Columns, DbTable, where);
+        }
+
+        public Expression BuildSelect(Expression select, Expression where)
+        {
+            if (select is DbSelectExpression)
+            {
+                DbSelectExpression _select = (DbSelectExpression)select;
+
+                return new DbSelectExpression(_select.Alias, _select.Columns, _select.From, where);
+            }
+            return BuildSelect(where);
+        }
+
+        public Expression BuildSelect(Expression select, DbExpressionType eType, IEnumerable<Expression> expressions)
+        {
+            if (select is DbSelectExpression)
+            {
+                throw new NotImplementedException();
+            }
+            return select;
+        }
+
+        public Expression BuildSelect<TEntity, TColumn>(Expression select, Expression<Func<TEntity, TColumn>> selector)
+        {
+            throw new NotImplementedException();
         }
 
         public Expression BuildWhere(Type type, Expression predicate)
         {
             return DbExpression.Where(type, predicate, parameters.ToReadOnlyCollection(DbExpressionType.Where));
+        }
+
+        public Expression BuildWhere<TEntity>(DbTableExpression table, Type type, Expression<Func<TEntity, bool>> predicate)
+        {
+            return DbExpression.Where(table, type, predicate);
         }
 
         public IQueryable CreateQuery(Expression expression)
@@ -205,11 +240,11 @@ namespace SubSonic.Infrastructure.Builders
 
             if (body.IsNull())
             {
-                return GetComparisonExpression(left, right, @operator);
+                return DbWherePredicateBuilder.GetComparisonExpression(left, right, @operator);
             }
             else
             {
-                return GetBodyExpression(body, GetComparisonExpression(left, right, @operator), @group);
+                return DbWherePredicateBuilder.GetBodyExpression(body, DbWherePredicateBuilder.GetComparisonExpression(left, right, @operator), @group);
             }
         }
 
@@ -238,124 +273,6 @@ namespace SubSonic.Infrastructure.Builders
             return null;
         }
 
-        private Expression GetBodyExpression(Expression body, Expression right, GroupOperator @group)
-        {
-            Expression result;
-
-            switch (group)
-            {
-                case GroupOperator.And:
-                    {
-                        result = Expression.And(body, right);
-                    }
-                    break;
-                case GroupOperator.AndAlso:
-                    {
-                        result = Expression.AndAlso(body, right);
-                    }
-                    break;
-                case GroupOperator.Or:
-                    {
-                        result = Expression.Or(body, right);
-                    }
-                    break;
-                case GroupOperator.OrElse:
-                    {
-                        result = Expression.OrElse(body, right);
-                    }
-                    break;
-                default:
-                    throw new NotImplementedException($"{@group} operation is not implemented.");
-            }
-
-            return result;
-        }
-
-        private static Expression GetComparisonExpression(Expression left, Expression right, ComparisonOperator @operator)
-        {
-            Expression result;
-
-            switch (@operator)
-            {
-                case ComparisonOperator.Contains:
-                case ComparisonOperator.NotContains:
-                    {
-                        MethodInfo
-                            oMethod = left.Type.GetMethod("Contains", new Type[] { right.Type });
-
-                        result = Expression.Call(left, oMethod, right);
-
-                        if (@operator == ComparisonOperator.NotContains)
-                        {
-                            result = Expression.Not(result);
-                        }
-                    }
-                    break;
-                case ComparisonOperator.StartsWith:
-                case ComparisonOperator.NotStartsWith:
-                    {
-                        MethodInfo
-                            oMethod = left.Type.GetMethod("StartsWith", new Type[] { right.Type });
-
-                        result = Expression.Call(left, oMethod, right);
-
-                        if (@operator == ComparisonOperator.NotContains)
-                        {
-                            result = Expression.Not(result);
-                        }
-                    }
-                    break;
-                case ComparisonOperator.EndsWith:
-                case ComparisonOperator.NotEndsWith:
-                    {
-                        MethodInfo
-                            oMethod = left.Type.GetMethod("EndsWith", new Type[] { right.Type });
-
-                        result = Expression.Call(left, oMethod, right);
-
-                        if (@operator == ComparisonOperator.NotContains)
-                        {
-                            result = Expression.Not(result);
-                        }
-                    }
-                    break;
-                case ComparisonOperator.Equal:
-                    {
-                        result = Expression.Equal(left, right);
-                    }
-                    break;
-                case ComparisonOperator.NotEqual:
-                    {
-                        result = Expression.NotEqual(left, right);
-                    }
-                    break;
-                case ComparisonOperator.GreaterThan:
-                    {
-                        result = Expression.GreaterThan(left, right);
-                    }
-                    break;
-                case ComparisonOperator.GreaterThanOrEqual:
-                    {
-                        result = Expression.GreaterThanOrEqual(left, right);
-                    }
-                    break;
-                case ComparisonOperator.LessThan:
-                    {
-                        result = Expression.LessThan(left, right);
-                    }
-                    break;
-                case ComparisonOperator.LessThanOrEqual:
-                    {
-                        result = Expression.LessThanOrEqual(left, right);
-                    }
-                    break;
-                default:
-                    throw new NotImplementedException($"{@operator} operation is not implemented.");
-            }
-
-            return result;
-        }
-
         public IDbQueryObject ToQueryObject(Expression exp)
         {
             if (exp is DbSelectExpression)
@@ -366,7 +283,5 @@ namespace SubSonic.Infrastructure.Builders
             }
             return null;
         }
-
-        
     }
 }

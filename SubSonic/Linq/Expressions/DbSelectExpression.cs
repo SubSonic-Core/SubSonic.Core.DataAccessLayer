@@ -15,17 +15,15 @@ namespace SubSonic.Linq.Expressions
     public class DbSelectExpression
         : DbAliasedExpression
     {
-        ReadOnlyCollection<DbColumnDeclaration> columns;
-        bool isDistinct;
-        Expression from;
-        ReadOnlyCollection<DbOrderByDeclaration> orderBy;
-        ReadOnlyCollection<Expression> groupBy;
-        Expression take;
-        Expression skip;
-
-        public DbSelectExpression(TableAlias alias, Expression from)
+        public DbSelectExpression(TableAlias alias, IEnumerable<DbColumnDeclaration> columns, Expression from)
             : base(DbExpressionType.Select, typeof(Queryable), alias)
         {
+            Columns = columns as ReadOnlyCollection<DbColumnDeclaration>;
+            if (Columns == null)
+            {
+                Columns = new List<DbColumnDeclaration>(columns).AsReadOnly();
+            }
+
             From = from ?? throw new System.ArgumentNullException(nameof(from));
         }
 
@@ -39,29 +37,23 @@ namespace SubSonic.Linq.Expressions
             bool isDistinct,
             Expression skip,
             Expression take)
-            : base(DbExpressionType.Select, typeof(Queryable), alias)
+            : this(alias, columns, from)
         {
-            this.columns = columns as ReadOnlyCollection<DbColumnDeclaration>;
-            if (this.columns == null)
-            {
-                this.columns = new List<DbColumnDeclaration>(columns).AsReadOnly();
-            }
-            this.isDistinct = isDistinct;
-            this.from = from;
+            IsDistinct = isDistinct;
             Where = where;
 
-            this.orderBy = orderBy as ReadOnlyCollection<DbOrderByDeclaration>;
-            if (this.orderBy == null && orderBy != null)
+            OrderBy = orderBy as ReadOnlyCollection<DbOrderByDeclaration>;
+            if (OrderBy == null && orderBy != null)
             {
-                this.orderBy = new List<DbOrderByDeclaration>(orderBy).AsReadOnly();
+                OrderBy = new List<DbOrderByDeclaration>(orderBy).AsReadOnly();
             }
-            this.groupBy = groupBy as ReadOnlyCollection<Expression>;
-            if (this.groupBy == null && groupBy != null)
+            GroupBy = groupBy as ReadOnlyCollection<Expression>;
+            if (GroupBy == null && groupBy != null)
             {
-                this.groupBy = new List<Expression>(groupBy).AsReadOnly();
+                GroupBy = new List<Expression>(groupBy).AsReadOnly();
             }
-            this.take = take;
-            this.skip = skip;
+            Take = take;
+            Skip = skip;
         }
         public DbSelectExpression(
             TableAlias alias,
@@ -80,39 +72,15 @@ namespace SubSonic.Linq.Expressions
             : this(alias, columns, from, where, null, null)
         {
         }
-        public ReadOnlyCollection<DbColumnDeclaration> Columns
-        {
-            get { return columns; }
-        }
-        public Expression From
-        {
-            get { return from; }
-            set { from = value; }
-        }
+        public IReadOnlyCollection<DbColumnDeclaration> Columns { get; }
+        public Expression From { get; set; }
         public new Expression Where { get; }
 
-        public ReadOnlyCollection<DbOrderByDeclaration> OrderBy
-        {
-            get { return orderBy; }
-        }
-        public ReadOnlyCollection<Expression> GroupBy
-        {
-            get { return groupBy; }
-        }
-        public bool IsDistinct
-        {
-            get { return isDistinct; }
-        }
-        public Expression Skip
-        {
-            get { return skip; }
-            set { skip = value; }
-        }
-        public Expression Take
-        {
-            get { return take; }
-            set { take = value; }
-        }
+        public ReadOnlyCollection<DbOrderByDeclaration> OrderBy { get; }
+        public ReadOnlyCollection<Expression> GroupBy { get; }
+        public bool IsDistinct { get; }
+        public Expression Skip { get; set; }
+        public Expression Take { get; set; }
         public string QueryText
         {
             get { return TSqlFormatter.Format(this, DbContext.ServiceProvider.GetService<SqlQueryProvider>().Context); }

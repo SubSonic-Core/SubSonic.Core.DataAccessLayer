@@ -47,7 +47,36 @@ namespace SubSonic.Linq
 
                 where = select.Where;
             }
-            return (ISubSonicCollection<TEntity>)builder.CreateQuery<TEntity>(builder.BuildSelect(null, where));
+            else if (query.Expression is DbTableExpression)
+            {
+                return (ISubSonicCollection<TEntity>)builder.CreateQuery<TEntity>(builder.BuildSelect());
+            }
+            return (ISubSonicCollection<TEntity>)builder.CreateQuery<TEntity>(builder.BuildSelect(where));
+        }
+
+        public static ISubSonicCollection<TEntity> Select<TEntity, TColumn>(this ISubSonicCollection<TEntity> query, Expression<Func<TEntity, TColumn>> selector)
+        {
+            if (query.IsNotNull())
+            {
+                IDbSqlQueryBuilderProvider provider = (IDbSqlQueryBuilderProvider)query.Provider;
+
+                return (ISubSonicCollection<TEntity>)provider.CreateQuery(provider.BuildSelect(query.Expression, selector));
+            }
+            return query;
+        }
+
+        public static ISubSonicCollection<TEntity> Where<TEntity>(this ISubSonicCollection<TEntity> query, Expression<Func<TEntity, bool>> predicate)
+        {
+            if (query.IsNotNull())
+            {
+                ISubSonicQueryProvider<TEntity> provider = (ISubSonicQueryProvider<TEntity>)query.Provider;
+
+                Expression
+                    where = provider.BuildWhere((DbTableExpression)query.Expression, query.GetType(), predicate);
+
+                return (ISubSonicCollection<TEntity>)provider.CreateQuery<TEntity>(provider.BuildSelect(query.Expression, where));
+            }
+            return query;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1720:Identifier contains type name", Justification = "Microsoft already named a IQueryable.Single and it would be confusing not to.")]

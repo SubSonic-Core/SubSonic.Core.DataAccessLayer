@@ -10,6 +10,9 @@ namespace SubSonic.Tests.DAL.SqlQueryProvider
     using Linq;
     using Linq.Expressions;
     using Linq.Expressions.Alias;
+    using SubSonic.Extensions.Test.Models;
+    using SubSonic.Infrastructure;
+    using System.Linq;
 
     [TestFixture]
     public partial class SqlQueryProviderTests
@@ -157,11 +160,49 @@ WHERE ([{0}].[ID] = @ID) <> 0".Format("T1");
             logging.LogInformation("\n" + sql + "\n");
 
             sql.Should().Be(expected);
+        }
+
+        [Test]
+        public void CanGenerateSelectWithKeyColumnWithContraints()
+        {
+            string expected =
+@"SELECT [{0}].[ID]
+FROM [dbo].[Status] AS [{0}]
+WHERE ([{0}].[IsAvailableStatus] = @IsAvailableStatus) <> 0".Format("T1");
+
+            Expression select = DbContext
+                .Statuses
+                .Where(Status => Status.IsAvailableStatus == true)
+                .Select(Status => Status.ID)
+                .Expression;
+
+            select.Should().BeOfType<DbSelectExpression>();
+
+            IDbQueryObject query = null;
+
+            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
-                sql.Should().Be(DbContext.Statuses.FindByID(1).Expression.ToString());
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+
+                    query = builder.ToQueryObject(select);
+                }).Should().NotThrow();
             }
+
+            query.Should().NotBeNull();
+
+            query.Sql.Should().NotBeNullOrEmpty();
+            query.Sql.Should().StartWith("SELECT");
+
+            logging.LogInformation("\n" + query.Sql + "\n");
+
+            query.Sql.Should().Be(expected);
+
+            query.Parameters.Should().NotBeEmpty();
+            query.Parameters.ElementAt(0).ParameterName.Should().Be("@IsAvailableStatus");
         }
     }
 }

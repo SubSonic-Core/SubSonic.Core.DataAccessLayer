@@ -90,7 +90,7 @@ namespace SubSonic.Infrastructure
 
             where = builder.BuildWhere(typeof(ISubSonicCollection<TEntity>), predicate);
 
-            return (ISubSonicCollection<TEntity>)builder.CreateQuery<TEntity>(builder.BuildSelect(null, where));
+            return (ISubSonicCollection<TEntity>)builder.CreateQuery<TEntity>(builder.BuildSelect(where));
         }
     }
 }

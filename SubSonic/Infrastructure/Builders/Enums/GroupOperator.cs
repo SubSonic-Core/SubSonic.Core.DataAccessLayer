@@ -6,7 +6,8 @@ namespace SubSonic.Infrastructure
 {
     public enum GroupOperator
     {
-        And = 0,
+        Unknown = 0,
+        And,
         AndAlso,
         Or,
         OrElse

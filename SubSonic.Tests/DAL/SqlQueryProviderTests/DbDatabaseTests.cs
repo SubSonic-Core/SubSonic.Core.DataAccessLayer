@@ -16,7 +16,7 @@ namespace SubSonic.Tests.DAL.SqlQueryProvider
     public partial class SqlQueryProviderTests
     {
         [Test]
-        public void SqlBuilderCanGetDbQueryObjectWithNoParametersFromExpression()
+        public void CanGetDbQueryObjectWithNoParametersFromExpression()
         {
             string expected =
 @"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
@@ -32,7 +32,7 @@ FROM [dbo].[Status] AS [{0}]".Format("T1");
         }
 
         [Test]
-        public void SqlBuilderCanGetDbQueryObjectWithParametersFromExpression()
+        public void CanGetDbQueryObjectWithParametersFromExpression()
         {
             string expected =
 @"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]

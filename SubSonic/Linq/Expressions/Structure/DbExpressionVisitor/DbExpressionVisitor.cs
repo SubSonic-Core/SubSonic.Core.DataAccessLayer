@@ -338,7 +338,7 @@ namespace SubSonic.Linq.Expressions.Structure
             ReadOnlyCollection<Expression> groupBy = this.VisitExpressionList(selectExp.GroupBy);
             Expression skip = this.Visit(selectExp.Skip);
             Expression take = this.Visit(selectExp.Take);
-            ReadOnlyCollection<DbColumnDeclaration> columns = this.VisitColumnDeclarations(selectExp.Columns);
+            IReadOnlyCollection<DbColumnDeclaration> columns = this.VisitColumnDeclarations(selectExp.Columns);
             if (from != selectExp.From
                 || where != selectExp.Where
                 || orderBy != selectExp.OrderBy
@@ -353,7 +353,7 @@ namespace SubSonic.Linq.Expressions.Structure
             return selectExp;
         }
 
-        protected virtual ReadOnlyCollection<DbColumnDeclaration> VisitColumnDeclarations(ReadOnlyCollection<DbColumnDeclaration> columns)
+        protected virtual IReadOnlyCollection<DbColumnDeclaration> VisitColumnDeclarations(IReadOnlyCollection<DbColumnDeclaration> columns)
         {
             if (columns is null)
             {
@@ -363,7 +363,7 @@ namespace SubSonic.Linq.Expressions.Structure
             List<DbColumnDeclaration> alternate = null;
             for (int i = 0, n = columns.Count; i < n; i++)
             {
-                DbColumnDeclaration column = columns[i];
+                DbColumnDeclaration column = columns.ElementAt(i);
                 Expression e = this.Visit(column.Expression);
                 if (alternate == null && e != column.Expression)
                 {

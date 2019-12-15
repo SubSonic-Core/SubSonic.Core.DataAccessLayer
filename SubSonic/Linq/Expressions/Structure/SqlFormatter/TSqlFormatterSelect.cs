@@ -8,6 +8,7 @@ namespace SubSonic.Linq.Expressions.Structure
 {
     using Alias;
     using Infrastructure.SqlGenerator;
+    using System.Linq;
     using System.Reflection;
 
     public partial class TSqlFormatter
@@ -32,7 +33,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 {
                     for (int i = 0, n = select.Columns.Count; i < n; i++)
                     {
-                        DbColumnDeclaration column = select.Columns[i];
+                        DbColumnDeclaration column = select.Columns.ElementAt(i);
                         if (i > 0)
                         {
                             Write($"{Fragments.COMMA} ");

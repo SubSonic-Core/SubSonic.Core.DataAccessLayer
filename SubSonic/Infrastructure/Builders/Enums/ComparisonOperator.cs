@@ -6,7 +6,8 @@ namespace SubSonic.Infrastructure
 {
     public enum ComparisonOperator
     {
-        Equal = 0,
+        Unknown = 0,
+        Equal,
         NotEqual,
         GreaterThan,
         GreaterThanOrEqual,
