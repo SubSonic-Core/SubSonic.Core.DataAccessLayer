@@ -170,20 +170,20 @@ namespace SubSonic.Infrastructure.Builders
             throw new ArgumentNullException(nameof(expression));
         }
 
-        public Expression CallExpression(Expression source, Expression body, ExpressionCallType callType , params string[] properties)
+        public Expression BuildLambda(Expression collection, Expression logical, CallType callType , params string[] properties)
         {
-            if (body.IsNotNull())
+            if (logical.IsNotNull())
             {
-                Expression lambda = GetExpressionArgument(body, callType, properties);
+                Expression lambda = GetExpressionArgument(logical, callType, properties);
 
                 return Expression.Call(
                     typeof(Queryable),
                     callType.ToString(),
                     GetTypeArguments(callType, lambda),
-                    GetMethodCall(source) ?? Expression.Parameter(GetTypeOf(typeof(ISubSonicCollection<>), DbEntity.EntityModelType)),
+                    GetMethodCall(collection) ?? Expression.Parameter(GetTypeOf(typeof(ISubSonicCollection<>), DbEntity.EntityModelType)),
                     lambda);
             }
-            return body;
+            return logical;
         }
 
         private Type GetTypeOf(Type type, params Type[] types)
@@ -191,19 +191,19 @@ namespace SubSonic.Infrastructure.Builders
             return type.IsGenericType ? type.MakeGenericType(types) : type;
         }
 
-        private Expression GetExpressionArgument(Expression body, ExpressionCallType @call, params string[] properties)
+        private Expression GetExpressionArgument(Expression body, CallType @call, params string[] properties)
         {
             Expression result = null;
             switch (call)
             {
-                case Infrastructure.ExpressionCallType.Where:
+                case Infrastructure.CallType.Where:
                     {
                         Type fnType = Expression.GetFuncType(Parameter.Type, typeof(bool));
 
                         result = Expression.Lambda(fnType, body, Parameter);
                     }
                     break;
-                case Infrastructure.ExpressionCallType.OrderBy:
+                case Infrastructure.CallType.OrderBy:
                     {
                         PropertyInfo info = Parameter.Type.GetProperty(properties[0]);
                         Expression property = Expression.Property(Parameter, info);
@@ -217,18 +217,18 @@ namespace SubSonic.Infrastructure.Builders
             return result;
         }
 
-        private static Type[] GetTypeArguments(ExpressionCallType @enum, Expression expression)
+        private static Type[] GetTypeArguments(CallType @enum, Expression expression)
         {
             IEnumerable<Type> types = Array.Empty<Type>();
 
             switch (@enum)
             {
-                case Infrastructure.ExpressionCallType.Where:
+                case Infrastructure.CallType.Where:
                     {
                         types = GetParameterTypes((LambdaExpression)expression);
                     }
                     break;
-                case Infrastructure.ExpressionCallType.OrderBy:
+                case Infrastructure.CallType.OrderBy:
                     {
                         types = GetParameterTypes((LambdaExpression)expression)
                             .Union(GetMemberType((LambdaExpression)expression));
@@ -245,7 +245,7 @@ namespace SubSonic.Infrastructure.Builders
 
         private static IEnumerable<Type> GetMemberType(LambdaExpression expression) => new[] { expression.Body.Type };
 
-        public Expression BuildPredicate(Expression body, DbExpressionType type, string property, object value, ComparisonOperator @operator, GroupOperator @group)
+        public Expression BuildLogicalBinary(Expression body, DbExpressionType type, string property, object value, ComparisonOperator @operator, GroupOperator @group)
         {
             PropertyInfo propertyInfo = DbEntity.EntityModelType.GetProperty(property);
 
@@ -261,6 +261,11 @@ namespace SubSonic.Infrastructure.Builders
             {
                 return DbWherePredicateBuilder.GetBodyExpression(body, DbWherePredicateBuilder.GetComparisonExpression(left, right, @operator), @group);
             }
+        }
+
+        public Expression BuildWherePredicate(Expression collection, Expression logical)
+        {
+            return BuildLambda(collection, logical, CallType.Where);
         }
 
         private Expression GetNamedExpression(DbExpressionType type, PropertyInfo info, object value)

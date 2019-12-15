@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SubSonic.Infrastructure
 {
-    public enum ExpressionCallType
+    public enum CallType
     {
         Where = 0,
         OrderBy

@@ -14,7 +14,7 @@ namespace SubSonic.Tests.DAL.DynamicProxyTests
         : BaseTestFixture
     { 
         [Test]
-        public void CanBuildProxyForElegibleType()
+        public void BuildProxyForElegibleType()
         {
             DynamicProxyWrapper proxyWrapper = DynamicProxy.GetProxyWrapper<RealEstateProperty>(DbContext);
 

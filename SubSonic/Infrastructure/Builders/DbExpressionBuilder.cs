@@ -58,7 +58,7 @@ namespace SubSonic.Infrastructure
         }
             
 
-        public DbExpressionBuilder CallExpression<TEntity>(ExpressionCallType @enum, params string[] properties)
+        public DbExpressionBuilder CallExpression<TEntity>(CallType @enum, params string[] properties)
         {
             Expression lambda = GetExpressionArgument<TEntity>(@enum, properties);
 
@@ -72,18 +72,18 @@ namespace SubSonic.Infrastructure
             return this;
         }
 
-        private static Type[] GetTypeArguments(ExpressionCallType @enum, Expression expression)
+        private static Type[] GetTypeArguments(CallType @enum, Expression expression)
         {
             IEnumerable<Type> types = Array.Empty<Type>();
             
             switch(@enum)
             {
-                case Infrastructure.ExpressionCallType.Where:
+                case Infrastructure.CallType.Where:
                     {
                         types = GetParameterTypes((LambdaExpression)expression);
                     }
                     break;
-                case Infrastructure.ExpressionCallType.OrderBy:
+                case Infrastructure.CallType.OrderBy:
                     {
                         types = GetParameterTypes((LambdaExpression)expression)
                             .Union(GetMemberType((LambdaExpression)expression));
@@ -99,17 +99,17 @@ namespace SubSonic.Infrastructure
         private static IEnumerable<Type> GetParameterTypes(LambdaExpression expression) => expression.Parameters.Select(Param => Param.Type);
         private static IEnumerable<Type> GetMemberType(LambdaExpression expression) => new[] { expression.Body.Type };
 
-        private Expression GetExpressionArgument<TEntity>(ExpressionCallType @call, params string[] properties)
+        private Expression GetExpressionArgument<TEntity>(CallType @call, params string[] properties)
         {
             Expression result;
             switch(call)
             {
-                case Infrastructure.ExpressionCallType.Where:
+                case Infrastructure.CallType.Where:
                     {
                         result = Expression.Lambda<Func<TEntity, bool>>(body, parameter);
                     }
                     break;
-                case Infrastructure.ExpressionCallType.OrderBy:
+                case Infrastructure.CallType.OrderBy:
                     {
                         PropertyInfo info = typeof(TEntity).GetProperty(properties[0]);
                         Expression property = Expression.Property(parameter, info);

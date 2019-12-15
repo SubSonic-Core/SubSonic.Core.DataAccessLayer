@@ -9,7 +9,8 @@ namespace SubSonic.Infrastructure
     public interface IDbSqlQueryBuilderProvider
         : IQueryProvider
     {
-        Expression BuildPredicate(Expression eBody, DbExpressionType type, string name, object value, ComparisonOperator op, GroupOperator group);
+        Expression BuildLogicalBinary(Expression eBody, DbExpressionType type, string name, object value, ComparisonOperator op, GroupOperator group);
+        Expression BuildWherePredicate(Expression collection, Expression logical);
         Expression BuildSelect();
         Expression BuildSelect(Expression eWhere);
         Expression BuildSelect(Expression eSelect, Expression eWhere);
@@ -17,7 +18,7 @@ namespace SubSonic.Infrastructure
         Expression BuildSelect<TEntity, TColumn>(Expression eSelect, Expression<Func<TEntity, TColumn>> selector);
         Expression BuildWhere<TEntity>(DbTableExpression table, Type type, Expression<Func<TEntity, bool>> predicate);
         Expression BuildWhere(Type type, Expression predicate);
-        Expression CallExpression(Expression caller, Expression body, ExpressionCallType callType, params string[] properties);
+        Expression BuildLambda(Expression caller, Expression body, CallType callType, params string[] properties);
         IDbQueryObject ToQueryObject(Expression expr);
     }
 }

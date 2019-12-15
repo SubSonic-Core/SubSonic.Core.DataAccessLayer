@@ -129,7 +129,7 @@ FROM [dbo].[Unit] AS [{0}]".Format("T1");
         }
 
         [Test]
-        public void CanGenerateSelectWithConstraints()
+        public void CanGenerateSelectWithConstraintsUsingFindByID()
         {
             string expected =
 @"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
