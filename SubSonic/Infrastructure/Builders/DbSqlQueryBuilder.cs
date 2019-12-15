@@ -105,7 +105,7 @@ namespace SubSonic.Infrastructure.Builders
             return DbExpression.Where(type, predicate, parameters.ToReadOnlyCollection(DbExpressionType.Where));
         }
 
-        public Expression BuildWhere<TEntity>(DbTableExpression table, Type type, Expression<Func<TEntity, bool>> predicate)
+        public Expression BuildWhere(DbTableExpression table, Type type, LambdaExpression predicate)
         {
             return DbExpression.Where(table, type, predicate);
         }
@@ -170,11 +170,13 @@ namespace SubSonic.Infrastructure.Builders
             throw new ArgumentNullException(nameof(expression));
         }
 
-        public Expression BuildLambda(Expression collection, Expression logical, CallType callType , params string[] properties)
+
+
+        public Expression BuildCall(Expression collection, Expression logical, CallType callType , params string[] properties)
         {
             if (logical.IsNotNull())
             {
-                Expression lambda = GetExpressionArgument(logical, callType, properties);
+                Expression lambda = BuildLambda(logical, callType, properties);
 
                 return Expression.Call(
                     typeof(Queryable),
@@ -191,7 +193,7 @@ namespace SubSonic.Infrastructure.Builders
             return type.IsGenericType ? type.MakeGenericType(types) : type;
         }
 
-        private Expression GetExpressionArgument(Expression body, CallType @call, params string[] properties)
+        public Expression BuildLambda(Expression body, CallType @call, params string[] properties)
         {
             Expression result = null;
             switch (call)
@@ -247,11 +249,14 @@ namespace SubSonic.Infrastructure.Builders
 
         public Expression BuildLogicalBinary(Expression body, DbExpressionType type, string property, object value, ComparisonOperator @operator, GroupOperator @group)
         {
+            ParameterExpression parameter = Expression.Parameter(DbEntity.EntityModelType, DbEntity.QualifiedName);
             PropertyInfo propertyInfo = DbEntity.EntityModelType.GetProperty(property);
 
+            Type constantType = propertyInfo.PropertyType.GetUnderlyingType();
+
             Expression
-                left = GetDbColumnExpression(propertyInfo),
-                right = GetNamedExpression(type, propertyInfo, value);
+                left = Expression.Property(parameter, propertyInfo), // GetDbColumnExpression(propertyInfo),
+                right = Expression.Constant(value, constantType); // GetNamedExpression(type, propertyInfo, value);
 
             if (body.IsNull())
             {
@@ -265,7 +270,7 @@ namespace SubSonic.Infrastructure.Builders
 
         public Expression BuildWherePredicate(Expression collection, Expression logical)
         {
-            return BuildLambda(collection, logical, CallType.Where);
+            return BuildCall(collection, logical, CallType.Where);
         }
 
         private Expression GetNamedExpression(DbExpressionType type, PropertyInfo info, object value)

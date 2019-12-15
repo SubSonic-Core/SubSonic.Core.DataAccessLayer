@@ -88,7 +88,12 @@ namespace SubSonic.Infrastructure
                logical = builder.BuildLogicalBinary(logical, DbExpressionType.Where, keys[i], keyData[i], ComparisonOperator.Equal, GroupOperator.AndAlso);
             }
 
-            where = builder.BuildWhere(typeof(ISubSonicCollection<TEntity>), logical);
+            Type collectionType = typeof(ISubSonicCollection<TEntity>);
+
+            LambdaExpression predicate = (LambdaExpression)builder.BuildLambda(logical, CallType.Where);
+
+            where = builder.BuildWhere((DbTableExpression)builder.GetAliasedTable(), collectionType, predicate);
+            //where = builder.BuildWhere(typeof(ISubSonicCollection<TEntity>), logical);
 
             return (ISubSonicCollection<TEntity>)builder.CreateQuery<TEntity>(builder.BuildSelect(where));
         }
