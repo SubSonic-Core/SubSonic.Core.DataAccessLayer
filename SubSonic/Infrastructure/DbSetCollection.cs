@@ -90,10 +90,9 @@ namespace SubSonic.Infrastructure
 
             Type collectionType = typeof(ISubSonicCollection<TEntity>);
 
-            LambdaExpression predicate = (LambdaExpression)builder.BuildLambda(logical, CallType.Where);
+            LambdaExpression predicate = (LambdaExpression)builder.BuildLambda(logical, LambdaType.Predicate);
 
             where = builder.BuildWhere((DbTableExpression)builder.GetAliasedTable(), collectionType, predicate);
-            //where = builder.BuildWhere(typeof(ISubSonicCollection<TEntity>), logical);
 
             return (ISubSonicCollection<TEntity>)builder.CreateQuery<TEntity>(builder.BuildSelect(where));
         }

@@ -51,8 +51,6 @@ namespace SubSonic.Infrastructure.Builders
 
         protected ParameterExpression Parameter => Expression.Parameter(DbEntity.EntityModelType, DbEntity.Name);
 
-        public ISqlQueryProvider SqlQueryProvider { get; private set; }
-
         public Expression BuildSelect()
         {
             return new DbSelectExpression(DbTable.Alias, DbTable.Columns, DbTable);
@@ -98,11 +96,6 @@ namespace SubSonic.Infrastructure.Builders
                 return new DbSelectExpression(table.Alias, table.Columns.Where(col => col.PropertyName == selector.GetPropertyName()), table);
             }
             return expression;
-        }
-
-        public Expression BuildWhere(Type type, Expression predicate)
-        {
-            return DbExpression.Where(type, predicate, parameters.ToReadOnlyCollection(DbExpressionType.Where));
         }
 
         public Expression BuildWhere(DbTableExpression table, Type type, LambdaExpression predicate)
@@ -172,20 +165,18 @@ namespace SubSonic.Infrastructure.Builders
 
 
 
-        public Expression BuildCall(Expression collection, Expression logical, CallType callType , params string[] properties)
+        public Expression BuildCall(string nameofCallee, Expression collection, Expression lambda)
         {
-            if (logical.IsNotNull())
+            if (lambda.IsNotNull())
             {
-                Expression lambda = BuildLambda(logical, callType, properties);
-
                 return Expression.Call(
                     typeof(Queryable),
-                    callType.ToString(),
-                    GetTypeArguments(callType, lambda),
+                    nameofCallee,
+                    GetTypeArguments((LambdaExpression)lambda),
                     GetMethodCall(collection) ?? Expression.Parameter(GetTypeOf(typeof(ISubSonicCollection<>), DbEntity.EntityModelType)),
                     lambda);
             }
-            return logical;
+            return lambda;
         }
 
         private Type GetTypeOf(Type type, params Type[] types)
@@ -193,19 +184,19 @@ namespace SubSonic.Infrastructure.Builders
             return type.IsGenericType ? type.MakeGenericType(types) : type;
         }
 
-        public Expression BuildLambda(Expression body, CallType @call, params string[] properties)
+        public Expression BuildLambda(Expression body, LambdaType @call, params string[] properties)
         {
             Expression result = null;
             switch (call)
             {
-                case Infrastructure.CallType.Where:
+                case Infrastructure.LambdaType.Predicate:
                     {
                         Type fnType = Expression.GetFuncType(Parameter.Type, typeof(bool));
 
                         result = Expression.Lambda(fnType, body, Parameter);
                     }
                     break;
-                case Infrastructure.CallType.OrderBy:
+                case Infrastructure.LambdaType.Selector:
                     {
                         PropertyInfo info = Parameter.Type.GetProperty(properties[0]);
                         Expression property = Expression.Property(Parameter, info);
@@ -219,33 +210,21 @@ namespace SubSonic.Infrastructure.Builders
             return result;
         }
 
-        private static Type[] GetTypeArguments(CallType @enum, Expression expression)
+        private static Type[] GetTypeArguments(LambdaExpression expression)
         {
-            IEnumerable<Type> types = Array.Empty<Type>();
-
-            switch (@enum)
+            if (expression.IsNotNull())
             {
-                case Infrastructure.CallType.Where:
-                    {
-                        types = GetParameterTypes((LambdaExpression)expression);
-                    }
-                    break;
-                case Infrastructure.CallType.OrderBy:
-                    {
-                        types = GetParameterTypes((LambdaExpression)expression)
-                            .Union(GetMemberType((LambdaExpression)expression));
-                    }
-                    break;
-                default:
-                    throw new NotImplementedException();
+                IEnumerable<Type> types = expression.Parameters.Select(Param => Param.Type);
+
+                if (!expression.Body.Type.IsBoolean())
+                {   // not a predicate
+                    types = types.Union(new[] { expression.Body.Type });
+                }
+
+                return types.ToArray();
             }
-
-            return types.ToArray();
+            return Array.Empty<Type>();
         }
-
-        private static IEnumerable<Type> GetParameterTypes(LambdaExpression expression) => expression.Parameters.Select(Param => Param.Type);
-
-        private static IEnumerable<Type> GetMemberType(LambdaExpression expression) => new[] { expression.Body.Type };
 
         public Expression BuildLogicalBinary(Expression body, DbExpressionType type, string property, object value, ComparisonOperator @operator, GroupOperator @group)
         {
@@ -268,36 +247,11 @@ namespace SubSonic.Infrastructure.Builders
             }
         }
 
-        public Expression BuildWherePredicate(Expression collection, Expression logical)
+        public Expression BuildWherePredicate(Expression collection, Expression lambda)
         {
-            return BuildCall(collection, logical, CallType.Where);
+            return BuildCall("Where", collection, lambda);
         }
-
-        private Expression GetNamedExpression(DbExpressionType type, PropertyInfo info, object value)
-        {
-            IDbEntityProperty property = DbEntity[info.Name];
-
-            parameters.Add(type, new SubSonicParameter(property, $"@{property.Name}") { Value = value });
-
-            Type ConstantType = info.PropertyType.GetUnderlyingType();
-
-            return new DbNamedValueExpression(
-                property.Name,
-                Expression.Constant(Convert.ChangeType(value, ConstantType, CultureInfo.CurrentCulture), ConstantType));
-        }
-
-        private Expression GetDbColumnExpression(PropertyInfo info)
-        {
-            foreach(DbColumnDeclaration column in DbTable.Columns)
-            {
-                if(column.PropertyName == info.Name)
-                {
-                    return column.Expression;
-                }
-            }
-            return null;
-        }
-
+        
         public IDbQueryObject ToQueryObject(Expression exp)
         {
             if (exp is DbSelectExpression)

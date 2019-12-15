@@ -4,9 +4,9 @@ using System.Text;
 
 namespace SubSonic.Infrastructure
 {
-    public enum CallType
+    public enum LambdaType
     {
-        Where = 0,
-        OrderBy
+        Predicate = 0,
+        Selector
     }
 }

@@ -28,11 +28,11 @@ namespace SubSonic.Infrastructure.Builders
             this.table = table ?? throw new ArgumentNullException(nameof(table));
         }
 
-        public static DbExpression GetWherePredicate(DbTableExpression table, Type type, Expression predicate)
+        public static DbExpression GetWherePredicate(DbTableExpression table, Type type, LambdaExpression lambda)
         {
             var builder = new DbWherePredicateBuilder(table);
 
-            return new DbWhereExpression(type, builder.ParsePredicate(predicate), builder.parameters.ToReadOnlyCollection(DbExpressionType.Where));
+            return new DbWhereExpression(type, lambda, builder.ParsePredicate(lambda.Body), builder.parameters.ToReadOnlyCollection(DbExpressionType.Where));
         }
 
         public static Expression GetComparisonExpression(Expression left, Expression right, ComparisonOperator @operator)

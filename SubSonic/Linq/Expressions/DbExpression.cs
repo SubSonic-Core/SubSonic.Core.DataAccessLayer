@@ -28,12 +28,7 @@ namespace SubSonic.Linq.Expressions
             return DbExpressionWriter.WriteToString(this);
         }
 
-        public static DbExpression Where(Type type, Expression predicate, IReadOnlyCollection<SubSonicParameter> parameters)
-        {
-            return new DbWhereExpression(type, predicate, parameters);
-        }
-
-        public static DbExpression Where(DbTableExpression table, Type type, Expression predicate)
+        public static DbExpression Where(DbTableExpression table, Type type, LambdaExpression predicate)
         {
             return DbWherePredicateBuilder.GetWherePredicate(table, type, predicate);
         }
