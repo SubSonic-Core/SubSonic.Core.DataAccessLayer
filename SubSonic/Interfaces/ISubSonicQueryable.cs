@@ -6,8 +6,8 @@ using System.Text;
 
 namespace SubSonic
 {
-    public interface ISubSonicCollection<out TEntity>
-        : ISubSonicCollection, IQueryable<TEntity>, IEnumerable<TEntity>
+    public interface ISubSonicCollection<TEntity>
+        : IQueryable<TEntity>, IEnumerable<TEntity>, IQueryable, IEnumerable, ICollection<TEntity>
     {
 
 

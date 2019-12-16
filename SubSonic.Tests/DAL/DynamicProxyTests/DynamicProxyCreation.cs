@@ -7,7 +7,9 @@ using System.Collections.Generic;
 
 namespace SubSonic.Tests.DAL.DynamicProxyTests
 {
+    using SubSonic.Linq;
     using SUT;
+    using System.Linq;
 
     [TestFixture]
     public partial class DynamicProxyTests
@@ -66,7 +68,7 @@ namespace SubSonic.Tests.DAL.DynamicProxyTests
         }
 
         [Test]
-        public void ProxyCollectionPropertyWillLoadWhenNullOnGet()
+        public void ProxyCollectionPropertyWillNotBeNullOnGet()
         {
             RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(DbContext);
 
@@ -81,6 +83,9 @@ namespace SubSonic.Tests.DAL.DynamicProxyTests
             RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(DbContext);
 
             instance.Units.Should().NotBeNull();
+            // have yet to hit the db
+            instance.Units.Count.Should().Be(0);
+            instance.Units.AsQueryable().Load();
             instance.Units.Count.Should().BeGreaterThan(0);
         }
 

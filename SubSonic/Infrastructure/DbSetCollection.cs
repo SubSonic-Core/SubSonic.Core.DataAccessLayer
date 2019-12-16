@@ -5,25 +5,27 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Collections.ObjectModel;
 
 namespace SubSonic.Infrastructure
 {
     using Linq;
     using Linq.Expressions;
     using Linq.Expressions.Alias;
+    using Schema;
 
     public class DbSetCollection<TEntity>
-        : ISubSonicCollection<TEntity>, IListSource
+        : ISubSonicCollection<TEntity>
     {
         private readonly IQueryProvider provider;
-        private readonly DbEntityModel model;
-        private readonly List<TEntity> queryableData;
+        private readonly IDbEntityModel model;
+        private readonly ICollection<TEntity> queryableData;
         
         public DbSetCollection(ISubSonicQueryProvider<TEntity> provider)
         {
             this.provider = provider ?? throw new ArgumentNullException(nameof(provider));
 
-            queryableData = new List<TEntity>();
+            queryableData = new ObservableCollection<TEntity>();
             model = DbContext.Model.GetEntityModel<TEntity>();
             Expression = provider.GetAliasedTable();
         }
@@ -42,59 +44,72 @@ namespace SubSonic.Infrastructure
 
         public IQueryProvider Provider => provider;
 
-        public bool ContainsListCollection => true;
-
+        #region ICollection<TEntity> Implementation
         [EditorBrowsable(EditorBrowsableState.Never)]
+        public void Add(TEntity entity)
+        {
+            queryableData.Add(entity);
+        }
+
+        public bool Remove(TEntity entity)
+        {
+            return queryableData.Remove(entity);
+        }
+
+        public bool Contains(TEntity entity) => queryableData.Contains(entity);
+
+        public void CopyTo(TEntity[] entities, int startAt) => queryableData.CopyTo(entities, startAt);
+
+        public void Clear() => queryableData.Clear();
+
+        public int Count => queryableData.Count;
+
+        public bool IsReadOnly => false;
+
         public IEnumerator GetEnumerator()
         {
-            return GetList().GetEnumerator();
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public IList GetList()
-        {
-            return queryableData;
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public override bool Equals(object obj)
-        {
-            return base.Equals(obj);
-        }
-
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
+            return ((IEnumerable)queryableData).GetEnumerator();
         }
 
         IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()
         {
-            return ((IEnumerable<TEntity>)queryableData).GetEnumerator();
+            return queryableData.GetEnumerator();
+        }
+        #endregion
+
+        public IQueryable<TEntity> FindByID(params object[] keyData)
+        {
+            return FindByID(keyData, model.GetPrimaryKey().ToArray());
         }
 
-        public ISubSonicCollection<TEntity> FindByID(params object[] keyData)
+        public IQueryable<TEntity> FindByID(object[] keyData, params string[] keyNames)
         {
-            ISubSonicQueryProvider<TEntity> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<TEntity>>();
-
-            Expression 
-                logical = null, 
-                where = null;
-
-            string[] keys = model.GetPrimaryKey().ToArray();
-
-            for (int i = 0; i < keys.Length; i++)
+            if (keyData is null)
             {
-               logical = builder.BuildLogicalBinary(logical, DbExpressionType.Where, keys[i], keyData[i], ComparisonOperator.Equal, GroupOperator.AndAlso);
+                throw new ArgumentNullException(nameof(keyData));
             }
 
-            Type collectionType = typeof(ISubSonicCollection<TEntity>);
+            if (keyNames is null)
+            {
+                throw new ArgumentNullException(nameof(keyNames));
+            }
+
+            ISubSonicQueryProvider<TEntity> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<TEntity>>();
+            
+            Expression
+                logical = null;
+
+            for (int i = 0; i < keyNames.Length; i++)
+            {
+                logical = builder.BuildLogicalBinary(logical, DbExpressionType.Where, keyNames[i], keyData[i], ComparisonOperator.Equal, GroupOperator.AndAlso);
+            }
 
             LambdaExpression predicate = (LambdaExpression)builder.BuildLambda(logical, LambdaType.Predicate);
 
-            where = builder.BuildWhere((DbTableExpression)builder.GetAliasedTable(), collectionType, predicate);
+            Expression where = builder.BuildWhere((DbTableExpression)builder.GetAliasedTable(), null, typeof(TEntity), predicate);
 
-            return (ISubSonicCollection<TEntity>)builder.CreateQuery<TEntity>(builder.BuildSelect(where));
+            return builder.CreateQuery<TEntity>(builder.BuildSelect(where));
         }
     }
 }
+

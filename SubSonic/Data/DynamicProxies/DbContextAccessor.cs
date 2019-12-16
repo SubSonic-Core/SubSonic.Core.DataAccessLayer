@@ -1,12 +1,10 @@
-﻿using SubSonic.Linq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Reflection;
 using Ext = SubSonic.SubSonicExtensions;
 
 namespace SubSonic.Data.DynamicProxies
 {
+    using Linq;
     /// <summary>
     /// 
     /// </summary>
@@ -98,7 +96,7 @@ namespace SubSonic.Data.DynamicProxies
             }
         }
 
-        public ICollection<TProperty> LoadCollection<TEntity, TProperty>(TEntity entity, PropertyInfo info)
+        public System.Linq.IQueryable<TProperty> LoadCollection<TEntity, TProperty>(TEntity entity, PropertyInfo info)
             where TEntity : class
             where TProperty : class
         {
@@ -112,16 +110,16 @@ namespace SubSonic.Data.DynamicProxies
                 throw new ArgumentNullException(nameof(info));
             }
 
-            string[] keys = dbContext.Model.GetEntityModel<TProperty>()
-                .GetPrimaryKey()
-                .ToArray();
+            string[] 
+                keys = dbContext.Model
+                    .GetEntityModel<TProperty>().GetPrimaryKey().ToArray(),
+                foreignKeys = dbContext.Model
+                    .GetRelationshipMapping<TEntity, TProperty>().GetForeignKeys().ToArray();
             object[] keyData = GetKeyData(entity, keys);
 
             return dbContext
                 .Set<TProperty>()
-                .FindByID(keyData)
-                .Load()
-                .ToHashSet();
+                .FindByID(keyData, foreignKeys);
         }
 
         private object[] GetKeyData<TEntity>(TEntity entity, string[] keys)

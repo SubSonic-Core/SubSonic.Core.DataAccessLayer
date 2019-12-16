@@ -1,19 +1,18 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
+using SubSonic.Extensions.Test.Models;
 using SubSonic.Tests.DAL.SUT;
+using System.Data;
 using System.Linq.Expressions;
 
 namespace SubSonic.Tests.DAL.SqlQueryProvider
 {
+    using Data.DynamicProxies;
     using Infrastructure.Logging;
     using Linq;
     using Linq.Expressions;
-    using Linq.Expressions.Alias;
-    using SubSonic.Extensions.Test.Models;
     using SubSonic.Infrastructure;
-    using System.Data;
-    using System.Linq;
 
     [TestFixture]
     public partial class SqlQueryProviderTests
@@ -249,6 +248,48 @@ WHERE ([{0}].[IsAvailableStatus] = @IsAvailableStatus) <> 0".Format("T1");
             query.Parameters.Should().NotBeEmpty();
             query.Parameters.ElementAt(0).ParameterName.Should().Be("@IsAvailableStatus");
             query.Parameters.ElementAt(0).DbType.Should().Be(DbType.Boolean);
+        }
+
+        [Test]
+        public void CanMergeMultipleWhereStatements()
+        {
+            string expected =
+@"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID]
+FROM [dbo].[Unit] AS [{0}]
+WHERE ([{0}].[RealEstatePropertyID] = @RealEstatePropertyID AND [{0}].[StatusID] = @StatusID) <> 0".Format("T1");
+
+            RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(DbContext);
+
+            instance.ID = 1;
+            instance.StatusID = 1;
+
+            Expression select = ((ISubSonicCollection<Unit>)instance.Units.Where(Unit => Unit.StatusID == 1)).Expression;
+
+            select.Should().NotBeNull();
+
+            IDbQueryObject query = null;
+
+            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+
+                    query = builder.ToQueryObject(select);
+                }).Should().NotThrow();
+            }
+
+            query.Sql.Should().NotBeNullOrEmpty();
+            query.Sql.Should().StartWith("SELECT");
+
+            logging.LogInformation("\n" + query.Sql + "\n");
+
+            query.Sql.Should().Be(expected);
+
+            query.Parameters.Should().NotBeEmpty();
+            query.Parameters.Count.Should().Be(2);
         }
     }
 }

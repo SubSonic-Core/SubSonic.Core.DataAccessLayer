@@ -98,8 +98,21 @@ namespace SubSonic.Infrastructure.Builders
             return expression;
         }
 
-        public Expression BuildWhere(DbTableExpression table, Type type, LambdaExpression predicate)
+        public Expression BuildWhere(DbTableExpression table, Expression where, Type type, LambdaExpression predicate)
         {
+            if (where.IsNotNull())
+            {
+                if(where is DbWhereExpression)
+                {
+                    Expression
+                        logical = DbWherePredicateBuilder.GetBodyExpression(((DbWhereExpression)where).LambdaPredicate.Body, predicate.Body, GroupOperator.And);
+                    predicate = BuildLambda(logical, LambdaType.Predicate) as LambdaExpression;
+                }
+                else
+                {
+                    throw new NotSupportedException();
+                }
+            }
             return DbExpression.Where(table, type, predicate);
         }
 
@@ -146,7 +159,7 @@ namespace SubSonic.Infrastructure.Builders
             {
                 if (!expression.NodeType.IsDbExpression())
                 {
-                    throw new NotImplementedException();
+                    return SqlQueryType.Unknown;
                 }
 
                 switch((DbExpressionType)expression.NodeType)

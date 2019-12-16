@@ -27,7 +27,7 @@ namespace SubSonic.Data.DynamicProxies
         {
             BuildProxyConstructor();
 
-            DbEntityModel model = dbContext.Model.GetEntityModel(baseType);
+            IDbEntityModel model = dbContext.Model.GetEntityModel(baseType);
 
             foreach (IDbEntityProperty property in model.Properties)
             {

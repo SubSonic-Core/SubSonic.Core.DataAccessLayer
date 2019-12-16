@@ -5,6 +5,8 @@ using System.Text;
 
 namespace SubSonic.Infrastructure
 {
+    using Schema;
+
     public class DbModel
     {
         private readonly DbContext dbContext;
@@ -18,16 +20,21 @@ namespace SubSonic.Infrastructure
 
         public ICollection<DbEntityModel> EntityModels { get; }
 
-        public DbEntityModel GetEntityModel<TEntity>()
+        public IDbEntityModel GetEntityModel<TEntity>()
         {
             return GetEntityModel(typeof(TEntity));
         }
 
-        public DbEntityModel GetEntityModel(Type entityModelType)
+        public IDbEntityModel GetEntityModel(Type entityModelType)
         {
             return EntityModels
                 .SingleOrDefault(model => model.EntityModelType == entityModelType)
                 .IsNullThrow(new EntityNotRegisteredWithDbModelException(entityModelType));
+        }
+
+        public IDbRelationshipMapping GetRelationshipMapping<TEntity, TProperty>()
+        {
+            throw new NotImplementedException();
         }
     }
 }
