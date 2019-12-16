@@ -4,8 +4,12 @@ using System.Text;
 
 namespace SubSonic.Infrastructure.Schema
 {
-    public interface IDbRelationshipMapping
+    public interface IDbRelationshipMap
     {
+        DbRelationshipType RelationshipType { get; }
+
+        IDbEntityModel ForeignModel { get; }
+
         IEnumerable<string> GetForeignKeys();
     }
 }

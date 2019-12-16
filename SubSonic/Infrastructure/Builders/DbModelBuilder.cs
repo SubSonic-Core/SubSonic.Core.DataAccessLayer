@@ -9,6 +9,7 @@ using Ext = SubSonic.SubSonicExtensions;
 namespace SubSonic.Infrastructure
 {
     using Schema;
+    using System.Linq.Expressions;
 
     public class DbModelBuilder
     {
@@ -61,11 +62,31 @@ namespace SubSonic.Infrastructure
                 entity.Properties.Add(property);
             }
 
-
-
             model.EntityModels.Add(entity);
 
             return this;
+        }
+
+        public DbModelBuilder AddRelationshipFor<TEntity>(Func<IDbNavigationPropertyBuilder> relationship)
+            where TEntity : class
+        {
+            if (relationship is null)
+            {
+                throw new ArgumentNullException(nameof(relationship));
+            }
+
+            IDbEntityModel entity = model.GetEntityModel<TEntity>();
+
+            entity.RelationshipMaps.Add(relationship().RelationshipMap);
+
+            return this;
+        }
+
+        private DbRelationshipType relationshipType;
+
+        public DbRelationshipBuilder<TEntity> GetRelationshipFor<TEntity>() where TEntity : class
+        {
+            return new DbRelationshipBuilder<TEntity>(model.GetEntityModel<TEntity>());
         }
     }
 }

@@ -17,11 +17,11 @@ namespace SubSonic.Infrastructure
 
         public DbEntityModel()
         {
-            RelationalMappings = new DbRelationalMappingCollection(this);
+            RelationshipMaps = new DbRelationshipMapCollection(this);
             Properties = new DbEntityPropertyCollection(this);
         }
 
-        public ICollection<IDbRelationalMapping> RelationalMappings { get; }
+        public ICollection<IDbRelationshipMap> RelationshipMaps { get; }
 
         public ICollection<IDbEntityProperty> Properties { get; }
 
@@ -29,11 +29,26 @@ namespace SubSonic.Infrastructure
 
         public IDbEntityProperty this[int index] => Properties.ElementAt(index);
 
-        public bool HasRelationships { get; }
+        public bool HasRelationships => RelationshipMaps.Count > 0;
 
         public Type EntityModelType { get; internal set; }
 
         public DbTableExpression Expression => new DbTableExpression(this);
+
+        public IDbRelationshipMap GetRelationshipWith(IDbEntityModel model)
+        {
+            if (model.IsNotNull())
+            {
+                foreach (IDbRelationshipMap map in RelationshipMaps)
+                {
+                    if (map.ForeignModel.QualifiedName == model.QualifiedName)
+                    {
+                        return map;
+                    }
+                }
+            }
+            return null;
+        }
 
         public IEnumerable<string> GetPrimaryKey()
         {

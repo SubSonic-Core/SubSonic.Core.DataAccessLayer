@@ -102,10 +102,15 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (where.IsNotNull())
             {
-                if(where is DbWhereExpression)
+                if (predicate is null)
+                {
+                    throw new ArgumentNullException(nameof(predicate));
+                }
+
+                if (where is DbWhereExpression)
                 {
                     Expression
-                        logical = DbWherePredicateBuilder.GetBodyExpression(((DbWhereExpression)where).LambdaPredicate.Body, predicate.Body, GroupOperator.And);
+                        logical = DbWherePredicateBuilder.GetBodyExpression(((DbWhereExpression)where).LambdaPredicate.Body, predicate.Body, GroupOperator.AndAlso);
                     predicate = BuildLambda(logical, LambdaType.Predicate) as LambdaExpression;
                 }
                 else

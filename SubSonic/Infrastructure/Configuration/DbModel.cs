@@ -32,9 +32,9 @@ namespace SubSonic.Infrastructure
                 .IsNullThrow(new EntityNotRegisteredWithDbModelException(entityModelType));
         }
 
-        public IDbRelationshipMapping GetRelationshipMapping<TEntity, TProperty>()
+        public IDbRelationshipMap GetRelationshipMapping<TEntity, TProperty>()
         {
-            throw new NotImplementedException();
+            return GetEntityModel<TEntity>().GetRelationshipWith(GetEntityModel<TProperty>());
         }
     }
 }

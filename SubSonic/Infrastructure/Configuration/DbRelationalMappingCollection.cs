@@ -7,68 +7,65 @@ namespace SubSonic.Infrastructure
     using Schema;
     using System.Collections;
 
-    public class DbRelationalMappingCollection
-        : ICollection<IDbRelationalMapping>
+    public class DbRelationshipMapCollection
+        : ICollection<IDbRelationshipMap>
     {
         private readonly IDbEntityModel dbEntityModel;
-        private readonly List<IDbRelationalMapping> dbRelationalMappings;
+        private readonly List<IDbRelationshipMap> relationshipMaps;
 
-        public DbRelationalMappingCollection(IDbEntityModel dbEntityModel)
+        public DbRelationshipMapCollection(IDbEntityModel dbEntityModel)
         {
             this.dbEntityModel = dbEntityModel ?? throw new ArgumentNullException(nameof(dbEntityModel));
-            this.dbRelationalMappings = new List<IDbRelationalMapping>();
+            this.relationshipMaps = new List<IDbRelationshipMap>();
         }
 
-        public int Count => dbRelationalMappings.Count;
+        public int Count => relationshipMaps.Count;
 
         public bool IsReadOnly => true;
 
-        public void Add(IDbRelationalMapping item)
+        public void Add(IDbRelationshipMap item)
         {
             if (item is null)
             {
                 throw new ArgumentNullException(nameof(item));
             }
 
-            if (item.EntityModel.Equals(dbEntityModel))
-            {
-                dbRelationalMappings.Add(item);
-            }
+            relationshipMaps.Add(item);
         }
 
         public void Clear()
         {
-            dbRelationalMappings.Clear();
+            relationshipMaps.Clear();
         }
 
-        public bool Contains(IDbRelationalMapping item)
+        public bool Contains(IDbRelationshipMap item)
         {
-            return dbRelationalMappings.Contains(item);
+            return relationshipMaps.Contains(item);
         }
 
-        public void CopyTo(IDbRelationalMapping[] array, int arrayIndex)
+        public void CopyTo(IDbRelationshipMap[] array, int arrayIndex)
         {
-            dbRelationalMappings.CopyTo(array, arrayIndex);
+            relationshipMaps.CopyTo(array, arrayIndex);
         }
 
-        public IEnumerator<IDbRelationalMapping> GetEnumerator()
+        public IEnumerator<IDbRelationshipMap> GetEnumerator()
         {
-            return dbRelationalMappings.GetEnumerator();
+            return relationshipMaps.GetEnumerator();
         }
 
-        public bool Remove(IDbRelationalMapping item)
+        public bool Remove(IDbRelationshipMap item)
         {
             if (item is null)
             {
                 throw new ArgumentNullException(nameof(item));
             }
 
-            return dbRelationalMappings.Remove(item);
+            return relationshipMaps.Remove(item);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IEnumerable)dbRelationalMappings).GetEnumerator();
+            return ((IEnumerable)relationshipMaps).GetEnumerator();
         }
     }
 }
