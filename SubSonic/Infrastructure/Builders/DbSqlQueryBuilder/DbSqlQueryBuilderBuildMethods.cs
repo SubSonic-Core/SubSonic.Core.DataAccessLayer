@@ -12,45 +12,13 @@ namespace SubSonic.Infrastructure.Builders
     using System.Globalization;
     using System.Reflection;
 
-    public class DbSqlQueryBuilder<TEntity>
-        : DbSqlQueryBuilder
-        , ISubSonicQueryProvider<TEntity>
+    public partial class DbSqlQueryBuilder
     {
-        public DbSqlQueryBuilder(ISubSonicLogger<TEntity> logger)
-            : base(typeof(TEntity), logger)
-        {
-        }
-
-        public DbAliasedExpression GetAliasedTable() => DbTable;
-    }
-
-    public class DbSqlQueryBuilder
-        : DbExpressionAccessor
-        , IDbSqlQueryBuilderProvider
-    {
-        private readonly ISubSonicLogger logger;
-        private readonly SubSonicParameterDictionary parameters;
-
-        public DbSqlQueryBuilder(Type dbModelType, ISubSonicLogger logger = null)
-        {
-            if (dbModelType is null)
-            {
-                throw new ArgumentNullException(nameof(dbModelType));
-            }
-
-            this.logger = logger ?? DbContext.ServiceProvider.GetService<ISubSonicLogger>();
-            DbEntity = DbContext.DbModel.GetEntityModel(dbModelType.GetQualifiedType());
-            DbTable = DbEntity.Expression;
-            parameters = new SubSonicParameterDictionary();
-        }
-
-        public SqlQueryType SqlQueryType { get; private set; }
-
-        public IDbEntityModel DbEntity { get; }
-        public DbTableExpression DbTable { get; }
-
+        #region properties
         protected ParameterExpression Parameter => Expression.Parameter(DbEntity.EntityModelType, DbEntity.Name);
+        #endregion
 
+        #region Build Select
         public Expression BuildSelect()
         {
             return new DbSelectExpression(DbTable.Alias, DbTable.Columns, DbTable);
@@ -97,7 +65,9 @@ namespace SubSonic.Infrastructure.Builders
             }
             return expression;
         }
+        #endregion
 
+        #region Build Where
         public Expression BuildWhere(DbTableExpression table, Expression where, Type type, LambdaExpression predicate)
         {
             if (where.IsNotNull())
@@ -121,68 +91,13 @@ namespace SubSonic.Infrastructure.Builders
             return DbExpression.Where(table, type, predicate);
         }
 
-        public IQueryable CreateQuery(Expression expression)
+        public Expression BuildWherePredicate(Expression collection, Expression lambda)
         {
-            using (IPerformanceLogger performance = logger.Start(GetType(), nameof(CreateQuery)))
-            {
-                return new SubSonicCollection(DbEntity.EntityModelType, this, BuildQuery(expression));
-            }
+            return BuildCall("Where", collection, lambda);
         }
+        #endregion
 
-        public IQueryable<TEntity> CreateQuery<TEntity>(Expression expression)
-        {
-            return new SubSonicCollection<TEntity>(this, BuildQuery(expression));
-        }
-
-        public TResult Execute<TResult>(Expression expression)
-        {
-            return (TResult)Execute(expression);
-        }
-
-        public object Execute(Expression expression)
-        {
-            using (AutomaticConnectionScope Scope = DbContext.ServiceProvider.GetService<AutomaticConnectionScope>())
-            using (var perf = logger.Start(GetType(), nameof(Execute)))
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        protected virtual Expression BuildQuery(Expression expression)
-        {
-            if (expression.IsNotNull())
-            {
-                SqlQueryType = GetQueryType(expression);
-            }
-
-            return expression ?? DbEntity.Expression;
-        }
-
-        protected virtual SqlQueryType GetQueryType(Expression expression)
-        {
-            if (expression.IsNotNull())
-            {
-                if (!expression.NodeType.IsDbExpression())
-                {
-                    return SqlQueryType.Unknown;
-                }
-
-                switch((DbExpressionType)expression.NodeType)
-                {
-                    case DbExpressionType.Table:
-                        return SqlQueryType.Unknown;
-                    case DbExpressionType.Select:
-                        return SqlQueryType.Read;
-                    default:
-                        throw new NotSupportedException();
-                }
-            }
-
-            throw new ArgumentNullException(nameof(expression));
-        }
-
-
-
+        #region Lambda
         public Expression BuildCall(string nameofCallee, Expression collection, Expression lambda)
         {
             if (lambda.IsNotNull())
@@ -195,11 +110,6 @@ namespace SubSonic.Infrastructure.Builders
                     lambda);
             }
             return lambda;
-        }
-
-        private Type GetTypeOf(Type type, params Type[] types)
-        {
-            return type.IsGenericType ? type.MakeGenericType(types) : type;
         }
 
         public Expression BuildLambda(Expression body, LambdaType @call, params string[] properties)
@@ -228,22 +138,6 @@ namespace SubSonic.Infrastructure.Builders
             return result;
         }
 
-        private static Type[] GetTypeArguments(LambdaExpression expression)
-        {
-            if (expression.IsNotNull())
-            {
-                IEnumerable<Type> types = expression.Parameters.Select(Param => Param.Type);
-
-                if (!expression.Body.Type.IsBoolean())
-                {   // not a predicate
-                    types = types.Union(new[] { expression.Body.Type });
-                }
-
-                return types.ToArray();
-            }
-            return Array.Empty<Type>();
-        }
-
         public Expression BuildLogicalBinary(Expression body, DbExpressionType type, string property, object value, ComparisonOperator @operator, GroupOperator @group)
         {
             ParameterExpression parameter = Expression.Parameter(DbEntity.EntityModelType, DbEntity.QualifiedName);
@@ -264,12 +158,8 @@ namespace SubSonic.Infrastructure.Builders
                 return DbWherePredicateBuilder.GetBodyExpression(body, DbWherePredicateBuilder.GetComparisonExpression(left, right, @operator), @group);
             }
         }
+        #endregion
 
-        public Expression BuildWherePredicate(Expression collection, Expression lambda)
-        {
-            return BuildCall("Where", collection, lambda);
-        }
-        
         public IDbQueryObject ToQueryObject(Expression exp)
         {
             if (exp is DbSelectExpression)
@@ -279,6 +169,37 @@ namespace SubSonic.Infrastructure.Builders
                 return new DbQueryObject(select.ToString(), ((DbWhereExpression)select.Where)?.Parameters);
             }
             return null;
+        }
+
+        protected virtual Expression BuildQuery(Expression expression)
+        {
+            if (expression.IsNotNull())
+            {
+                SqlQueryType = GetQueryType(expression);
+            }
+
+            return expression ?? DbEntity.Expression;
+        }
+
+        private Type GetTypeOf(Type type, params Type[] types)
+        {
+            return type.IsGenericType ? type.MakeGenericType(types) : type;
+        }
+
+        private static Type[] GetTypeArguments(LambdaExpression expression)
+        {
+            if (expression.IsNotNull())
+            {
+                IEnumerable<Type> types = expression.Parameters.Select(Param => Param.Type);
+
+                if (!expression.Body.Type.IsBoolean())
+                {   // not a predicate
+                    types = types.Union(new[] { expression.Body.Type });
+                }
+
+                return types.ToArray();
+            }
+            return Array.Empty<Type>();
         }
     }
 }

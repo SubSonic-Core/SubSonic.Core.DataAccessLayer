@@ -53,6 +53,16 @@ namespace SubSonic.Tests.DAL.SUT
                 builder.GetRelationshipFor<Models.RealEstateProperty>()
                     .HasOne(Model => Model.Status)
                     .WithOne());
+
+            builder.AddRelationshipFor<Models.Unit>(() =>
+                builder.GetRelationshipFor<Models.Unit>()
+                    .HasOne(Model => Model.RealEstateProperty)
+                    .WithMany(Model => Model.Units));
+
+            builder.AddRelationshipFor<Models.Unit>(() =>
+                builder.GetRelationshipFor<Models.Unit>()
+                    .HasOne(Model => Model.Status)
+                    .WithOne());
         }
     }
 }
