@@ -7,6 +7,10 @@ namespace SubSonic.Linq.Expressions
 {
     public class DbExpressionAccessor
     {
+        public DbExpressionAccessor()
+        {
+        }
+
         public static Expression GetParameter(Expression expression)
         {
             if (expression.IsNotNull())

@@ -14,15 +14,15 @@ namespace SubSonic.Infrastructure
         {
             services
                     .AddSingleton(context)
-                    .AddScoped(provider => DbProviderFactories.GetFactory(options.DbProviderInvariantName))
-                    .AddScoped(provider => SqlQueryProviderFactory.GetProvider(options.SqlQueryProviderInvariantName))
+                    .AddTransient(provider => DbProviderFactories.GetFactory(options.DbProviderInvariantName))
+                    .AddTransient(provider => SqlQueryProviderFactory.GetProvider(options.SqlQueryProviderInvariantName))
                     .AddScoped(typeof(ISubSonicLogger<>), typeof(SubSonicLogger<>))
                     .AddScoped(typeof(ISubSonicLogger), typeof(SubSonicLogger<DbContext>))
-                    .AddScoped(typeof(ISubSonicQueryProvider<>), typeof(DbSqlQueryBuilder<>))
-                    .AddScoped(typeof(DbSetCollection<>))
+                    .AddTransient(typeof(ISubSonicQueryProvider<>), typeof(DbSqlQueryBuilder<>))
+                    .AddTransient(typeof(DbSetCollection<>))
                     .AddScoped<DbDatabase>()
-                    .AddScoped<SharedDbConnectionScope>()
-                    .AddScoped<AutomaticConnectionScope>();
+                    .AddTransient<SharedDbConnectionScope>()
+                    .AddTransient<AutomaticConnectionScope>();
         }
 
         public static void PreCompile(this DbContext context)

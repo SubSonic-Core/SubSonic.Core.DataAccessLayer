@@ -82,8 +82,6 @@ namespace SubSonic.Infrastructure
             return this;
         }
 
-        private DbRelationshipType relationshipType;
-
         public DbRelationshipBuilder<TEntity> GetRelationshipFor<TEntity>() where TEntity : class
         {
             return new DbRelationshipBuilder<TEntity>(model.GetEntityModel<TEntity>());

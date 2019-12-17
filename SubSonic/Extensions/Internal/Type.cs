@@ -131,6 +131,11 @@ namespace SubSonic
             return type == typeof(bool) || type == typeof(bool?);
         }
 
+        public static bool IsEnumerable(this Type type)
+        {
+            return type.GetInterface(typeof(IEnumerable<>).FullName).IsNotNull();
+        }
+
         public static bool IsNullableType(this Type type)
         {
             return (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>));
