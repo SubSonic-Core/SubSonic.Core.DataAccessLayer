@@ -2,12 +2,15 @@
 using SubSonic.Infrastructure.Schema;
 using System;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 
 namespace SubSonic.Data.DynamicProxies
 {
-    internal class DynamicProxyBuilder
+    public delegate void Proxy();
+
+    internal class DynamicProxyBuilder<TEntity>
     {
         private readonly TypeBuilder typeBuilder;
         private readonly Type baseType;
@@ -15,6 +18,18 @@ namespace SubSonic.Data.DynamicProxies
 
         private FieldBuilder fieldDbContextAccessor;
         private FieldBuilder fieldIsDirty;
+        private FieldBuilder fieldIsNew;
+
+        public static class ProxyStub
+        {
+            public static Func<TEntity, TEntity> Data { get; } = (entity) => entity;
+            public static Action<IEntityProxy> OnPropertyChange { get; } =
+                (entity) =>
+                {
+                    entity.IsDirty = true;
+                };
+            
+        }
 
         public DynamicProxyBuilder(TypeBuilder typeBuilder, Type baseType, DbContext dbContext)
         {
@@ -44,48 +59,56 @@ namespace SubSonic.Data.DynamicProxies
                 }
             }
 
-            #region implement IsDirty per the IEntityProxy interface
+            #region implement the IEntityProxy interface
             BuildIsDirtyProperty();
+            BuildIsNewProperty();
+            BuildOnPropertyChangeMethod();
+            #endregion
+
+            #region implement IsDirty per the IEntityProxy<TEntity> interface
+            BuildDataProperty();
             #endregion
 
             return typeBuilder.CreateType();
         }
 
+        private void BuildDataProperty()
+        {
+            PropertyInfo property = BuildProperty<IEntityProxy<TEntity>, TEntity>(entity => entity.Data, getter: () => ProxyStub.Data);
+
+            if (property.CanRead)
+            {
+                typeBuilder.DefineMethodOverride(property.GetMethod, typeof(IEntityProxy<TEntity>).GetProperty(property.Name).GetMethod);
+            }
+
+            if (property.CanWrite)
+            {
+                typeBuilder.DefineMethodOverride(property.SetMethod, typeof(IEntityProxy<TEntity>).GetProperty(property.Name).SetMethod);
+            }
+        }
+
         private void BuildIsDirtyProperty()
         {
-            PropertyBuilder propertyBuilder = typeBuilder.DefineProperty(
-                    "IsDirty",
-                    PropertyAttributes.None,
-                    typeof(bool),
-                    Type.EmptyTypes);
+            BuildProperty<IEntityProxy, bool>((Proxy) => Proxy.IsDirty, fieldIsDirty);
+        }
 
-            MethodAttributes methodAttributesForGetAndSet = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig;
+        private void BuildIsNewProperty()
+        {
+            PropertyInfo property = BuildProperty<IEntityProxy, bool>((Proxy) => Proxy.IsNew, fieldIsNew);
+        }
 
-            MethodBuilder
-                getMethod = typeBuilder.DefineMethod($"get_IsDirty", methodAttributesForGetAndSet | MethodAttributes.Virtual, typeof(bool), Type.EmptyTypes),
-                setMethod = typeBuilder.DefineMethod($"set_IsDirty", methodAttributesForGetAndSet, null, new Type[] { typeof(bool) });
+        private void BuildOnPropertyChangeMethod()
+        {
+            MethodInfo method = BuildMethod<Proxy>(() => ProxyStub.OnPropertyChange);
 
-            ILGenerator
-                iLGetGenerator = getMethod.GetILGenerator(),
-                iLSetGenerator = setMethod.GetILGenerator();
-
-            #region getter
-            iLGetGenerator.Emit(OpCodes.Ldarg_0);
-            iLGetGenerator.Emit(OpCodes.Ldfld, fieldIsDirty);
-            iLGetGenerator.Emit(OpCodes.Ret);
-            #endregion
-            #region setter
-            iLSetGenerator.Emit(OpCodes.Ldarg_0);
-            iLSetGenerator.Emit(OpCodes.Ldarg_1);
-            iLSetGenerator.Emit(OpCodes.Stfld, fieldIsDirty);
-            iLGetGenerator.Emit(OpCodes.Ret);
-            #endregion
+            typeBuilder.DefineMethodOverride(method, typeof(IEntityProxy).GetMethod("OnPropertyChange"));
         }
 
         private void BuildProxyConstructor()
         {
             fieldDbContextAccessor = typeBuilder.DefineField($"_dbContextAccessor", typeof(DbContextAccessor), FieldAttributes.Private);
             fieldIsDirty = typeBuilder.DefineField($"_isDirty", typeof(bool), FieldAttributes.Private);
+            fieldIsNew = typeBuilder.DefineField($"_isNew", typeof(bool), FieldAttributes.Private);
 
             ConstructorInfo baseCtor = baseType.GetConstructor(Type.EmptyTypes);
 
@@ -101,6 +124,11 @@ namespace SubSonic.Data.DynamicProxies
             iLGenerator.Emit(OpCodes.Ldarg_0);
             iLGenerator.Emit(OpCodes.Ldarg_1);
             iLGenerator.Emit(OpCodes.Stfld, fieldDbContextAccessor);
+
+            iLGenerator.Emit(OpCodes.Ldarg_0);
+            iLGenerator.Emit(OpCodes.Ldc_I4, 1);
+            iLGenerator.Emit(OpCodes.Stfld, fieldIsNew);
+
             iLGenerator.Emit(OpCodes.Ret);
         }
 
@@ -249,6 +277,199 @@ namespace SubSonic.Data.DynamicProxies
 
             typeBuilder.DefineMethodOverride(setMethod, baseType.GetProperty(propertyName).SetMethod);
             #endregion
+        }
+
+        public PropertyInfo BuildProperty<TType, TProperty>(Expression<Func<TType, TProperty>> selector, FieldBuilder field = null, Expression<Func<object>> getter = null, Expression<Func<object>> setter = null)
+        {
+            if (selector is null)
+            {
+                throw new ArgumentNullException(nameof(selector));
+            }
+
+            MemberExpression member = selector.Body as MemberExpression;
+
+            if (member.IsNotNull())
+            {
+                MethodAttributes
+                    methodAttributesForGet = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig,
+                    methodAttributesForSet = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig;
+
+                PropertyInfo property = member.Member as PropertyInfo;
+
+                FieldBuilder _field = null;
+                if (getter.IsNull() || setter.IsNotNull())
+                {
+                    _field = field ?? typeBuilder.DefineField($"_{property.Name}", property.PropertyType, FieldAttributes.Private);
+                }
+
+                PropertyBuilder propertyBuilder = typeBuilder.DefineProperty(
+                        property.Name,
+                        PropertyAttributes.None,
+                        property.PropertyType,
+                        Type.EmptyTypes);
+
+                bool
+                    isInterface = typeof(TType).IsInterface;
+
+                string
+                    getterName = property.GetMethod.Name,
+                    setterName = property.CanWrite ? property.SetMethod.Name : $"set_{property.Name}";
+
+                MemberExpression
+                    _getter = getter?.Body as MemberExpression,
+                    _setter = setter?.Body as MemberExpression;
+
+                MethodInfo
+                    getInvoke = null,
+                    setInvoke = null;
+
+                if (_getter?.Member is PropertyInfo)
+                {
+                    getInvoke = ((PropertyInfo)_getter.Member).PropertyType.GetMethod("Invoke");
+                }
+                else if (_getter?.Member is FieldInfo)
+                {
+                    getInvoke = ((FieldInfo)_getter.Member).FieldType.GetMethod("Invoke");
+                }
+                else if(_getter.IsNotNull())
+                {
+                    throw new ArgumentException("", nameof(getter));
+                }
+
+                if (_setter?.Member is PropertyInfo)
+                {
+                    setInvoke = ((PropertyInfo)_setter.Member).PropertyType.GetMethod("Invoke");
+                }
+                else if (_setter?.Member is FieldInfo)
+                {
+                    setInvoke = ((FieldInfo)_setter.Member).FieldType.GetMethod("Invoke");
+                }
+                else if (_setter.IsNotNull())
+                {
+                    throw new ArgumentException("", nameof(setter));
+                }
+
+                if (isInterface)
+                {
+                    if (property.CanRead)
+                    {
+                        methodAttributesForGet = methodAttributesForGet | MethodAttributes.Virtual;
+                    }
+                    if (property.CanWrite)
+                    {
+                        methodAttributesForSet = methodAttributesForSet | MethodAttributes.Virtual;
+                    }
+                }
+
+                MethodBuilder
+                    getMethod = property.CanRead ? typeBuilder.DefineMethod(getterName, methodAttributesForGet, property.PropertyType, Type.EmptyTypes) : null,
+                    setMethod = property.CanWrite ? typeBuilder.DefineMethod(setterName, methodAttributesForSet, null, new Type[] { property.PropertyType }) : null;
+
+                ILGenerator
+                    iLGetGenerator = getMethod?.GetILGenerator(),
+                    iLSetGenerator = setMethod?.GetILGenerator();
+
+                if (property.CanRead)
+                {
+                    #region getter
+                    if (getter.IsNull())
+                    {
+                        iLGetGenerator.Emit(OpCodes.Ldarg_0);
+                        iLGetGenerator.Emit(OpCodes.Ldfld, _field);
+                    }
+                    else
+                    {
+                        if (_getter.Member is PropertyInfo)
+                        {
+                            iLGetGenerator.Emit(OpCodes.Call, ((PropertyInfo)_getter.Member).GetGetMethod());
+                        }
+                        else if (_getter.Member is FieldInfo)
+                        {
+                            iLGetGenerator.Emit(OpCodes.Ldsfld, ((FieldInfo)_getter.Member));
+                        }
+                        iLGetGenerator.Emit(OpCodes.Ldarg_0);
+                        iLGetGenerator.Emit(OpCodes.Callvirt, getInvoke);
+                    }
+                    iLGetGenerator.Emit(OpCodes.Ret);
+                    #endregion
+                }
+
+                if (property.CanWrite)
+                {
+                    #region setter
+                    iLSetGenerator.Emit(OpCodes.Ldarg_0);
+                    iLSetGenerator.Emit(OpCodes.Ldarg_1);
+                    iLSetGenerator.Emit(OpCodes.Stfld, _field);
+
+                    if(setter.IsNotNull())
+                    {
+                        if (_setter.Member is PropertyInfo)
+                        {
+                            iLGetGenerator.Emit(OpCodes.Call, ((PropertyInfo)_setter.Member).GetGetMethod());
+                        }
+                        else if (_setter.Member is FieldInfo)
+                        {
+                            iLGetGenerator.Emit(OpCodes.Ldsfld, ((FieldInfo)_setter.Member));
+                        }
+                        iLGetGenerator.Emit(OpCodes.Ldarg_0);
+                        iLGetGenerator.Emit(OpCodes.Callvirt, getInvoke);
+                    }
+
+                    iLSetGenerator.Emit(OpCodes.Ret);
+                    #endregion
+                }
+
+                return propertyBuilder;
+            }
+
+            return null;
+        }
+
+        public MethodInfo BuildMethod<TType>(Expression<Func<object>> @delegate, Type returnType = null)
+            where TType : class
+        {
+            MemberExpression
+                body = @delegate.Body as MemberExpression;
+
+            Type type = null;
+
+            if (body.Member is PropertyInfo pi)
+            {
+                type = pi.PropertyType;
+            }
+            else if (body.Member is FieldInfo fi)
+            {
+                type = fi.FieldType;
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
+
+            MethodBuilder method = typeBuilder.DefineMethod(
+                body.Member.Name,
+                MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
+                returnType ?? typeof(void),
+                type.GetGenericArguments());
+
+            ILGenerator iL = method.GetILGenerator();
+
+            MethodInfo invoke = type.GetMethod("Invoke");
+
+            if(body.Member is PropertyInfo)
+            {
+                iL.Emit(OpCodes.Call, ((PropertyInfo)body.Member).GetGetMethod());
+            }
+            else if (body.Member is FieldInfo fi)
+            {
+                iL.Emit(OpCodes.Ldsfld, ((FieldInfo)body.Member));
+            }
+
+            iL.Emit(OpCodes.Ldarg_0);
+            iL.Emit(OpCodes.Callvirt, invoke);
+            iL.Emit(OpCodes.Ret);
+
+            return method;
         }
     }
 }

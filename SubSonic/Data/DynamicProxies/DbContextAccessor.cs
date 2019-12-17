@@ -5,6 +5,8 @@ using Ext = SubSonic.SubSonicExtensions;
 namespace SubSonic.Data.DynamicProxies
 {
     using Linq;
+    using SubSonic.Infrastructure;
+
     /// <summary>
     /// 
     /// </summary>

@@ -56,15 +56,15 @@ namespace SubSonic.Linq
             throw new NotSupportedException();
         }
 
-        public static IQueryable<TSource> Select<TSource, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, TResult>> selector)
+        public static IQueryable<TResult> Select<TSource, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, TResult>> selector)
         {
             if (source.IsNotNull() && source.IsSubSonicQuerable())
             {
                 IDbSqlQueryBuilderProvider provider = (IDbSqlQueryBuilderProvider)source.Provider;
 
-                return provider.CreateQuery<TSource>(provider.BuildSelect(source.Expression, selector));
+                return provider.CreateQuery<TResult>(provider.BuildSelect(source.Expression, selector));
             }
-            throw new NotSupportedException();
+            return Queryable.Select(source, selector);
         }
 
         public static IQueryable<TSource> Where<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)

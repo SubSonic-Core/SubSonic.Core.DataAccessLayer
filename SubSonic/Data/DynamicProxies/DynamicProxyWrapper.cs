@@ -5,32 +5,44 @@ using System.Text;
 
 namespace SubSonic.Data.DynamicProxies
 {
-    public class DynamicProxyWrapper
+    public class DynamicProxyWrapper<TEntity>
+        : DynamicProxyWrapper
     {
-        private readonly Type baseType;
-        private readonly DbContext dbContext;
-
-        internal DynamicProxyWrapper(Type baseType, DbContext dbContext)
+        internal DynamicProxyWrapper(DbContext dbContext) 
+            : base(typeof(TEntity), dbContext)
         {
-            this.baseType = baseType ?? throw new ArgumentNullException(nameof(baseType));
-            this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        public bool IsElegibleForProxy => dbContext.Options.EnableProxyGeneration;
-
-        private Type proxyType;
-
-        public Type Type
+        public override Type Type
         {
             get
             {
-                if(!IsElegibleForProxy)
+                if (!IsElegibleForProxy)
                 {
                     return null;
                 }
 
-                return proxyType ?? (proxyType = DynamicProxy.BuildDerivedTypeFrom(baseType, dbContext));
+                return ProxyType ?? (ProxyType = DynamicProxy.BuildDerivedTypeFrom<TEntity>(DbContext));
             }
         }
+}
+
+    public abstract class DynamicProxyWrapper
+    {
+        internal DynamicProxyWrapper(Type baseType, DbContext dbContext)
+        {
+            BaseType = baseType ?? throw new ArgumentNullException(nameof(baseType));
+            DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+        }
+        
+        protected Type BaseType { get; }
+
+        protected DbContext DbContext { get; }
+
+        public bool IsElegibleForProxy => DbContext.Options.EnableProxyGeneration;
+
+        protected Type ProxyType { get; set; }
+
+        public abstract Type Type { get; }
     }
 }

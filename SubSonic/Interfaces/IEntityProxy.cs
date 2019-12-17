@@ -4,8 +4,17 @@ using System.Text;
 
 namespace SubSonic.Infrastructure
 {
+    public interface IEntityProxy<TEntity>
+        : IEntityProxy
+    {
+        TEntity Data { get; }
+    }
+
     public interface IEntityProxy
     {
-        bool IsDirty { get; }
+        bool IsDirty { get; set; }
+        bool IsNew { get; set; }
+
+        void OnPropertyChange(IEntityProxy proxy);
     }
 }

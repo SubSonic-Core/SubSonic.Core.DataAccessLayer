@@ -43,18 +43,20 @@ namespace SubSonic.Data.DynamicProxies
 
             if (!DynamicProxyCache.ContainsKey(baseType.FullName))
             {
-                DynamicProxyCache.Add(baseType.FullName, new DynamicProxyWrapper(baseType, dbContext));
+                DynamicProxyCache.Add(baseType.FullName, new DynamicProxyWrapper<TEntity>(dbContext));
             }
 
             return DynamicProxyCache[baseType.FullName];
         }
 
-        internal static Type BuildDerivedTypeFrom(Type baseType, DbContext dbContext)
+        internal static Type BuildDerivedTypeFrom<TEntity>(DbContext dbContext)
         {
-            DynamicProxyBuilder proxyBuilder = new DynamicProxyBuilder(ModuleBuilder.DefineType(
+            Type baseType = typeof(TEntity);
+
+            DynamicProxyBuilder<TEntity> proxyBuilder = new DynamicProxyBuilder<TEntity>(ModuleBuilder.DefineType(
                 $"{assemblyName.FullName}.{baseType.Name}",
                 TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.AutoClass | TypeAttributes.AnsiClass | TypeAttributes.BeforeFieldInit | TypeAttributes.AutoLayout,
-                baseType, new[] { typeof(IEntityProxy) }), baseType, dbContext);
+                baseType, new[] { typeof(IEntityProxy<>).MakeGenericType(baseType), typeof(IEntityProxy) }), baseType, dbContext);
 
             return proxyBuilder.CreateType();
         }            

@@ -3,13 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Collections.ObjectModel;
 
 namespace SubSonic.Infrastructure
 {
+    using Schema;
     using Builders;
     using Logging;
-    using System.Collections.ObjectModel;
-
+    
     public sealed class SubSonicCollection<TElement>
         : SubSonicCollection
         , ISubSonicCollection<TElement>
@@ -67,12 +68,20 @@ namespace SubSonic.Infrastructure
         public SubSonicCollection(Type elementType)
         {
             ElementType = elementType ?? throw new ArgumentNullException(nameof(elementType));
-            Expression = DbContext.DbModel.GetEntityModel(elementType).Expression;
+
+            if (DbContext.DbModel.TryGetEntityModel(elementType, out IDbEntityModel model))
+            {
+                Expression = model.Expression;
+            }
+            else
+            {
+                Expression = Expression.Parameter(elementType);
+            }
         }
         public SubSonicCollection(Type elementType, IQueryProvider provider, Expression expression)
             : this(elementType)
         {
-            Expression = expression ?? DbContext.DbModel.GetEntityModel(elementType).Expression;
+            Expression = expression ?? throw new ArgumentNullException(nameof(expression));
             Provider = provider ?? new DbSqlQueryBuilder(ElementType, DbContext.ServiceProvider.GetService<ISubSonicLogger>());
             TableData = new ObservableCollection<object>();
         }

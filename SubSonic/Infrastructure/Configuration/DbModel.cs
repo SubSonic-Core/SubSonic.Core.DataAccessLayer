@@ -20,9 +20,31 @@ namespace SubSonic.Infrastructure
 
         public ICollection<DbEntityModel> EntityModels { get; }
 
+        public bool TryGetEntityModel<TEntity>(out IDbEntityModel model)
+        {
+            return TryGetEntityModel(typeof(TEntity), out model);
+        }
+
         public IDbEntityModel GetEntityModel<TEntity>()
         {
             return GetEntityModel(typeof(TEntity));
+        }
+
+        public bool TryGetEntityModel(Type entityModelType, out IDbEntityModel model)
+        {
+            model = null;
+
+            try
+            {
+                model = GetEntityModel(entityModelType);
+            }
+#pragma warning disable CA1031 // Do not catch general exception types
+            catch
+#pragma warning restore CA1031 // Do not catch general exception types
+            {
+            }
+
+            return model.IsNotNull();
         }
 
         public IDbEntityModel GetEntityModel(Type entityModelType)

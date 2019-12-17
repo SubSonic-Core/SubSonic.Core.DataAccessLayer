@@ -207,56 +207,12 @@ WHERE ([{0}].[IsAvailableStatus] = @IsAvailableStatus) <> 0".Format("T1");
         }
 
         [Test]
-        public void CanGenerateSelectWithKeyColumnWithContraintsReversed()
-        {
-            string expected =
-@"SELECT [{0}].[ID]
-FROM [dbo].[Status] AS [{0}]
-WHERE ([{0}].[IsAvailableStatus] = @IsAvailableStatus) <> 0".Format("T1");
-
-            Expression select = DbContext
-                .Statuses
-                .Select(Status => Status.ID)
-                .Where(Status => Status.IsAvailableStatus == true)
-                .Expression;
-
-            select.Should().BeOfType<DbSelectExpression>();
-
-            IDbQueryObject query = null;
-
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
-
-            using (var perf = logging.Start("SQL Query Writer"))
-            {
-                FluentActions.Invoking(() =>
-                {
-                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
-
-                    query = builder.ToQueryObject(select);
-                }).Should().NotThrow();
-            }
-
-            query.Should().NotBeNull();
-
-            query.Sql.Should().NotBeNullOrEmpty();
-            query.Sql.Should().StartWith("SELECT");
-
-            logging.LogInformation("\n" + query.Sql + "\n");
-
-            query.Sql.Should().Be(expected);
-
-            query.Parameters.Should().NotBeEmpty();
-            query.Parameters.ElementAt(0).ParameterName.Should().Be("@IsAvailableStatus");
-            query.Parameters.ElementAt(0).DbType.Should().Be(DbType.Boolean);
-        }
-
-        [Test]
         public void CanMergeMultipleWhereStatements()
         {
             string expected =
 @"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID]
 FROM [dbo].[Unit] AS [{0}]
-WHERE ([{0}].[RealEstatePropertyID] = @RealEstatePropertyID AND [{0}].[StatusID] = @StatusID) <> 0".Format("T1");
+WHERE (([{0}].[RealEstatePropertyID] = @RealEstatePropertyID) AND ([{0}].[StatusID] = @StatusID)) <> 0".Format("T1");
 
             RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(DbContext);
 
