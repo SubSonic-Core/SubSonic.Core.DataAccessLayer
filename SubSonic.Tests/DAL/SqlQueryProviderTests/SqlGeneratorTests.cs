@@ -12,6 +12,7 @@ namespace SubSonic.Tests.DAL.SqlQueryProvider
     using Infrastructure.Logging;
     using Linq;
     using Linq.Expressions;
+    using SubSonic.Extensions.Test;
     using SubSonic.Infrastructure;
 
     [TestFixture]
@@ -209,7 +210,16 @@ WHERE ([{0}].[IsAvailableStatus] = @IsAvailableStatus) <> 0".Format("T1");
         [Test]
         public void CanMergeMultipleWhereStatements()
         {
-            string expected =
+            string 
+                units =
+@"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID]
+FROM [dbo].[Unit] AS [{0}]
+WHERE ([{0}].[RealEstatePropertyID] = 1) <> 0".Format("T1"),
+                status =
+@"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID]
+FROM [dbo].[Unit] AS [{0}]
+WHERE (([{0}].[RealEstatePropertyID] = 1) AND ([{0}].[StatusID] = 1)) <> 0".Format("T1"),
+                expected =
 @"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID]
 FROM [dbo].[Unit] AS [{0}]
 WHERE (([{0}].[RealEstatePropertyID] = @RealEstatePropertyID) AND ([{0}].[StatusID] = @StatusID)) <> 0".Format("T1");
@@ -218,6 +228,14 @@ WHERE (([{0}].[RealEstatePropertyID] = @RealEstatePropertyID) AND ([{0}].[Status
 
             instance.ID = 1;
             instance.StatusID = 1;
+
+            DbContext.Database.Instance.AddCommandBehavior(
+                units,
+                Units.Where(x => x.RealEstatePropertyID == 1));
+
+            DbContext.Database.Instance.AddCommandBehavior(
+                status,
+                Units.Where(x => x.RealEstatePropertyID == 1 && x.StatusID == 1));
 
             Expression select = ((ISubSonicCollection<Unit>)instance.Units.Where(Unit => Unit.StatusID == 1)).Expression;
 

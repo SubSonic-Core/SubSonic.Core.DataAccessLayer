@@ -29,7 +29,7 @@ namespace SubSonic.Extensions.Test.Data.Builders
 
         public DataTableBuilder AddColumn(string name, Type type)
         {
-            _table.Columns.Add(name, type);
+            _table.Columns.Add(name, type.GetUnderlyingType());
             return this;
         }
 

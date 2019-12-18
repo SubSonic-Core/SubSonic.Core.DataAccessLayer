@@ -123,7 +123,8 @@ namespace SubSonic.Data.DynamicProxies
 
             return DbContext
                 .Set<TProperty>()
-                .FindByID(keyData, foreignKeys);
+                .FindByID(keyData, foreignKeys)
+                .Load();
         }
 
         public object[] GetKeyData<TEntity>(TEntity entity, string[] keys)

@@ -80,6 +80,7 @@ namespace SubSonic.Tests.MockDbProviderFactoryTests.SUT
 
                     var p2 = cmd.CreateParameter();
                     p2.ParameterName = "@password";
+                    p2.Value = "@SAP!GIVEME";
                     cmd.Parameters.Add(p2);
 
                     return (int)cmd.ExecuteScalar();

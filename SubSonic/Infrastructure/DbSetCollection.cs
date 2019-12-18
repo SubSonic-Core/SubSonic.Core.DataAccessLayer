@@ -68,12 +68,30 @@ namespace SubSonic.Infrastructure
 
         public IEnumerator GetEnumerator()
         {
+            if (queryableData.Count == 0)
+            {
+                Load();
+            }
             return ((IEnumerable)queryableData).GetEnumerator();
         }
 
         IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()
         {
+            if (queryableData.Count == 0)
+            {
+                Load();
+            }
             return queryableData.GetEnumerator();
+        }
+
+        private IQueryable<TEntity> Load()
+        {
+            foreach(TEntity entity in SubSonicLinqExtensions.Load(this.Select()))
+            {
+                Add(entity);
+            }
+
+            return this;
         }
         #endregion
 

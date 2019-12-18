@@ -91,7 +91,7 @@ namespace SubSonic.Infrastructure
         {
             TableData = new List<object>(elements);
 
-            if (!TableData.ElementAt(0).IsOfType(elementType))
+            if (TableData.Count > 0 && !TableData.ElementAt(0).IsOfType(elementType))
             {
                 throw new NotSupportedException();
             }

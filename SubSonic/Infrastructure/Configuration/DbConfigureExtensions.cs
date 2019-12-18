@@ -6,6 +6,7 @@ using System.Data.Common;
 namespace SubSonic.Infrastructure
 {
     using Schema;
+    using SubSonic.Data.DynamicProxies;
     using System.Linq;
 
     internal static class DbConfigureExtensions
@@ -16,6 +17,7 @@ namespace SubSonic.Infrastructure
                     .AddSingleton(context)
                     .AddTransient(provider => DbProviderFactories.GetFactory(options.DbProviderInvariantName))
                     .AddTransient(provider => SqlQueryProviderFactory.GetProvider(options.SqlQueryProviderInvariantName))
+                    .AddScoped<DbContextAccessor>()
                     .AddScoped(typeof(ISubSonicLogger<>), typeof(SubSonicLogger<>))
                     .AddScoped(typeof(ISubSonicLogger), typeof(SubSonicLogger<DbContext>))
                     .AddTransient(typeof(ISubSonicQueryProvider<>), typeof(DbSqlQueryBuilder<>))

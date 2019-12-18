@@ -14,7 +14,7 @@ namespace SubSonic.Linq
         {
             return source is ISubSonicCollection<TSource>;
         }
-        public static IEnumerable<TEntity> Load<TEntity>(this IQueryable<TEntity> query)
+        public static IQueryable<TEntity> Load<TEntity>(this IQueryable<TEntity> query)
         {
             if (query is null)
             {

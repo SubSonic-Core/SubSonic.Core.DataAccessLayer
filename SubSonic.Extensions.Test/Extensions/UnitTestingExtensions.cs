@@ -15,14 +15,51 @@ namespace SubSonic.Extensions.Test
 
     public static partial class SubSonicTestExtensions
     {
-        public static string GetSql<TEntity>(this ICollection<TEntity> query)
+        public static string GetSql<TEntity>(this ICollection<TEntity> entities)
         {
-            if (query.IsNotNull() && query.IsSubSonicQuerable())
+            if (entities is null)
             {
-                return ((IQueryable<TEntity>)query).Expression.ToString();
+                return "";
             }
+
+            if (entities.IsSubSonicQuerable())
+            {
+                return ((IQueryable<TEntity>)entities).Expression.ToString();
+            }
+
             return "";
         }
+
+        public static string GetSql<TEntity>(this IEnumerable<TEntity> entities)
+        {
+            if (entities is null)
+            {
+                return "";
+            }
+
+            if (entities.IsSubSonicQuerable())
+            {
+                return ((IQueryable<TEntity>)entities).Expression.ToString();
+            }
+
+            return "";
+        }
+
+        public static string GetSql<TEntity>(this IQueryable<TEntity> entities)
+        {
+            if (entities is null)
+            {
+                return "";
+            }
+
+            if (entities.IsSubSonicQuerable())
+            {
+                return (entities).Expression.ToString();
+            }
+
+            return "";
+        }
+
         public static void AddCommandBehavior<TEntity>(this DbProviderFactory factory, string command, IEnumerable<TEntity> entities)
         {
             if (factory is null)
