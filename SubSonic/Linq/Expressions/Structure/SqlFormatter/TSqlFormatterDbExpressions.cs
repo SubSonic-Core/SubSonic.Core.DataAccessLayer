@@ -260,13 +260,13 @@ namespace SubSonic.Linq.Expressions.Structure
                     Write(Fragments.LEFT_PARENTHESIS);
                     this.Indent(Indentation.Outer);
                 }
-                else if (@in.Values != null)
+                else if (@in.Array != null)
                 {
-                    for (int i = 0, n = @in.Values.Count; i < n; i++)
-                    {
-                        if (i > 0) Write($"{Fragments.COMMA} ");
-                        this.VisitValue(@in.Values[i]);
-                    }
+                    //for (int i = 0, n = @in.Array.Count; i < n; i++)
+                    //{
+                    //    if (i > 0) Write($"{Fragments.COMMA} ");
+                    //    this.VisitValue(@in.Array[i]);
+                    //}
                     Write(Fragments.LEFT_PARENTHESIS);
                 }
             }

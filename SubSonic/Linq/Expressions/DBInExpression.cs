@@ -12,15 +12,11 @@ namespace SubSonic.Linq.Expressions
         {
             Expression = expression;
         }
-        public DbInExpression(Expression expression, IEnumerable<Expression> values)
+        public DbInExpression(Expression expression, NewArrayExpression array)
             : this(DbExpressionType.In)
         {
             Expression = expression;
-            Values = values as ReadOnlyCollection<Expression>;
-            if (Values == null && values != null)
-            {
-                Values = new List<Expression>(values).AsReadOnly();
-            }
+            Array = array;
         }
 
         protected DbInExpression(DbExpressionType eType, DbExpression expression = null)
@@ -30,6 +26,6 @@ namespace SubSonic.Linq.Expressions
         }
 
         public override Expression Expression { get; }
-        public virtual ReadOnlyCollection<Expression> Values { get; }
+        public virtual NewArrayExpression Array { get; }
     }
 }

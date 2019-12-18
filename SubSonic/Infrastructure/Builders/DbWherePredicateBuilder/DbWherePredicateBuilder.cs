@@ -1,4 +1,5 @@
 ﻿using SubSonic.Infrastructure.Schema;
+using SubSonic.Linq;
 using SubSonic.Linq.Expressions;
 using SubSonic.Linq.Expressions.Structure;
 using System;
@@ -113,6 +114,15 @@ namespace SubSonic.Infrastructure.Builders
                         result = Expression.LessThanOrEqual(left, right);
                     }
                     break;
+                case ComparisonOperator.In:
+                case ComparisonOperator.NotIn:
+                    {
+                        MethodInfo
+                                oMethod = typeof(SubSonicLinqExtensions).GetMethod(((DbExpressionType)right.NodeType).ToString(), 1, BindingFlags.Public | BindingFlags.Static, null, new Type[] { left.Type, ((DbInExpression)right).Array.Type }, new[] { new ParameterModifier(2) });
+
+                        result = Expression.Call(left, oMethod, right);
+                    }
+                    break;
                 default:
                     throw new NotImplementedException($"{@operator} operation is not implemented.");
             }
@@ -178,13 +188,26 @@ namespace SubSonic.Infrastructure.Builders
         {
             IDbEntityProperty property = table.Model[propertyInfo.Name];
 
-            parameters.Add(DbExpressionType.Where, new SubSonicParameter(property, $"@{property.Name}") { Value = value });
+            string name = "";
+
+            if (comparison == ComparisonOperator.In || comparison == ComparisonOperator.NotIn)
+            {
+                name = $"el_{parameters[DbExpressionType.Where].IsNotNull(x => x.Count) + 1}";
+
+                parameters.Add(DbExpressionType.Where, new SubSonicParameter(property, $"@{name}") { Value = value });
+            }
+            else
+            {
+                name = property.Name;
+
+                parameters.Add(DbExpressionType.Where, new SubSonicParameter(property, $"@{name}") { Value = value });
+            }
 
             Type ConstantType = propertyInfo.PropertyType.GetUnderlyingType();
 
             return new DbNamedValueExpression(
-                property.Name,
-                Expression.Constant(Convert.ChangeType(value, ConstantType, CultureInfo.CurrentCulture), ConstantType));
+                    name,
+                    Expression.Constant(Convert.ChangeType(value, ConstantType, CultureInfo.CurrentCulture), ConstantType));
         }
     }
 }

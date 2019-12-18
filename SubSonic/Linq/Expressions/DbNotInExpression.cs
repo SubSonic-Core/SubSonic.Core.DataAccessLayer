@@ -12,18 +12,14 @@ namespace SubSonic.Linq.Expressions
         {
             Expression = expression;
         }
-        public DbNotInExpression(Expression expression, IEnumerable<Expression> values)
+        public DbNotInExpression(Expression expression, NewArrayExpression array)
             : base(DbExpressionType.NotIn)
         {
             Expression = expression;
-            Values = values as ReadOnlyCollection<Expression>;
-            if (Values == null && values != null)
-            {
-                Values = new List<Expression>(values).AsReadOnly();
-            }
+            Array = array;
         }
 
         public override Expression Expression { get; }
-        public override ReadOnlyCollection<Expression> Values { get; }
+        public override NewArrayExpression Array { get; }
     }
 }

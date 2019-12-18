@@ -54,7 +54,42 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (node.IsNotNull())
             {
-                throw new NotImplementedException();
+                if (node is MethodCallExpression call)
+                {
+                    comparison = (ComparisonOperator)Enum.Parse(typeof(ComparisonOperator), call.Method.Name);
+
+                    foreach (Expression argument in call.Arguments)
+                    {
+                        Visit(argument);
+                    }
+
+                    if(call.Arguments[1] is DbSelectExpression select)
+                    {
+                        switch(comparison)
+                        {
+                            case ComparisonOperator.In:
+                                right = new DbInExpression(node, select);
+                                break;
+                            case ComparisonOperator.NotIn:
+                                right = new DbNotInExpression(node, select);
+                                break;
+                        }
+                    }
+                    else if (call.Arguments[1] is NewArrayExpression array)
+                    {
+                        switch (comparison)
+                        {
+                            case ComparisonOperator.In:
+                                right = new DbInExpression(node, array);
+                                break;
+                            case ComparisonOperator.NotIn:
+                                right = new DbNotInExpression(node, array);
+                                break;
+                        }
+                    }
+
+                    BuildLogicalExpression();
+                }
             }
             return base.VisitMethodCall(node);
         }
@@ -77,6 +112,16 @@ namespace SubSonic.Infrastructure.Builders
         {
             right = GetNamedExpression(node.Value);
 
+            if (comparison != ComparisonOperator.In && comparison != ComparisonOperator.NotIn)
+            {
+                BuildLogicalExpression();
+            }
+
+            return base.VisitConstant(node);
+        }
+
+        protected virtual void BuildLogicalExpression()
+        {
             if (body.IsNull())
             {
                 body = GetComparisonExpression(left, right, comparison);
@@ -88,8 +133,6 @@ namespace SubSonic.Infrastructure.Builders
             // clear out the left right values in prep for the next one
             left = right = null;
             propertyInfo = null;
-
-            return base.VisitConstant(node);
         }
     }
 }

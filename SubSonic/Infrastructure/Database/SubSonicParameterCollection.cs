@@ -23,7 +23,7 @@ namespace SubSonic.Infrastructure
 
         public bool IsReadOnly => parameters.IsReadOnly;
 
-        public List<SubSonicParameter> this[DbExpressionType key] { get => parameters[key]; set => parameters[key] = value;}
+        public List<SubSonicParameter> this[DbExpressionType key] { get => parameters.ContainsKey(key) ? parameters[key] : null; set => parameters[key] = value;}
 
         public ICollection<DbExpressionType> Keys => parameters.Keys;
 

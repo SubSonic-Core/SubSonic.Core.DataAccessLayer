@@ -239,15 +239,15 @@ namespace SubSonic.Linq.Expressions.Structure
             }
             else
             {
-                IEnumerable<Expression> values = this.VisitExpressionList(inExp.Values);
-                if (expr != inExp.Expression || values != inExp.Values)
+                NewArrayExpression array = inExp.Array;
+                if (expr != inExp.Expression || array != inExp.Array)
                 {
                     switch ((DbExpressionType)inExp.NodeType)
                     {
                         case DbExpressionType.In:
-                            return new DbInExpression(expr, values);
+                            return new DbInExpression(expr, array);
                         case DbExpressionType.NotIn:
-                            return new DbNotInExpression(expr, values);
+                            return new DbNotInExpression(expr, array);
                     }
                 }
             }

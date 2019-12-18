@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SubSonic.Infrastructure;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -50,6 +52,23 @@ namespace SubSonic
             }
 
             return (TType)source.GetValue(value, index);
+        }
+
+        public static SubSonicParameter Get(this IReadOnlyCollection<SubSonicParameter> parameters, string name)
+        {
+            if (parameters is null)
+            {
+                throw new ArgumentNullException(nameof(parameters));
+            }
+
+            foreach (SubSonicParameter parameter in parameters)
+            {
+                if(parameter.ParameterName == name)
+                {
+                    return parameter;
+                }
+            }
+            return null;
         }
 
         public static void Map<TDestination, TSource>(this TDestination destination, TSource source, Func<string, string> nameOf = null)
