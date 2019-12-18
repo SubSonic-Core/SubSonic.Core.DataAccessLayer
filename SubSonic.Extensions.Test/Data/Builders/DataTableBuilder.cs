@@ -9,9 +9,9 @@ namespace SubSonic.Extensions.Test.Data.Builders
     public class DataTableBuilder : IDisposable
     {
         private DataTable _table;
-        public DataTableBuilder()
+        public DataTableBuilder(string tableName = null)
         {
-            _table = new DataTable();
+            _table = new DataTable(tableName);
         }
 
         public DataTable DataTable
@@ -21,6 +21,12 @@ namespace SubSonic.Extensions.Test.Data.Builders
                 return _table;
             }
         }
+
+        public DataRow CreateRow()
+        {
+            return _table.NewRow();
+        }
+
         public DataTableBuilder AddColumn(string name, Type type)
         {
             _table.Columns.Add(name, type);
@@ -31,6 +37,11 @@ namespace SubSonic.Extensions.Test.Data.Builders
         {
             _table.Rows.Add(data);
             return this;
+        }
+
+        public void AddRow(DataRow row)
+        {
+            _table.Rows.Add(row);
         }
 
         #region IDisposable Support

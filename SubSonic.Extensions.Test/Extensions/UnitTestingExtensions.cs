@@ -1,16 +1,55 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Text;
+using System.Linq;
 
 namespace SubSonic.Extensions.Test
 {
+    using Data.Builders;
     using Infrastructure;
-    using System.Linq;
-    using static SubSonic.Infrastructure.DbContextOptionsBuilder;
+    using Infrastructure.Schema;
+    using MockDbClient;
+    using System.Data;
 
     public static partial class SubSonicTestExtensions
     {
+        public static void AddCommandBehavior<TEntity>(this MockDbClientFactory factory, string command, IEnumerable<TEntity> entities)
+        {
+            if (factory is null)
+            {
+                throw new ArgumentNullException(nameof(factory));
+            }
+
+            if (string.IsNullOrEmpty(command))
+            {
+                throw new ArgumentException("", nameof(command));
+            }
+
+            if (entities is null)
+            {
+                throw new ArgumentNullException(nameof(entities));
+            }
+
+            IDbEntityModel model = DbContext.DbModel.GetEntityModel<TEntity>();
+
+            using (DataTableBuilder table = new DataTableBuilder(model.Name))
+            {
+                foreach(IDbEntityProperty property in model.Properties)
+                {
+                    table.AddColumn(property.Name, property.PropertyType);
+                }
+
+                foreach(TEntity entity in entities)
+                {
+                    DataRow row = table.CreateRow();
+
+                    foreach (IDbEntityProperty property in model.Properties)
+                    {
+                        table.AddColumn(property.Name, property.PropertyType);
+                    }
+                }
+            }
+        }
         public static void UpdateProviders(this DbContext dbContext, string dbProviderInvariantName, string sqlQueryProviderInvariantName = null)
         {
             if (dbContext is null)
