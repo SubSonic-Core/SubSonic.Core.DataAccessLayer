@@ -64,6 +64,8 @@ namespace SubSonic.Infrastructure
 
             model.EntityModels.Add(entity);
 
+            model.GenerateProxy<TEntity>();
+
             return this;
         }
 

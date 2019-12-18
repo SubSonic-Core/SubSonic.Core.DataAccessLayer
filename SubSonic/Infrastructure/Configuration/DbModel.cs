@@ -6,6 +6,7 @@ using System.Text;
 namespace SubSonic.Infrastructure
 {
     using Schema;
+    using SubSonic.Data.DynamicProxies;
 
     public class DbModel
     {
@@ -17,8 +18,16 @@ namespace SubSonic.Infrastructure
 
             EntityModels = new List<DbEntityModel>();
         }
-
+        
         public ICollection<DbEntityModel> EntityModels { get; }
+
+        internal void GenerateProxy<TEntity>()
+        {
+            if (dbContext.Options.EnableProxyGeneration)
+            {
+                DynamicProxy.GetProxyWrapper<TEntity>(dbContext);
+            }
+        }
 
         public bool TryGetEntityModel<TEntity>(out IDbEntityModel model)
         {
@@ -50,7 +59,7 @@ namespace SubSonic.Infrastructure
         public IDbEntityModel GetEntityModel(Type entityModelType)
         {
             return EntityModels
-                .SingleOrDefault(model => model.EntityModelType == entityModelType)
+                .SingleOrDefault(model => model.EntityModelType == entityModelType || model.EntityModelType == entityModelType.BaseType)
                 .IsNullThrow(new EntityNotRegisteredWithDbModelException(entityModelType));
         }
 

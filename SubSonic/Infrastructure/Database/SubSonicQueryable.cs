@@ -28,7 +28,7 @@ namespace SubSonic.Infrastructure
         }
 
         public SubSonicCollection(IQueryProvider provider, Expression expression, IEnumerable<TElement> enumerable)
-            : base(typeof(TElement), provider, expression, enumerable)
+            : base(typeof(TElement), provider, expression, Array.ConvertAll(enumerable.ToArray(), (ele) => ele as object))
         {
 
         }
@@ -86,10 +86,10 @@ namespace SubSonic.Infrastructure
             TableData = new ObservableCollection<object>();
         }
 
-        public SubSonicCollection(Type elementType, IQueryProvider provider, Expression expression, IEnumerable enumerable)
+        public SubSonicCollection(Type elementType, IQueryProvider provider, Expression expression, IEnumerable<object> elements)
             : this(elementType, provider, expression)
         {
-            TableData = new List<object>(enumerable as ICollection<object>);
+            TableData = new List<object>(elements);
 
             if (!TableData.ElementAt(0).IsOfType(elementType))
             {

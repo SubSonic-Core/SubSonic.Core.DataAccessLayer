@@ -9,11 +9,21 @@ namespace SubSonic.Extensions.Test
     using Infrastructure;
     using Infrastructure.Schema;
     using MockDbClient;
+    using SubSonic.Extensions.Test.MockDbClient.Syntax;
+    using SubSonic.Linq;
     using System.Data;
 
     public static partial class SubSonicTestExtensions
     {
-        public static void AddCommandBehavior<TEntity>(this MockDbClientFactory factory, string command, IEnumerable<TEntity> entities)
+        public static string GetSql<TEntity>(this ICollection<TEntity> query)
+        {
+            if (query.IsNotNull() && query.IsSubSonicQuerable())
+            {
+                return ((IQueryable<TEntity>)query).Expression.ToString();
+            }
+            return "";
+        }
+        public static void AddCommandBehavior<TEntity>(this DbProviderFactory factory, string command, IEnumerable<TEntity> entities)
         {
             if (factory is null)
             {
@@ -34,9 +44,12 @@ namespace SubSonic.Extensions.Test
 
             using (DataTableBuilder table = new DataTableBuilder(model.Name))
             {
-                foreach(IDbEntityProperty property in model.Properties)
+                foreach (IDbEntityProperty property in model.Properties)
                 {
-                    table.AddColumn(property.Name, property.PropertyType);
+                    if (property.EntityPropertyType == DbEntityPropertyType.Value)
+                    {
+                        table.AddColumn(property.Name, property.PropertyType);
+                    }
                 }
 
                 foreach(TEntity entity in entities)
@@ -45,8 +58,22 @@ namespace SubSonic.Extensions.Test
 
                     foreach (IDbEntityProperty property in model.Properties)
                     {
-                        table.AddColumn(property.Name, property.PropertyType);
+                        if (property.EntityPropertyType == DbEntityPropertyType.Value)
+                        {
+                            row[property.Name] = model.EntityModelType
+                                .GetProperty(property.PropertyName)
+                                .GetValue(entity);
+                        }
                     }
+
+                    table.AddRow(row);
+                }
+
+                if (factory is MockDbClientFactory db)
+                {
+                    db.AddBehavior(new MockCommandBehavior()
+                        .When((cmd) => cmd.CommandText == command)
+                        .ReturnsData(table.DataTable));
                 }
             }
         }

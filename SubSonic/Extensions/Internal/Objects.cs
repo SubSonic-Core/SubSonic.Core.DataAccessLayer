@@ -20,7 +20,9 @@ namespace SubSonic
 
         public static bool IsOfType(this object source, Type type)
         {
-            return source.GetType().Equals(type);
+            Type sourceType = source.GetType();
+
+            return sourceType == type || sourceType.IsSubclassOf(type);
         }
 
         public static IEnumerable<TType> Convert<TType>(this IEnumerable array)
@@ -109,5 +111,7 @@ namespace SubSonic
         {
             return left.Equals(GetDefault(type));
         }
+
+
     }
 }

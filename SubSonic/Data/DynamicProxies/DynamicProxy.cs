@@ -1,6 +1,8 @@
 ﻿using SubSonic.Infrastructure;
+using SubSonic.Infrastructure.Schema;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
@@ -37,6 +39,21 @@ namespace SubSonic.Data.DynamicProxies
             }
         }
 
+        public static DynamicProxyWrapper GetProxyWrapper(Type proxyType)
+        {
+            if (proxyType is null)
+            {
+                throw new ArgumentNullException(nameof(proxyType));
+            }
+
+            if (!DynamicProxyCache.ContainsKey(proxyType.FullName))
+            {
+                throw new InvalidOperationException();
+            }
+
+            return DynamicProxyCache[proxyType.FullName];
+        }
+
         public static DynamicProxyWrapper GetProxyWrapper<TEntity>(DbContext dbContext)
         {
             Type baseType = typeof(TEntity);
@@ -46,7 +63,7 @@ namespace SubSonic.Data.DynamicProxies
                 DynamicProxyCache.Add(baseType.FullName, new DynamicProxyWrapper<TEntity>(dbContext));
             }
 
-            return DynamicProxyCache[baseType.FullName];
+            return GetProxyWrapper(baseType);
         }
 
         internal static Type BuildDerivedTypeFrom<TEntity>(DbContext dbContext)

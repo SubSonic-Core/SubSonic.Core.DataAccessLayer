@@ -5,6 +5,8 @@ using System.Linq.Expressions;
 namespace SubSonic.Infrastructure.Builders
 {
     using Logging;
+    using System.Collections;
+    using System.Collections.Generic;
     using System.Data;
     using System.Data.Common;
 
@@ -37,12 +39,16 @@ namespace SubSonic.Infrastructure.Builders
                     
                     DbDataReader reader = (DbDataReader)Execute(expression);
 
-                    while(reader.Read())
-                    {
+                    Type elementType = typeof(TResult).GetQualifiedType();
 
+                    IList results = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(elementType));
+
+                    while (reader.Read())
+                    {
+                        results.Add(reader.ActivateAndLoadInstanceOf(elementType));
                     }
 
-                    return default(TResult);
+                    return (TResult)Activator.CreateInstance(typeof(SubSonicCollection<>).MakeGenericType(elementType), this, expression, results);
                 }
                 finally
                 {

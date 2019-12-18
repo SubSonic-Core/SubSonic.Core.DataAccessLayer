@@ -14,6 +14,7 @@ namespace SubSonic.Infrastructure
     using Factories;
 #endif
     public class DbDatabase
+        : IInfrastructure<DbProviderFactory>
     {
         [ThreadStatic]
         private static DbConnection dBSharedConnection;
@@ -30,6 +31,8 @@ namespace SubSonic.Infrastructure
             this.dbProvider = dbProviderFactory ?? throw new ArgumentNullException(nameof(dbProviderFactory));
             this.sqlQueryProvider = sqlQueryProvider ?? throw new ArgumentNullException(nameof(sqlQueryProvider));
         }
+
+        public DbProviderFactory Instance => dbProvider;
 
         #region connections
         internal DbConnection CurrentSharedConnection

@@ -4,12 +4,13 @@ using SubSonic.Data.DynamicProxies;
 using SubSonic.Extensions.Test.Models;
 using SubSonic.Infrastructure;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SubSonic.Tests.DAL.DynamicProxyTests
 {
-    using SubSonic.Linq;
+    using Extensions.Test;
+    using Linq;
     using SUT;
-    using System.Linq;
 
     [TestFixture]
     public partial class DynamicProxyTests
@@ -72,16 +73,26 @@ namespace SubSonic.Tests.DAL.DynamicProxyTests
         [Test]
         public void ProxyNavigationPropertyWillLoadWhenNullAndForiengKeyIsNotDefaultValueOnGet()
         {
+            string expected =
+@"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
+FROM [dbo].[Status] AS [{0}]
+WHERE ([{0}].[ID] = @ID) <> 0".Format("T1");
+
             RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(DbContext);
+
+            DbContext.Database.Instance.AddCommandBehavior(expected, Statuses.Where(x => x.ID == 1));
 
             instance.StatusID = 1;
 
             instance.Status.Should().NotBeNull();
+
+            instance.Status.Name.Should().Be("Vacant");
         }
 
         [Test]
         public void ProxyCollectionPropertyWillNotBeNullOnGet()
         {
+
             RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(DbContext);
 
             instance.Units = null;
@@ -97,7 +108,13 @@ namespace SubSonic.Tests.DAL.DynamicProxyTests
             instance.Units.Should().NotBeNull();
             // have yet to hit the db
             instance.Units.Count.Should().Be(0);
+
+            DbContext.Database.Instance.AddCommandBehavior(instance.Units.GetSql(), Units.Where(x => x.RealEstatePropertyID == 1));
+
+            instance.ID = 1;
+
             instance.Units.AsQueryable().Load();
+
             instance.Units.Count.Should().BeGreaterThan(0);
         }
 
