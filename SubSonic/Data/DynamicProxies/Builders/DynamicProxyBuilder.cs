@@ -1,6 +1,7 @@
 ﻿using SubSonic.Infrastructure;
 using SubSonic.Infrastructure.Schema;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -22,6 +23,16 @@ namespace SubSonic.Data.DynamicProxies
 
         public static class ProxyStub
         {
+            public static Func<TEntity, DbContextAccessor, object[]> KeyData { get; } =
+                (entity, context) =>
+                {
+                    string[] keys = context.Model
+                        .GetEntityModel<TEntity>()
+                        .GetPrimaryKey()
+                        .ToArray();
+
+                    return context.GetKeyData(entity, keys);
+                };
             public static Func<TEntity, TEntity> Data { get; } = (entity) => entity;
             public static Action<IEntityProxy> OnPropertyChange { get; } =
                 (entity) =>
@@ -60,6 +71,7 @@ namespace SubSonic.Data.DynamicProxies
             }
 
             #region implement the IEntityProxy interface
+            BuildKeyDataProperty();
             BuildIsDirtyProperty();
             BuildIsNewProperty();
             BuildOnPropertyChangeMethod();
@@ -75,16 +87,11 @@ namespace SubSonic.Data.DynamicProxies
         private void BuildDataProperty()
         {
             PropertyInfo property = BuildProperty<IEntityProxy<TEntity>, TEntity>(entity => entity.Data, getter: () => ProxyStub.Data);
+        }
 
-            if (property.CanRead)
-            {
-                typeBuilder.DefineMethodOverride(property.GetMethod, typeof(IEntityProxy<TEntity>).GetProperty(property.Name).GetMethod);
-            }
-
-            if (property.CanWrite)
-            {
-                typeBuilder.DefineMethodOverride(property.SetMethod, typeof(IEntityProxy<TEntity>).GetProperty(property.Name).SetMethod);
-            }
+        private void BuildKeyDataProperty()
+        {
+            BuildProperty<IEntityProxy, IEnumerable<object>>((Proxy) => Proxy.KeyData, getter: () => ProxyStub.KeyData);
         }
 
         private void BuildIsDirtyProperty()
@@ -319,30 +326,38 @@ namespace SubSonic.Data.DynamicProxies
                     _getter = getter?.Body as MemberExpression,
                     _setter = setter?.Body as MemberExpression;
 
-                MethodInfo
-                    getInvoke = null,
-                    setInvoke = null;
+                MethodInfo getInvoke = null;
+
+                Type
+                    getInvokeType = null,
+                    setInvokeType = null;
 
                 if (_getter?.Member is PropertyInfo)
                 {
-                    getInvoke = ((PropertyInfo)_getter.Member).PropertyType.GetMethod("Invoke");
+                    getInvokeType = ((PropertyInfo)_getter.Member).PropertyType;
+                    getInvoke = getInvokeType.GetMethod("Invoke");
                 }
                 else if (_getter?.Member is FieldInfo)
                 {
-                    getInvoke = ((FieldInfo)_getter.Member).FieldType.GetMethod("Invoke");
+                    getInvokeType = ((FieldInfo)_getter.Member).FieldType;
+                    getInvoke = getInvokeType.GetMethod("Invoke");
                 }
                 else if(_getter.IsNotNull())
                 {
                     throw new ArgumentException("", nameof(getter));
                 }
 
+                MethodInfo setInvoke = null;
+
                 if (_setter?.Member is PropertyInfo)
                 {
-                    setInvoke = ((PropertyInfo)_setter.Member).PropertyType.GetMethod("Invoke");
+                    setInvokeType = ((PropertyInfo)_setter.Member).PropertyType;
+                    setInvoke = setInvokeType.GetMethod("Invoke");
                 }
                 else if (_setter?.Member is FieldInfo)
                 {
-                    setInvoke = ((FieldInfo)_setter.Member).FieldType.GetMethod("Invoke");
+                    setInvokeType = ((FieldInfo)_setter.Member).FieldType;
+                    setInvoke = setInvokeType.GetMethod("Invoke");
                 }
                 else if (_setter.IsNotNull())
                 {
@@ -353,11 +368,11 @@ namespace SubSonic.Data.DynamicProxies
                 {
                     if (property.CanRead)
                     {
-                        methodAttributesForGet = methodAttributesForGet | MethodAttributes.Virtual;
+                        methodAttributesForGet |= MethodAttributes.Virtual;
                     }
                     if (property.CanWrite)
                     {
-                        methodAttributesForSet = methodAttributesForSet | MethodAttributes.Virtual;
+                        methodAttributesForSet |= MethodAttributes.Virtual;
                     }
                 }
 
@@ -369,6 +384,8 @@ namespace SubSonic.Data.DynamicProxies
                     iLGetGenerator = getMethod?.GetILGenerator(),
                     iLSetGenerator = setMethod?.GetILGenerator();
 
+                Type[] arguments = Array.Empty<Type>();
+
                 if (property.CanRead)
                 {
                     #region getter
@@ -379,19 +396,38 @@ namespace SubSonic.Data.DynamicProxies
                     }
                     else
                     {
+                        arguments = getInvokeType.GetGenericArguments();
+
                         if (_getter.Member is PropertyInfo)
                         {
                             iLGetGenerator.Emit(OpCodes.Call, ((PropertyInfo)_getter.Member).GetGetMethod());
                         }
                         else if (_getter.Member is FieldInfo)
                         {
-                            iLGetGenerator.Emit(OpCodes.Ldsfld, ((FieldInfo)_getter.Member));
+                            iLGetGenerator.Emit(OpCodes.Ldsfld, (FieldInfo)_getter.Member);
                         }
-                        iLGetGenerator.Emit(OpCodes.Ldarg_0);
+
+                        for(int i = 0; i < arguments.Length - 1; i++)
+                        {
+                            if (arguments[i] == typeof(TEntity) || arguments[i].IsSubclassOf(typeof(TEntity)))
+                            {
+                                iLGetGenerator.Emit(OpCodes.Ldarg_0);
+                            }
+                            else if (arguments[i] == typeof(DbContextAccessor))
+                            {
+                                iLGetGenerator.Emit(OpCodes.Ldarg_0);
+                                iLGetGenerator.Emit(OpCodes.Ldfld, fieldDbContextAccessor);
+                            }
+                        }
                         iLGetGenerator.Emit(OpCodes.Callvirt, getInvoke);
                     }
                     iLGetGenerator.Emit(OpCodes.Ret);
                     #endregion
+
+                    if (isInterface)
+                    {
+                        typeBuilder.DefineMethodOverride(getMethod, typeof(TType).GetProperty(propertyBuilder.Name).GetMethod);
+                    }
                 }
 
                 if (property.CanWrite)
@@ -403,20 +439,39 @@ namespace SubSonic.Data.DynamicProxies
 
                     if(setter.IsNotNull())
                     {
+                        arguments = setInvokeType.GetGenericArguments();
+
                         if (_setter.Member is PropertyInfo)
                         {
-                            iLGetGenerator.Emit(OpCodes.Call, ((PropertyInfo)_setter.Member).GetGetMethod());
+                            iLSetGenerator.Emit(OpCodes.Call, ((PropertyInfo)_setter.Member).GetGetMethod());
                         }
                         else if (_setter.Member is FieldInfo)
                         {
-                            iLGetGenerator.Emit(OpCodes.Ldsfld, ((FieldInfo)_setter.Member));
+                            iLSetGenerator.Emit(OpCodes.Ldsfld, (FieldInfo)_setter.Member);
                         }
-                        iLGetGenerator.Emit(OpCodes.Ldarg_0);
-                        iLGetGenerator.Emit(OpCodes.Callvirt, getInvoke);
+
+                        for (int i = 0; i < arguments.Length; i++)
+                        {
+                            if (arguments[i] == typeof(TEntity) || arguments[i].IsSubclassOf(typeof(TEntity)))
+                            {
+                                iLSetGenerator.Emit(OpCodes.Ldarg_0);
+                            }
+                            else if (arguments[i] == typeof(DbContextAccessor))
+                            {
+                                iLSetGenerator.Emit(OpCodes.Ldarg_0);
+                                iLSetGenerator.Emit(OpCodes.Ldfld, fieldDbContextAccessor);
+                            }
+                        }
+                        iLSetGenerator.Emit(OpCodes.Callvirt, setInvoke);
                     }
 
                     iLSetGenerator.Emit(OpCodes.Ret);
                     #endregion
+
+                    if (isInterface)
+                    {
+                        typeBuilder.DefineMethodOverride(setMethod, typeof(TType).GetProperty(propertyBuilder.Name).SetMethod);
+                    }
                 }
 
                 return propertyBuilder;
@@ -431,7 +486,7 @@ namespace SubSonic.Data.DynamicProxies
             MemberExpression
                 body = @delegate.Body as MemberExpression;
 
-            Type type = null;
+            Type type;
 
             if (body.Member is PropertyInfo pi)
             {
@@ -460,7 +515,7 @@ namespace SubSonic.Data.DynamicProxies
             {
                 iL.Emit(OpCodes.Call, ((PropertyInfo)body.Member).GetGetMethod());
             }
-            else if (body.Member is FieldInfo fi)
+            else if (body.Member is FieldInfo)
             {
                 iL.Emit(OpCodes.Ldsfld, ((FieldInfo)body.Member));
             }

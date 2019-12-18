@@ -12,6 +12,7 @@ namespace SubSonic.Infrastructure
 
     public interface IEntityProxy
     {
+        IEnumerable<object> KeyData { get; }
         bool IsDirty { get; set; }
         bool IsNew { get; set; }
 

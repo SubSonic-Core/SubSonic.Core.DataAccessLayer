@@ -40,10 +40,8 @@ namespace SubSonic.Linq
 
                 Expression where = null;
 
-                if (query.Expression is DbSelectExpression)
+                if (query.Expression is DbSelectExpression select)
                 {
-                    DbSelectExpression select = (DbSelectExpression)query.Expression;
-
                     where = select.Where;
                 }
                 else if (query.Expression is DbTableExpression)

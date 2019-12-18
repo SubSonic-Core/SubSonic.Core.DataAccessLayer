@@ -15,12 +15,14 @@ namespace SubSonic.Data.DynamicProxies
     /// </remarks>
     internal class DbContextAccessor
     {
-        private readonly DbContext dbContext;
-
         public DbContextAccessor(DbContext dbContext)
         {
-            this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
+
+        private DbContext DbContext { get; }
+
+        public DbModel Model => DbContext.Model;
 
         public TProperty LoadProperty<TEntity, TProperty>(TEntity entity, PropertyInfo info) 
             where TEntity : class
@@ -39,7 +41,7 @@ namespace SubSonic.Data.DynamicProxies
             string[] keys = Ext.GetForeignKeyName(info);
             object[] keyData = GetKeyData(entity, keys);
 
-            return dbContext.Set<TProperty>().FindByID(keyData).Single();
+            return DbContext.Set<TProperty>().FindByID(keyData).Single();
         }
 
         public bool IsForeignKeyPropertySetToDefaultValue<TEntity>(TEntity entity, PropertyInfo info)
@@ -82,7 +84,7 @@ namespace SubSonic.Data.DynamicProxies
             }
 
             string[] 
-                keys = dbContext.Model.GetEntityModel<TProperty>()
+                keys = DbContext.Model.GetEntityModel<TProperty>()
                     .GetPrimaryKey()
                     .ToArray(),
                 foreignKeys = Ext.GetForeignKeyName(info);
@@ -113,18 +115,18 @@ namespace SubSonic.Data.DynamicProxies
             }
 
             string[] 
-                keys = dbContext.Model
+                keys = DbContext.Model
                     .GetEntityModel<TProperty>().GetPrimaryKey().ToArray(),
-                foreignKeys = dbContext.Model
+                foreignKeys = DbContext.Model
                     .GetRelationshipMapping<TEntity, TProperty>().GetForeignKeys().ToArray();
             object[] keyData = GetKeyData(entity, keys);
 
-            return dbContext
+            return DbContext
                 .Set<TProperty>()
                 .FindByID(keyData, foreignKeys);
         }
 
-        private object[] GetKeyData<TEntity>(TEntity entity, string[] keys)
+        public object[] GetKeyData<TEntity>(TEntity entity, string[] keys)
         {
             return typeof(TEntity).GetProperties()
                     .Where(property => keys.Any(key => key.Equals(property.Name, StringComparison.OrdinalIgnoreCase)))

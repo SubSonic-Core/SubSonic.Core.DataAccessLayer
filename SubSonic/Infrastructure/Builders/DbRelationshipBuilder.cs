@@ -19,11 +19,21 @@ namespace SubSonic.Infrastructure
 
         public DbNavigationPropertyBuilder<TEntity, TRelatedEntity> HasMany<TRelatedEntity>(Expression<Func<TEntity, IEnumerable<TRelatedEntity>>> selector) where TRelatedEntity : class
         {
+            if (selector is null)
+            {
+                throw new ArgumentNullException(nameof(selector));
+            }
+
             return new DbNavigationPropertyBuilder<TEntity, TRelatedEntity>(nameof(HasMany));
         }
 
         public DbNavigationPropertyBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(Expression<Func<TEntity, TRelatedEntity>> selector) where TRelatedEntity : class
         {
+            if (selector is null)
+            {
+                throw new ArgumentNullException(nameof(selector));
+            }
+
             return new DbNavigationPropertyBuilder<TEntity, TRelatedEntity>(nameof(HasOne));
         }
     }

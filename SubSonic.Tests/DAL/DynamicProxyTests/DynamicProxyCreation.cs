@@ -34,16 +34,16 @@ namespace SubSonic.Tests.DAL.DynamicProxyTests
             RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(DbContext);
 
             ((IEntityProxy)instance).Should().NotBeNull();
-            
+
+            ((IEntityProxy)instance).KeyData.Should().NotBeEmpty();
+            ((IEntityProxy)instance).KeyData.Should().BeEquivalentTo(new object[] { 0 });
+
             ((IEntityProxy)instance).IsNew.Should().BeTrue();
-            ((IEntityProxy)instance).IsDirty.Should().BeFalse();
-
             ((IEntityProxy)instance).IsNew = false;
-
             ((IEntityProxy)instance).IsNew.Should().BeFalse();
 
+            ((IEntityProxy)instance).IsDirty.Should().BeFalse();
             ((IEntityProxy)instance).OnPropertyChange((IEntityProxy)instance);
-
             ((IEntityProxy)instance).IsDirty.Should().BeTrue();
 
             ((IEntityProxy<RealEstateProperty>)instance).Data.Should().BeSameAs(instance);
