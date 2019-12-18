@@ -9,8 +9,6 @@ namespace SubSonic.Infrastructure
     using Schema;
 
     public class SubSonicParameter
-        : IDataParameter
-        , IDbDataParameter
     {
         private readonly IDbEntityProperty property;
 
@@ -28,7 +26,7 @@ namespace SubSonic.Infrastructure
             Initialize();
         }
 
-        public DbType DbType { get; set; }
+        public int DbType { get; set; }
         public ParameterDirection Direction { get; set; }
         public bool IsNullable { get; set; }
         public string ParameterName { get; set; }

@@ -48,7 +48,7 @@ WHERE ([{0}].[ID] = @ID) <> 0".Format("T1");
             dbQuery.Sql.Should().Be(expected);
             dbQuery.Parameters.Should().NotBeEmpty();
             dbQuery.Parameters.ElementAt(0).Value.Should().Be(1);
-            dbQuery.Parameters.ElementAt(0).DbType.Should().Be(DbType.Int32);
+            ((DbType)dbQuery.Parameters.ElementAt(0).DbType).Should().Be(DbType.Int32);
             dbQuery.Parameters.ElementAt(0).SourceColumn.Should().Be("ID");
         }
     }

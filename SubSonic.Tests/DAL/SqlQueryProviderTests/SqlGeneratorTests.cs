@@ -204,7 +204,7 @@ WHERE ([{0}].[IsAvailableStatus] = @IsAvailableStatus) <> 0".Format("T1");
 
             query.Parameters.Should().NotBeEmpty();
             query.Parameters.ElementAt(0).ParameterName.Should().Be("@IsAvailableStatus");
-            query.Parameters.ElementAt(0).DbType.Should().Be(DbType.Boolean);
+            ((DbType)query.Parameters.ElementAt(0).DbType).Should().Be(DbType.Boolean);
         }
 
         [Test]

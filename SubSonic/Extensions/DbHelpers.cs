@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
@@ -67,7 +68,36 @@ namespace SubSonic
                 PropertyInfo sourceInfo = sourceType.GetProperty(nameOf(property.Name));
                 if (sourceInfo.IsNotNull())
                 {
-                    property.SetValue(destination, Convert.ChangeType(sourceInfo.GetValue(source), property.PropertyType, CultureInfo.CurrentCulture));
+                    if (!property.PropertyType.IsEnum)
+                    {
+                        property.SetValue(destination, Convert.ChangeType(sourceInfo.GetValue(source), property.PropertyType, CultureInfo.CurrentCulture));
+                    }
+                    else
+                    {
+                        object value = sourceInfo.GetValue(source);
+
+                        if (!(value is string))
+                        {
+                            value = Enum.GetName(property.PropertyType, value);
+                        }
+
+                        if (value != null)
+                        {
+                            if (Enum.TryParse(property.PropertyType, (string)value, out object @enum))
+                            {
+                                property.SetValue(destination, @enum);
+                            }
+                            else
+                            {
+                                throw new InvalidOperationException($"'{value}' is not found on {property.PropertyType.FullName}");
+                            }
+                        }
+                        else
+                        {
+                            property.SetValue(destination, property.GetCustomAttribute<DefaultValueAttribute>().IsNotNull(Def => Def.Value, Activator.CreateInstance(property.PropertyType)));
+                        }
+                        
+                    }
                 }
             }
         }
