@@ -22,34 +22,34 @@ namespace SubSonic.Linq.Expressions.Structure
 
                 if (binary.NodeType == ExpressionType.Power)
                 {
-                    Write("POWER(");
+                    Write($"POWER{Fragments.LEFT_PARENTHESIS}");
                     this.VisitValue(left);
-                    Write(", ");
+                    Write($"{Fragments.COMMA} ");
                     this.VisitValue(right);
-                    Write(")");
+                    Write(Fragments.RIGHT_PARENTHESIS);
 
                     return binary;
                 }
                 else if (binary.NodeType == ExpressionType.Coalesce)
                 {
-                    Write("COALESCE(");
+                    Write($"COALESCE{Fragments.LEFT_PARENTHESIS}");
                     this.VisitValue(left);
-                    Write(", ");
+                    Write($"{Fragments.COMMA} ");
                     while (right.NodeType == ExpressionType.Coalesce)
                     {
                         BinaryExpression rb = (BinaryExpression)right;
                         this.VisitValue(rb.Left);
-                        Write(", ");
+                        Write($"{Fragments.COMMA} ");
                         right = rb.Right;
                     }
                     this.VisitValue(right);
-                    Write(")");
+                    Write(Fragments.RIGHT_PARENTHESIS);
 
                     return binary;
                 }
                 else
                 {
-                    Write("(");
+                    Write(Fragments.LEFT_PARENTHESIS);
                     switch (binary.NodeType)
                     {
                         case ExpressionType.And:
@@ -80,7 +80,7 @@ namespace SubSonic.Linq.Expressions.Structure
                                 if (ce.Value == null)
                                 {
                                     this.Visit(left);
-                                    Write(" IS NULL");
+                                    Write($" {Fragments.IS_NULL}");
                                     break;
                                 }
                             }
@@ -90,7 +90,7 @@ namespace SubSonic.Linq.Expressions.Structure
                                 if (ce.Value == null)
                                 {
                                     this.Visit(right);
-                                    Write(" IS NULL");
+                                    Write($" {Fragments.IS_NULL}");
                                     break;
                                 }
                             }
@@ -160,13 +160,13 @@ namespace SubSonic.Linq.Expressions.Structure
                             break;
                         case ExpressionType.RightShift:
                             this.VisitValue(left);
-                            Write(" / POWER(2, ");
+                            Write($" / POWER{Fragments.LEFT_PARENTHESIS}2, ");
                             this.VisitValue(right);
                             Write(Fragments.RIGHT_PARENTHESIS);
                             break;
                         case ExpressionType.LeftShift:
                             this.VisitValue(left);
-                            Write(" * POWER(2, ");
+                            Write($" * POWER{Fragments.LEFT_PARENTHESIS}2, ");
                             this.VisitValue(right);
                             Write(Fragments.RIGHT_PARENTHESIS);
                             break;

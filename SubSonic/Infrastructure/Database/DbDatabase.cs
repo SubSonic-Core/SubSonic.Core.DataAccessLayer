@@ -86,16 +86,5 @@ namespace SubSonic.Infrastructure
             CurrentSharedConnection.IsNotNull(Con => Con.Dispose());
         }
         #endregion
-
-        internal TResult ExecuteQuery<TResult>(Expression expression)
-        {
-            using (IPerformanceLogger<DbDatabase> performance = logger.Start($"{nameof(ExecuteQuery)}<{typeof(TResult).GetTypeName()}>"))
-            {
-                using (AutomaticConnectionScope Scope = new AutomaticConnectionScope(this))
-                {
-                    throw new NotImplementedException();
-                }
-            }
-        }
     }
 }

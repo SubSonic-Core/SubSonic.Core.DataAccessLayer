@@ -15,6 +15,7 @@ namespace SubSonic.Infrastructure.Builders
         private readonly SubSonicParameterDictionary parameters;
 
         public DbSqlQueryBuilder(Type dbModelType, ISubSonicLogger logger = null)
+            : base()
         {
             if (dbModelType is null)
             {

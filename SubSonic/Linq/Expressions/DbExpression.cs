@@ -30,6 +30,21 @@ namespace SubSonic.Linq.Expressions
 
         public static DbExpression Where(DbTableExpression table, Type type, LambdaExpression predicate)
         {
+            if (table is null)
+            {
+                throw new ArgumentNullException(nameof(table));
+            }
+
+            if (type is null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
+
+            if (predicate is null)
+            {
+                throw new ArgumentNullException(nameof(predicate));
+            }
+
             return DbWherePredicateBuilder.GetWherePredicate(table, type, predicate);
         }
     }

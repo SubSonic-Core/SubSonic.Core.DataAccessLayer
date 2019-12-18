@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SubSonic.Linq.Expressions
 {
-    public class DbExpressionAccessor
+    public abstract class DbExpressionAccessor
     {
         public DbExpressionAccessor()
         {

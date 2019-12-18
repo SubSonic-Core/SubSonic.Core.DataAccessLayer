@@ -8,7 +8,7 @@ namespace SubSonic.Infrastructure.Logging
     public interface ISubSonicLogger<out TCategoryName>
         : ISubSonicLogger
     {
-        IPerformanceLogger<TCategoryName> Start(string name);
+        new IPerformanceLogger<TCategoryName> Start(string name);
     }
 
     public interface ISubSonicLogger

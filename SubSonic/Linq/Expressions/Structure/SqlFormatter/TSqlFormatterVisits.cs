@@ -121,7 +121,13 @@ namespace SubSonic.Linq.Expressions.Structure
 
         protected override Expression VisitConstant(ConstantExpression c)
         {
+            if (c is null)
+            {
+                return c;
+            }
+
             this.WriteValue(c.Value);
+
             return c;
         }
     }
