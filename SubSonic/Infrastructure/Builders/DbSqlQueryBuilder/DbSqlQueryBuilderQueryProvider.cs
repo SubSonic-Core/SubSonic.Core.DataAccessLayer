@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 namespace SubSonic.Infrastructure.Builders
 {
     using Logging;
+    using SubSonic.Linq.Expressions;
     using System.Collections;
     using System.Collections.Generic;
     using System.Data;
@@ -59,9 +60,14 @@ namespace SubSonic.Infrastructure.Builders
 
         public object Execute(Expression expression)
         {
+            if (expression is null)
+            {
+                throw new ArgumentNullException(nameof(expression));
+            }
+
             using (AutomaticConnectionScope Scope = DbContext.ServiceProvider.GetService<AutomaticConnectionScope>())
             using (DbCommand cmd = GetCommand(Scope.Connection, expression))
-            using (var perf = logger.Start(GetType(), nameof(Execute)))
+            using (var perf = logger.Start(GetType(), $"{nameof(Execute)}::{((DbSelectExpression)expression).From.Type.GetTypeName()}"))
             {
                     return cmd.ExecuteReader(CmdBehavior);
             }

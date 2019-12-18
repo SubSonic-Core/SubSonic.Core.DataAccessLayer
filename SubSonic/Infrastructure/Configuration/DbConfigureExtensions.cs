@@ -7,7 +7,9 @@ namespace SubSonic.Infrastructure
 {
     using Schema;
     using SubSonic.Data.DynamicProxies;
+    using System;
     using System.Linq;
+    using System.Linq.Expressions;
 
     internal static class DbConfigureExtensions
     {
