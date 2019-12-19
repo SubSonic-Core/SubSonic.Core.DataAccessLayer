@@ -19,7 +19,7 @@ namespace SubSonic.Linq.Expressions.Structure
         : DbExpressionVisitor
     {
         private static readonly char[] splitters = new char[] { '\n', '\r' };
-        private static readonly char[] special = new char[] { '\n', '\n', '\\' };
+        private static readonly char[] special = new char[] { '\n', '\t', '\\' };
         private int depth = 0;
         private readonly TextWriter writer;
         private readonly ISqlContext context;
@@ -89,9 +89,9 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             writer.WriteLine();
 
-            for (int i = 0, n = (depth * IndentationWidth); i < n; i++)
+            for (int i = 0, n = (depth * 1); i < n; i++)
             {
-                Write(context.Fragments.SPACE);
+                Write(special[1]);
             }
 
             return this;

@@ -20,7 +20,6 @@ namespace SubSonic.Linq
         /// <param name="queryable"></param>
         /// <returns></returns>
         public static bool In<TType, TEntity>(this TType source, IQueryable<TEntity> queryable)
-            where TEntity : class
         {
             return true;
         }
@@ -38,7 +37,6 @@ namespace SubSonic.Linq
         /// <param name="queryable"></param>
         /// <returns></returns>
         public static bool NotIn<TType, TEntity>(this TType source, IQueryable<TEntity> queryable)
-            where TEntity : class
         {
             return false;
         }

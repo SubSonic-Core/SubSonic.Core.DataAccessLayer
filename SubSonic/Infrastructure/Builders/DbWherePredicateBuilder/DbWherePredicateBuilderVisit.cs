@@ -1,10 +1,9 @@
 ﻿using SubSonic.Linq.Expressions;
-using SubSonic.Linq.Expressions.Structure;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 
 namespace SubSonic.Infrastructure.Builders
 {
@@ -60,7 +59,24 @@ namespace SubSonic.Infrastructure.Builders
 
                     foreach (Expression argument in call.Arguments)
                     {
-                        Visit(argument);
+                        if (argument is MethodCallExpression method)
+                        {
+                            object set = Expression.Lambda(method).Compile().DynamicInvoke();
+
+                            if(((IQueryable)set).Expression is DbSelectExpression select)
+                            {
+                                if(select.Where is DbWhereExpression where)
+                                {
+                                    parameters.AddRange((DbExpressionType)where.NodeType, where.Parameters.ToArray());
+                                }
+
+                                right = select;
+                            }
+                        }
+                        else
+                        {
+                            Visit(argument);
+                        }
                     }
 
                     BuildLogicalExpression();

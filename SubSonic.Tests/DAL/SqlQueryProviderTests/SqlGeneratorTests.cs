@@ -69,12 +69,12 @@ WHERE [{0}].[StatusID] IN (@el_1, @el_2, @el_3)".Format("T1");
         public void CanGenerateSelectSqlWithInSelectConstraint()
         {
             string expected =
-@"SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
-FROM [dbo].[RealEstateProperty] AS [{0}]
-WHERE [{0}].[StatusID] IN (
-    SELECT [{1}].[ID]
-    FROM [dbo].[RealEstateProperty] AS [{1}]
-    WHERE ([{1}].[IsAvailableStatus] = @IsAvailableStatus)".Format("T1", "T2");
+@"SELECT [T1].[ID], [T1].[StatusID], [T1].[HasParallelPowerGeneration]
+FROM [dbo].[RealEstateProperty] AS [T1]
+WHERE [T1].[StatusID] IN (
+	SELECT [T2].[ID]
+	FROM [dbo].[Status] AS [T2]
+	WHERE ([T2].[IsAvailableStatus] = @IsAvailableStatus))".Format("T1", "T2");
 
             Expression select = DbContext
                 .RealEstateProperties
@@ -82,7 +82,8 @@ WHERE [{0}].[StatusID] IN (
                     rep.StatusID.In(
                         DbContext
                             .Statuses
-                            .Where(stat => stat.IsAvailableStatus == true)))
+                            .Where(stat => stat.IsAvailableStatus == true)
+                            .Select(x => x.ID)))
                 .Expression;
 
             IDbQueryObject query = null;
@@ -107,9 +108,53 @@ WHERE [{0}].[StatusID] IN (
             query.Sql.Should().Be(expected);
 
             query.Parameters.Should().NotBeEmpty();
-            query.Parameters.Get("@el_1").Value.Should().Be(1);
-            query.Parameters.Get("@el_2").Value.Should().Be(2);
-            query.Parameters.Get("@el_3").Value.Should().Be(3);
+            ((bool)query.Parameters.Get("@IsAvailableStatus").Value).Should().BeTrue();
+        }
+
+        [Test]
+        public void CanGenerateSelectSqlWithNotInSelectConstraint()
+        {
+            string expected =
+@"SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
+FROM [dbo].[RealEstateProperty] AS [{0}]
+WHERE [{0}].[StatusID] NOT IN (
+	SELECT [{1}].[ID]
+	FROM [dbo].[Status] AS [{1}]
+	WHERE ([{1}].[IsAvailableStatus] = @IsAvailableStatus))".Format("T1", "T2");
+
+            Expression select = DbContext
+                .RealEstateProperties
+                .Where(rep =>
+                    rep.StatusID.NotIn(
+                        DbContext
+                            .Statuses
+                            .Where(stat => stat.IsAvailableStatus == true)
+                            .Select(x => x.ID)))
+                .Expression;
+
+            IDbQueryObject query = null;
+
+            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+
+                    query = builder.ToQueryObject(select);
+                }).Should().NotThrow();
+            }
+
+            query.Sql.Should().NotBeNullOrEmpty();
+            query.Sql.Should().Contain("] NOT IN (");
+
+            logging.LogInformation("\n" + query.Sql + "\n");
+
+            query.Sql.Should().Be(expected);
+
+            query.Parameters.Should().NotBeEmpty();
+            ((bool)query.Parameters.Get("@IsAvailableStatus").Value).Should().BeTrue();
         }
 
         [Test]

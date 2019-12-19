@@ -29,6 +29,18 @@ namespace SubSonic.Infrastructure
 
         public ICollection<List<SubSonicParameter>> Values => parameters.Values;
 
+        public void AddRange(DbExpressionType key, params SubSonicParameter[] parameters)
+        {
+            if (this.parameters.ContainsKey(key))
+            {
+                this.parameters[key].AddRange(parameters);
+            }
+            else
+            {
+                Add(new KeyValuePair<DbExpressionType, List<SubSonicParameter>>(key, new List<SubSonicParameter>(parameters)));
+            }
+        }
+
         public void Add(DbExpressionType key, SubSonicParameter parameter)
         {
             if(parameters.ContainsKey(key))

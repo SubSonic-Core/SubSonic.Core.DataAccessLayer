@@ -265,7 +265,6 @@ namespace SubSonic.Linq.Expressions.Structure
                 {
                     WriteNewLine(Indentation.Inner);
                     this.Visit(select);
-                    WriteNewLine();
                     Write(Fragments.RIGHT_PARENTHESIS);
                     this.Indent(Indentation.Outer);
                 }
