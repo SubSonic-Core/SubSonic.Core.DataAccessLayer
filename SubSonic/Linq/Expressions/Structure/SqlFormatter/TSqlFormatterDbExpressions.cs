@@ -249,25 +249,37 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             if (@in.IsNotNull())
             {
-                this.VisitValue(@in.Expression);
-                Write($" {Fragments.IN} ");
-                Write(Fragments.RIGHT_PARENTHESIS);
-                if (@in.Select != null)
+                this.VisitValue(@in.Left);
+                
+                switch((DbExpressionType)@in.NodeType)
+                {
+                    case DbExpressionType.In:
+                        Write($" {Fragments.IN} {Fragments.LEFT_PARENTHESIS}");
+                        break;
+                    case DbExpressionType.NotIn:
+                        Write($" {Fragments.NOT_IN} {Fragments.LEFT_PARENTHESIS}");
+                        break;
+                }
+
+                if (@in.Inside is DbSelectExpression select)
                 {
                     WriteNewLine(Indentation.Inner);
-                    this.Visit(@in.Select);
+                    this.Visit(select);
                     WriteNewLine();
-                    Write(Fragments.LEFT_PARENTHESIS);
+                    Write(Fragments.RIGHT_PARENTHESIS);
                     this.Indent(Indentation.Outer);
                 }
-                else if (@in.Array != null)
+                else if (@in.Inside is NewArrayExpression array)
                 {
-                    //for (int i = 0, n = @in.Array.Count; i < n; i++)
-                    //{
-                    //    if (i > 0) Write($"{Fragments.COMMA} ");
-                    //    this.VisitValue(@in.Array[i]);
-                    //}
-                    Write(Fragments.LEFT_PARENTHESIS);
+                    for(int i = 0; i < array.Expressions.Count; i++)
+                    {
+                        Visit(array.Expressions[i]);
+                        if (i < (array.Expressions.Count - 1))
+                        {
+                            Write($"{Fragments.COMMA} ");
+                        }
+                    }
+                    Write(Fragments.RIGHT_PARENTHESIS);
                 }
             }
             return @in;

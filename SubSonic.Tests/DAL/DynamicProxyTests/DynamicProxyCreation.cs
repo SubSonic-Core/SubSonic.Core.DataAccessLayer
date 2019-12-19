@@ -76,7 +76,7 @@ namespace SubSonic.Tests.DAL.DynamicProxyTests
             string expected =
 @"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
 FROM [dbo].[Status] AS [{0}]
-WHERE ([{0}].[ID] = 1) <> 0".Format("T1");
+WHERE ([{0}].[ID] = 1)".Format("T1");
 
             RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(DbContext);
 
@@ -99,11 +99,11 @@ FROM [dbo].[Unit] AS [{0}]",
                 property =
 @"SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
 FROM [dbo].[RealEstateProperty] AS [{0}]
-WHERE ([{0}].[ID] = {1}) <> 0",
+WHERE ([{0}].[ID] = {1})",
                 status =
 @"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
 FROM [dbo].[Status] AS [{0}]
-WHERE ([{0}].[ID] = {1}) <> 0";
+WHERE ([{0}].[ID] = {1})";
 
             DbContext.Database.Instance.AddCommandBehavior(units.Format("T1"), Units);
             DbContext.Database.Instance.AddCommandBehavior(property.Format("T1", 1), RealEstateProperties.Where(x => x.ID == 1));
@@ -137,7 +137,7 @@ WHERE ([{0}].[ID] = {1}) <> 0";
                 units =
 @"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID]
 FROM [dbo].[Unit] AS [{0}]
-WHERE ([{0}].[RealEstatePropertyID] = {1}) <> 0";
+WHERE ([{0}].[RealEstatePropertyID] = {1})";
 
             RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(DbContext);
 
@@ -156,7 +156,7 @@ WHERE ([{0}].[RealEstatePropertyID] = {1}) <> 0";
                 units =
 @"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID]
 FROM [dbo].[Unit] AS [{0}]
-WHERE ([{0}].[RealEstatePropertyID] = {1}) <> 0";
+WHERE ([{0}].[RealEstatePropertyID] = {1})";
 
             RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(DbContext);
 

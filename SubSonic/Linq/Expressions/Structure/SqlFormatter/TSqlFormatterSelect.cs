@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq.Expressions;
-using System.Text;
+﻿using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions.Structure
 {
-    using Alias;
-    using Infrastructure.SqlGenerator;
     using System.Linq;
-    using System.Reflection;
 
     public partial class TSqlFormatter
     {
@@ -58,13 +51,11 @@ namespace SubSonic.Linq.Expressions.Structure
                 {
                     WriteNewLine();
                     Write($"{Fragments.FROM} ");
-                    this.VisitSource(select.From);
+                    VisitSource(select.From);
                 }
                 if (select.Where != null)
                 {
-                    WriteNewLine();
-                    Write($"{Fragments.WHERE} ");
-                    this.VisitPredicate(select.Where);
+                    Visit(select.Where);
                 }
                 if (select.GroupBy != null && select.GroupBy.Count > 0)
                 {

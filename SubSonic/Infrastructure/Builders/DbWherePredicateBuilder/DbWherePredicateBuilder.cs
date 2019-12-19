@@ -115,13 +115,10 @@ namespace SubSonic.Infrastructure.Builders
                     }
                     break;
                 case ComparisonOperator.In:
+                    result = new DbInExpression(left, right);
+                    break;
                 case ComparisonOperator.NotIn:
-                    {
-                        MethodInfo
-                                oMethod = typeof(SubSonicLinqExtensions).GetMethod(((DbExpressionType)right.NodeType).ToString(), 1, BindingFlags.Public | BindingFlags.Static, null, new Type[] { left.Type, ((DbInExpression)right).Array.Type }, new[] { new ParameterModifier(2) });
-
-                        result = Expression.Call(left, oMethod, right);
-                    }
+                    result = new DbNotInExpression(left, right);
                     break;
                 default:
                     throw new NotImplementedException($"{@operator} operation is not implemented.");
@@ -190,7 +187,7 @@ namespace SubSonic.Infrastructure.Builders
 
             string name = "";
 
-            if (comparison == ComparisonOperator.In || comparison == ComparisonOperator.NotIn)
+            if (right is NewArrayExpression)
             {
                 name = $"el_{parameters[DbExpressionType.Where].IsNotNull(x => x.Count) + 1}";
 

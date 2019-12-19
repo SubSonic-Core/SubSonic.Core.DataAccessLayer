@@ -63,32 +63,9 @@ namespace SubSonic.Infrastructure.Builders
                         Visit(argument);
                     }
 
-                    if(call.Arguments[1] is DbSelectExpression select)
-                    {
-                        switch(comparison)
-                        {
-                            case ComparisonOperator.In:
-                                right = new DbInExpression(node, select);
-                                break;
-                            case ComparisonOperator.NotIn:
-                                right = new DbNotInExpression(node, select);
-                                break;
-                        }
-                    }
-                    else if (call.Arguments[1] is NewArrayExpression array)
-                    {
-                        switch (comparison)
-                        {
-                            case ComparisonOperator.In:
-                                right = new DbInExpression(node, array);
-                                break;
-                            case ComparisonOperator.NotIn:
-                                right = new DbNotInExpression(node, array);
-                                break;
-                        }
-                    }
-
                     BuildLogicalExpression();
+
+                    return node;
                 }
             }
             return base.VisitMethodCall(node);
@@ -108,12 +85,36 @@ namespace SubSonic.Infrastructure.Builders
             return base.VisitMember(node);
         }
 
+        protected override Expression VisitNewArray(NewArrayExpression node)
+        {
+            if(node is NewArrayExpression array)
+            {
+                List<Expression> elements = new List<Expression>();
+
+                right = array;
+
+                foreach (Expression constant in array.Expressions)
+                {
+                    elements.Add(Visit(constant));
+                }
+
+                right = array.Update(elements);
+
+                return node;
+            }
+            return base.VisitNewArray(node);
+        }
+
         protected override Expression VisitConstant(ConstantExpression node)
         {
-            right = GetNamedExpression(node.Value);
-
-            if (comparison != ComparisonOperator.In && comparison != ComparisonOperator.NotIn)
+            if (right is NewArrayExpression array)
             {
+                return GetNamedExpression(node.Value);
+            }
+            else
+            {
+                right = GetNamedExpression(node.Value);
+
                 BuildLogicalExpression();
             }
 

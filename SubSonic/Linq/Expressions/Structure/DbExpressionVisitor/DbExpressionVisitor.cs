@@ -30,31 +30,32 @@ namespace SubSonic.Linq.Expressions.Structure
                 case DbExpressionType.Where:
                     return VisitWhere((DbWhereExpression)node);
                 case DbExpressionType.Join:
-                    return this.VisitJoin((DbJoinExpression)node);
+                    return VisitJoin((DbJoinExpression)node);
                 case DbExpressionType.OuterJoined:
-                    return this.VisitOuterJoined((DbOuterJoinedExpression)node);
+                    return VisitOuterJoined((DbOuterJoinedExpression)node);
                 case DbExpressionType.Aggregate:
-                    return this.VisitAggregate((DbAggregateExpression)node);
+                    return VisitAggregate((DbAggregateExpression)node);
                 case DbExpressionType.Scalar:
                 case DbExpressionType.Exists:
                 case DbExpressionType.In:
                 case DbExpressionType.NotIn:
+                    return VisitSubquery((DbSubQueryExpression)node);
                 case DbExpressionType.AggregateSubQuery:
-                    return this.VisitAggregateSubQuery((DbAggregateSubQueryExpression)node);
+                    return VisitAggregateSubQuery((DbAggregateSubQueryExpression)node);
                 case DbExpressionType.IsNull:
                 case DbExpressionType.IsNotNull:
-                    return this.VisitNull((DbIsNullExpression)node);
+                    return VisitNull((DbIsNullExpression)node);
                 case DbExpressionType.Between:
                 case DbExpressionType.NotBetween:
-                    return this.VisitBetween((DbBetweenExpression)node);
+                    return VisitBetween((DbBetweenExpression)node);
                 case DbExpressionType.RowCount:
-                    return this.VisitRowNumber((DbRowNumberExpression)node);
+                    return VisitRowNumber((DbRowNumberExpression)node);
                 case DbExpressionType.Projection:
-                    return this.VisitProjection((DbProjectionExpression)node);
+                    return VisitProjection((DbProjectionExpression)node);
                 case DbExpressionType.NamedValue:
-                    return this.VisitExpression((DbNamedValueExpression)node);
+                    return VisitExpression((DbNamedValueExpression)node);
                 case DbExpressionType.ClientJoin:
-                    return this.VisitClientJoin((DbClientJoinExpression)node);
+                    return VisitClientJoin((DbClientJoinExpression)node);
                 default:
                     return base.Visit(node);
             }
@@ -221,33 +222,35 @@ namespace SubSonic.Linq.Expressions.Structure
                 return inExp;
             }
 
-            Expression expr = this.Visit(inExp.Expression);
+            Expression left = Visit(inExp.Left);
 
-            if (inExp.Select != null)
+            if (inExp.Inside is DbSelectExpression select)
             {
-                DbSelectExpression select = (DbSelectExpression)this.Visit(inExp.Select);
-                if (expr != inExp.Expression || select != inExp.Select)
+                select = (DbSelectExpression)Visit(inExp.Inside);
+
+                if (left != inExp.Left || select != inExp.Inside)
                 {
                     switch ((DbExpressionType)inExp.NodeType)
                     {
                         case DbExpressionType.In:
-                            return new DbInExpression(expr, select);
+                            return new DbInExpression(left, select);
                         case DbExpressionType.NotIn:
-                            return new DbNotInExpression(expr, select);
+                            return new DbNotInExpression(left, select);
                     }
                 }
             }
-            else
+            else if(inExp.Inside is NewArrayExpression array)
             {
-                NewArrayExpression array = inExp.Array;
-                if (expr != inExp.Expression || array != inExp.Array)
+                array = (NewArrayExpression)Visit(array);
+
+                if (left != inExp.Left || array != inExp.Inside)
                 {
                     switch ((DbExpressionType)inExp.NodeType)
                     {
                         case DbExpressionType.In:
-                            return new DbInExpression(expr, array);
+                            return new DbInExpression(left, array);
                         case DbExpressionType.NotIn:
-                            return new DbNotInExpression(expr, array);
+                            return new DbNotInExpression(left, array);
                     }
                 }
             }

@@ -7,25 +7,24 @@ namespace SubSonic.Linq.Expressions
     public class DbInExpression
         : DbSubQueryExpression
     {
-        public DbInExpression(Expression expression, DbSelectExpression select)
-            : this(DbExpressionType.In, select)
-        {
-            Expression = expression;
-        }
-        public DbInExpression(Expression expression, NewArrayExpression array)
+        public DbInExpression(Expression left, Expression inside)
             : this(DbExpressionType.In)
         {
-            Expression = expression;
-            Array = array;
+            Left = left ?? throw new System.ArgumentNullException(nameof(left));
+            Inside = inside ?? throw new System.ArgumentNullException(nameof(inside));
         }
 
-        protected DbInExpression(DbExpressionType eType, DbExpression expression = null)
-            : base(eType, typeof(bool), expression)
+        protected DbInExpression(DbExpressionType eType, Expression left, Expression inside)
+            : this(eType)
         {
-
+            Left = left ?? throw new System.ArgumentNullException(nameof(left));
+            Inside = inside ?? throw new System.ArgumentNullException(nameof(inside));
         }
 
-        public override Expression Expression { get; }
-        public virtual NewArrayExpression Array { get; }
+        private DbInExpression(DbExpressionType eType)
+            : base(eType, typeof(bool), null) { }
+
+        public virtual Expression Left { get; }
+        public virtual Expression Inside { get; }
     }
 }

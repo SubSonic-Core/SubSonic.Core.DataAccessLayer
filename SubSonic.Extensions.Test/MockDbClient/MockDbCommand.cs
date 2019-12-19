@@ -20,7 +20,7 @@ namespace SubSonic.Extensions.Test.MockDbClient
             parameters = new MockDbParameterCollection();
         }
 
-        protected static Regex ParameterRegex => new Regex(@"\@([^=<>\s]+)(?=\b\)|$)", RegexOptions.Multiline | RegexOptions.Compiled);
+        protected static Regex ParameterRegex => new Regex(@"\@([^=<>\s]+)(?:[a-z]|[0-9]|_|\b)", RegexOptions.Multiline | RegexOptions.Compiled);
 
         public override void Cancel()
         {

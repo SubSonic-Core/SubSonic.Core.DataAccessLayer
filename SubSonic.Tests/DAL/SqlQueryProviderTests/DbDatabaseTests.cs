@@ -38,7 +38,7 @@ FROM [dbo].[Status] AS [{0}]".Format("T1");
             string expected =
 @"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
 FROM [dbo].[Status] AS [{0}]
-WHERE ([{0}].[ID] = @ID) <> 0".Format("T1");
+WHERE ([{0}].[ID] = @ID)".Format("T1");
 
             ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
