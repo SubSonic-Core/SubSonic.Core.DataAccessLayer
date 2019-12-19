@@ -11,5 +11,6 @@ namespace SubSonic.Infrastructure
         : IDbSqlQueryBuilderProvider
     {
         DbAliasedExpression GetAliasedTable();
+        
     }
 }

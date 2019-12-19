@@ -17,6 +17,8 @@ namespace SubSonic.Infrastructure
         Expression BuildSelect(Expression eSelect, DbExpressionType eType, IEnumerable<Expression> expressions);
         Expression BuildSelect<TEntity, TColumn>(Expression eSelect, Expression<Func<TEntity, TColumn>> selector);
         Expression BuildWhere(DbTableExpression table, Expression where, Type type, LambdaExpression predicate);
+        Expression BuildWhereExists<TEntity>(DbTableExpression dbTableExpression, object p, Type type, Expression<IQueryable<TEntity>> query);
+        Expression BuildWhereNotExists<TEntity>(DbTableExpression from, Expression where, Type type, Expression<IQueryable<TEntity>> query);
         Expression BuildLambda(Expression body, LambdaType callType, params string[] properties);
         Expression BuildCall(string nameOfCallee, Expression collection, Expression lambda);
         IDbQueryObject ToQueryObject(Expression expr);

@@ -91,6 +91,15 @@ namespace SubSonic.Infrastructure.Builders
         {
             return BuildCall("Where", collection, lambda);
         }
+
+        public Expression BuildWhereExists<TEntity>(DbTableExpression dbTableExpression, object p, Type type, Expression<System.Linq.IQueryable<TEntity>> select)
+        {
+            throw new NotImplementedException();
+        }
+        public Expression BuildWhereNotExists<TEntity>(DbTableExpression from, Expression where, Type type, Expression<System.Linq.IQueryable<TEntity>> select)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
 
         #region Lambda

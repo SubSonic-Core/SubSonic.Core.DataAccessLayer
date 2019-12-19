@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 
 namespace SubSonic.Linq
 {
@@ -24,28 +25,39 @@ namespace SubSonic.Linq
         /// <typeparam name="TType"></typeparam>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="source"></param>
-        /// <param name="queryable"></param>
+        /// <param name="select"></param>
         /// <returns></returns>
-        public static bool In<TType, TEntity>(this TType source, IQueryable<TEntity> queryable)
+        public static bool In<TType>(this TType source, IQueryable<TType> select)
         {
-            return true;
+            return In(source, select.ToArray());
         }
 
         public static bool NotIn<TType>(this TType source, params TType[] values)
         {
             return !Enumerable.Any(values, (value) => value.Equals(source));
         }
+
         /// <summary>
         /// only used to represent a DbNotInExpression in code
         /// </summary>
         /// <typeparam name="TType"></typeparam>
         /// <typeparam name="TEntity"></typeparam>
         /// <param name="source"></param>
-        /// <param name="queryable"></param>
+        /// <param name="select"></param>
         /// <returns></returns>
-        public static bool NotIn<TType, TEntity>(this TType source, IQueryable<TEntity> queryable)
+        public static bool NotIn<TType>(this TType source, IQueryable<TType> select)
         {
-            return false;
+            return NotIn(source, select.ToArray());
+        }
+
+        public static bool Between(this DateTime value, DateTime start, DateTime end)
+        {
+            return (start < value) && (value < end); 
+        }
+
+        public static bool NotBetween(this DateTime value, DateTime start, DateTime end)
+        {
+            return !Between(value, start, end);
         }
     }
 }
