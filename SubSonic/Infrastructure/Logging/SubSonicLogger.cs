@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SubSonic.Infrastructure.Logging
 {
+    using Linq;
+
     class SubSonicLogger<TCategoryName>
         : ISubSonicLogger<TCategoryName>
     {

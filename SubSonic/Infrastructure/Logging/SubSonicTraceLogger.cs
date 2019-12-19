@@ -3,6 +3,8 @@ using System;
 
 namespace SubSonic.Infrastructure.Logging
 {
+    using Linq;
+
     class SubSonicTraceLogger<TCategoryName>
         : ITraceLogger<TCategoryName>
     {

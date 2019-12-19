@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Text;
 
 namespace SubSonic
 {
+    using Linq;
+
     internal static partial class InternalExtensions
     {
         public static SqlDbType GetSqlDbType(this Type type, bool unicode = false)

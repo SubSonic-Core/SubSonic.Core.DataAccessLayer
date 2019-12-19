@@ -8,7 +8,7 @@ namespace SubSonic.Linq
     using Expressions;
     using Infrastructure;
 
-    public static partial class SubSonicLinqExtensions
+    public static partial class SubSonicQueryable
     {
         public static bool IsSubSonicQuerable<TSource>(this IEnumerable<TSource> source)
         {
@@ -89,6 +89,54 @@ namespace SubSonic.Linq
             return Queryable.Where(source, predicate);
         }
 
+        public static TSource First<TSource>(this IQueryable<TSource> source)
+        {
+            if (source.IsNotNull() && source.IsSubSonicQuerable())
+            {
+                IQueryable<TSource> query = source.AsQueryable();
+
+                return Enumerable.First(query.Provider.Execute<IQueryable<TSource>>(query.Expression));
+            }
+
+            return Queryable.First(source);
+        }
+
+        public static TSource First<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+        {
+            if (source.IsNotNull() && source.IsSubSonicQuerable())
+            {
+                IQueryable<TSource> query = source.AsQueryable();
+
+                return Enumerable.First(query.Where(predicate).Provider.Execute<IQueryable<TSource>>(query.Expression));
+            }
+
+            return Queryable.First(source, predicate);
+        }
+
+        public static TSource FirstOrDefault<TSource>(this IQueryable<TSource> source)
+        {
+            if (source.IsNotNull() && source.IsSubSonicQuerable())
+            {
+                IQueryable<TSource> query = source.AsQueryable();
+
+                return Enumerable.FirstOrDefault(query.Provider.Execute<IQueryable<TSource>>(query.Expression));
+            }
+
+            return Queryable.FirstOrDefault(source);
+        }
+
+        public static TSource FirstOrDefault<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+        {
+            if (source.IsNotNull() && source.IsSubSonicQuerable())
+            {
+                IQueryable<TSource> query = source.AsQueryable();
+
+                return Enumerable.FirstOrDefault(query.Where(predicate).Provider.Execute<IQueryable<TSource>>(query.Expression));
+            }
+
+            return Queryable.FirstOrDefault(source, predicate);
+        }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1720:Identifier contains type name", Justification = "Microsoft already named a IQueryable.Single and it would be confusing not to.")]
         public static TSource Single<TSource>(this IQueryable<TSource> source)
         {
@@ -100,6 +148,43 @@ namespace SubSonic.Linq
             }
 
             return Queryable.Single(source);
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1720:Identifier contains type name", Justification = "Microsoft set this standard")]
+        public static TSource Single<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+        {
+            if (source.IsNotNull() && source.IsSubSonicQuerable())
+            {
+                IQueryable<TSource> query = source.AsQueryable();
+
+                return Enumerable.Single(query.Where(predicate).Provider.Execute<IQueryable<TSource>>(query.Expression));
+            }
+
+            return Queryable.Single(source, predicate);
+        }
+
+        public static TSource SingleOrDefault<TSource>(this IQueryable<TSource> source)
+        {
+            if (source.IsNotNull() && source.IsSubSonicQuerable())
+            {
+                IQueryable<TSource> query = source.AsQueryable();
+
+                return Enumerable.SingleOrDefault(query.Provider.Execute<IQueryable<TSource>>(query.Expression));
+            }
+
+            return Queryable.SingleOrDefault(source);
+        }
+
+        public static TSource SingleOrDefault<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+        {
+            if (source.IsNotNull() && source.IsSubSonicQuerable())
+            {
+                IQueryable<TSource> query = source.AsQueryable();
+
+                return Enumerable.SingleOrDefault(query.Where(predicate).Provider.Execute<IQueryable<TSource>>(query.Expression));
+            }
+
+            return Queryable.SingleOrDefault(source, predicate);
         }
     }
 }

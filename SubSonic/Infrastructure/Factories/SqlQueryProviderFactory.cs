@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace SubSonic.Infrastructure
 {
+    using Linq;
     using System.Reflection;
 
     public static class SqlQueryProviderFactory

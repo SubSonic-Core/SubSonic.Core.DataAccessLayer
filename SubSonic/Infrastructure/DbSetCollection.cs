@@ -86,7 +86,7 @@ namespace SubSonic.Infrastructure
 
         private IQueryable<TEntity> Load()
         {
-            foreach(TEntity entity in SubSonicLinqExtensions.Load(this.Select()))
+            foreach(TEntity entity in SubSonicQueryable.Load(this.Select()))
             {
                 Add(entity);
             }

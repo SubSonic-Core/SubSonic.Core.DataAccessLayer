@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 
 namespace SubSonic.Infrastructure.Schema
 {
+    using Linq;
     using Linq.Expressions;
     using Linq.Expressions.Alias;
     using System.Data;

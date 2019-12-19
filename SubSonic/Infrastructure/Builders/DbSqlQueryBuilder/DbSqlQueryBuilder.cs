@@ -3,6 +3,7 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Infrastructure.Builders
 {
+    using Linq;
     using Linq.Expressions;
     using Logging;
     using Schema;

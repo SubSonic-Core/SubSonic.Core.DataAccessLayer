@@ -19,6 +19,7 @@ namespace SubSonic.Linq.Expressions
         Aggregate,
         Scalar,
         Exists,
+        NotExists,
         In,
         NotIn,
         Grouping,

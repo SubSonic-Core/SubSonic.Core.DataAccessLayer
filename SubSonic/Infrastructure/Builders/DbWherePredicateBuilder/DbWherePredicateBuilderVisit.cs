@@ -1,12 +1,14 @@
-﻿using SubSonic.Linq.Expressions;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using MLinq = System.Linq;
 
 namespace SubSonic.Infrastructure.Builders
 {
+    using Linq;
+    using Linq.Expressions;
+
     partial class DbWherePredicateBuilder
     {
         protected override Expression VisitBinary(BinaryExpression node)
@@ -34,21 +36,6 @@ namespace SubSonic.Infrastructure.Builders
             return base.VisitBinary(node);
         }
 
-        protected override Expression VisitIn(DbInExpression inExp)
-        {
-            if (inExp.IsNotNull())
-            {
-                switch ((DbExpressionType)inExp.NodeType)
-                {
-                    case DbExpressionType.In:
-                    case DbExpressionType.NotIn:
-                        comparison = (ComparisonOperator)Enum.Parse(typeof(ComparisonOperator), ((DbExpressionType)inExp.NodeType).ToString());
-                        break;
-                }
-            }
-            return base.VisitIn(inExp);
-        }
-
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
             if (node.IsNotNull())
@@ -57,26 +44,33 @@ namespace SubSonic.Infrastructure.Builders
                 {
                     comparison = (ComparisonOperator)Enum.Parse(typeof(ComparisonOperator), call.Method.Name);
 
-                    foreach (Expression argument in call.Arguments)
+                    if (comparison.In(ComparisonOperator.In, ComparisonOperator.NotIn))
                     {
-                        if (argument is MethodCallExpression method)
+                        foreach (Expression argument in call.Arguments)
                         {
-                            object set = Expression.Lambda(method).Compile().DynamicInvoke();
-
-                            if(((IQueryable)set).Expression is DbSelectExpression select)
+                            if (argument is MethodCallExpression method)
                             {
-                                if(select.Where is DbWhereExpression where)
-                                {
-                                    parameters.AddRange((DbExpressionType)where.NodeType, where.Parameters.ToArray());
-                                }
+                                object set = Expression.Lambda(method).Compile().DynamicInvoke();
 
-                                right = select;
+                                if (((MLinq.IQueryable)set).Expression is DbSelectExpression select)
+                                {
+                                    if (select.Where is DbWhereExpression where)
+                                    {
+                                        parameters.AddRange((DbExpressionType)where.NodeType, where.Parameters.ToArray());
+                                    }
+
+                                    right = select;
+                                }
+                            }
+                            else
+                            {
+                                Visit(argument);
                             }
                         }
-                        else
-                        {
-                            Visit(argument);
-                        }
+                    }
+                    else
+                    {
+                        throw new NotSupportedException();
                     }
 
                     BuildLogicalExpression();
@@ -139,6 +133,11 @@ namespace SubSonic.Infrastructure.Builders
 
         protected virtual void BuildLogicalExpression()
         {
+            if (left is null || right is null)
+            {
+                throw new InvalidOperationException();
+            }
+
             if (body.IsNull())
             {
                 body = GetComparisonExpression(left, right, comparison);

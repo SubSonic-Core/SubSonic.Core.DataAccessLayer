@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace SubSonic.Infrastructure
 {
+    using Linq;
     using Linq.Expressions;
-    using Linq.Expressions.Alias;
     using Schema;
 
     public class DbEntityModel

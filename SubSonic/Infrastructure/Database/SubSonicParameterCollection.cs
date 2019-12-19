@@ -2,12 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using System.Linq;
 using System.Collections.ObjectModel;
 
 namespace SubSonic.Infrastructure
 {
     using Linq.Expressions;
+    using SubSonic.Linq;
 
     public class SubSonicParameterDictionary
         : IDictionary<DbExpressionType, List<SubSonicParameter>>

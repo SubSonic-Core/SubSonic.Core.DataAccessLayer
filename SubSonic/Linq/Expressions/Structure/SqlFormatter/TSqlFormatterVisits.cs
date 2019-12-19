@@ -30,12 +30,14 @@ namespace SubSonic.Linq.Expressions.Structure
                 case ExpressionType.GreaterThan:
                 case ExpressionType.GreaterThanOrEqual:
                 case (ExpressionType)DbExpressionType.IsNull:
+                case (ExpressionType)DbExpressionType.IsNotNull:
                 case (ExpressionType)DbExpressionType.Between:
                 case (ExpressionType)DbExpressionType.NotBetween:
                 case (ExpressionType)DbExpressionType.Exists:
+                case (ExpressionType)DbExpressionType.NotExists:
                 case (ExpressionType)DbExpressionType.In:
                 case (ExpressionType)DbExpressionType.NotIn:
-                    return true;
+                    return expr.Type.IsBoolean();
                 case ExpressionType.Call:
                     return ((MethodCallExpression)expr).Type.IsBoolean();
                 case ExpressionType.MemberAccess:

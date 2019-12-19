@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
-using System.Text;
 using Ext = SubSonic.SubSonicExtensions;
 
 namespace SubSonic.Infrastructure
 {
+    using Linq;
     using Schema;
-    using System.Linq.Expressions;
 
     public class DbModelBuilder
     {

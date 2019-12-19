@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
 namespace SubSonic.Infrastructure
 {
+    using Linq;
+
     internal class DbExpressionBuilder
     {
         private readonly ParameterExpression parameter;
@@ -63,7 +64,7 @@ namespace SubSonic.Infrastructure
             Expression lambda = GetExpressionArgument<TEntity>(@enum, properties);
 
             this.call = Expression.Call(
-                typeof(Queryable),
+                typeof(System.Linq.Queryable),
                 @enum.ToString(),
                 GetTypeArguments(@enum, lambda),
                 (Expression)call ?? root,

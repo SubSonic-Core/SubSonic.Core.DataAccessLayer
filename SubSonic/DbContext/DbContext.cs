@@ -12,6 +12,7 @@ using System.Runtime.CompilerServices;
 
 namespace SubSonic
 {
+    using Linq;
     public partial class DbContext
         : IDisposable, IInfrastructure<IServiceProvider>
     {

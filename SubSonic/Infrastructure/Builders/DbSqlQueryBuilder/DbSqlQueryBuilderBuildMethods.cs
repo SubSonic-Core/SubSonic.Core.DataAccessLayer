@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace SubSonic.Infrastructure.Builders
 {
+    using Linq;
     using Linq.Expressions;
-    using Logging;
-    using Schema;
-    using System.Data.Common;
-    using System.Globalization;
     using System.Reflection;
 
     public partial class DbSqlQueryBuilder
@@ -103,7 +99,7 @@ namespace SubSonic.Infrastructure.Builders
             if (lambda.IsNotNull())
             {
                 return Expression.Call(
-                    typeof(Queryable),
+                    typeof(System.Linq.Queryable),
                     nameofCallee,
                     GetTypeArguments((LambdaExpression)lambda),
                     GetMethodCall(collection) ?? Expression.Parameter(GetTypeOf(typeof(ISubSonicCollection<>), DbEntity.EntityModelType)),

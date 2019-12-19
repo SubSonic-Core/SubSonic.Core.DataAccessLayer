@@ -1,12 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SubSonic.Infrastructure.Logging
 {
+    using Linq;
+
     public class SubSonicPerformanceLogger<TCategoryName>
         : SubSonicPerformanceLogger
         , IPerformanceLogger<TCategoryName>

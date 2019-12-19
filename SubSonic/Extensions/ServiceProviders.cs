@@ -4,6 +4,8 @@ using System.Text;
 
 namespace SubSonic
 {
+    using Linq;
+
     public static partial class SubSonicExtensions
     {
         public static TReturn GetService<TType, TReturn>(this IServiceProvider provider)

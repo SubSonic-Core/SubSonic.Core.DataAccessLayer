@@ -1,15 +1,10 @@
-﻿using SubSonic.Infrastructure.Builders;
-using SubSonic.Infrastructure.Logging;
+﻿using SubSonic.Infrastructure.Logging;
 using System;
-using System.Collections.Generic;
 using System.Data.Common;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SubSonic.Infrastructure
 {
+    using Linq;
 #if DB_PROVIDER_NOT_DEFINED
     using Factories;
 #endif

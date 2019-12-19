@@ -5,6 +5,7 @@ using System.Text;
 
 namespace SubSonic
 {
+    using Linq;
     /// <summary>
     /// 
     /// </summary>
@@ -39,39 +40,29 @@ namespace SubSonic
 
             return result;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        /// <remarks>referneced in dynamic proxy</remarks>
         public static bool IsNull(this object source)
-        {
-            return source == null;
-        }
-
-        public static bool IsNull<TType>(this TType source)
         {
             return source == null;
         }
 
         public static TType IsNull<TType>(this TType source, TType @default = default(TType))
         {
-            if(source.IsNull())
+            if(SubSonicQueryable.IsNull(source))
             {
                 return @default;
             }
             return source;
         }
 
-        public static bool IsNotNull(this object source)
-        {
-            return !IsNull(source);
-        }
-
-        public static bool IsNotNull<TType>(this TType source)
-        {
-            return !IsNull(source);
-        }
-
         public static TReturn IsNotNull<TType, TReturn>(this TType source, Func<TType, TReturn> selector, TReturn @default = default(TReturn))
         {
-            if (IsNotNull(source))
+            if (SubSonicQueryable.IsNotNull(source))
             {
                 return selector(source);
             }
@@ -80,7 +71,7 @@ namespace SubSonic
 
         public static void IsNotNull<TType>(this TType source, Action<TType> action)
         {
-            if (IsNotNull(source))
+            if (SubSonicQueryable.IsNotNull(source))
             {
                 action(source);
             }
@@ -88,7 +79,7 @@ namespace SubSonic
 
         public static TType IsNullThrow<TType>(this TType source, Exception exception)
         {
-            if (IsNull(source))
+            if (SubSonicQueryable.IsNull(source))
             {
                 throw exception;
             }

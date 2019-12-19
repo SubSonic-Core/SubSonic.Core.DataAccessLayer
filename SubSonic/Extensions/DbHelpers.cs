@@ -5,11 +5,11 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
 
 namespace SubSonic
 {
+    using Linq;
     public static partial class SubSonicExtensions
     {
         public static string[] GetForeignKeyName(this PropertyInfo propertyInfo)
@@ -73,7 +73,7 @@ namespace SubSonic
 
         public static void Map<TDestination, TSource>(this TDestination destination, TSource source, Func<string, string> nameOf = null)
         {
-            if(nameOf.IsNull())
+            if(nameOf is null)
             {
                 nameOf = (name) => name;
             }

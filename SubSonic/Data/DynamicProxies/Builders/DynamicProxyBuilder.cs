@@ -2,13 +2,13 @@
 using SubSonic.Infrastructure.Schema;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 
 namespace SubSonic.Data.DynamicProxies
 {
+    using Linq;
     public delegate void Proxy();
 
     internal class DynamicProxyBuilder<TEntity>
