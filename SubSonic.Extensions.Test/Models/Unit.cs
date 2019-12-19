@@ -21,5 +21,8 @@ namespace SubSonic.Extensions.Test.Models
 
         [ForeignKey(nameof(StatusID))]
         public virtual Status Status { get; set; }
+
+        [Column("Bedrooms", TypeName = "int")]
+        public int NumberOfBedrooms { get; set; }
     }
 }

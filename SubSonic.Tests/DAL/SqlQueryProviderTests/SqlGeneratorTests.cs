@@ -272,7 +272,7 @@ FROM [dbo].[Status] AS [{0}]".Format("T1");
         public void CanGenerateSelectSqlForUnit()
         {
             string expected =
-@"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID]
+@"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID], [{0}].[Bedrooms] AS [NumberOfBedrooms]
 FROM [dbo].[Unit] AS [{0}]".Format("T1");
 
             Expression expression = DbContext.Units.Select().Expression;
@@ -382,19 +382,109 @@ WHERE ([{0}].[IsAvailableStatus] = @IsAvailableStatus)".Format("T1");
         }
 
         [Test]
+        public void CanGenerateSqlForWhereExists()
+        {
+            string
+                expected =
+@"SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
+FROM [dbo].[RealEstateProperty] AS [{0}]
+WHERE EXISTS (
+    SELECT [{1}].[ID], , [{1}].[StatusID], [{0}].[Bedrooms] AS [NumberOfBedrooms]
+    FROM [dbo].[Unit] AS [{1}]
+    WHERE ([{1}].[RealEstatePropertyID] = [{0}].[ID]) AND ([{0}].[Bedrooms] = @Bedrooms))".Format("T1", "T2");
+
+            Expression select = DbContext
+                .RealEstateProperties
+                .WhereExists((Property) => 
+                    DbContext.Units
+                        .Where(x => x.RealEstatePropertyID == Property.ID && x.NumberOfBedrooms == 2)
+                        .Select(x => x.ID))
+                .Expression;
+
+            IDbQueryObject query = null;
+
+            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+
+                    query = builder.ToQueryObject(select);
+                }).Should().NotThrow();
+            }
+
+            query.Sql.Should().NotBeNullOrEmpty();
+            query.Sql.Should().Contain("WHERE EXISTS (");
+
+            logging.LogInformation("\n" + query.Sql + "\n");
+
+            query.Sql.Should().Be(expected);
+
+            query.Parameters.Should().NotBeEmpty();
+            query.Parameters.Get("@Bedrooms").Value.Should().Be(2);
+        }
+
+        [Test]
+        public void CanGenerateSqlForWhereNotExists()
+        {
+            string
+                expected =
+@"SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
+FROM [dbo].[RealEstateProperty] AS [{0}]
+WHERE NOT EXISTS (
+    SELECT [{1}].[ID], , [{1}].[StatusID], [{0}].[Bedrooms] AS [NumberOfBedrooms]
+    FROM [dbo].[Unit] AS [{1}]
+    WHERE ([{1}].[RealEstatePropertyID] = [{0}].[ID]) AND ([{0}].[Bedrooms] = @Bedrooms))".Format("T1", "T2");
+
+            Expression select = DbContext
+                .RealEstateProperties
+                .WhereExists((Property) =>
+                    DbContext.Units
+                        .Where(x => x.RealEstatePropertyID == Property.ID && x.NumberOfBedrooms == 1)
+                        .Select(x => x.ID))
+                .Expression;
+
+            IDbQueryObject query = null;
+
+            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+
+                    query = builder.ToQueryObject(select);
+                }).Should().NotThrow();
+            }
+
+            query.Sql.Should().NotBeNullOrEmpty();
+            query.Sql.Should().Contain("WHERE NOT EXISTS (");
+
+            logging.LogInformation("\n" + query.Sql + "\n");
+
+            query.Sql.Should().Be(expected);
+
+            query.Parameters.Should().NotBeEmpty();
+            query.Parameters.Get("@Bedrooms").Value.Should().Be(1);
+        }
+
+        [Test]
         public void CanMergeMultipleWhereStatements()
         {
             string 
                 units =
-@"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID]
+@"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID], [{0}].[Bedrooms] AS [NumberOfBedrooms]
 FROM [dbo].[Unit] AS [{0}]
 WHERE ([{0}].[RealEstatePropertyID] = 1)".Format("T1"),
                 status =
-@"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID]
+@"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID], [{0}].[Bedrooms] AS [NumberOfBedrooms]
 FROM [dbo].[Unit] AS [{0}]
 WHERE (([{0}].[RealEstatePropertyID] = 1) AND ([{0}].[StatusID] = 1))".Format("T1"),
                 expected =
-@"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID]
+@"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID], [{0}].[Bedrooms] AS [NumberOfBedrooms]
 FROM [dbo].[Unit] AS [{0}]
 WHERE (([{0}].[RealEstatePropertyID] = @RealEstatePropertyID) AND ([{0}].[StatusID] = @StatusID))".Format("T1");
 

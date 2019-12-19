@@ -73,10 +73,11 @@ namespace SubSonic.Infrastructure.Builders
                     throw new ArgumentNullException(nameof(predicate));
                 }
 
-                if (where is DbWhereExpression)
+                if (((DbExpressionType)where.NodeType) == DbExpressionType.Where &&
+                    where is DbWhereExpression _where)
                 {
                     Expression
-                        logical = DbWherePredicateBuilder.GetBodyExpression(((DbWhereExpression)where).LambdaPredicate.Body, predicate.Body, GroupOperator.AndAlso);
+                        logical = DbWherePredicateBuilder.GetBodyExpression(_where.LambdaPredicate.Body, predicate.Body, GroupOperator.AndAlso);
                     predicate = BuildLambda(logical, LambdaType.Predicate) as LambdaExpression;
                 }
                 else
@@ -92,13 +93,13 @@ namespace SubSonic.Infrastructure.Builders
             return BuildCall("Where", collection, lambda);
         }
 
-        public Expression BuildWhereExists<TEntity>(DbTableExpression dbTableExpression, object p, Type type, Expression<System.Linq.IQueryable<TEntity>> select)
+        public Expression BuildWhereExists<TEntity>(DbTableExpression from, Type type, Expression<Func<TEntity, System.Linq.IQueryable>> select)
         {
-            throw new NotImplementedException();
+            return DbExpression.Where(from, type, select, DbExpressionType.Exists);
         }
-        public Expression BuildWhereNotExists<TEntity>(DbTableExpression from, Expression where, Type type, Expression<System.Linq.IQueryable<TEntity>> select)
+        public Expression BuildWhereNotExists<TEntity>(DbTableExpression from, Type type, Expression<Func<TEntity, System.Linq.IQueryable>> select)
         {
-            throw new NotImplementedException();
+            return DbExpression.Where(from, type, select, DbExpressionType.NotExists);
         }
         #endregion
 

@@ -6,7 +6,6 @@ using System.Linq.Expressions;
 namespace SubSonic.Linq
 {
     using Expressions;
-    using Translation;
 
     public static partial class SubSonicExtensions
     {
@@ -306,22 +305,6 @@ namespace SubSonic.Linq
             var newColumns = select.Columns.Select(d => new DbColumnDeclaration(d.Property));
             var newFrom = new DbSelectExpression(newAlias, select.Columns, select.From, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Skip, select.Take);
             return new DbSelectExpression(select.Alias, newColumns, newFrom, null, null, null, false, null, null);
-        }
-
-        public static DbSelectExpression RemoveRedundantFrom(this DbSelectExpression select)
-        {
-            if (select is null)
-            {
-                throw new ArgumentNullException(nameof(select));
-            }
-
-            DbSelectExpression fromSelect = select.From as DbSelectExpression;
-
-            if (fromSelect != null)
-            {
-                return SubQueryRemover.Remove(select, fromSelect);
-            }
-            return select;
         }
 
         public static DbSelectExpression SetFrom(this DbSelectExpression select, Expression from)

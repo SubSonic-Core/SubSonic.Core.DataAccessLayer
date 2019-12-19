@@ -94,7 +94,7 @@ WHERE ([{0}].[ID] = 1)".Format("T1");
         {
             string
                 units =
-@"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID]
+@"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID], [{0}].[Bedrooms] AS [NumberOfBedrooms]
 FROM [dbo].[Unit] AS [{0}]",
                 property =
 @"SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
@@ -135,7 +135,7 @@ WHERE ([{0}].[ID] = {1})";
         {
             string
                 units =
-@"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID]
+@"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID], [{0}].[Bedrooms] AS [NumberOfBedrooms]
 FROM [dbo].[Unit] AS [{0}]
 WHERE ([{0}].[RealEstatePropertyID] = {1})";
 
@@ -154,7 +154,7 @@ WHERE ([{0}].[RealEstatePropertyID] = {1})";
         {
             string
                 units =
-@"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID]
+@"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID], [{0}].[Bedrooms] AS [NumberOfBedrooms]
 FROM [dbo].[Unit] AS [{0}]
 WHERE ([{0}].[RealEstatePropertyID] = {1})";
 

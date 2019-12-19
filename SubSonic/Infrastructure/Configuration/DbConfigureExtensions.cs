@@ -29,11 +29,18 @@ namespace SubSonic.Infrastructure
                     .AddTransient<AutomaticConnectionScope>();
         }
 
+        private static void Compile(Expression<Func<IQueryable>> query)
+        {
+            Expression.Lambda(query).Compile().DynamicInvoke();
+        }
+
         public static void PreCompile(this DbContext context)
         {
             foreach (IDbEntityModel model in context.Model.EntityModels)
             {
                 DbSqlQueryBuilder builder = new DbSqlQueryBuilder(model.EntityModelType);
+
+                Compile(() => new SubSonicCollection(model.EntityModelType, builder, builder.BuildSelect()));
             }
         }
     }

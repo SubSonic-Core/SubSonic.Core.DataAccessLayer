@@ -87,7 +87,7 @@ namespace SubSonic.Linq
             return Queryable.Where(source, predicate);
         }
 
-        public static IQueryable<TSource> WhereExists<TSource, TEntity>(this IQueryable<TSource> source, Expression<IQueryable<TEntity>> select)
+        public static IQueryable<TSource> WhereExists<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, IQueryable>> select)
         {
             if (source.IsNotNull() && source.IsSubSonicQuerable())
             {
@@ -97,11 +97,11 @@ namespace SubSonic.Linq
 
                 if (source.Expression is DbTableExpression)
                 {
-                    where = provider.BuildWhereExists((DbTableExpression)provider.GetAliasedTable(), null, source.GetType(), select);
+                    where = provider.BuildWhereExists((DbTableExpression)provider.GetAliasedTable(), source.GetType(), select);
                 }
                 else if (source.Expression is DbSelectExpression _select)
                 {
-                    where = provider.BuildWhereExists((DbTableExpression)_select.From, _select.Where, source.GetType(), select);
+                    where = provider.BuildWhereExists((DbTableExpression)_select.From, source.GetType(), select);
                 }
 
                 return (ISubSonicCollection<TSource>)provider.CreateQuery<TSource>(provider.BuildSelect(source.Expression, where));
@@ -109,7 +109,7 @@ namespace SubSonic.Linq
             throw new NotSupportedException();
         }
 
-        public static IQueryable<TSource> WhereNotExists<TSource, TEntity>(this IQueryable<TSource> source, Expression<IQueryable<TEntity>> select)
+        public static IQueryable<TSource> WhereNotExists<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, IQueryable>> select)
         {
             if (source.IsNotNull() && source.IsSubSonicQuerable())
             {
@@ -119,11 +119,11 @@ namespace SubSonic.Linq
 
                 if (source.Expression is DbTableExpression)
                 {
-                    where = provider.BuildWhereNotExists((DbTableExpression)provider.GetAliasedTable(), null, source.GetType(), select);
+                    where = provider.BuildWhereNotExists((DbTableExpression)provider.GetAliasedTable(), source.GetType(), select);
                 }
                 else if (source.Expression is DbSelectExpression _select)
                 {
-                    where = provider.BuildWhereNotExists((DbTableExpression)_select.From, _select.Where, source.GetType(), select);
+                    where = provider.BuildWhereNotExists((DbTableExpression)_select.From, source.GetType(), select);
                 }
 
                 return (ISubSonicCollection<TSource>)provider.CreateQuery<TSource>(provider.BuildSelect(source.Expression, where));

@@ -20,20 +20,22 @@ namespace SubSonic.Infrastructure.Builders
 
         private GroupOperator group;
         private ComparisonOperator comparison;
+        private DbExpressionType whereType;
         private PropertyInfo propertyInfo;
         private Expression left, right;
 
-        protected DbWherePredicateBuilder(DbTableExpression table)
+        protected DbWherePredicateBuilder(DbTableExpression table, DbExpressionType whereType)
         {
             parameters = new SubSonicParameterDictionary();
             this.table = table ?? throw new ArgumentNullException(nameof(table));
+            this.whereType = whereType;
         }
 
-        public static DbExpression GetWherePredicate(DbTableExpression table, Type type, LambdaExpression lambda)
+        public static DbExpression GetWherePredicate(DbTableExpression table, Type type, LambdaExpression lambda, DbExpressionType whereType)
         {
-            var builder = new DbWherePredicateBuilder(table);
+            var builder = new DbWherePredicateBuilder(table, whereType);
 
-            return new DbWhereExpression(type, lambda, builder.ParsePredicate(lambda.Body), builder.parameters.ToReadOnlyCollection(DbExpressionType.Where));
+            return new DbWhereExpression(whereType, type, lambda, builder.ParsePredicate(lambda.Body), builder.parameters.ToReadOnlyCollection(DbExpressionType.Where));
         }
 
         public static Expression GetComparisonExpression(Expression left, Expression right, ComparisonOperator @operator)
@@ -191,13 +193,13 @@ namespace SubSonic.Infrastructure.Builders
             {
                 name = $"el_{parameters[DbExpressionType.Where].IsNotNull(x => x.Count) + 1}";
 
-                parameters.Add(DbExpressionType.Where, new SubSonicParameter(property, $"@{name}") { Value = value });
+                parameters.Add(whereType, new SubSonicParameter(property, $"@{name}") { Value = value });
             }
             else
             {
                 name = property.Name;
 
-                parameters.Add(DbExpressionType.Where, new SubSonicParameter(property, $"@{name}") { Value = value });
+                parameters.Add(whereType, new SubSonicParameter(property, $"@{name}") { Value = value });
             }
 
             Type ConstantType = propertyInfo.PropertyType.GetUnderlyingType();

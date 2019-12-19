@@ -19,40 +19,10 @@ namespace SubSonic.Linq.Microsoft
         : DbExpressionVisitor
     {
         private static readonly char[] splitters = new char[] { '\n', '\r' };
-        private static readonly char[] special = new char[] { '\n', '\n', '\\' };
+        private static readonly char[] special = new char[] { '\n', '\t', '\\' };
 
         private TextWriter writer;
         private int depth;
-
-        //public static void Write(TextWriter writer, Expression expression)
-        //{
-        //    if (writer is null)
-        //    {
-        //        throw new ArgumentNullException(nameof(writer));
-        //    }
-
-        //    if (expression is null)
-        //    {
-        //        throw new ArgumentNullException(nameof(expression));
-        //    }
-
-        //    new ExpressionWriter(writer).Visit(expression);
-        //}
-
-        //public static string WriteToString(Expression expression)
-        //{
-        //    if (expression is null)
-        //    {
-        //        throw new ArgumentNullException(nameof(expression));
-        //    }
-
-        //    using (StringWriter writer = new StringWriter())
-        //    {
-        //        Write(writer, expression);
-
-        //        return writer.ToString();
-        //    }
-        //}
 
         protected ExpressionWriter(TextWriter writer)
         {

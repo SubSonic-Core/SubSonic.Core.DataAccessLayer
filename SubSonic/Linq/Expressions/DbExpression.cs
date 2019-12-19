@@ -28,7 +28,7 @@ namespace SubSonic.Linq.Expressions
             return DbExpressionWriter.WriteToString(this);
         }
 
-        public static DbExpression Where(DbTableExpression table, Type type, LambdaExpression predicate)
+        public static DbExpression Where(DbTableExpression table, Type type, LambdaExpression predicate, DbExpressionType whereType = DbExpressionType.Where)
         {
             if (table is null)
             {
@@ -45,7 +45,12 @@ namespace SubSonic.Linq.Expressions
                 throw new ArgumentNullException(nameof(predicate));
             }
 
-            return DbWherePredicateBuilder.GetWherePredicate(table, type, predicate);
+            if(whereType.NotIn(DbExpressionType.Where, DbExpressionType.Exists, DbExpressionType.NotExists))
+            {
+                throw new ArgumentException("", nameof(whereType));
+            }
+
+            return DbWherePredicateBuilder.GetWherePredicate(table, type, predicate, whereType);
         }
     }
 }

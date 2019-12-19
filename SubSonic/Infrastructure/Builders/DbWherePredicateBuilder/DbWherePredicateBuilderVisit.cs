@@ -42,31 +42,45 @@ namespace SubSonic.Infrastructure.Builders
             {
                 if (node is MethodCallExpression call)
                 {
-                    comparison = (ComparisonOperator)Enum.Parse(typeof(ComparisonOperator), call.Method.Name);
-
-                    if (comparison.In(ComparisonOperator.In, ComparisonOperator.NotIn))
+                    if (whereType == DbExpressionType.Where)
                     {
-                        foreach (Expression argument in call.Arguments)
+                        if (Enum.TryParse(typeof(ComparisonOperator), call.Method.Name, out object name))
                         {
-                            if (argument is MethodCallExpression method)
+                            comparison = (ComparisonOperator)name;
+                        }
+
+                        if (comparison.In(ComparisonOperator.In, ComparisonOperator.NotIn))
+                        {
+                            foreach (Expression argument in call.Arguments)
                             {
-                                object set = Expression.Lambda(method).Compile().DynamicInvoke();
-
-                                if (((MLinq.IQueryable)set).Expression is DbSelectExpression select)
+                                if (argument is MethodCallExpression method)
                                 {
-                                    if (select.Where is DbWhereExpression where)
-                                    {
-                                        parameters.AddRange((DbExpressionType)where.NodeType, where.Parameters.ToArray());
-                                    }
+                                    object set = Expression.Lambda(method).Compile().DynamicInvoke();
 
-                                    right = select;
+                                    if (((MLinq.IQueryable)set).Expression is DbSelectExpression select)
+                                    {
+                                        if (select.Where is DbWhereExpression where)
+                                        {
+                                            parameters.AddRange((DbExpressionType)where.NodeType, where.Parameters.ToArray());
+                                        }
+
+                                        right = select;
+                                    }
+                                }
+                                else
+                                {
+                                    Visit(argument);
                                 }
                             }
-                            else
-                            {
-                                Visit(argument);
-                            }
                         }
+                        else
+                        {
+                            throw new NotSupportedException();
+                        }
+                    }
+                    else if (whereType.In(DbExpressionType.Exists, DbExpressionType.NotExists))
+                    {
+                        throw new NotImplementedException();
                     }
                     else
                     {

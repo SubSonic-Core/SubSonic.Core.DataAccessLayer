@@ -25,10 +25,10 @@ namespace SubSonic.Tests.DAL.SUT
 
             Units = new List<Unit>()
             {
-                new Unit() { ID = 1, RealEstatePropertyID = 1, StatusID = 1 },
-                new Unit() { ID = 2, RealEstatePropertyID = 1, StatusID = 2 },
-                new Unit() { ID = 3, RealEstatePropertyID = 1, StatusID = 3 },
-                new Unit() { ID = 4, RealEstatePropertyID = 2, StatusID = 3 },
+                new Unit() { ID = 1, RealEstatePropertyID = 1, StatusID = 1, NumberOfBedrooms = 1 },
+                new Unit() { ID = 2, RealEstatePropertyID = 1, StatusID = 2, NumberOfBedrooms = 2 },
+                new Unit() { ID = 3, RealEstatePropertyID = 1, StatusID = 3, NumberOfBedrooms = 3 },
+                new Unit() { ID = 4, RealEstatePropertyID = 2, StatusID = 3, NumberOfBedrooms = 2 },
             };
 
             RealEstateProperties = new List<RealEstateProperty>()

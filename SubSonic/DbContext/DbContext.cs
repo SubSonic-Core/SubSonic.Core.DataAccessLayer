@@ -70,10 +70,8 @@ namespace SubSonic
 
             if(Options.PreLoadHandler.IsNotNull())
             {
-                Options.PreLoadHandler(Model);
+                Options.PreLoadHandler(Model);  
             }
-
-            this.PreCompile();
         }
 
         protected virtual void OnDbConfiguring(DbContextOptionsBuilder builder)
