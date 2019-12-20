@@ -28,7 +28,6 @@ namespace SubSonic.Linq.Expressions.Structure
                 case DbExpressionType.Aggregate:
                     return VisitAggregate((DbAggregateExpression)node);
                 case DbExpressionType.Scalar:
-                case DbExpressionType.Exists:
                 case DbExpressionType.In:
                 case DbExpressionType.NotIn:
                     return VisitSubquery((DbSubQueryExpression)node);

@@ -61,7 +61,7 @@ namespace SubSonic.Linq.Expressions
                 throw new ArgumentException("", nameof(whereType));
             }
 
-            return DbWherePredicateBuilder.GetWherePredicate(table, type, predicate, whereType);
+            return DbWherePredicateBuilder.GetWherePredicate(type, predicate, whereType, table);
         }
     }
 }

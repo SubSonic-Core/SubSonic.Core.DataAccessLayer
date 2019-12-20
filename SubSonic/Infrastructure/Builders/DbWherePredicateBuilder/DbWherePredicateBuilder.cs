@@ -14,6 +14,9 @@ namespace SubSonic.Infrastructure.Builders
     partial class DbWherePredicateBuilder
         : DbExpressionVisitor
     {
+        [ThreadStatic]
+        private static Stack<DbWherePredicateBuilder> builders;
+
         private readonly DbTableExpression table;
         private SubSonicParameterDictionary parameters;
         private Expression body;
@@ -24,18 +27,26 @@ namespace SubSonic.Infrastructure.Builders
         private PropertyInfo propertyInfo;
         private Expression left, right;
 
-        protected DbWherePredicateBuilder(DbTableExpression table, DbExpressionType whereType)
+        protected DbWherePredicateBuilder(DbExpressionType whereType, DbTableExpression table)
         {
             parameters = new SubSonicParameterDictionary();
-            this.table = table ?? throw new ArgumentNullException(nameof(table));
             this.whereType = whereType;
+            this.table = table ?? throw new ArgumentNullException(nameof(table));
+
+            if (builders is null)
+            {
+                builders = new Stack<DbWherePredicateBuilder>();
+            }
+
+            builders.Push(this);
         }
 
-        public static DbExpression GetWherePredicate(DbTableExpression table, Type type, LambdaExpression lambda, DbExpressionType whereType)
+        public static DbExpression GetWherePredicate(Type type, LambdaExpression lambda, DbExpressionType whereType, DbTableExpression table)
         {
-            var builder = new DbWherePredicateBuilder(table, whereType);
-
-            return new DbWhereExpression(whereType, type, lambda, builder.ParsePredicate(lambda.Body), builder.parameters.ToReadOnlyCollection(DbExpressionType.Where));
+            using (var builder = new DbWherePredicateBuilder(whereType, table))
+            {
+                return new DbWhereExpression(whereType, type, lambda, builder.ParseLambda(lambda), builder.parameters.ToReadOnlyCollection(DbExpressionType.Where));
+            }
         }
 
         public static Expression GetComparisonExpression(Expression left, Expression right, ComparisonOperator @operator)
@@ -162,7 +173,7 @@ namespace SubSonic.Infrastructure.Builders
             return result;
         }
 
-        public Expression ParsePredicate(Expression predicate)
+        public Expression ParseLambda(Expression predicate)
         {
             Visit(predicate);
 
@@ -170,13 +181,16 @@ namespace SubSonic.Infrastructure.Builders
             return body;
         }
 
-        private Expression GetDbColumnExpression(PropertyInfo info)
+        private static DbTableExpression GetDbTable(Type type) => builders.Select(builder => builder.table).Single(table => table.Type == type || table.Type.IsSubclassOf(type));
+
+        private Expression GetDbColumnExpression(PropertyInfo propertyInfo)
         {
+            DbTableExpression table = GetDbTable(propertyInfo.DeclaringType);
+
             foreach (DbColumnDeclaration column in table.Columns)
             {
-                if (column.PropertyName == info.Name)
+                if (column.PropertyName == propertyInfo.Name)
                 {
-                    propertyInfo = info;
                     return column.Expression;
                 }
             }
@@ -185,6 +199,8 @@ namespace SubSonic.Infrastructure.Builders
 
         private Expression GetNamedExpression(object value)
         {
+            DbTableExpression table = GetDbTable(propertyInfo.DeclaringType);
+
             IDbEntityProperty property = table.Model[propertyInfo.Name];
 
             string name = "";
@@ -202,11 +218,9 @@ namespace SubSonic.Infrastructure.Builders
                 parameters.Add(whereType, new SubSonicParameter(property, $"@{name}") { Value = value });
             }
 
-            Type ConstantType = propertyInfo.PropertyType.GetUnderlyingType();
-
             return new DbNamedValueExpression(
                     name,
-                    Expression.Constant(Convert.ChangeType(value, ConstantType, CultureInfo.CurrentCulture), ConstantType));
+                    Expression.Constant(Convert.ChangeType(value, propertyInfo.PropertyType, CultureInfo.CurrentCulture), propertyInfo.PropertyType));
         }
     }
 }

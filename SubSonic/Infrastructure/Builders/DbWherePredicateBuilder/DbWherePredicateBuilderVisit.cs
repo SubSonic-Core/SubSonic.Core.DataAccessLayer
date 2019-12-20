@@ -42,63 +42,68 @@ namespace SubSonic.Infrastructure.Builders
             {
                 if (node is MethodCallExpression call)
                 {
-                    if (whereType == DbExpressionType.Where)
+
+                    if (Enum.TryParse(typeof(ComparisonOperator), call.Method.Name, out object name))
                     {
-                        if (Enum.TryParse(typeof(ComparisonOperator), call.Method.Name, out object name))
-                        {
-                            comparison = (ComparisonOperator)name;
-                        }
+                        comparison = (ComparisonOperator)name;
+                    }
 
-                        if (comparison.In(ComparisonOperator.In, ComparisonOperator.NotIn))
+                    if (comparison.In(ComparisonOperator.In, ComparisonOperator.NotIn))
+                    {
+                        foreach (Expression argument in call.Arguments)
                         {
-                            foreach (Expression argument in call.Arguments)
+                            if (argument is MethodCallExpression method)
                             {
-                                if (argument is MethodCallExpression method)
-                                {
-                                    object set = Expression.Lambda(method).Compile().DynamicInvoke();
+                                object set = Expression.Lambda(method).Compile().DynamicInvoke();
 
-                                    right = PullUpParameters(((MLinq.IQueryable)set).Expression);
-                                }
-                                else
-                                {
-                                    Visit(argument);
-                                }
+                                right = PullUpParameters(((MLinq.IQueryable)set).Expression);
+                            }
+                            else
+                            {
+                                Visit(argument);
                             }
                         }
-                        else
-                        {
-                            throw new NotSupportedException();
-                        }
-
-                        BuildLogicalExpression();
-                    }
-                    else if (whereType.In(DbExpressionType.Exists, DbExpressionType.NotExists))
-                    {
-                        Type fnType = Expression.GetFuncType(table.Type);
-
-                        LambdaExpression
-                            method = Expression.Lambda(call, Expression.Parameter(table.Type, "Entity"));
-                        
-                        Expression    
-                            body = table.Reduce(),
-                            fn = Expression.Lambda(fnType, body),
-                            invoke = Expression.Invoke(method, body);                        
-                        
-                        Expression sum = Expression.AndAlso(((LambdaExpression)method).Body, Expression.Invoke(Expression.Parameter(table.Type), ((LambdaExpression)method).Parameters));
-
-                        object set = Expression.Lambda(sum, ((LambdaExpression)method).Parameters).Compile().DynamicInvoke();
-
-                        body = PullUpParameters(((MLinq.IQueryable)set).Expression);
                     }
                     else
                     {
-                        throw new NotSupportedException();
+                        return base.VisitMethodCall(node);
                     }
+
+                    BuildLogicalExpression();
 
                     return node;
                 }
             }
             return base.VisitMethodCall(node);
+        }
+
+        protected override Expression VisitLambda<T>(Expression<T> node)
+        {
+            if (node is LambdaExpression lambda)
+            {
+                if (whereType == DbExpressionType.Where)
+                {
+                    if(lambda.Body is MethodCallExpression call)
+                    {
+                        return VisitMethodCall(call);
+                    }
+                }
+                else if (whereType.In(DbExpressionType.Exists, DbExpressionType.NotExists))
+                {
+                    object 
+                        func = Expression.Lambda(lambda).Compile().DynamicInvoke(),
+                        set = ((Delegate)func).DynamicInvoke(table.QueryObject);
+
+                    body = PullUpParameters(((MLinq.IQueryable)set).Expression);
+
+                    return node;
+                }
+                else
+                {
+                    throw new NotSupportedException();
+                }
+            }
+            return base.VisitLambda(node);
         }
 
         private Expression PullUpParameters(Expression query)
@@ -119,10 +124,30 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (node.IsNotNull())
             {
-                switch(node.NodeType)
+                switch (node.NodeType)
                 {
                     case ExpressionType.MemberAccess:
-                        left = GetDbColumnExpression((PropertyInfo)node.Member);
+                        if (node.Member is PropertyInfo pi)
+                        {
+                            if (left.IsNull())
+                            {
+                                propertyInfo = pi;
+
+                                left = GetDbColumnExpression(pi);
+                            }
+                            else
+                            {
+                                right = GetDbColumnExpression(pi);
+
+                                BuildLogicalExpression();
+                            }
+
+                            return node;
+                        }
+                        else if (node.Member is FieldInfo fi)
+                        {
+                            throw new NotSupportedException();
+                        }
                         break;
                 }
             }
@@ -155,12 +180,12 @@ namespace SubSonic.Infrastructure.Builders
             {
                 return GetNamedExpression(node.Value);
             }
-            else
+            else if (!(right is DbColumnExpression))
             {
                 right = GetNamedExpression(node.Value);
-
-                BuildLogicalExpression();
             }
+
+            BuildLogicalExpression();
 
             return base.VisitConstant(node);
         }
