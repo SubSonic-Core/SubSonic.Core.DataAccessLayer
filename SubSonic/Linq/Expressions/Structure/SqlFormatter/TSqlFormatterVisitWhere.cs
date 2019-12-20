@@ -20,7 +20,17 @@ namespace SubSonic.Linq.Expressions.Structure
                 WriteNewLine();
                 Write($"{Fragments.WHERE} ");
 
-                if (!IsPredicate(where.Expression))
+                if (((DbExpressionType)where.NodeType).In(DbExpressionType.Exists, DbExpressionType.NotExists))
+                {
+                    if(((DbExpressionType)where.NodeType) == DbExpressionType.NotExists)
+                    {
+                        Write($"{Fragments.NOT} ");
+                    }
+                    Write($"{Fragments.EXISTS} {Fragments.LEFT_PARENTHESIS}");
+                    WriteNewLine(Indentation.Inner);
+                }
+
+                if (((DbExpressionType)where.NodeType) == DbExpressionType.Where && !IsPredicate(where.Expression))
                 {
                     Write(Fragments.LEFT_PARENTHESIS);
                     base.VisitWhere(where);
@@ -29,6 +39,12 @@ namespace SubSonic.Linq.Expressions.Structure
                 else
                 {
                     base.VisitWhere(where);
+                }
+
+                if (((DbExpressionType)where.NodeType).In(DbExpressionType.Exists, DbExpressionType.NotExists))
+                {
+                    Write($"{Fragments.RIGHT_PARENTHESIS}");
+                    WriteNewLine(Indentation.Outer);
                 }
             }
             return where;

@@ -8,17 +8,20 @@ using System;
 using System.IO;
 using System.Linq.Expressions;
 using System.Text;
+using System.Collections.Generic;
+using System.Globalization;
 
 namespace SubSonic.Linq.Expressions.Structure
 {
     using Alias;
     using Infrastructure;
     using Infrastructure.SqlGenerator;
-    using System.Globalization;
+    
 
     public partial class TSqlFormatter
         : DbExpressionVisitor
     {
+        private static Stack<TSqlFormatter> __instances;
         private static readonly char[] splitters = new char[] { '\n', '\r' };
         private static readonly char[] special = new char[] { '\n', '\t', '\\' };
         private int depth = 0;
@@ -32,9 +35,8 @@ namespace SubSonic.Linq.Expressions.Structure
             StringBuilder builder = new StringBuilder();
 
             using (TextWriter writer = new StringWriter(builder))
+            using (TSqlFormatter sqlFormatter = new TSqlFormatter(writer, sqlContext ?? DbContext.ServiceProvider.GetService<SqlQueryProvider>().Context))
             {
-                TSqlFormatter sqlFormatter = new TSqlFormatter(writer, sqlContext ?? DbContext.ServiceProvider.GetService<SqlQueryProvider>().Context);
-
                 sqlFormatter.Visit(expression);
 
                 return builder.ToString();
@@ -45,9 +47,16 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             this.writer = writer ?? throw new ArgumentNullException(nameof(writer));
             this.context = sqlContext ?? throw new ArgumentNullException(nameof(sqlContext));
+
+            if(__instances is null)
+            {
+                __instances = new Stack<TSqlFormatter>();
+            }
+
+            __instances.Push(this);
         }
 
-        protected int IndentationWidth { get; set; } = 2;
+        protected int IndentationWidth => __instances.Count;
 
         protected bool IsNested { get; set; } = false;
 
@@ -90,7 +99,7 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             writer.WriteLine();
 
-            for (int i = 0, n = (depth * 1); i < n; i++)
+            for (int i = 0, n = (depth * IndentationWidth); i < n; i++)
             {
                 Write(special[1]);
             }

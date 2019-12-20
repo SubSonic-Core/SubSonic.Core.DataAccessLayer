@@ -7,6 +7,7 @@ namespace SubSonic.Infrastructure.SqlGenerator
     public class AnsiSqlFragment
         : ISqlFragment
     {
+        public virtual string NOT => "NOT";
         public virtual string AND => "AND";
         public virtual string AS => "AS";
         public virtual string ASC => "ASC";
@@ -31,11 +32,11 @@ namespace SubSonic.Infrastructure.SqlGenerator
         public virtual string LEFT_JOIN => "LEFT JOIN";
         public virtual string LEFT_OUTER_JOIN => "LEFT OUTER JOIN";
         public virtual string NOT_EQUAL_TO => "<>";
-        public virtual string NOT_IN => "NOT IN";
+        public virtual string NOT_IN => $"{NOT} IN";
         public virtual string ON => "ON";
         public virtual string NULL => "NULL";
-        public virtual string IS_NULL => $"IS NULL";
-        public virtual string IS_NOT_NULL => "IS NOT NULL";
+        public virtual string IS_NULL => $"IS {NULL}";
+        public virtual string IS_NOT_NULL => $"IS {NOT} {NULL}";
         public virtual string OR => "OR";
         public virtual string ORDER_BY => "ORDER BY";
         public virtual string OUTER_JOIN => "OUTER JOIN";

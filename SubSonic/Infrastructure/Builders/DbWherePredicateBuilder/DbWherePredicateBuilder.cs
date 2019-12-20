@@ -15,7 +15,7 @@ namespace SubSonic.Infrastructure.Builders
         : DbExpressionVisitor
     {
         [ThreadStatic]
-        private static Stack<DbWherePredicateBuilder> builders;
+        private static Stack<DbWherePredicateBuilder> __instances;
 
         private readonly DbTableExpression table;
         private SubSonicParameterDictionary parameters;
@@ -33,12 +33,12 @@ namespace SubSonic.Infrastructure.Builders
             this.whereType = whereType;
             this.table = table ?? throw new ArgumentNullException(nameof(table));
 
-            if (builders is null)
+            if (__instances is null)
             {
-                builders = new Stack<DbWherePredicateBuilder>();
+                __instances = new Stack<DbWherePredicateBuilder>();
             }
 
-            builders.Push(this);
+            __instances.Push(this);
         }
 
         public static DbExpression GetWherePredicate(Type type, LambdaExpression lambda, DbExpressionType whereType, DbTableExpression table)
@@ -181,7 +181,7 @@ namespace SubSonic.Infrastructure.Builders
             return body;
         }
 
-        private static DbTableExpression GetDbTable(Type type) => builders.Select(builder => builder.table).Single(table => table.Type == type || table.Type.IsSubclassOf(type));
+        private static DbTableExpression GetDbTable(Type type) => __instances.Select(builder => builder.table).Single(table => table.Type == type || table.Type.IsSubclassOf(type));
 
         private Expression GetDbColumnExpression(PropertyInfo propertyInfo)
         {

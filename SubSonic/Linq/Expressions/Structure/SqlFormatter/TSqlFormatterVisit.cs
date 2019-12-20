@@ -50,12 +50,9 @@ namespace SubSonic.Linq.Expressions.Structure
                 case ExpressionType.New:
                 case (ExpressionType)DbExpressionType.Table:
                 case (ExpressionType)DbExpressionType.Column:
-                case (ExpressionType)DbExpressionType.Select:
-                case (ExpressionType)DbExpressionType.Where:
                 case (ExpressionType)DbExpressionType.Join:
                 case (ExpressionType)DbExpressionType.Aggregate:
                 case (ExpressionType)DbExpressionType.Scalar:
-                case (ExpressionType)DbExpressionType.Exists:
                 case (ExpressionType)DbExpressionType.In:
                 case (ExpressionType)DbExpressionType.NotIn:
                 case (ExpressionType)DbExpressionType.AggregateSubQuery:
@@ -82,8 +79,9 @@ namespace SubSonic.Linq.Expressions.Structure
                 case ExpressionType.Invoke:
                 case ExpressionType.MemberInit:
                 case ExpressionType.ListInit:
-                default:
                     throw new NotSupportedException(SubSonicErrorMessages.UnSupportedNodeException.Format(node.NodeType));
+                default:
+                    return base.Visit(node);
             }
         }
     }

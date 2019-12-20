@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SubSonic.Infrastructure.Builders
+namespace SubSonic.Linq.Expressions.Structure
 {
-    public partial class DbWherePredicateBuilder
+    public partial class TSqlFormatter
         : IDisposable
     {
 
@@ -19,7 +19,7 @@ namespace SubSonic.Infrastructure.Builders
                 {
                     __instances.Pop();
 
-                    if (__instances.Count == 0)
+                    if(__instances.Count == 0)
                     {
                         __instances = null;
                     }
@@ -33,7 +33,7 @@ namespace SubSonic.Infrastructure.Builders
         }
 
         // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~DbWherePredicateBuilder()
+        // ~TSqlFormatter()
         // {
         //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
         //   Dispose(false);

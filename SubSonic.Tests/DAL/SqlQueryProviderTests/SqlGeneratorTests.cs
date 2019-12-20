@@ -389,9 +389,9 @@ WHERE ([{0}].[IsAvailableStatus] = @IsAvailableStatus)".Format("T1");
 @"SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
 FROM [dbo].[RealEstateProperty] AS [{0}]
 WHERE EXISTS (
-    SELECT [{1}].[ID], , [{1}].[StatusID], [{0}].[Bedrooms] AS [NumberOfBedrooms]
-    FROM [dbo].[Unit] AS [{1}]
-    WHERE ([{1}].[RealEstatePropertyID] = [{0}].[ID]) AND ([{0}].[Bedrooms] = @Bedrooms))".Format("T1", "T2");
+	SELECT [{1}].[ID]
+	FROM [dbo].[Unit] AS [{1}]
+	WHERE (([{1}].[RealEstatePropertyID] = [{0}].[ID]) AND ([{1}].[Bedrooms] = @Bedrooms)))".Format("T1", "T2");
 
             Expression select = DbContext
                 .RealEstateProperties
@@ -434,13 +434,13 @@ WHERE EXISTS (
 @"SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
 FROM [dbo].[RealEstateProperty] AS [{0}]
 WHERE NOT EXISTS (
-    SELECT [{1}].[ID], , [{1}].[StatusID], [{0}].[Bedrooms] AS [NumberOfBedrooms]
-    FROM [dbo].[Unit] AS [{1}]
-    WHERE ([{1}].[RealEstatePropertyID] = [{0}].[ID]) AND ([{0}].[Bedrooms] = @Bedrooms))".Format("T1", "T2");
+	SELECT [{1}].[ID]
+	FROM [dbo].[Unit] AS [{1}]
+	WHERE (([{1}].[RealEstatePropertyID] = [{0}].[ID]) AND ([{1}].[Bedrooms] = @Bedrooms)))".Format("T1", "T2");
 
             Expression select = DbContext
                 .RealEstateProperties
-                .WhereExists((Property) =>
+                .WhereNotExists((Property) =>
                     DbContext.Units
                         .Where(x => x.RealEstatePropertyID == Property.ID && x.NumberOfBedrooms == 1)
                         .Select(x => x.ID))
