@@ -22,6 +22,8 @@ namespace SubSonic.Tests.DAL.SUT
 
         public DbSetCollection<Models.Unit> Units { get; private set; }
 
+        public DbSetCollection<Models.Occupant> Occupants { get; private set; }
+
         protected override void OnDbConfiguring(DbContextOptionsBuilder config)
         {
             config
@@ -42,7 +44,8 @@ namespace SubSonic.Tests.DAL.SUT
             builder
                 .AddEntityModel<Models.RealEstateProperty>()
                 .AddEntityModel<Models.Status>()
-                .AddEntityModel<Models.Unit>();
+                .AddEntityModel<Models.Unit>()
+                .AddEntityModel<Models.Occupant>();
 
             builder.AddRelationshipFor<Models.RealEstateProperty>(() =>
                 builder.GetRelationshipFor<Models.RealEstateProperty>()
@@ -58,6 +61,11 @@ namespace SubSonic.Tests.DAL.SUT
                 builder.GetRelationshipFor<Models.Unit>()
                     .HasOne(Model => Model.RealEstateProperty)
                     .WithMany(Model => Model.Units));
+
+            builder.AddRelationshipFor<Models.Unit>(() =>
+                builder.GetRelationshipFor<Models.Unit>()
+                    .HasMany(Model => Model.Occupants)
+                    .WithOne(Model => Model.Unit));
 
             builder.AddRelationshipFor<Models.Unit>(() =>
                 builder.GetRelationshipFor<Models.Unit>()

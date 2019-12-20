@@ -272,7 +272,7 @@ FROM [dbo].[Status] AS [{0}]".Format("T1");
         public void CanGenerateSelectSqlForUnit()
         {
             string expected =
-@"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID], [{0}].[Bedrooms] AS [NumberOfBedrooms]
+@"SELECT [{0}].[ID], [{0}].[Bedrooms] AS [NumberOfBedrooms], [{0}].[StatusID], [{0}].[RealEstatePropertyID]
 FROM [dbo].[Unit] AS [{0}]".Format("T1");
 
             Expression expression = DbContext.Units.Select().Expression;
@@ -476,15 +476,15 @@ WHERE NOT EXISTS (
         {
             string 
                 units =
-@"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID], [{0}].[Bedrooms] AS [NumberOfBedrooms]
+@"SELECT [{0}].[ID], [{0}].[Bedrooms] AS [NumberOfBedrooms], [{0}].[StatusID], [{0}].[RealEstatePropertyID]
 FROM [dbo].[Unit] AS [{0}]
 WHERE ([{0}].[RealEstatePropertyID] = 1)".Format("T1"),
                 status =
-@"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID], [{0}].[Bedrooms] AS [NumberOfBedrooms]
+@"SELECT [{0}].[ID], [{0}].[Bedrooms] AS [NumberOfBedrooms], [{0}].[StatusID], [{0}].[RealEstatePropertyID]
 FROM [dbo].[Unit] AS [{0}]
 WHERE (([{0}].[RealEstatePropertyID] = 1) AND ([{0}].[StatusID] = 1))".Format("T1"),
                 expected =
-@"SELECT [{0}].[ID], [{0}].[RealEstatePropertyID], [{0}].[StatusID], [{0}].[Bedrooms] AS [NumberOfBedrooms]
+@"SELECT [{0}].[ID], [{0}].[Bedrooms] AS [NumberOfBedrooms], [{0}].[StatusID], [{0}].[RealEstatePropertyID]
 FROM [dbo].[Unit] AS [{0}]
 WHERE (([{0}].[RealEstatePropertyID] = @RealEstatePropertyID) AND ([{0}].[StatusID] = @StatusID))".Format("T1");
 

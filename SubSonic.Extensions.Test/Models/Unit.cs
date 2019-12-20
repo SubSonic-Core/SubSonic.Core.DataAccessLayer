@@ -12,17 +12,19 @@ namespace SubSonic.Extensions.Test.Models
         [Key]
         public int ID { get; set; }
 
-        public int RealEstatePropertyID { get; set; }
-
-        [ForeignKey(nameof(RealEstatePropertyID))]
-        public virtual RealEstateProperty RealEstateProperty { get;set;}
+        [Column("Bedrooms", TypeName = "int")]
+        public int NumberOfBedrooms { get; set; }
 
         public int StatusID { get; set; }
 
         [ForeignKey(nameof(StatusID))]
         public virtual Status Status { get; set; }
 
-        [Column("Bedrooms", TypeName = "int")]
-        public int NumberOfBedrooms { get; set; }
+        public int RealEstatePropertyID { get; set; }
+
+        [ForeignKey(nameof(RealEstatePropertyID))]
+        public virtual RealEstateProperty RealEstateProperty { get;set;}
+
+        public virtual ICollection<Occupant> Occupants { get; set; }
     }
 }
