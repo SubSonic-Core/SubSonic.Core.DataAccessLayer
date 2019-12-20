@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
+    using Structure;
     public class DbInExpression
         : DbSubQueryExpression
     {
@@ -26,5 +27,23 @@ namespace SubSonic.Linq.Expressions
 
         public virtual Expression Left { get; }
         public virtual Expression Inside { get; }
+
+        protected override Expression Accept(ExpressionVisitor visitor)
+        {
+            if (visitor is DbExpressionVisitor db)
+            {
+                return db.VisitIn(this);
+            }
+
+            return base.Accept(visitor);
+        }
+    }
+
+    public partial class DbExpression
+    {
+        public static DbExpression DbIn(Expression left, Expression inside)
+        {
+            return new DbInExpression(left, inside);
+        }
     }
 }

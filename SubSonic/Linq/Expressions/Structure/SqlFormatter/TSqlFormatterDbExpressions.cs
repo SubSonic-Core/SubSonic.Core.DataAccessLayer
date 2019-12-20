@@ -232,21 +232,7 @@ namespace SubSonic.Linq.Expressions.Structure
             return subquery;
         }
 
-        protected override Expression VisitExists(DbExistsExpression exists)
-        {
-            if (exists.IsNotNull())
-            {
-                Write($"{Fragments.EXISTS}{Fragments.RIGHT_PARENTHESIS}");
-                WriteNewLine(Indentation.Inner);
-                this.Visit(exists.Select);
-                WriteNewLine(Indentation.Same);
-                Write(Fragments.LEFT_PARENTHESIS);
-                this.Indent(Indentation.Outer);
-            }
-            return exists;
-        }
-
-        protected override Expression VisitIn(DbInExpression @in)
+        protected internal override Expression VisitIn(DbInExpression @in)
         {
             if (@in.IsNotNull())
             {

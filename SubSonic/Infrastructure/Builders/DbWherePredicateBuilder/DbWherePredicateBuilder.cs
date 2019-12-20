@@ -128,10 +128,10 @@ namespace SubSonic.Infrastructure.Builders
                     }
                     break;
                 case ComparisonOperator.In:
-                    result = new DbInExpression(left, right);
+                    result = DbExpression.DbIn(left, right);
                     break;
                 case ComparisonOperator.NotIn:
-                    result = new DbNotInExpression(left, right);
+                    result = DbExpression.DbNotIn(left, right);
                     break;
                 default:
                     throw new NotImplementedException($"{@operator} operation is not implemented.");

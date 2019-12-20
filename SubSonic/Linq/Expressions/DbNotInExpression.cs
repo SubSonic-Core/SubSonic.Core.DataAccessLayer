@@ -10,4 +10,12 @@ namespace SubSonic.Linq.Expressions
         public DbNotInExpression(Expression left, Expression inside)
             : base(DbExpressionType.NotIn, left, inside) { }
     }
+
+    public partial class DbExpression
+    {
+        public static DbExpression DbNotIn(Expression left, Expression inside)
+        {
+            return new DbNotInExpression(left, inside);
+        }
+    }
 }

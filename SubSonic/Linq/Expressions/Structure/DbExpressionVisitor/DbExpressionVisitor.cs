@@ -28,8 +28,6 @@ namespace SubSonic.Linq.Expressions.Structure
                 case DbExpressionType.Aggregate:
                     return VisitAggregate((DbAggregateExpression)node);
                 case DbExpressionType.Scalar:
-                case DbExpressionType.In:
-                case DbExpressionType.NotIn:
                     return VisitSubquery((DbSubQueryExpression)node);
                 case DbExpressionType.AggregateSubQuery:
                     return VisitAggregateSubQuery((DbAggregateSubQueryExpression)node);
@@ -179,11 +177,6 @@ namespace SubSonic.Linq.Expressions.Structure
             {
                 case DbExpressionType.Scalar:
                     return this.VisitScalar((DbScalarExpression)subquery);
-                case DbExpressionType.Exists:
-                    return this.VisitExists((DbExistsExpression)subquery);
-                case DbExpressionType.In:
-                case DbExpressionType.NotIn:
-                    return this.VisitIn((DbInExpression)subquery);
             }
             return subquery;
         }
@@ -203,22 +196,7 @@ namespace SubSonic.Linq.Expressions.Structure
             return scalar;
         }
 
-        protected virtual Expression VisitExists(DbExistsExpression exists)
-        {
-            if (exists is null)
-            {
-                return exists;
-            }
-
-            DbSelectExpression select = (DbSelectExpression)this.Visit(exists.Select);
-            if (select != exists.Select)
-            {
-                return new DbExistsExpression(select);
-            }
-            return exists;
-        }
-
-        protected virtual Expression VisitIn(DbInExpression inExp)
+        protected internal virtual Expression VisitIn(DbInExpression inExp)
         {
             if (inExp is null)
             {
@@ -236,9 +214,9 @@ namespace SubSonic.Linq.Expressions.Structure
                     switch ((DbExpressionType)inExp.NodeType)
                     {
                         case DbExpressionType.In:
-                            return new DbInExpression(left, select);
+                            return DbExpression.DbIn(left, select);
                         case DbExpressionType.NotIn:
-                            return new DbNotInExpression(left, select);
+                            return DbExpression.DbNotIn(left, select);
                     }
                 }
             }
@@ -251,9 +229,9 @@ namespace SubSonic.Linq.Expressions.Structure
                     switch ((DbExpressionType)inExp.NodeType)
                     {
                         case DbExpressionType.In:
-                            return new DbInExpression(left, array);
+                            return DbExpression.DbIn(left, array);
                         case DbExpressionType.NotIn:
-                            return new DbNotInExpression(left, array);
+                            return DbExpression.DbNotIn(left, array);
                     }
                 }
             }
