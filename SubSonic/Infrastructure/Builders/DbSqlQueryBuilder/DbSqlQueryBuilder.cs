@@ -25,7 +25,7 @@ namespace SubSonic.Infrastructure.Builders
 
             this.logger = logger ?? DbContext.ServiceProvider.GetService<ISubSonicLogger>();
             DbEntity = DbContext.DbModel.GetEntityModel(dbModelType.GetQualifiedType());
-            DbTable = DbEntity.Expression;
+            DbTable = DbEntity.Table;
             parameters = new SubSonicParameterDictionary();
         }
 

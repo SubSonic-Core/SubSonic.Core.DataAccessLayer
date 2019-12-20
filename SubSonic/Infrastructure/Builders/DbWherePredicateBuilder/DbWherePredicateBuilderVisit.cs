@@ -57,15 +57,7 @@ namespace SubSonic.Infrastructure.Builders
                                 {
                                     object set = Expression.Lambda(method).Compile().DynamicInvoke();
 
-                                    if (((MLinq.IQueryable)set).Expression is DbSelectExpression select)
-                                    {
-                                        if (select.Where is DbWhereExpression where)
-                                        {
-                                            parameters.AddRange((DbExpressionType)where.NodeType, where.Parameters.ToArray());
-                                        }
-
-                                        right = select;
-                                    }
+                                    right = PullUpParameters(((MLinq.IQueryable)set).Expression);
                                 }
                                 else
                                 {
@@ -77,22 +69,50 @@ namespace SubSonic.Infrastructure.Builders
                         {
                             throw new NotSupportedException();
                         }
+
+                        BuildLogicalExpression();
                     }
                     else if (whereType.In(DbExpressionType.Exists, DbExpressionType.NotExists))
                     {
-                        throw new NotImplementedException();
+                        Type fnType = Expression.GetFuncType(table.Type);
+
+                        LambdaExpression
+                            method = Expression.Lambda(call, Expression.Parameter(table.Type, "Entity"));
+                        
+                        Expression    
+                            body = table.Reduce(),
+                            fn = Expression.Lambda(fnType, body),
+                            invoke = Expression.Invoke(method, body);                        
+                        
+                        Expression sum = Expression.AndAlso(((LambdaExpression)method).Body, Expression.Invoke(Expression.Parameter(table.Type), ((LambdaExpression)method).Parameters));
+
+                        object set = Expression.Lambda(sum, ((LambdaExpression)method).Parameters).Compile().DynamicInvoke();
+
+                        body = PullUpParameters(((MLinq.IQueryable)set).Expression);
                     }
                     else
                     {
                         throw new NotSupportedException();
                     }
 
-                    BuildLogicalExpression();
-
                     return node;
                 }
             }
             return base.VisitMethodCall(node);
+        }
+
+        private Expression PullUpParameters(Expression query)
+        {
+            if (query is DbSelectExpression select)
+            {
+                if (select.Where is DbWhereExpression where)
+                {
+                    parameters.AddRange((DbExpressionType)where.NodeType, where.Parameters.ToArray());
+                }
+
+                return select;
+            }
+            return null;
         }
 
         protected override Expression VisitMember(MemberExpression node)

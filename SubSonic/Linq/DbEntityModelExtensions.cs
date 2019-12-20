@@ -21,7 +21,7 @@ namespace SubSonic.Linq
             return new Alias.TableAlias(model.ToString());
         }
 
-        public static IEnumerable<DbColumnDeclaration> ToColumnList(this ICollection<IDbEntityProperty> properties, DbAliasedExpression expression)
+        public static IEnumerable<DbColumnDeclaration> ToColumnList(this ICollection<IDbEntityProperty> properties, DbTableExpression expression)
         {
             if (properties is null)
             {
@@ -41,7 +41,7 @@ namespace SubSonic.Linq
                 {
                     if (property.EntityPropertyType == DbEntityPropertyType.Value)
                     {
-                        property.SetExpression(expression.Alias);
+                        property.SetExpression(expression.Table);
 
                         columns.Add(new DbColumnDeclaration(property));
                     }

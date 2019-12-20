@@ -40,7 +40,7 @@ namespace SubSonic.Infrastructure
             {
                 DbSqlQueryBuilder builder = new DbSqlQueryBuilder(model.EntityModelType);
 
-                Compile(() => new SubSonicCollection(model.EntityModelType, builder, builder.BuildSelect()));
+                Compile(() => new SubSonicCollection(model.EntityModelType));
             }
         }
     }

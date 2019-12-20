@@ -5,15 +5,15 @@ namespace SubSonic.Linq.Expressions
 {
     public class DbNotBetweenExpression : DbExpression
     {
-        public DbNotBetweenExpression(Expression expression, Expression lower, Expression upper)
-            : base(DbExpressionType.NotBetween, expression.IsNullThrowArgumentNull(nameof(expression)).Type)
+        public DbNotBetweenExpression(Expression value, Expression lower, Expression upper)
+            : base(DbExpressionType.NotBetween, value.IsNullThrowArgumentNull(nameof(value)).Type)
         {
-            Expression = expression;
+            Value = value;
             Lower = lower ?? throw new ArgumentNullException(nameof(lower));
             Upper = upper ?? throw new ArgumentNullException(nameof(upper));
         }
 
-        public override Expression Expression { get; }
+        public virtual Expression Value { get; }
         public virtual Expression Lower { get; }
         public virtual Expression Upper { get; }
     }

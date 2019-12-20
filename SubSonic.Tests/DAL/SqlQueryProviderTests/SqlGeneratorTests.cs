@@ -395,9 +395,9 @@ WHERE EXISTS (
 
             Expression select = DbContext
                 .RealEstateProperties
-                .WhereExists((Property) => 
+                .WhereExists((Entity) => 
                     DbContext.Units
-                        .Where(x => x.RealEstatePropertyID == Property.ID && x.NumberOfBedrooms == 2)
+                        .Where(x => x.RealEstatePropertyID == Entity.ID && x.NumberOfBedrooms == 2)
                         .Select(x => x.ID))
                 .Expression;
 

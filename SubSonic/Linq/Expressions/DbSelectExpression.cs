@@ -13,10 +13,18 @@ namespace SubSonic.Linq.Expressions
     /// A custom expression node used to represent a SQL SELECT expression
     /// </summary>
     public class DbSelectExpression
-        : DbAliasedExpression
+        : DbConstantExpression
     {
-        public DbSelectExpression(TableAlias alias, IEnumerable<DbColumnDeclaration> columns, Expression from)
-            : base(DbExpressionType.Select, typeof(Queryable), alias)
+        protected internal DbSelectExpression(
+            object collection,
+            DbTableExpression table)
+            : this(collection, table, table.IsNullThrowArgumentNull(nameof(table)).Columns) { }
+
+        protected internal DbSelectExpression(
+            object collection,
+            DbTableExpression table,
+            IEnumerable<DbColumnDeclaration> columns)
+            : base(collection, table.IsNullThrowArgumentNull(nameof(table)).Table)
         {
             Columns = columns as ReadOnlyCollection<DbColumnDeclaration>;
             if (Columns == null)
@@ -24,20 +32,37 @@ namespace SubSonic.Linq.Expressions
                 Columns = new List<DbColumnDeclaration>(columns).AsReadOnly();
             }
 
-            From = from ?? throw new System.ArgumentNullException(nameof(from));
+            From = table ?? throw new System.ArgumentNullException(nameof(table));
         }
 
-        public DbSelectExpression(
-            TableAlias alias,
+        protected internal DbSelectExpression(
+            object collection,
+            DbTableExpression table,
             IEnumerable<DbColumnDeclaration> columns,
-            Expression from,
+            Expression where)
+            : this(collection, table, columns, where, null, null) { }
+
+        protected internal DbSelectExpression(
+            object collection,
+            DbTableExpression table,
+            IEnumerable<DbColumnDeclaration> columns,
+            Expression where,
+            IEnumerable<DbOrderByDeclaration> orderBy,
+            IEnumerable<Expression> groupBy
+            )
+            : this(collection, table, columns, where, orderBy, groupBy, false, null, null) { }
+
+        protected internal DbSelectExpression(
+            object collection,
+            DbTableExpression table,
+            IEnumerable<DbColumnDeclaration> columns,
             Expression where,
             IEnumerable<DbOrderByDeclaration> orderBy,
             IEnumerable<Expression> groupBy,
             bool isDistinct,
             Expression skip,
             Expression take)
-            : this(alias, columns, from)
+            : this(collection, table, columns)
         {
             IsDistinct = isDistinct;
             Where = where;
@@ -55,25 +80,11 @@ namespace SubSonic.Linq.Expressions
             Take = take;
             Skip = skip;
         }
-        public DbSelectExpression(
-            TableAlias alias,
-            IEnumerable<DbColumnDeclaration> columns,
-            Expression from,
-            Expression where,
-            IEnumerable<DbOrderByDeclaration> orderBy,
-            IEnumerable<Expression> groupBy
-            )
-            : this(alias, columns, from, where, orderBy, groupBy, false, null, null)
-        {
-        }
-        public DbSelectExpression(
-            TableAlias alias, IEnumerable<DbColumnDeclaration> columns,
-            Expression from, Expression where)
-            : this(alias, columns, from, where, null, null)
-        {
-        }
+
+        public override ExpressionType NodeType => (ExpressionType)DbExpressionType.Select;
+
         public IReadOnlyCollection<DbColumnDeclaration> Columns { get; }
-        public Expression From { get; set; }
+        public DbTableExpression From { get; set; }
         public new Expression Where { get; }
 
         public ReadOnlyCollection<DbOrderByDeclaration> OrderBy { get; }
@@ -83,8 +94,25 @@ namespace SubSonic.Linq.Expressions
         public Expression Take { get; set; }
         public string QueryText
         {
-            get { return TSqlFormatter.Format(this, DbContext.ServiceProvider.GetService<SqlQueryProvider>().Context); }
+            get { return TSqlFormatter.Format(this); }
         }
 
+        protected override Expression Accept(ExpressionVisitor visitor)
+        {
+            if (visitor is DbExpressionVisitor db)
+            {
+                return db.VisitSelect(this);
+            }
+
+            return base.Accept(visitor);
+        }
+    }
+
+    public partial class DbExpression
+    {
+        public static DbExpression DbSelect(object collection, DbTableExpression table)
+        {
+            return new DbSelectExpression(collection, table);
+        }
     }
 }

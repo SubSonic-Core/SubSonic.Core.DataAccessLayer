@@ -66,6 +66,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 case (ExpressionType)DbExpressionType.RowCount:
                 case (ExpressionType)DbExpressionType.Projection:
                 case (ExpressionType)DbExpressionType.NamedValue:
+                    
                     return base.Visit(node);
                 case ExpressionType.Parameter:
                     return node;

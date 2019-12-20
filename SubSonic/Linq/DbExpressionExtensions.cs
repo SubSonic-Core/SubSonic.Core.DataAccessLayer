@@ -21,7 +21,7 @@ namespace SubSonic.Linq
                 throw new ArgumentNullException(nameof(columns));
             }
 
-            return new DbSelectExpression(select.Alias, columns.OrderBy(c => c.Order), select.From, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Skip, select.Take);
+            return new DbSelectExpression(select.QueryObject, select.From, columns.OrderBy(c => c.Order), select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Skip, select.Take);
         }
 
         public static DbSelectExpression AddColumn(this DbSelectExpression select, DbColumnDeclaration column)
@@ -102,7 +102,7 @@ namespace SubSonic.Linq
             DbSelectExpression newSource = projection.Source.AddColumn(new DbColumnDeclaration(colName, projection.Source.Columns.Count, Expression.Constant(1, typeof(int?))));
             Expression newProjector =
                 new DbOuterJoinedExpression(
-                    new DbColumnExpression(typeof(int?), newSource.Alias, colName),
+                    new DbColumnExpression(typeof(int?), newSource.Table, colName),
                     projection.Projector
                     );
             return new DbProjectionExpression(newSource, newProjector, projection.Aggregator);
@@ -117,7 +117,7 @@ namespace SubSonic.Linq
 
             if (select.IsDistinct != isDistinct)
             {
-                return new DbSelectExpression(select.Alias, select.Columns, select.From, select.Where, select.OrderBy, select.GroupBy, isDistinct, select.Skip, select.Take);
+                return new DbSelectExpression(select.QueryObject, select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, isDistinct, select.Skip, select.Take);
             }
             return select;
         }
@@ -136,7 +136,7 @@ namespace SubSonic.Linq
 
             if (where != select.Where)
             {
-                return new DbSelectExpression(select.Alias, select.Columns, select.From, where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Skip, select.Take);
+                return new DbSelectExpression(select.QueryObject, select.From, select.Columns, where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Skip, select.Take);
             }
             return select;
         }
@@ -153,7 +153,7 @@ namespace SubSonic.Linq
                 throw new ArgumentNullException(nameof(orderBy));
             }
 
-            return new DbSelectExpression(select.Alias, select.Columns, select.From, select.Where, orderBy, select.GroupBy, select.IsDistinct, select.Skip, select.Take);
+            return new DbSelectExpression(select.QueryObject, select.From, select.Columns, select.Where, orderBy, select.GroupBy, select.IsDistinct, select.Skip, select.Take);
         }
 
         public static DbSelectExpression AddDbOrderByDeclaration(this DbSelectExpression select, DbOrderByDeclaration ordering)
@@ -208,7 +208,7 @@ namespace SubSonic.Linq
                 throw new ArgumentNullException(nameof(groupBy));
             }
 
-            return new DbSelectExpression(select.Alias, select.Columns, select.From, select.Where, select.OrderBy, groupBy, select.IsDistinct, select.Skip, select.Take);
+            return new DbSelectExpression(select.QueryObject, select.From, select.Columns, select.Where, select.OrderBy, groupBy, select.IsDistinct, select.Skip, select.Take);
         }
 
         public static DbSelectExpression AddGroupExpression(this DbSelectExpression select, Expression expression)
@@ -266,7 +266,7 @@ namespace SubSonic.Linq
             if (skip != select.Skip)
             {
 
-                return new DbSelectExpression(select.Alias, select.Columns, select.From, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, skip, select.Take);
+                return new DbSelectExpression(select.QueryObject, select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, skip, select.Take);
             }
             return select;
         }
@@ -285,43 +285,7 @@ namespace SubSonic.Linq
 
             if (take != select.Take)
             {
-                return new DbSelectExpression(select.Alias, select.Columns, select.From, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Skip, take);
-            }
-            return select;
-        }
-
-        public static DbSelectExpression AddRedundantSelect(this DbSelectExpression select, Expressions.Alias.TableAlias newAlias)
-        {
-            if (select is null)
-            {
-                throw new ArgumentNullException(nameof(select));
-            }
-
-            if (newAlias is null)
-            {
-                throw new ArgumentNullException(nameof(newAlias));
-            }
-
-            var newColumns = select.Columns.Select(d => new DbColumnDeclaration(d.Property));
-            var newFrom = new DbSelectExpression(newAlias, select.Columns, select.From, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Skip, select.Take);
-            return new DbSelectExpression(select.Alias, newColumns, newFrom, null, null, null, false, null, null);
-        }
-
-        public static DbSelectExpression SetFrom(this DbSelectExpression select, Expression from)
-        {
-            if (select is null)
-            {
-                throw new ArgumentNullException(nameof(select));
-            }
-
-            if (from is null)
-            {
-                throw new ArgumentNullException(nameof(from));
-            }
-
-            if (select.From != from)
-            {
-                return new DbSelectExpression(select.Alias, select.Columns, from, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Skip, select.Take);
+                return new DbSelectExpression(select.QueryObject, select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Skip, take);
             }
             return select;
         }

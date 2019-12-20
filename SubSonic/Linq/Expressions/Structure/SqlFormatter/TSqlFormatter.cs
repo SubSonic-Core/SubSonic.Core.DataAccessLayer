@@ -12,6 +12,7 @@ using System.Text;
 namespace SubSonic.Linq.Expressions.Structure
 {
     using Alias;
+    using Infrastructure;
     using Infrastructure.SqlGenerator;
     using System.Globalization;
 
@@ -32,7 +33,7 @@ namespace SubSonic.Linq.Expressions.Structure
 
             using (TextWriter writer = new StringWriter(builder))
             {
-                TSqlFormatter sqlFormatter = new TSqlFormatter(writer, sqlContext);
+                TSqlFormatter sqlFormatter = new TSqlFormatter(writer, sqlContext ?? DbContext.ServiceProvider.GetService<SqlQueryProvider>().Context);
 
                 sqlFormatter.Visit(expression);
 

@@ -14,8 +14,9 @@ namespace SubSonic.Infrastructure.Schema
         ICollection<IDbEntityProperty> Properties { get; }
         bool HasRelationships { get; }
         Type EntityModelType { get; }
-        DbTableExpression Expression { get; }
+        DbTableExpression Table { get; }
 
+        object CreateObject();
         IEnumerable<string> GetPrimaryKey();
         IDbRelationshipMap GetRelationshipWith(IDbEntityModel model);
     }

@@ -27,7 +27,7 @@ namespace SubSonic.Infrastructure
 
             queryableData = new ObservableCollection<TEntity>();
             model = DbContext.Model.GetEntityModel<TEntity>();
-            Expression = provider.GetAliasedTable();
+            Expression = DbExpression.DbSelect(this, model.Table);
         }
 
         protected DbContext DbContext => DbContext.ServiceProvider.GetService<DbContext>();
@@ -112,21 +112,26 @@ namespace SubSonic.Infrastructure
                 throw new ArgumentNullException(nameof(keyNames));
             }
 
-            ISubSonicQueryProvider<TEntity> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<TEntity>>();
-            
-            Expression
-                logical = null;
-
-            for (int i = 0; i < keyNames.Length; i++)
+            if (Expression is DbSelectExpression select)
             {
-                logical = builder.BuildLogicalBinary(logical, DbExpressionType.Where, keyNames[i], keyData[i], ComparisonOperator.Equal, GroupOperator.AndAlso);
+                ISubSonicQueryProvider<TEntity> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<TEntity>>();
+
+                Expression
+                    logical = null;
+
+                for (int i = 0; i < keyNames.Length; i++)
+                {
+                    logical = builder.BuildLogicalBinary(logical, DbExpressionType.Where, keyNames[i], keyData[i], ComparisonOperator.Equal, GroupOperator.AndAlso);
+                }
+
+                LambdaExpression predicate = (LambdaExpression)builder.BuildLambda(logical, LambdaType.Predicate);
+
+                Expression where = builder.BuildWhere(select.From, null, typeof(TEntity), predicate);
+
+                return builder.CreateQuery<TEntity>(builder.BuildSelect(select, where));
             }
 
-            LambdaExpression predicate = (LambdaExpression)builder.BuildLambda(logical, LambdaType.Predicate);
-
-            Expression where = builder.BuildWhere((DbTableExpression)builder.GetAliasedTable(), null, typeof(TEntity), predicate);
-
-            return builder.CreateQuery<TEntity>(builder.BuildSelect(where));
+            throw new NotSupportedException();
         }
     }
 }

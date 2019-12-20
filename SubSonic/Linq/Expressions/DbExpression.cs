@@ -8,7 +8,7 @@ namespace SubSonic.Linq.Expressions
     using SubSonic.Infrastructure.Builders;
     using System.Collections.Generic;
 
-    public abstract class DbExpression : Expression
+    public abstract partial class DbExpression : Expression
     {
         protected DbExpression(DbExpressionType eType, Type type)
             : base()
@@ -17,8 +17,6 @@ namespace SubSonic.Linq.Expressions
             Type = type;
         }
 
-        public virtual Expression Expression { get; }
-
         public override ExpressionType NodeType { get; }
 
         public override Type Type { get; }
@@ -26,31 +24,6 @@ namespace SubSonic.Linq.Expressions
         public override string ToString()
         {
             return DbExpressionWriter.WriteToString(this);
-        }
-
-        public static DbExpression Where(DbTableExpression table, Type type, LambdaExpression predicate, DbExpressionType whereType = DbExpressionType.Where)
-        {
-            if (table is null)
-            {
-                throw new ArgumentNullException(nameof(table));
-            }
-
-            if (type is null)
-            {
-                throw new ArgumentNullException(nameof(type));
-            }
-
-            if (predicate is null)
-            {
-                throw new ArgumentNullException(nameof(predicate));
-            }
-
-            if(whereType.NotIn(DbExpressionType.Where, DbExpressionType.Exists, DbExpressionType.NotExists))
-            {
-                throw new ArgumentException("", nameof(whereType));
-            }
-
-            return DbWherePredicateBuilder.GetWherePredicate(table, type, predicate, whereType);
         }
     }
 }

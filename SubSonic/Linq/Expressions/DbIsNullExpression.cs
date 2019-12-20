@@ -17,6 +17,6 @@ namespace SubSonic.Linq.Expressions
         protected DbIsNullExpression(DbExpressionType eType)
             : base(eType, typeof(bool)) { }
 
-        public override Expression Expression { get; }
+        public virtual Expression Expression { get; }
     }
 }

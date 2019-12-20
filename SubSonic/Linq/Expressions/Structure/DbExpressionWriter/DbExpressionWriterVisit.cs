@@ -54,7 +54,7 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             if (projection != null)
             {
-                AddAlias(projection.Source.Alias);
+                AddAlias(projection.Source.Table);
                 Write("Project(");
                 WriteLine(Indentation.Inner);
                 Write("@\"");
@@ -77,7 +77,7 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             if (join != null)
             {
-                this.AddAlias(join.Projection.Source.Alias);
+                this.AddAlias(join.Projection.Source.Table);
                 Write("ClientJoin(");
                 WriteLine(Indentation.Inner);
                 Write("OuterKey(");
@@ -114,7 +114,7 @@ namespace SubSonic.Linq.Expressions.Structure
             return outer;
         }
 
-        protected override Expression VisitSelect(DbSelectExpression select)
+        protected internal override Expression VisitSelect(DbSelectExpression select)
         {
             if (select != null)
             {

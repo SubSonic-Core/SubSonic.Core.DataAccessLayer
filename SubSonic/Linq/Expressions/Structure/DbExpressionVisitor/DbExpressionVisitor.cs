@@ -21,14 +21,6 @@ namespace SubSonic.Linq.Expressions.Structure
 
             switch ((DbExpressionType)node.NodeType)
             {
-                case DbExpressionType.Table:
-                    return this.VisitExpression((DbTableExpression)node);
-                case DbExpressionType.Column:
-                    return this.VisitExpression((DbColumnExpression)node);
-                case DbExpressionType.Select:
-                    return this.VisitSelect((DbSelectExpression)node);
-                case DbExpressionType.Where:
-                    return VisitWhere((DbWhereExpression)node);
                 case DbExpressionType.Join:
                     return VisitJoin((DbJoinExpression)node);
                 case DbExpressionType.OuterJoined:
@@ -59,6 +51,18 @@ namespace SubSonic.Linq.Expressions.Structure
                 default:
                     return base.Visit(node);
             }
+        }
+
+        protected internal virtual Expression VisitDbConstant(DbConstantExpression constant)
+        {
+            if (constant.IsNotNull())
+            {
+                if (constant.Reduce() is ConstantExpression _constant)
+                {
+                    VisitConstant(_constant);
+                }
+            }
+            return constant;
         }
 
         protected virtual Expression VisitClientJoin(DbClientJoinExpression join)
@@ -121,11 +125,11 @@ namespace SubSonic.Linq.Expressions.Structure
                 return between;
             }
 
-            Expression expr = this.Visit(between.Expression);
+            Expression expr = this.Visit(between.Value);
             Expression lower = this.Visit(between.Lower);
             Expression upper = this.Visit(between.Upper);
 
-            if (expr != between.Expression || lower != between.Lower || upper != between.Upper)
+            if (expr != between.Value || lower != between.Lower || upper != between.Upper)
             {
                 switch ((DbExpressionType)between.NodeType)
                 {
@@ -328,20 +332,20 @@ namespace SubSonic.Linq.Expressions.Structure
             return join;
         }
 
-        protected virtual Expression VisitSelect(DbSelectExpression selectExp)
+        protected internal virtual Expression VisitSelect(DbSelectExpression selectExp)
         {
             if (selectExp.IsNull())
             {
                 return selectExp;
             }
 
-            Expression from = this.VisitSource(selectExp.From);
+            DbTableExpression from = (DbTableExpression)VisitSource(selectExp.From);
             Expression where = selectExp.Where;
-            ReadOnlyCollection<DbOrderByDeclaration> orderBy = this.VisitOrderBy(selectExp.OrderBy);
-            ReadOnlyCollection<Expression> groupBy = this.VisitExpressionList(selectExp.GroupBy);
-            Expression skip = this.Visit(selectExp.Skip);
-            Expression take = this.Visit(selectExp.Take);
-            IReadOnlyCollection<DbColumnDeclaration> columns = this.VisitColumnDeclarations(selectExp.Columns);
+            ReadOnlyCollection<DbOrderByDeclaration> orderBy = VisitOrderBy(selectExp.OrderBy);
+            ReadOnlyCollection<Expression> groupBy = VisitExpressionList(selectExp.GroupBy);
+            Expression skip = Visit(selectExp.Skip);
+            Expression take = Visit(selectExp.Take);
+            IReadOnlyCollection<DbColumnDeclaration> columns = VisitColumnDeclarations(selectExp.Columns);
             if (from != selectExp.From
                 || where != selectExp.Where
                 || orderBy != selectExp.OrderBy
@@ -351,7 +355,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 || columns != selectExp.Columns
                 )
             {
-                return new DbSelectExpression(selectExp.Alias, columns, from, where, orderBy, groupBy, selectExp.IsDistinct, skip, take);
+                return new DbSelectExpression(selectExp.QueryObject, from, columns, where, orderBy, groupBy, selectExp.IsDistinct, skip, take);
             }
             return selectExp;
         }
@@ -445,8 +449,7 @@ namespace SubSonic.Linq.Expressions.Structure
             return this.Visit(source);
         }
 
-        protected virtual DbExpression VisitExpression(DbExpression expression)
-            //where TExpression : DbExpression
+        protected internal virtual DbExpression VisitExpression(DbExpression expression)
         {
             return expression;
         }

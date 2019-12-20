@@ -5,7 +5,7 @@ namespace SubSonic.Linq.Expressions.Structure
 {
     public partial class TSqlFormatter
     {
-        protected override DbExpression VisitExpression(DbExpression expression)
+        protected internal override DbExpression VisitExpression(DbExpression expression)
         {
             if (expression.IsNotNull())
             {
@@ -111,30 +111,31 @@ namespace SubSonic.Linq.Expressions.Structure
             {
                 bool saveIsNested = IsNested;
                 IsNested = true;
-                switch ((DbExpressionType)source.NodeType)
+
+                if(source is DbTableExpression DbTable)
                 {
-                    case DbExpressionType.Table:
-                        DbTableExpression table = (DbTableExpression)source;
-                        Write(table.Model);
-                        Write($" {context.Fragments.AS} ");
-                        Write($"[{GetAliasName(table.Alias)}]");
-                        break;
-                    case DbExpressionType.Select:
-                        DbSelectExpression select = (DbSelectExpression)source;
-                        Write(context.Fragments.LEFT_PARENTHESIS);
-                        WriteNewLine(Indentation.Inner);
-                        this.Visit(select);
-                        WriteNewLine();
-                        Write(context.Fragments.RIGHT_PARENTHESIS);
-                        Write($" {context.Fragments.AS} ");
-                        Write(GetAliasName(select.Alias));
-                        this.Indent(Indentation.Outer);
-                        break;
-                    case DbExpressionType.Join:
-                        this.VisitJoin((DbJoinExpression)source);
-                        break;
-                    default:
-                        throw new InvalidOperationException(SubSonicErrorMessages.SelectSourceIsNotValid);
+                    Write(DbTable.Model);
+                    Write($" {context.Fragments.AS} ");
+                    Write($"[{GetAliasName(DbTable.Table)}]");
+                }
+                else if (source is DbSelectExpression select)
+                {
+                    Write(context.Fragments.LEFT_PARENTHESIS);
+                    WriteNewLine(Indentation.Inner);
+                    this.Visit(select);
+                    WriteNewLine();
+                    Write(context.Fragments.RIGHT_PARENTHESIS);
+                    Write($" {context.Fragments.AS} ");
+                    Write(GetAliasName(select.Table));
+                    this.Indent(Indentation.Outer);
+                }
+                else if (source is DbJoinExpression join)
+                {
+                    this.VisitJoin(join);
+                }
+                else
+                {
+                    throw new InvalidOperationException(SubSonicErrorMessages.SelectSourceIsNotValid);
                 }
                 IsNested = saveIsNested;
             }
@@ -179,7 +180,7 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             if (between.IsNotNull())
             {
-                this.VisitValue(between.Expression);
+                this.VisitValue(between.Value);
                 Write($" {GetOperator(between)} ");
                 this.VisitValue(between.Lower);
                 Write($" {Fragments.AND} ");

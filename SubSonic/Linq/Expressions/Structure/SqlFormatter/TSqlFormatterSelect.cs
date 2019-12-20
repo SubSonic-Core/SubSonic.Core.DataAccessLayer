@@ -6,7 +6,7 @@ namespace SubSonic.Linq.Expressions.Structure
 
     public partial class TSqlFormatter
     {
-        protected override Expression VisitSelect(DbSelectExpression select)
+        protected internal override Expression VisitSelect(DbSelectExpression select)
         {
             if (select.IsNotNull())
             {

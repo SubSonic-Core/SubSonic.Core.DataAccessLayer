@@ -13,7 +13,7 @@ namespace SubSonic.Linq.Expressions.Structure
 
     public partial class TSqlFormatter
     {
-        protected override Expression VisitWhere(DbWhereExpression where)
+        protected internal override Expression VisitWhere(DbWhereExpression where)
         {
             if (where.IsNotNull())
             {
@@ -24,16 +24,11 @@ namespace SubSonic.Linq.Expressions.Structure
                 {
                     Write(Fragments.LEFT_PARENTHESIS);
                     base.VisitWhere(where);
-                    Write(Fragments.RIGHT_PARENTHESIS);
+                    Write($"{Fragments.RIGHT_PARENTHESIS} <> 0");
                 }
                 else
                 {
                     base.VisitWhere(where);
-                }
-
-                if(!IsPredicate(where.Expression))
-                {
-                    Write(" <> 0");
                 }
             }
             return where;

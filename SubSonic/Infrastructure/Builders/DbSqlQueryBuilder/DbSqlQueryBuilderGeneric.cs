@@ -12,6 +12,6 @@
         {
         }
 
-        public DbAliasedExpression GetAliasedTable() => DbTable;
+        public DbTableExpression GetDbTable() => DbTable;
     }
 }

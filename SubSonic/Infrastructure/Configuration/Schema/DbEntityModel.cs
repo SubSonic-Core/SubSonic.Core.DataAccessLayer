@@ -31,7 +31,7 @@ namespace SubSonic.Infrastructure
 
         public Type EntityModelType { get; internal set; }
 
-        public DbTableExpression Expression => new DbTableExpression(this);
+        public DbTableExpression Table => (DbTableExpression)DbExpression.DbTable(this);
 
         public IDbRelationshipMap GetRelationshipWith(IDbEntityModel model)
         {
@@ -46,6 +46,11 @@ namespace SubSonic.Infrastructure
                 }
             }
             return null;
+        }
+
+        public object CreateObject()
+        {
+            return DbContext.CreateObject(EntityModelType);
         }
 
         public IEnumerable<string> GetPrimaryKey()

@@ -15,25 +15,24 @@ namespace SubSonic.Infrastructure.Builders
         #endregion
 
         #region Build Select
-        public Expression BuildSelect()
+        public Expression BuildSelect(System.Linq.IQueryable queryable)
         {
-            return new DbSelectExpression(DbTable.Alias, DbTable.Columns, DbTable);
+            return DbExpression.DbSelect(queryable, DbTable);
         }
 
-        public Expression BuildSelect(Expression where)
+        public Expression BuildSelect(System.Linq.IQueryable queryable, Expression where)
         {
-            return new DbSelectExpression(DbTable.Alias, DbTable.Columns, DbTable, where);
+            return new DbSelectExpression(queryable, DbTable, DbTable.Columns, where);
         }
 
         public Expression BuildSelect(Expression select, Expression where)
         {
-            if (select is DbSelectExpression)
+            if (select is DbSelectExpression _select)
             {
-                DbSelectExpression _select = (DbSelectExpression)select;
-
-                return new DbSelectExpression(_select.Alias, _select.Columns, _select.From, where);
+                return new DbSelectExpression(_select.QueryObject, _select.From, _select.Columns, where);
             }
-            return BuildSelect(where);
+
+            throw new NotSupportedException();
         }
 
         public Expression BuildSelect(Expression select, DbExpressionType eType, IEnumerable<Expression> expressions)
@@ -51,13 +50,7 @@ namespace SubSonic.Infrastructure.Builders
             {
                 DbSelectExpression _select = (DbSelectExpression)expression;
 
-                return new DbSelectExpression(_select.Alias, _select.Columns.Where(col => col.PropertyName == selector.GetPropertyName()), _select.From, _select.Where, _select.OrderBy, _select.GroupBy, _select.IsDistinct, _select.Skip, _select.Take);
-            }
-            else if (expression is DbTableExpression)
-            {
-                DbTableExpression table = expression as DbTableExpression;
-
-                return new DbSelectExpression(table.Alias, table.Columns.Where(col => col.PropertyName == selector.GetPropertyName()), table);
+                return new DbSelectExpression(_select.QueryObject, _select.From, _select.Columns.Where(col => col.PropertyName == selector.GetPropertyName()), _select.Where, _select.OrderBy, _select.GroupBy, _select.IsDistinct, _select.Skip, _select.Take);
             }
             return expression;
         }
@@ -166,12 +159,10 @@ namespace SubSonic.Infrastructure.Builders
         }
         #endregion
 
-        public IDbQueryObject ToQueryObject(Expression exp)
+        public IDbQueryObject ToQueryObject(Expression expression)
         {
-            if (exp is DbSelectExpression)
+            if (expression is DbSelectExpression select)
             {
-                DbSelectExpression select = exp as DbSelectExpression;
-
                 return new DbQueryObject(select.ToString(), ((DbWhereExpression)select.Where)?.Parameters);
             }
             return null;
@@ -184,7 +175,7 @@ namespace SubSonic.Infrastructure.Builders
                 SqlQueryType = GetQueryType(expression);
             }
 
-            return expression ?? DbEntity.Expression;
+            return expression ?? DbEntity.Table;
         }
 
         private Type GetTypeOf(Type type, params Type[] types)

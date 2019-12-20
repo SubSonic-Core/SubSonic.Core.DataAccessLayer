@@ -10,7 +10,8 @@ namespace SubSonic.Infrastructure
     using Schema;
     using Builders;
     using Logging;
-    
+    using SubSonic.Linq.Expressions;
+
     public sealed class SubSonicCollection<TElement>
         : SubSonicCollection
         , ISubSonicCollection<TElement>
@@ -71,31 +72,35 @@ namespace SubSonic.Infrastructure
 
             if (DbContext.DbModel.TryGetEntityModel(elementType, out IDbEntityModel model))
             {
-                Expression = model.Expression;
+                Model = model;
+
+                Expression = DbExpression.DbSelect(this, Model.Table);
             }
             else
             {
-                Expression = Expression.Parameter(elementType);
+                Expression = Expression.Constant(this);
             }
         }
         public SubSonicCollection(Type elementType, IQueryProvider provider, Expression expression)
             : this(elementType)
         {
+            TableData = new ObservableCollection<object>();
             Expression = expression ?? throw new ArgumentNullException(nameof(expression));
             Provider = provider ?? new DbSqlQueryBuilder(ElementType, DbContext.ServiceProvider.GetService<ISubSonicLogger>());
-            TableData = new ObservableCollection<object>();
         }
 
         public SubSonicCollection(Type elementType, IQueryProvider provider, Expression expression, IEnumerable<object> elements)
             : this(elementType, provider, expression)
         {
-            TableData = new List<object>(elements);
+            TableData = new ObservableCollection<object>(elements);
 
             if (TableData.Count > 0 && !TableData.ElementAt(0).IsOfType(elementType))
             {
                 throw new NotSupportedException();
             }
         }
+
+        protected IDbEntityModel Model { get; }
 
         protected ICollection<object> TableData { get; }
 

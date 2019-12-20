@@ -6,16 +6,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SubSonic.Extensions.Test.Models;
+using System.Data;
+using System.Linq.Expressions;
+using FluentAssertions;
 
 namespace SubSonic.Tests.DAL.SqlQueryProvider
 {
-    using FluentAssertions;
+    
     using Infrastructure;
-    using System.Data;
+    
 
     [TestFixture]
     public partial class SqlQueryProviderTests
     {
+        [Test]
+        public void CanCompileDbSetQuery()
+        {
+            object set = Expression.Lambda(DbContext.RealEstateProperties.Expression).Compile().DynamicInvoke();
+
+            set.Should().BeSameAs(DbContext.RealEstateProperties);
+        }
+
         [Test]
         public void CanGetDbQueryObjectWithNoParametersFromExpression()
         {
@@ -25,7 +36,7 @@ FROM [dbo].[Status] AS [{0}]".Format("T1");
 
             ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
-            IDbQueryObject dbQuery = builder.ToQueryObject(builder.BuildSelect());
+            IDbQueryObject dbQuery = builder.ToQueryObject(DbContext.Statuses.Expression);
 
             dbQuery.Should().NotBeNull();
             dbQuery.Sql.Should().Be(expected);

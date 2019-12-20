@@ -11,7 +11,7 @@ namespace SubSonic.Linq.Expressions.Structure
 
     public abstract partial class DbExpressionVisitor
     {
-        protected virtual Expression VisitWhere(DbWhereExpression where)
+        protected internal virtual Expression VisitWhere(DbWhereExpression where)
         {
             if (where.IsNotNull())
             {

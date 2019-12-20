@@ -1,8 +1,10 @@
-﻿using SubSonic.Linq.Expressions.Alias;
-using System;
+﻿using System;
+using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
+    using Alias;
+    using Structure;
     /// <summary>
     /// A custom expression node that represents a reference to a column in a SQL query
     /// </summary>
@@ -27,6 +29,16 @@ namespace SubSonic.Linq.Expressions
         public override string ToString()
         {
             return Alias.ToString() + ".C(" + Name + ")";
+        }
+
+        protected override Expression Accept(ExpressionVisitor visitor)
+        {
+            if (visitor is DbExpressionVisitor db)
+            {
+                return db.VisitExpression(this);
+            }
+
+            return base.Accept(visitor);
         }
 
         public override int GetHashCode()
