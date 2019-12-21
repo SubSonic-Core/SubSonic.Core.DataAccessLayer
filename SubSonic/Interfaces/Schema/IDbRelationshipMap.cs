@@ -9,6 +9,7 @@ namespace SubSonic.Infrastructure.Schema
         DbRelationshipType RelationshipType { get; }
 
         IDbEntityModel ForeignModel { get; }
+        IDbEntityModel LookupModel { get; }
 
         IEnumerable<string> GetForeignKeys();
     }

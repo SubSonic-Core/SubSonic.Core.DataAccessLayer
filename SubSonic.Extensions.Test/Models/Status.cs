@@ -10,6 +10,7 @@ namespace SubSonic.Extensions.Test.Models
     public class Status
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
 
         [Column("name")]

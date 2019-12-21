@@ -22,7 +22,9 @@ namespace SubSonic.Tests.DAL.SUT
 
         public DbSetCollection<Models.Unit> Units { get; private set; }
 
-        public DbSetCollection<Models.Occupant> Occupants { get; private set; }
+        public DbSetCollection<Models.Renter> Renters { get; private set; }
+
+        public DbSetCollection<Models.Person> People { get; private set; }
 
         protected override void OnDbConfiguring(DbContextOptionsBuilder config)
         {
@@ -45,7 +47,8 @@ namespace SubSonic.Tests.DAL.SUT
                 .AddEntityModel<Models.RealEstateProperty>()
                 .AddEntityModel<Models.Status>()
                 .AddEntityModel<Models.Unit>()
-                .AddEntityModel<Models.Occupant>();
+                .AddEntityModel<Models.Renter>()
+                .AddEntityModel<Models.Person>();
 
             builder.AddRelationshipFor<Models.RealEstateProperty>(() =>
                 builder.GetRelationshipFor<Models.RealEstateProperty>()
@@ -64,13 +67,18 @@ namespace SubSonic.Tests.DAL.SUT
 
             builder.AddRelationshipFor<Models.Unit>(() =>
                 builder.GetRelationshipFor<Models.Unit>()
-                    .HasMany(Model => Model.Occupants)
-                    .WithOne(Model => Model.Unit));
+                    .HasMany(Model => Model.Renters)
+                    .WithMany(Model => Model.Person));
 
             builder.AddRelationshipFor<Models.Unit>(() =>
                 builder.GetRelationshipFor<Models.Unit>()
                     .HasOne(Model => Model.Status)
                     .WithOne());
+
+            builder.AddRelationshipFor<Models.Person>(() =>
+                builder.GetRelationshipFor<Models.Person>()
+                    .HasMany(Model => Model.Renters)
+                    .WithMany(Model => Model.Unit));
         }
     }
 }

@@ -1,19 +1,20 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
-using SubSonic.Extensions.Test.Models;
 using SubSonic.Tests.DAL.SUT;
+using System;
 using System.Data;
 using System.Linq.Expressions;
 
 namespace SubSonic.Tests.DAL.SqlQueryProvider
 {
     using Data.DynamicProxies;
+    using Extensions.Test;
+    using Extensions.Test.Models;
+    using Infrastructure;
     using Infrastructure.Logging;
     using Linq;
     using Linq.Expressions;
-    using SubSonic.Extensions.Test;
-    using SubSonic.Infrastructure;
 
     [TestFixture]
     public partial class SqlQueryProviderTests
@@ -528,6 +529,94 @@ WHERE (([{0}].[RealEstatePropertyID] = @RealEstatePropertyID) AND ([{0}].[Status
 
             query.Parameters.Should().NotBeEmpty();
             query.Parameters.Count.Should().Be(2);
+        }
+
+        [Test]
+        public void CanGenerateBetweenDateComparison()
+        {
+            string expected =
+@"SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[StartDate], [{0}].[EndDate]
+FROM [dbo].[Occupant] AS [{0}]
+WHERE [{0}].[StartDate] BETWEEN @dt_start AND @dt_end".Format("T1");
+
+            DateTime
+                Start = new DateTime(1985, 01, 01),
+                End = DateTime.Now;
+
+            Expression select = DbContext
+                .Renters
+                .Where(Renter =>
+                    Renter.StartDate.Between(Start, End))
+                .Expression;
+
+            IDbQueryObject query = null;
+
+            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+
+                    query = builder.ToQueryObject(select);
+                }).Should().NotThrow();
+            }
+
+            query.Sql.Should().NotBeNullOrEmpty();
+            query.Sql.Should().Contain("] BETWEEN ");
+
+            logging.LogInformation("\n" + query.Sql + "\n");
+
+            query.Sql.Should().Be(expected);
+
+            query.Parameters.Should().NotBeEmpty();
+            query.Parameters.Get("@dt_start").Value.Should().Be(Start);
+            query.Parameters.Get("@dt_end").Value.Should().Be(End);
+        }
+
+        [Test]
+        public void CanGenerateNotBetweenDateComparison()
+        {
+            string expected =
+@"SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[StartDate], [{0}].[EndDate]
+FROM [dbo].[Occupant] AS [{0}]
+WHERE [{0}].[StartDate] NOT BETWEEN @dt_start AND @dt_end".Format("T1");
+
+            DateTime
+                Start = new DateTime(1985, 01, 01),
+                End = DateTime.Now;
+
+            Expression select = DbContext
+                .Renters
+                .Where(Renter =>
+                    Renter.StartDate.NotBetween(Start, End))
+                .Expression;
+
+            IDbQueryObject query = null;
+
+            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+
+                    query = builder.ToQueryObject(select);
+                }).Should().NotThrow();
+            }
+
+            query.Sql.Should().NotBeNullOrEmpty();
+            query.Sql.Should().Contain("] NOT BETWEEN ");
+
+            logging.LogInformation("\n" + query.Sql + "\n");
+
+            query.Sql.Should().Be(expected);
+
+            query.Parameters.Should().NotBeEmpty();
+            query.Parameters.Get("@dt_start").Value.Should().Be(Start);
+            query.Parameters.Get("@dt_end").Value.Should().Be(End);
         }
     }
 }

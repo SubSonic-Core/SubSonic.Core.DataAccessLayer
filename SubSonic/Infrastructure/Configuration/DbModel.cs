@@ -57,9 +57,13 @@ namespace SubSonic.Infrastructure
 
         public IDbEntityModel GetEntityModel(Type entityModelType)
         {
-            return EntityModels
-                .SingleOrDefault(model => model.EntityModelType == entityModelType || model.EntityModelType == entityModelType.BaseType)
-                .IsNullThrow(new EntityNotRegisteredWithDbModelException(entityModelType));
+            if (entityModelType.IsNotNull())
+            {
+                return EntityModels
+                    .SingleOrDefault(model => model.EntityModelType == entityModelType || model.EntityModelType == entityModelType.BaseType)
+                    .IsNullThrow(new EntityNotRegisteredWithDbModelException(entityModelType));
+            }
+            return null;
         }
 
         public IDbRelationshipMap GetRelationshipMapping<TEntity, TProperty>()

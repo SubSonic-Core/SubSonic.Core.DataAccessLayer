@@ -20,6 +20,8 @@ namespace SubSonic.Infrastructure
         EndsWith,
         NotEndsWith,
         In,
-        NotIn
+        NotIn,
+        Between,
+        NotBetween
     }
 }

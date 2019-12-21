@@ -10,6 +10,7 @@ namespace SubSonic.Extensions.Test.Models
     public class Unit
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
 
         [Column("Bedrooms", TypeName = "int")]
@@ -25,6 +26,6 @@ namespace SubSonic.Extensions.Test.Models
         [ForeignKey(nameof(RealEstatePropertyID))]
         public virtual RealEstateProperty RealEstateProperty { get;set;}
 
-        public virtual ICollection<Occupant> Occupants { get; set; }
+        public virtual ICollection<Renter> Renters { get; set; }
     }
 }

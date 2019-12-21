@@ -64,6 +64,13 @@ namespace SubSonic.Infrastructure.Builders
                             }
                         }
                     }
+                    else if (comparison.In(ComparisonOperator.Between, ComparisonOperator.NotBetween))
+                    {
+                        foreach (Expression argument in call.Arguments)
+                        {
+                            Visit(argument);
+                        }
+                    }
                     else
                     {
                         return base.VisitMethodCall(node);

@@ -28,14 +28,19 @@ namespace SubSonic.Infrastructure
 
         public DbRelationshipType RelationshipType => (DbRelationshipType)Enum.Parse(typeof(DbRelationshipType), $"{has}{with}");
 
+        public Type RelatedEntityType { get; private set; }
+
+        public Type LookupEntityType { get; private set; }
+
         public IEnumerable<string> RelatedKeys { get; private set; }
 
-        public IDbRelationshipMap RelationshipMap => new DbRelationshipMap(RelationshipType, DbContext.DbModel.GetEntityModel<TRelatedEntity>(), RelatedKeys.ToArray());
+        public IDbRelationshipMap RelationshipMap => new DbRelationshipMap(RelationshipType, DbContext.DbModel.GetEntityModel(LookupEntityType), DbContext.DbModel.GetEntityModel(RelatedEntityType), RelatedKeys.ToArray());
 
         public DbNavigationPropertyBuilder<TEntity, TRelatedEntity> WithOne(Expression<Func<TRelatedEntity, TEntity>> selector = null)
         {
             return new DbNavigationPropertyBuilder<TEntity, TRelatedEntity>(has, nameof(WithOne))
             {
+                RelatedEntityType = typeof(TRelatedEntity).GetQualifiedType(),
                 RelatedKeys = selector.IsNull() ? Array.Empty<string>() : GetForeignKeys(selector.Body)
             };
         }
@@ -44,6 +49,18 @@ namespace SubSonic.Infrastructure
         {
             return new DbNavigationPropertyBuilder<TEntity, TRelatedEntity>(has, nameof(WithMany))
             {
+                RelatedEntityType = typeof(TRelatedEntity).GetQualifiedType(),
+                RelatedKeys = selector.IsNull() ? Array.Empty<string>() : GetPrimayKeys(selector.Body)
+            };
+        }
+
+        public DbNavigationPropertyBuilder<TEntity, TLookupEntity> WithMany<TLookupEntity>(Expression<Func<TRelatedEntity, TLookupEntity>> selector = null)
+            where TLookupEntity : class
+        {
+            return new DbNavigationPropertyBuilder<TEntity, TLookupEntity>(has, nameof(WithMany))
+            {
+                LookupEntityType = typeof(TRelatedEntity).GetQualifiedType(),
+                RelatedEntityType = typeof(TLookupEntity).GetQualifiedType(),
                 RelatedKeys = selector.IsNull() ? Array.Empty<string>() : GetPrimayKeys(selector.Body)
             };
         }
