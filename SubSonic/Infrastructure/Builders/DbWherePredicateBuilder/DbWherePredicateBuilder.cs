@@ -25,6 +25,7 @@ namespace SubSonic.Infrastructure.Builders
         private ComparisonOperator comparison;
         private DbExpressionType whereType;
         private PropertyInfo propertyInfo;
+        private FieldInfo fieldInfo;
         private Expression left, right;
 
         protected DbWherePredicateBuilder(DbExpressionType whereType, DbTableExpression table)
@@ -197,6 +198,19 @@ namespace SubSonic.Infrastructure.Builders
             return null;
         }
 
+        private string GetName(string name, Type type = null)
+        {
+            if (type.IsNotNull())
+            {
+                if (type == typeof(DateTime))
+                {
+                    name = $"dt_{name}";
+                }
+            }
+
+            return $"{name}_{parameters[DbExpressionType.Where].IsNotNull(x => x.Count) + 1}".ToLower(CultureInfo.CurrentCulture);
+        }
+
         private Expression GetNamedExpression(object value)
         {
             DbTableExpression table = GetDbTable(propertyInfo.DeclaringType);
@@ -207,19 +221,18 @@ namespace SubSonic.Infrastructure.Builders
 
             if (right is NewArrayExpression)
             {
-                name = $"el_{parameters[DbExpressionType.Where].IsNotNull(x => x.Count) + 1}";
+                name = GetName("el", value.GetType());
 
                 parameters.Add(whereType, new SubSonicParameter(property, $"@{name}") { Value = value });
             }
             else
             {
-                name = property.Name;
+                name = GetName(property.Name, property.PropertyType);
 
                 parameters.Add(whereType, new SubSonicParameter(property, $"@{name}") { Value = value });
             }
 
-            return new DbNamedValueExpression(
-                    name,
+            return DbExpression.DbNamedValue(name,
                     Expression.Constant(Convert.ChangeType(value, propertyInfo.PropertyType, CultureInfo.CurrentCulture), propertyInfo.PropertyType));
         }
     }

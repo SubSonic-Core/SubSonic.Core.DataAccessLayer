@@ -75,7 +75,7 @@ FROM [dbo].[RealEstateProperty] AS [T1]
 WHERE [T1].[StatusID] IN (
 	SELECT [T2].[ID]
 	FROM [dbo].[Status] AS [T2]
-	WHERE ([T2].[IsAvailableStatus] = @IsAvailableStatus))".Format("T1", "T2");
+	WHERE ([T2].[IsAvailableStatus] = @isavailablestatus_1))".Format("T1", "T2");
 
             Expression select = DbContext
                 .RealEstateProperties
@@ -109,7 +109,7 @@ WHERE [T1].[StatusID] IN (
             query.Sql.Should().Be(expected);
 
             query.Parameters.Should().NotBeEmpty();
-            ((bool)query.Parameters.Get("@IsAvailableStatus").Value).Should().BeTrue();
+            ((bool)query.Parameters.Get("@isavailablestatus_1").Value).Should().BeTrue();
         }
 
         [Test]
@@ -121,7 +121,7 @@ FROM [dbo].[RealEstateProperty] AS [{0}]
 WHERE [{0}].[StatusID] NOT IN (
 	SELECT [{1}].[ID]
 	FROM [dbo].[Status] AS [{1}]
-	WHERE ([{1}].[IsAvailableStatus] = @IsAvailableStatus))".Format("T1", "T2");
+	WHERE ([{1}].[IsAvailableStatus] = @isavailablestatus_1))".Format("T1", "T2");
 
             Expression select = DbContext
                 .RealEstateProperties
@@ -155,7 +155,7 @@ WHERE [{0}].[StatusID] NOT IN (
             query.Sql.Should().Be(expected);
 
             query.Parameters.Should().NotBeEmpty();
-            ((bool)query.Parameters.Get("@IsAvailableStatus").Value).Should().BeTrue();
+            ((bool)query.Parameters.Get("@isavailablestatus_1").Value).Should().BeTrue();
         }
 
         [Test]
@@ -310,7 +310,7 @@ FROM [dbo].[Unit] AS [{0}]".Format("T1");
             string expected =
 @"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
 FROM [dbo].[Status] AS [{0}]
-WHERE ([{0}].[ID] = @ID)".Format("T1");
+WHERE ([{0}].[ID] = @id_1)".Format("T1");
 
             Expression expression = DbContext.Statuses.FindByID(1).Expression;
 
@@ -344,7 +344,7 @@ WHERE ([{0}].[ID] = @ID)".Format("T1");
             string expected =
 @"SELECT [{0}].[ID]
 FROM [dbo].[Status] AS [{0}]
-WHERE ([{0}].[IsAvailableStatus] = @IsAvailableStatus)".Format("T1");
+WHERE ([{0}].[IsAvailableStatus] = @isavailablestatus_1)".Format("T1");
 
             Expression select = DbContext
                 .Statuses
@@ -378,7 +378,7 @@ WHERE ([{0}].[IsAvailableStatus] = @IsAvailableStatus)".Format("T1");
             query.Sql.Should().Be(expected);
 
             query.Parameters.Should().NotBeEmpty();
-            query.Parameters.ElementAt(0).ParameterName.Should().Be("@IsAvailableStatus");
+            query.Parameters.ElementAt(0).ParameterName.Should().Be("@isavailablestatus_1");
             ((DbType)query.Parameters.ElementAt(0).DbType).Should().Be(DbType.Boolean);
         }
 
@@ -392,7 +392,7 @@ FROM [dbo].[RealEstateProperty] AS [{0}]
 WHERE EXISTS (
 	SELECT [{1}].[ID]
 	FROM [dbo].[Unit] AS [{1}]
-	WHERE (([{1}].[RealEstatePropertyID] = [{0}].[ID]) AND ([{1}].[Bedrooms] = @Bedrooms)))".Format("T1", "T2");
+	WHERE (([{1}].[RealEstatePropertyID] = [{0}].[ID]) AND ([{1}].[Bedrooms] = @bedrooms_1)))".Format("T1", "T2");
 
             Expression select = DbContext
                 .RealEstateProperties
@@ -424,7 +424,7 @@ WHERE EXISTS (
             query.Sql.Should().Be(expected);
 
             query.Parameters.Should().NotBeEmpty();
-            query.Parameters.Get("@Bedrooms").Value.Should().Be(2);
+            query.Parameters.Get("@bedrooms_1").Value.Should().Be(2);
         }
 
         [Test]
@@ -437,7 +437,7 @@ FROM [dbo].[RealEstateProperty] AS [{0}]
 WHERE NOT EXISTS (
 	SELECT [{1}].[ID]
 	FROM [dbo].[Unit] AS [{1}]
-	WHERE (([{1}].[RealEstatePropertyID] = [{0}].[ID]) AND ([{1}].[Bedrooms] = @Bedrooms)))".Format("T1", "T2");
+	WHERE (([{1}].[RealEstatePropertyID] = [{0}].[ID]) AND ([{1}].[Bedrooms] = @bedrooms_1)))".Format("T1", "T2");
 
             Expression select = DbContext
                 .RealEstateProperties
@@ -469,7 +469,7 @@ WHERE NOT EXISTS (
             query.Sql.Should().Be(expected);
 
             query.Parameters.Should().NotBeEmpty();
-            query.Parameters.Get("@Bedrooms").Value.Should().Be(1);
+            query.Parameters.Get("@bedrooms_1").Value.Should().Be(1);
         }
 
         [Test]
@@ -487,7 +487,7 @@ WHERE (([{0}].[RealEstatePropertyID] = 1) AND ([{0}].[StatusID] = 1))".Format("T
                 expected =
 @"SELECT [{0}].[ID], [{0}].[Bedrooms] AS [NumberOfBedrooms], [{0}].[StatusID], [{0}].[RealEstatePropertyID]
 FROM [dbo].[Unit] AS [{0}]
-WHERE (([{0}].[RealEstatePropertyID] = @RealEstatePropertyID) AND ([{0}].[StatusID] = @StatusID))".Format("T1");
+WHERE (([{0}].[RealEstatePropertyID] = @realestatepropertyid_1) AND ([{0}].[StatusID] = @statusid_2))".Format("T1");
 
             RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(DbContext);
 

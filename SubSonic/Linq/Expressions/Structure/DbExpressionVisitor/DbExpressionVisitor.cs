@@ -41,8 +41,6 @@ namespace SubSonic.Linq.Expressions.Structure
                     return VisitRowNumber((DbRowNumberExpression)node);
                 case DbExpressionType.Projection:
                     return VisitProjection((DbProjectionExpression)node);
-                case DbExpressionType.NamedValue:
-                    return VisitExpression((DbNamedValueExpression)node);
                 case DbExpressionType.ClientJoin:
                     return VisitClientJoin((DbClientJoinExpression)node);
                 default:
