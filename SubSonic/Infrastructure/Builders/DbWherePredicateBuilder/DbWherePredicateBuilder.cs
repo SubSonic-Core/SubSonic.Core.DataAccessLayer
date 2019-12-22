@@ -25,12 +25,14 @@ namespace SubSonic.Infrastructure.Builders
         private ComparisonOperator comparison;
         private DbExpressionType whereType;
         private PropertyInfo propertyInfo;
-        private Expression left, right;
-        //private Queue<Expression> arguments;
+        //private Expression left, right;
+        private bool visitingForArray;
+        private Queue<Expression> arguments;
 
         protected DbWherePredicateBuilder(DbExpressionType whereType, DbTableExpression table)
         {
             parameters = new SubSonicParameterDictionary();
+            arguments = new Queue<Expression>();
             this.whereType = whereType;
             this.table = table ?? throw new ArgumentNullException(nameof(table));
 
@@ -211,29 +213,39 @@ namespace SubSonic.Infrastructure.Builders
             return $"{name}_{parameters[DbExpressionType.Where].IsNotNull(x => x.Count) + 1}".ToLower(CultureInfo.CurrentCulture);
         }
 
-        private Expression GetNamedExpression(object value)
+        private Expression GetNamedExpression(PropertyInfo info, object value)
         {
-            DbTableExpression table = GetDbTable(propertyInfo.DeclaringType);
+            DbTableExpression table = GetDbTable(info.DeclaringType);
 
-            IDbEntityProperty property = table.Model[propertyInfo.Name];
+            IDbEntityProperty property = table.Model[info.Name];
 
             string name = "";
 
-            if (right is NewArrayExpression)
+            if (visitingForArray)
             {
                 name = GetName("el", value.GetType());
 
-                parameters.Add(whereType, new SubSonicParameter(property, $"@{name}") { Value = value });
+                parameters.Add(whereType, new SubSonicParameter($"@{name}", value, property));
             }
             else
             {
                 name = GetName(property.Name, property.PropertyType);
 
-                parameters.Add(whereType, new SubSonicParameter(property, $"@{name}") { Value = value });
+                parameters.Add(whereType, new SubSonicParameter($"@{name}", value, property));
             }
 
             return DbExpression.DbNamedValue(name,
-                    Expression.Constant(Convert.ChangeType(value, propertyInfo.PropertyType, CultureInfo.CurrentCulture), propertyInfo.PropertyType));
+                    Expression.Constant(Convert.ChangeType(value, info.PropertyType, CultureInfo.CurrentCulture), info.PropertyType));
+        }
+
+        private Expression GetNamedExpression(FieldInfo info, object value)
+        {
+            string name = GetName(info.Name, info.FieldType);
+
+            parameters.Add(whereType, new SubSonicParameter($"@{name}", value));
+
+            return DbExpression.DbNamedValue(name,
+                    Expression.Constant(Convert.ChangeType(value, info.FieldType, CultureInfo.CurrentCulture), info.FieldType));
         }
     }
 }

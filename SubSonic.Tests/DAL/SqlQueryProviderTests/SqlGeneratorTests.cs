@@ -535,9 +535,9 @@ WHERE (([{0}].[RealEstatePropertyID] = @realestatepropertyid_1) AND ([{0}].[Stat
         public void CanGenerateBetweenDateComparison()
         {
             string expected =
-@"SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[StartDate], [{0}].[EndDate]
-FROM [dbo].[Occupant] AS [{0}]
-WHERE [{0}].[StartDate] BETWEEN @dt_start AND @dt_end".Format("T1");
+@"SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
+FROM [dbo].[Renter] AS [{0}]
+WHERE [{0}].[StartDate] BETWEEN @dt_start_1 AND @dt_end_2".Format("T1");
 
             DateTime
                 Start = new DateTime(1985, 01, 01),
@@ -571,17 +571,17 @@ WHERE [{0}].[StartDate] BETWEEN @dt_start AND @dt_end".Format("T1");
             query.Sql.Should().Be(expected);
 
             query.Parameters.Should().NotBeEmpty();
-            query.Parameters.Get("@dt_start").Value.Should().Be(Start);
-            query.Parameters.Get("@dt_end").Value.Should().Be(End);
+            query.Parameters.Get("@dt_start_1").Value.Should().Be(Start);
+            query.Parameters.Get("@dt_end_2").Value.Should().Be(End);
         }
 
         [Test]
         public void CanGenerateNotBetweenDateComparison()
         {
             string expected =
-@"SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[StartDate], [{0}].[EndDate]
-FROM [dbo].[Occupant] AS [{0}]
-WHERE [{0}].[StartDate] NOT BETWEEN @dt_start AND @dt_end".Format("T1");
+@"SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
+FROM [dbo].[Renter] AS [{0}]
+WHERE [{0}].[StartDate] NOT BETWEEN @dt_start_1 AND @dt_end_2".Format("T1");
 
             DateTime
                 Start = new DateTime(1985, 01, 01),
@@ -615,8 +615,8 @@ WHERE [{0}].[StartDate] NOT BETWEEN @dt_start AND @dt_end".Format("T1");
             query.Sql.Should().Be(expected);
 
             query.Parameters.Should().NotBeEmpty();
-            query.Parameters.Get("@dt_start").Value.Should().Be(Start);
-            query.Parameters.Get("@dt_end").Value.Should().Be(End);
+            query.Parameters.Get("@dt_start_1").Value.Should().Be(Start);
+            query.Parameters.Get("@dt_end_2").Value.Should().Be(End);
         }
     }
 }

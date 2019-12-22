@@ -3,20 +3,21 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
+    using Infrastructure;
     using Structure;
 
     public class DbBetweenExpression : DbExpression
     {
         protected internal DbBetweenExpression(Expression value, Expression lower, Expression upper)
-            : this(DbExpressionType.Between, value.IsNullThrowArgumentNull(nameof(value)).Type)
+            : this(DbExpressionType.Between)
         {
             Value = value ?? throw new ArgumentNullException(nameof(value));
             Lower = lower ?? throw new ArgumentNullException(nameof(lower));
             Upper = upper ?? throw new ArgumentNullException(nameof(upper));
         }
 
-        protected DbBetweenExpression(DbExpressionType eType, Type type)
-            : base(eType, type) { }
+        protected DbBetweenExpression(DbExpressionType eType)
+            : base(eType, typeof(bool)) { }
 
         public virtual Expression Value { get; }
         public virtual Expression Lower { get; }
@@ -38,6 +39,20 @@ namespace SubSonic.Linq.Expressions
         public static DbExpression DbBetween(Expression value, Expression lower, Expression upper)
         {
             return new DbBetweenExpression(value, lower, upper);
+        }
+
+        public static DbExpression DbBetween(ComparisonOperator @operator, Expression value, Expression lower, Expression upper)
+        {
+            if (@operator == ComparisonOperator.Between)
+            {
+                return DbBetween(value, lower, upper);
+            }
+            else if (@operator == ComparisonOperator.NotBetween)
+            {
+                return DbNotBetween(value, lower, upper);
+            }
+
+            throw new NotSupportedException();
         }
     }
 }

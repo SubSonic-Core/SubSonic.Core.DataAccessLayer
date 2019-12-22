@@ -56,7 +56,7 @@ namespace SubSonic.Infrastructure.Builders
                             {
                                 object set = Expression.Lambda(method).Compile().DynamicInvoke();
 
-                                right = PullUpParameters(((MLinq.IQueryable)set).Expression);
+                                arguments.Enqueue(PullUpParameters(((MLinq.IQueryable)set).Expression));
                             }
                             else
                             {
@@ -70,6 +70,17 @@ namespace SubSonic.Infrastructure.Builders
                         {
                             Visit(argument);
                         }
+
+                        if (body.IsNull())
+                        {
+                            body = DbExpression.DbBetween(comparison, arguments.Dequeue(), arguments.Dequeue(), arguments.Dequeue());
+                        }
+                        else
+                        {
+                            body = GetBodyExpression(body, DbExpression.DbBetween(comparison, arguments.Dequeue(), arguments.Dequeue(), arguments.Dequeue()), group);
+                        }
+
+                        return node;
                     }
                     else
                     {
@@ -136,16 +147,12 @@ namespace SubSonic.Infrastructure.Builders
                     case ExpressionType.MemberAccess:
                         if (node.Member is PropertyInfo pi)
                         {
-                            if (left.IsNull())
-                            {
-                                propertyInfo = pi;
+                            propertyInfo = pi;
 
-                                left = GetDbColumnExpression(pi);
-                            }
-                            else
-                            {
-                                right = GetDbColumnExpression(pi);
+                            arguments.Enqueue(GetDbColumnExpression(pi));
 
+                            if (arguments.Count == 2)
+                            {
                                 BuildLogicalExpression();
                             }
 
@@ -155,11 +162,9 @@ namespace SubSonic.Infrastructure.Builders
                         {
                             if (node.Expression is ConstantExpression constant)
                             {
-                                Expression named = DbExpression.DbNamedValue(
-                                    GetName(fi.Name, fi.FieldType),
-                                    Expression.Constant(fi.GetValue(constant.Value), fi.FieldType));
+                                arguments.Enqueue(GetNamedExpression(fi, fi.GetValue(constant.Value)));
 
-                                throw new NotImplementedException();
+                                return node;
                             }
 
                             throw new NotSupportedException();
@@ -176,14 +181,23 @@ namespace SubSonic.Infrastructure.Builders
             {
                 List<Expression> elements = new List<Expression>();
 
-                right = array;
+                visitingForArray = true;
 
                 foreach (Expression constant in array.Expressions)
                 {
-                    elements.Add(Visit(constant));
+                    if (constant is ConstantExpression element)
+                    {
+                        elements.Add(VisitConstant(element));
+                    }
+                    else
+                    {
+                        elements.Add(Visit(constant));
+                    }
                 }
 
-                right = array.Update(elements);
+                visitingForArray = false;
+
+                arguments.Enqueue(array.Update(elements));
 
                 return node;
             }
@@ -194,13 +208,13 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (node.IsNotNull())
             {
-                if (right is NewArrayExpression array)
+                if (visitingForArray)
                 {
-                    return GetNamedExpression(node.Value);
+                    return GetNamedExpression(propertyInfo, node.Value);
                 }
-                else if (!(right is DbColumnExpression))
+                else if (!(arguments.Count == 2 && arguments.Peek() is DbColumnExpression))
                 {
-                    right = GetNamedExpression(node.Value);
+                    arguments.Enqueue(GetNamedExpression(propertyInfo, node.Value));
                 }
 
                 BuildLogicalExpression();
@@ -210,21 +224,21 @@ namespace SubSonic.Infrastructure.Builders
 
         protected virtual void BuildLogicalExpression()
         {
-            if (left is null || right is null)
+            if (arguments.Count != 2)
             {
-                throw new InvalidOperationException();
+                return;
             }
 
             if (body.IsNull())
             {
-                body = GetComparisonExpression(left, right, comparison);
+                body = GetComparisonExpression(arguments.Dequeue(), arguments.Dequeue(), comparison);
             }
             else
             {
-                body = GetBodyExpression(body, GetComparisonExpression(left, right, comparison), group);
+                body = GetBodyExpression(body, GetComparisonExpression(arguments.Dequeue(), arguments.Dequeue(), comparison), group);
             }
             // clear out the left right values in prep for the next one
-            left = right = null;
+            //left = right = null;
             propertyInfo = null;
         }
     }

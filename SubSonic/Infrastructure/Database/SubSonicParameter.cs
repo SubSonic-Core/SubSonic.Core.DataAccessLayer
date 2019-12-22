@@ -7,21 +7,35 @@ using System.Text;
 namespace SubSonic.Infrastructure
 {
     using Schema;
+    using Linq;
 
     public class SubSonicParameter
     {
         private readonly IDbEntityProperty property;
 
-        public SubSonicParameter(IDbEntityProperty property, string name, ParameterDirection direction = ParameterDirection.Input)
+        public SubSonicParameter(string name, object value)
         {
             if (string.IsNullOrEmpty(name))
             {
                 throw new ArgumentException("", nameof(name));
             }
 
-            this.property = property ?? throw new ArgumentNullException(nameof(property));
+            if (value is null)
+            {
+                throw new ArgumentNullException(nameof(value));
+            }
+
             ParameterName = name;
-            Direction = direction;
+            Value = value;
+            Direction = ParameterDirection.Input;
+
+            Initialize();
+        }
+
+        public SubSonicParameter(string name, object value, IDbEntityProperty property)
+            : this(name, value)
+        {
+            this.property = property ?? throw new ArgumentNullException(nameof(property));
 
             Initialize();
         }
@@ -42,19 +56,36 @@ namespace SubSonic.Infrastructure
             OnInitialize();
         }
 
+        protected virtual int DetermineDbType()
+        {
+            if(Value is null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            return (int)Value.GetType().GetDbType();
+        }
+
         protected virtual void OnInitialize()
         {
-            this.Map(property);
-            this.Map<SubSonicParameter, IDbObject>(property, (dst) =>
+            if (property.IsNotNull())
             {
-                switch (dst)
+                this.Map(property);
+                this.Map<SubSonicParameter, IDbObject>(property, (dst) =>
                 {
-                    case nameof(SourceColumn):
-                        return nameof(property.Name);
-                    default:
-                        return dst;
-                }
-            });
+                    switch (dst)
+                    {
+                        case nameof(SourceColumn):
+                            return nameof(property.Name);
+                        default:
+                            return dst;
+                    }
+                });
+            }
+            else
+            {
+                DbType = DetermineDbType();
+            }
         }
     }
 }
