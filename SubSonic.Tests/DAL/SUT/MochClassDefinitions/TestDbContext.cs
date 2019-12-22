@@ -30,7 +30,7 @@ namespace SubSonic.Tests.DAL.SUT
         {
             config
                 .ConfigureServiceCollection()
-                .AddLogging((config) => config.AddNUnitLogger<TestDbContext>(LogLevel.Debug))
+                .AddLogging((_config) => _config.AddNUnitLogger<TestDbContext>(LogLevel.Debug))
                 .EnableProxyGeneration()
                 .UseMockDbClient((builder, options) =>
                 {
