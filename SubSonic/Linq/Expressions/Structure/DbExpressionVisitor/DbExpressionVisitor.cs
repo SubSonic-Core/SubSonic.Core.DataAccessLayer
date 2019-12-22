@@ -21,19 +21,10 @@ namespace SubSonic.Linq.Expressions.Structure
 
             switch ((DbExpressionType)node.NodeType)
             {
-                case DbExpressionType.Join:
-                    return VisitJoin((DbJoinExpression)node);
-                case DbExpressionType.OuterJoined:
-                    return VisitOuterJoined((DbOuterJoinedExpression)node);
                 case DbExpressionType.Aggregate:
                     return VisitAggregate((DbAggregateExpression)node);
-                case DbExpressionType.Scalar:
-                    return VisitSubquery((DbSubQueryExpression)node);
                 case DbExpressionType.AggregateSubQuery:
                     return VisitAggregateSubQuery((DbAggregateSubQueryExpression)node);
-                case DbExpressionType.IsNull:
-                case DbExpressionType.IsNotNull:
-                    return VisitNull((DbIsNullExpression)node);
                 case DbExpressionType.RowCount:
                     return VisitRowNumber((DbRowNumberExpression)node);
                 case DbExpressionType.Projection:
@@ -142,7 +133,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 return aggregate;
             }
 
-            Expression e = this.Visit(aggregate.AggregateAsSubQuery);
+            Expression e = Visit(aggregate.AggregateAsSubQuery);
 
             switch((DbExpressionType)e.NodeType)
             {
@@ -161,33 +152,20 @@ namespace SubSonic.Linq.Expressions.Structure
             return aggregate;
         }
 
-        protected virtual Expression VisitSubquery(DbSubQueryExpression subquery)
-        {
-            if(subquery is null)
-            {
-                return subquery;
-            }
-
-            switch ((DbExpressionType)subquery.NodeType)
-            {
-                case DbExpressionType.Scalar:
-                    return this.VisitScalar((DbScalarExpression)subquery);
-            }
-            return subquery;
-        }
-
-        protected virtual Expression VisitScalar(DbScalarExpression scalar)
+        protected internal virtual Expression VisitScalar(DbScalarExpression scalar)
         {
             if (scalar is null)
             {
                 return scalar;
             }
 
-            DbSelectExpression select = (DbSelectExpression)this.Visit(scalar.Select);
+            DbExpression select = (DbExpression)Visit(scalar.Select);
+
             if (select != scalar.Select)
             {
-                return new DbScalarExpression(scalar.Type, select);
+                return DbExpression.DbScalar(scalar.Type, select);
             }
+
             return scalar;
         }
 
@@ -233,24 +211,18 @@ namespace SubSonic.Linq.Expressions.Structure
             return inExp;
         }
 
-        protected virtual Expression VisitNull(DbIsNullExpression isnull)
+        protected internal virtual Expression VisitNull(DbIsNullExpression isnull)
         {
             if(isnull is null)
             {
                 return isnull;
             }
 
-            Expression expr = this.Visit(isnull.Expression);
+            Expression expr = Visit(isnull.Expression);
 
             if (expr != isnull.Expression)
             {
-                switch ((DbExpressionType)isnull.NodeType)
-                {
-                    case DbExpressionType.IsNull:
-                        return new DbIsNullExpression(expr);
-                    case DbExpressionType.IsNotNull:
-                        return new DbIsNotNullExpression(expr);
-                }
+                return DbExpression.DbIsNull((DbExpressionType)isnull.NodeType, expr);
             }
 
             return isnull;
@@ -271,7 +243,7 @@ namespace SubSonic.Linq.Expressions.Structure
             return aggregate;
         }
 
-        protected virtual Expression VisitOuterJoined(DbOuterJoinedExpression outer)
+        protected internal virtual Expression VisitOuterJoined(DbOuterJoinedExpression outer)
         {
             if (outer is null)
             {
@@ -282,12 +254,12 @@ namespace SubSonic.Linq.Expressions.Structure
             Expression expression = this.Visit(outer.Expression);
             if (test != outer.Test || expression != outer.Expression)
             {
-                return new DbOuterJoinedExpression(test, expression);
+                return DbExpression.DbOuterJoined(test, expression);
             }
             return outer;
         }
 
-        protected virtual Expression VisitJoin(DbJoinExpression join)
+        protected internal virtual Expression VisitJoin(DbJoinExpression join)
         {
             if(join is null)
             {
@@ -297,10 +269,12 @@ namespace SubSonic.Linq.Expressions.Structure
             Expression left = this.VisitSource(join.Left);
             Expression right = this.VisitSource(join.Right);
             Expression condition = this.Visit(join.Condition);
+
             if (left != join.Left || right != join.Right || condition != join.Condition)
             {
-                return new DbJoinExpression(join.Join, left, right, condition);
+                return DbExpression.DbJoin(join.Join, left, right, condition);
             }
+
             return join;
         }
 

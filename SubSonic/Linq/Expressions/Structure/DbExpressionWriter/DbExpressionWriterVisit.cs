@@ -97,7 +97,7 @@ namespace SubSonic.Linq.Expressions.Structure
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
-        protected override Expression VisitOuterJoined(DbOuterJoinedExpression outer)
+        protected internal override Expression VisitOuterJoined(DbOuterJoinedExpression outer)
         {
             if (outer != null)
             {

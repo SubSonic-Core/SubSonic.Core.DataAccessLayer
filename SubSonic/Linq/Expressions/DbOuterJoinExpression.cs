@@ -3,9 +3,12 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
-    public class DbOuterJoinedExpression : DbExpression
+    using Structure;
+
+    public class DbOuterJoinedExpression 
+        : DbExpression
     {
-        public DbOuterJoinedExpression(Expression test, Expression expression)
+        protected internal DbOuterJoinedExpression(Expression test, Expression expression)
             : base(DbExpressionType.OuterJoined, expression.IsNullThrowArgumentNull(nameof(expression)).Type)
         {
             Test = test ?? throw new ArgumentNullException(nameof(test));
@@ -15,5 +18,22 @@ namespace SubSonic.Linq.Expressions
         public Expression Test { get; }
 
         public virtual Expression Expression { get; }
+
+        protected override Expression Accept(ExpressionVisitor visitor)
+        {
+            if (visitor is DbExpressionVisitor db)
+            {
+                return db.VisitOuterJoined(this);
+            }
+            return base.Accept(visitor);
+        }
+    }
+
+    public partial class DbExpression
+    {
+        public static DbExpression DbOuterJoined(Expression test, Expression expression)
+        {
+            return new DbOuterJoinedExpression(test, expression);
+        }
     }
 }

@@ -65,7 +65,7 @@ namespace SubSonic.Linq.Expressions.Structure
             return projection;
         }
 
-        protected override Expression VisitJoin(DbJoinExpression join)
+        protected internal override Expression VisitJoin(DbJoinExpression join)
         {
             if (join.IsNotNull())
             {
@@ -165,7 +165,7 @@ namespace SubSonic.Linq.Expressions.Structure
             return aggregate;
         }
 
-        protected override Expression VisitNull(DbIsNullExpression isNull)
+        protected internal override Expression VisitNull(DbIsNullExpression isNull)
         {
             if (isNull.IsNotNull())
             {
@@ -217,7 +217,7 @@ namespace SubSonic.Linq.Expressions.Structure
             return rowNumber;
         }
 
-        protected override Expression VisitScalar(DbScalarExpression subquery)
+        protected internal override Expression VisitScalar(DbScalarExpression subquery)
         {
             if (subquery.IsNotNull())
             {

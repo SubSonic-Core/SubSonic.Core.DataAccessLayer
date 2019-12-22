@@ -101,10 +101,10 @@ namespace SubSonic.Linq
             string colName = projection.Source.GetAvailableColumnName("Test");
             DbSelectExpression newSource = projection.Source.AddColumn(new DbColumnDeclaration(colName, projection.Source.Columns.Count, Expression.Constant(1, typeof(int?))));
             Expression newProjector =
-                new DbOuterJoinedExpression(
+                DbExpression.DbOuterJoined(
                     new DbColumnExpression(typeof(int?), newSource.Table, colName),
-                    projection.Projector
-                    );
+                    projection.Projector);
+
             return new DbProjectionExpression(newSource, newProjector, projection.Aggregator);
         }
 

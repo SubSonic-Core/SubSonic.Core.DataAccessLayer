@@ -2,39 +2,41 @@
 
 namespace SubSonic.Linq.Expressions
 {
+    using Structure;
+
     /// <summary>
     /// A custom expression node representing a SQL join clause
     /// </summary>
     public class DbJoinExpression : DbExpression
     {
-        JoinType joinType;
-        Expression left;
-        Expression right;
-        Expression condition;
-
-        public DbJoinExpression(JoinType joinType, Expression left, Expression right, Expression condition)
+        protected internal DbJoinExpression(JoinType joinType, Expression left, Expression right, Expression condition)
             : base(DbExpressionType.Join, typeof(void))
         {
-            this.joinType = joinType;
-            this.left = left;
-            this.right = right;
-            this.condition = condition;
+            Join = joinType;
+            Left = left;
+            Right = right;
+            Condition = condition;
         }
-        public JoinType Join
+        public JoinType Join { get; }
+        public Expression Left { get; }
+        public Expression Right { get; }
+        public new Expression Condition { get; }
+
+        protected override Expression Accept(ExpressionVisitor visitor)
         {
-            get { return joinType; }
+            if (visitor is DbExpressionVisitor db)
+            {
+                return db.VisitJoin(this);
+            }
+            return base.Accept(visitor);
         }
-        public Expression Left
+    }
+
+    public partial class DbExpression
+    {
+        public static DbExpression DbJoin(JoinType joinType, Expression left, Expression right, Expression condition)
         {
-            get { return left; }
-        }
-        public Expression Right
-        {
-            get { return right; }
-        }
-        public new Expression Condition
-        {
-            get { return condition; }
+            return new DbJoinExpression(joinType, left, right, condition);
         }
     }
 }
