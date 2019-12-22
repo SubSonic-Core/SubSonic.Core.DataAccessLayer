@@ -13,6 +13,7 @@ namespace SubSonic.Extensions.SqlServer
     using Infrastructure.SqlGenerator;
     using SubSonic.Data.Linq;
     using System.Diagnostics.CodeAnalysis;
+    using System.Globalization;
 
     /// <summary>
     /// Sql Method Stubs Used In Linq Queries
@@ -679,7 +680,7 @@ namespace SubSonic.Extensions.SqlServer
 
         internal static Exception SqlMethodOnlyForSql(MethodBase method)
         {
-            return new NotSupportedException(SubSonicErrorMessages.SqlMethodOnlyForSql.Format($"{method.Name}"));
+            return new NotSupportedException(string.Format(CultureInfo.CurrentCulture, SubSonicErrorMessages.SqlMethodOnlyForSql, $"{method.Name}"));
         }
     }
 }

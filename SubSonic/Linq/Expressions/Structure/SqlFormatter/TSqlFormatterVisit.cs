@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions.Structure
@@ -79,7 +80,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 case ExpressionType.Invoke:
                 case ExpressionType.MemberInit:
                 case ExpressionType.ListInit:
-                    throw new NotSupportedException(SubSonicErrorMessages.UnSupportedNodeException.Format(node.NodeType));
+                    throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, SubSonicErrorMessages.UnSupportedNodeException, node.NodeType));
                 default:
                     return base.Visit(node);
             }

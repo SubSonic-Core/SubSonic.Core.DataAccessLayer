@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.Serialization;
-using System.Text;
 
 namespace SubSonic.Infrastructure
 {
@@ -13,7 +12,7 @@ namespace SubSonic.Infrastructure
         }
 
         public EntityNotRegisteredWithDbModelException(Type entityModelType)
-            : base(SubSonicErrorMessages.EntityTypeIsNotRegisteredException.Format(entityModelType.IsNotNull(t => t.Name, "")))
+            : base(string.Format(CultureInfo.CurrentCulture, SubSonicErrorMessages.EntityTypeIsNotRegisteredException, entityModelType.IsNotNull(t => t.Name, "")))
         {
             if (entityModelType is null)
             {

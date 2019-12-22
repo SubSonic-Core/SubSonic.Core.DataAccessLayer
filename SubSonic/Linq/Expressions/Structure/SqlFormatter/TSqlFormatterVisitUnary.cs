@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -49,6 +50,6 @@ namespace SubSonic.Linq.Expressions.Structure
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1062:Validate arguments of public methods", Justification = "<Pending>")]
-        protected void ThrowUnaryNotSupported(UnaryExpression unary) => throw new NotSupportedException(SubSonicErrorMessages.UnSupportedUnaryOperator.Format($"{unary.NodeType}"));
+        protected void ThrowUnaryNotSupported(UnaryExpression unary) => throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, SubSonicErrorMessages.UnSupportedUnaryOperator, $"{unary.NodeType}"));
     }
 }

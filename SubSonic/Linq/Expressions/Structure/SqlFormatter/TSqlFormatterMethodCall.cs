@@ -510,6 +510,6 @@ namespace SubSonic.Linq.Expressions.Structure
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1062:Validate arguments of public methods", Justification = "<Pending>")]
-        protected void ThrowMethodNotSupported(MemberInfo info) => throw new NotSupportedException(SubSonicErrorMessages.UnSupportedMethodException.Format($"{info.DeclaringType}.{info.Name}"));
+        protected void ThrowMethodNotSupported(MemberInfo info) => throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, SubSonicErrorMessages.UnSupportedMethodException, $"{info.DeclaringType}.{info.Name}"));
     }
 }

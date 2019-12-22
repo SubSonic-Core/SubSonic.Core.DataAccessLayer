@@ -56,7 +56,7 @@ namespace SubSonic.Linq.Expressions.Structure
             __instances.Push(this);
         }
 
-        protected int IndentationWidth => __instances.Count;
+        protected static int IndentationWidth => __instances.Count;
 
         protected bool IsNested { get; set; } = false;
 
@@ -209,7 +209,7 @@ namespace SubSonic.Linq.Expressions.Structure
                         }
                         else
                         {
-                            throw new NotSupportedException(SubSonicErrorMessages.UnSupportedConstant.Format(value.GetType().GetTypeName()));
+                            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, SubSonicErrorMessages.UnSupportedConstant, value.GetType().GetTypeName()));
                         }
                         break;
                     default:
@@ -230,7 +230,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 case AggregateType.Max: return context.Fragments.MAX;
                 case AggregateType.Sum: return context.Fragments.SUM;
                 case AggregateType.Average: return context.Fragments.AVG;
-                default: throw new Exception(SubSonicErrorMessages.UnknownAggregate.Format(aggregateType));
+                default: throw new Exception(string.Format(CultureInfo.CurrentCulture, SubSonicErrorMessages.UnknownAggregate, aggregateType));
             }
         }
 

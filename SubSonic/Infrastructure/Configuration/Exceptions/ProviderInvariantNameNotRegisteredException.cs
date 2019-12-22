@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace SubSonic.Infrastructure
 {
@@ -7,12 +8,12 @@ namespace SubSonic.Infrastructure
         : Exception
     {
         public ProviderInvariantNameNotRegisteredException(string providerInvariantName, string factoryName) 
-            : base(SubSonicErrorMessages.ProviderInvariantNameNotRegisteredException.Format(providerInvariantName, factoryName))
+            : base(string.Format(CultureInfo.CurrentCulture, SubSonicErrorMessages.ProviderInvariantNameNotRegisteredException, providerInvariantName, factoryName))
         {
         }
 
         public ProviderInvariantNameNotRegisteredException(string providerInvariantName, string factoryName, Exception innerException) 
-            : base(SubSonicErrorMessages.ProviderInvariantNameNotRegisteredException.Format(providerInvariantName, factoryName), innerException)
+            : base(string.Format(CultureInfo.CurrentCulture, SubSonicErrorMessages.ProviderInvariantNameNotRegisteredException, providerInvariantName, factoryName), innerException)
         {
         }
     }

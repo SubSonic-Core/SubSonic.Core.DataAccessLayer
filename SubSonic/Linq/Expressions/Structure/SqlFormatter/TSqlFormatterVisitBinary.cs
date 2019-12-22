@@ -171,7 +171,7 @@ namespace SubSonic.Linq.Expressions.Structure
                             Write(Fragments.RIGHT_PARENTHESIS);
                             break;
                         default:
-                            throw new NotSupportedException(SubSonicErrorMessages.UnSupportedBinaryOperator.Format(binary.NodeType));
+                            throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, SubSonicErrorMessages.UnSupportedBinaryOperator, binary.NodeType));
                     }
                     Write(Fragments.RIGHT_PARENTHESIS);
                 }

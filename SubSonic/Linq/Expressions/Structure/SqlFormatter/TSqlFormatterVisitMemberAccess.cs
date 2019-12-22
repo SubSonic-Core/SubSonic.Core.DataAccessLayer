@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -113,6 +114,6 @@ namespace SubSonic.Linq.Expressions.Structure
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1062:Validate arguments of public methods", Justification = "<Pending>")]
-        protected void ThrowMemberNotSupported(MemberInfo info) => throw new NotSupportedException(SubSonicErrorMessages.UnSupportedMemberException.Format($"{info.DeclaringType}.{info.Name}"));
+        protected void ThrowMemberNotSupported(MemberInfo info) => throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, SubSonicErrorMessages.UnSupportedMemberException, $"{info.DeclaringType}.{info.Name}"));
     }
 }

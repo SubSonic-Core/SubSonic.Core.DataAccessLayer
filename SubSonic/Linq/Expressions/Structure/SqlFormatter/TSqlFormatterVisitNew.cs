@@ -8,6 +8,7 @@ namespace SubSonic.Linq.Expressions.Structure
 {
     using Alias;
     using Infrastructure.SqlGenerator;
+    using System.Globalization;
     using System.Reflection;
 
     public partial class TSqlFormatter
@@ -68,6 +69,6 @@ namespace SubSonic.Linq.Expressions.Structure
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1062:Validate arguments of public methods", Justification = "<Pending>")]
-        protected void ThrowConstructorNotSupported(ConstructorInfo info) => throw new NotSupportedException(SubSonicErrorMessages.UnSupportedConstructor.Format($"{info.DeclaringType}.{info.Name}"));
+        protected void ThrowConstructorNotSupported(ConstructorInfo info) => throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, SubSonicErrorMessages.UnSupportedConstructor, $"{info.DeclaringType}.{info.Name}"));
     }
 }

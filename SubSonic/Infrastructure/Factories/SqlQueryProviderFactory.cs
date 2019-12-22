@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Reflection;
 
 namespace SubSonic.Infrastructure
 {
     using Linq;
-    using System.Reflection;
 
     public static class SqlQueryProviderFactory
     {
@@ -35,14 +36,14 @@ namespace SubSonic.Infrastructure
 
             if (fieldInstanceInfo.FieldType.GetInterface(interfaceType.FullName).IsNull())
             {
-                throw new NotImplementedException(SubSonicErrorMessages.MissingInterfaceImplementation.Format(sqlQueryProviderType.FullName, interfaceType.Name));
+                throw new NotImplementedException(string.Format(CultureInfo.CurrentCulture, SubSonicErrorMessages.MissingInterfaceImplementation, sqlQueryProviderType.FullName, interfaceType.Name));
             }
 
             SqlQueryProvider sqlQueryProvider = (SqlQueryProvider)fieldInstanceInfo.GetValue(null);
 
             if(sqlQueryProvider.IsNull())
             {
-                throw new NullReferenceException(SubSonicErrorMessages.SqlQueryProviderIsNull.Format(sqlQueryProviderType.Name));
+                throw new NullReferenceException(string.Format(CultureInfo.CurrentCulture, SubSonicErrorMessages.SqlQueryProviderIsNull, sqlQueryProviderType.Name));
             }
 
             if (!ProviderFactories.ContainsKey(dBProviderInvariantName))
