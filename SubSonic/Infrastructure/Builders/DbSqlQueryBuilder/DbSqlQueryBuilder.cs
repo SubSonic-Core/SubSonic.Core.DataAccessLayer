@@ -30,7 +30,7 @@ namespace SubSonic.Infrastructure.Builders
         }
 
         #region properties
-        public SqlQueryType SqlQueryType { get; private set; }
+        public DbSqlQueryType SqlQueryType { get; private set; }
 
         public IDbEntityModel DbEntity { get; }
         public DbTableExpression DbTable { get; }
@@ -38,21 +38,21 @@ namespace SubSonic.Infrastructure.Builders
 
         
 
-        protected virtual SqlQueryType GetQueryType(Expression expression)
+        protected virtual DbSqlQueryType GetQueryType(Expression expression)
         {
             if (expression.IsNotNull())
             {
                 if (!expression.NodeType.IsDbExpression())
                 {
-                    return SqlQueryType.Unknown;
+                    return DbSqlQueryType.Unknown;
                 }
 
                 switch((DbExpressionType)expression.NodeType)
                 {
                     case DbExpressionType.Table:
-                        return SqlQueryType.Unknown;
+                        return DbSqlQueryType.Unknown;
                     case DbExpressionType.Select:
-                        return SqlQueryType.Read;
+                        return DbSqlQueryType.Read;
                     default:
                         throw new NotSupportedException();
                 }

@@ -4,12 +4,12 @@ using System.Text;
 
 namespace SubSonic.Infrastructure
 {
-    public enum GroupOperator
+    public enum DbSqlQueryType
     {
         Unknown = 0,
-        And,
-        AndAlso,
-        Or,
-        OrElse
+        Create,
+        Read,
+        Update,
+        Delete
     }
 }

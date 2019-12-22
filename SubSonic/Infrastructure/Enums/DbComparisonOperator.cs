@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SubSonic.Infrastructure
 {
-    public enum ComparisonOperator
+    public enum DbComparisonOperator
     {
         Unknown = 0,
         Equal,

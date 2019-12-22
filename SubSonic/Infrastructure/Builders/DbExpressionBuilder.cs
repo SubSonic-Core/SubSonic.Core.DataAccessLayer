@@ -26,7 +26,7 @@ namespace SubSonic.Infrastructure
 
         public Expression ToMethodCallExpression() => call;
 
-        public DbExpressionBuilder BuildComparisonExpression(string property, object value, ComparisonOperator @operator, GroupOperator @group)
+        public DbExpressionBuilder BuildComparisonExpression(string property, object value, DbComparisonOperator @operator, DbGroupOperator @group)
         {
             PropertyInfo propertyInfo = parameter.Type.GetProperty(property);
 
@@ -124,28 +124,28 @@ namespace SubSonic.Infrastructure
             return result;
         }
 
-        private Expression GetBodyExpression(Expression right, GroupOperator @group)
+        private Expression GetBodyExpression(Expression right, DbGroupOperator @group)
         {
             Expression result;
 
             switch(group)
             {
-                case GroupOperator.And:
+                case DbGroupOperator.And:
                     {
                         result = Expression.And(body, right);
                     }
                     break;
-                case GroupOperator.AndAlso:
+                case DbGroupOperator.AndAlso:
                     {
                         result = Expression.AndAlso(body, right);
                     }
                     break;
-                case GroupOperator.Or:
+                case DbGroupOperator.Or:
                     {
                         result = Expression.Or(body, right);
                     }
                     break;
-                case GroupOperator.OrElse:
+                case DbGroupOperator.OrElse:
                     {
                         result = Expression.OrElse(body, right);
                     }
@@ -157,80 +157,80 @@ namespace SubSonic.Infrastructure
             return result;
         }
 
-        private static Expression GetComparisonExpression(Expression left, Expression right, ComparisonOperator @operator)
+        private static Expression GetComparisonExpression(Expression left, Expression right, DbComparisonOperator @operator)
         {
             Expression result;
 
             switch(@operator)
             {
-                case ComparisonOperator.Contains:
-                case ComparisonOperator.NotContains:
+                case DbComparisonOperator.Contains:
+                case DbComparisonOperator.NotContains:
                     {
                         MethodInfo
                             oMethod = left.Type.GetMethod("Contains", new Type[] { right.Type });
 
                         result = Expression.Call(left, oMethod, right);
 
-                        if (@operator == ComparisonOperator.NotContains)
+                        if (@operator == DbComparisonOperator.NotContains)
                         {
                             result = Expression.Not(result);
                         }
                     }
                     break;
-                case ComparisonOperator.StartsWith:
-                case ComparisonOperator.NotStartsWith:
+                case DbComparisonOperator.StartsWith:
+                case DbComparisonOperator.NotStartsWith:
                     {
                         MethodInfo
                             oMethod = left.Type.GetMethod("StartsWith", new Type[] { right.Type });
 
                         result = Expression.Call(left, oMethod, right);
 
-                        if (@operator == ComparisonOperator.NotContains)
+                        if (@operator == DbComparisonOperator.NotContains)
                         {
                             result = Expression.Not(result);
                         }
                     }
                     break;
-                case ComparisonOperator.EndsWith:
-                case ComparisonOperator.NotEndsWith:
+                case DbComparisonOperator.EndsWith:
+                case DbComparisonOperator.NotEndsWith:
                     {
                         MethodInfo
                             oMethod = left.Type.GetMethod("EndsWith", new Type[] { right.Type });
 
                         result = Expression.Call(left, oMethod, right);
 
-                        if (@operator == ComparisonOperator.NotContains)
+                        if (@operator == DbComparisonOperator.NotContains)
                         {
                             result = Expression.Not(result);
                         }
                     }
                     break;
-                case ComparisonOperator.Equal:
+                case DbComparisonOperator.Equal:
                     {
                         result = Expression.Equal(left, right);
                     }
                     break;
-                case ComparisonOperator.NotEqual:
+                case DbComparisonOperator.NotEqual:
                     {
                         result = Expression.NotEqual(left, right);
                     }
                     break;
-                case ComparisonOperator.GreaterThan:
+                case DbComparisonOperator.GreaterThan:
                     {
                         result = Expression.GreaterThan(left, right);
                     }
                     break;
-                case ComparisonOperator.GreaterThanOrEqual:
+                case DbComparisonOperator.GreaterThanOrEqual:
                     {
                         result = Expression.GreaterThanOrEqual(left, right);
                     }
                     break;
-                case ComparisonOperator.LessThan:
+                case DbComparisonOperator.LessThan:
                     {
                         result = Expression.LessThan(left, right);
                     }
                     break;
-                case ComparisonOperator.LessThanOrEqual:
+                case DbComparisonOperator.LessThanOrEqual:
                     {
                         result = Expression.LessThanOrEqual(left, right);
                     }

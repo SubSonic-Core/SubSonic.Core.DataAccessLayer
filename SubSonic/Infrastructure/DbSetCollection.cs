@@ -121,7 +121,7 @@ namespace SubSonic.Infrastructure
 
                 for (int i = 0; i < keyNames.Length; i++)
                 {
-                    logical = builder.BuildLogicalBinary(logical, DbExpressionType.Where, keyNames[i], keyData[i], ComparisonOperator.Equal, GroupOperator.AndAlso);
+                    logical = builder.BuildLogicalBinary(logical, DbExpressionType.Where, keyNames[i], keyData[i], DbComparisonOperator.Equal, DbGroupOperator.AndAlso);
                 }
 
                 LambdaExpression predicate = (LambdaExpression)builder.BuildLambda(logical, LambdaType.Predicate);

@@ -41,13 +41,13 @@ namespace SubSonic.Linq.Expressions
             return new DbBetweenExpression(value, lower, upper);
         }
 
-        public static DbExpression DbBetween(ComparisonOperator @operator, Expression value, Expression lower, Expression upper)
+        public static DbExpression DbBetween(DbComparisonOperator @operator, Expression value, Expression lower, Expression upper)
         {
-            if (@operator == ComparisonOperator.Between)
+            if (@operator == DbComparisonOperator.Between)
             {
                 return DbBetween(value, lower, upper);
             }
-            else if (@operator == ComparisonOperator.NotBetween)
+            else if (@operator == DbComparisonOperator.NotBetween)
             {
                 return DbNotBetween(value, lower, upper);
             }

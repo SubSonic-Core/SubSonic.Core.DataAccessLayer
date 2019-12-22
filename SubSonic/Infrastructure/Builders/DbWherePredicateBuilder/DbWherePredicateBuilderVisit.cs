@@ -23,13 +23,13 @@ namespace SubSonic.Infrastructure.Builders
                     case ExpressionType.GreaterThanOrEqual:
                     case ExpressionType.LessThan:
                     case ExpressionType.LessThanOrEqual:
-                        comparison = (ComparisonOperator)Enum.Parse(typeof(ComparisonOperator), node.NodeType.ToString());
+                        comparison = (DbComparisonOperator)Enum.Parse(typeof(DbComparisonOperator), node.NodeType.ToString());
                         break;
                     case ExpressionType.Or:
                     case ExpressionType.OrElse:
                     case ExpressionType.And:
                     case ExpressionType.AndAlso:
-                        group = (GroupOperator)Enum.Parse(typeof(GroupOperator), node.NodeType.ToString());
+                        group = (DbGroupOperator)Enum.Parse(typeof(DbGroupOperator), node.NodeType.ToString());
                         break;
                 }
             }
@@ -43,12 +43,12 @@ namespace SubSonic.Infrastructure.Builders
                 if (node is MethodCallExpression call)
                 {
 
-                    if (Enum.TryParse(typeof(ComparisonOperator), call.Method.Name, out object name))
+                    if (Enum.TryParse(typeof(DbComparisonOperator), call.Method.Name, out object name))
                     {
-                        comparison = (ComparisonOperator)name;
+                        comparison = (DbComparisonOperator)name;
                     }
 
-                    if (comparison.In(ComparisonOperator.In, ComparisonOperator.NotIn))
+                    if (comparison.In(DbComparisonOperator.In, DbComparisonOperator.NotIn))
                     {
                         foreach (Expression argument in call.Arguments)
                         {
@@ -64,7 +64,7 @@ namespace SubSonic.Infrastructure.Builders
                             }
                         }
                     }
-                    else if (comparison.In(ComparisonOperator.Between, ComparisonOperator.NotBetween))
+                    else if (comparison.In(DbComparisonOperator.Between, DbComparisonOperator.NotBetween))
                     {
                         foreach (Expression argument in call.Arguments)
                         {

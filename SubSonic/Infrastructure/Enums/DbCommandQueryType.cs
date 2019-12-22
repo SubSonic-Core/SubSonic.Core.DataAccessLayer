@@ -4,11 +4,10 @@ using System.Text;
 
 namespace SubSonic.Infrastructure
 {
-    public enum SqlQueryType
+    public enum DbCommandQueryType
     {
         Unknown = 0,
-        Create,
-        Read,
+        Insert,
         Update,
         Delete
     }

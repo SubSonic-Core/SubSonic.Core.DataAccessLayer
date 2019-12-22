@@ -70,7 +70,7 @@ namespace SubSonic.Infrastructure.Builders
                     where is DbWhereExpression _where)
                 {
                     Expression
-                        logical = DbWherePredicateBuilder.GetBodyExpression(_where.LambdaPredicate.Body, predicate.Body, GroupOperator.AndAlso);
+                        logical = DbWherePredicateBuilder.GetBodyExpression(_where.LambdaPredicate.Body, predicate.Body, DbGroupOperator.AndAlso);
                     predicate = BuildLambda(logical, LambdaType.Predicate) as LambdaExpression;
                 }
                 else
@@ -137,7 +137,7 @@ namespace SubSonic.Infrastructure.Builders
             return result;
         }
 
-        public Expression BuildLogicalBinary(Expression body, DbExpressionType type, string property, object value, ComparisonOperator @operator, GroupOperator @group)
+        public Expression BuildLogicalBinary(Expression body, DbExpressionType type, string property, object value, DbComparisonOperator @operator, DbGroupOperator @group)
         {
             ParameterExpression parameter = Expression.Parameter(DbEntity.EntityModelType, DbEntity.QualifiedName);
             PropertyInfo propertyInfo = DbEntity.EntityModelType.GetProperty(property);
