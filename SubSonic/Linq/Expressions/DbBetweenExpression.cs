@@ -3,9 +3,11 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
+    using Structure;
+
     public class DbBetweenExpression : DbExpression
     {
-        public DbBetweenExpression(Expression value, Expression lower, Expression upper)
+        protected internal DbBetweenExpression(Expression value, Expression lower, Expression upper)
             : this(DbExpressionType.Between, value.IsNullThrowArgumentNull(nameof(value)).Type)
         {
             Value = value ?? throw new ArgumentNullException(nameof(value));
@@ -19,5 +21,23 @@ namespace SubSonic.Linq.Expressions
         public virtual Expression Value { get; }
         public virtual Expression Lower { get; }
         public virtual Expression Upper { get; }
+
+        protected override Expression Accept(ExpressionVisitor visitor)
+        {
+            if (visitor is DbExpressionVisitor db)
+            {
+                return db.VisitBetween(this);
+            }
+
+            return base.Accept(visitor);
+        }
+    }
+
+    public partial class DbExpression
+    {
+        public static DbExpression DbBetween(Expression value, Expression lower, Expression upper)
+        {
+            return new DbBetweenExpression(value, lower, upper);
+        }
     }
 }

@@ -153,13 +153,11 @@ namespace SubSonic.Infrastructure.Builders
                         }
                         else if (node.Member is FieldInfo fi)
                         {
-                            fieldInfo = fi;
-
                             if (node.Expression is ConstantExpression constant)
                             {
                                 Expression named = DbExpression.DbNamedValue(
                                     GetName(fi.Name, fi.FieldType),
-                                    Expression.Constant(fi.GetValue(constant.Value)));
+                                    Expression.Constant(fi.GetValue(constant.Value), fi.FieldType));
 
                                 throw new NotImplementedException();
                             }
@@ -194,17 +192,19 @@ namespace SubSonic.Infrastructure.Builders
 
         protected override Expression VisitConstant(ConstantExpression node)
         {
-            if (right is NewArrayExpression array)
+            if (node.IsNotNull())
             {
-                return GetNamedExpression(node.Value);
-            }
-            else if (!(right is DbColumnExpression))
-            {
-                right = GetNamedExpression(node.Value);
-            }
+                if (right is NewArrayExpression array)
+                {
+                    return GetNamedExpression(node.Value);
+                }
+                else if (!(right is DbColumnExpression))
+                {
+                    right = GetNamedExpression(node.Value);
+                }
 
-            BuildLogicalExpression();
-
+                BuildLogicalExpression();
+            }
             return base.VisitConstant(node);
         }
 

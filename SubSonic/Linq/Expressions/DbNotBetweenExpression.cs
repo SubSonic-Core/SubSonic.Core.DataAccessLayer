@@ -5,7 +5,7 @@ namespace SubSonic.Linq.Expressions
 {
     public class DbNotBetweenExpression : DbExpression
     {
-        public DbNotBetweenExpression(Expression value, Expression lower, Expression upper)
+        protected internal DbNotBetweenExpression(Expression value, Expression lower, Expression upper)
             : base(DbExpressionType.NotBetween, value.IsNullThrowArgumentNull(nameof(value)).Type)
         {
             Value = value;
@@ -16,5 +16,13 @@ namespace SubSonic.Linq.Expressions
         public virtual Expression Value { get; }
         public virtual Expression Lower { get; }
         public virtual Expression Upper { get; }
+    }
+
+    public partial class DbExpression
+    {
+        public static DbExpression DbNotBetween(Expression value, Expression lower, Expression upper)
+        {
+            return new DbNotBetweenExpression(value, lower, upper);
+        }
     }
 }

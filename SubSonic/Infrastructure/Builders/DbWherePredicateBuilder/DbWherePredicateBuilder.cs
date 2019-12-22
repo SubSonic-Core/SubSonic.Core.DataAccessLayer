@@ -25,8 +25,8 @@ namespace SubSonic.Infrastructure.Builders
         private ComparisonOperator comparison;
         private DbExpressionType whereType;
         private PropertyInfo propertyInfo;
-        private FieldInfo fieldInfo;
         private Expression left, right;
+        //private Queue<Expression> arguments;
 
         protected DbWherePredicateBuilder(DbExpressionType whereType, DbTableExpression table)
         {

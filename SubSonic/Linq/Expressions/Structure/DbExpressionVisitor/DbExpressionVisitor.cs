@@ -34,9 +34,6 @@ namespace SubSonic.Linq.Expressions.Structure
                 case DbExpressionType.IsNull:
                 case DbExpressionType.IsNotNull:
                     return VisitNull((DbIsNullExpression)node);
-                case DbExpressionType.Between:
-                case DbExpressionType.NotBetween:
-                    return VisitBetween((DbBetweenExpression)node);
                 case DbExpressionType.RowCount:
                     return VisitRowNumber((DbRowNumberExpression)node);
                 case DbExpressionType.Projection:
@@ -113,7 +110,7 @@ namespace SubSonic.Linq.Expressions.Structure
             return rowNumber;
         }
 
-        protected virtual Expression VisitBetween(DbBetweenExpression between)
+        protected internal virtual Expression VisitBetween(DbBetweenExpression between)
         {
             if (between is null)
             {
@@ -129,9 +126,9 @@ namespace SubSonic.Linq.Expressions.Structure
                 switch ((DbExpressionType)between.NodeType)
                 {
                     case DbExpressionType.Between:
-                        return new DbBetweenExpression(expr, lower, upper);
+                        return DbExpression.DbBetween(expr, lower, upper);
                     case DbExpressionType.NotBetween:
-                        return new DbNotBetweenExpression(expr, lower, upper);
+                        return DbExpression.DbNotBetween(expr, lower, upper);
                 }
             }
 

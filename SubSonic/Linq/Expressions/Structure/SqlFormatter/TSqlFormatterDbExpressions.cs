@@ -176,7 +176,7 @@ namespace SubSonic.Linq.Expressions.Structure
             return isNull;
         }
 
-        protected override Expression VisitBetween(DbBetweenExpression between)
+        protected internal override Expression VisitBetween(DbBetweenExpression between)
         {
             if (between.IsNotNull())
             {
