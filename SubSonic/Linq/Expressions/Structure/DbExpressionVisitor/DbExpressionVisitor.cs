@@ -12,43 +12,7 @@ namespace SubSonic.Linq.Expressions.Structure
     public abstract partial class DbExpressionVisitor
         : ExpressionVisitor
     {
-        public override Expression Visit(Expression node)
-        {
-            if (node.IsNull())
-            {
-                return node;
-            }
-
-            switch ((DbExpressionType)node.NodeType)
-            {
-                case DbExpressionType.Aggregate:
-                    return VisitAggregate((DbAggregateExpression)node);
-                case DbExpressionType.AggregateSubQuery:
-                    return VisitAggregateSubQuery((DbAggregateSubQueryExpression)node);
-                case DbExpressionType.RowCount:
-                    return VisitRowNumber((DbRowNumberExpression)node);
-                case DbExpressionType.Projection:
-                    return VisitProjection((DbProjectionExpression)node);
-                case DbExpressionType.ClientJoin:
-                    return VisitClientJoin((DbClientJoinExpression)node);
-                default:
-                    return base.Visit(node);
-            }
-        }
-
-        protected internal virtual Expression VisitDbConstant(DbConstantExpression constant)
-        {
-            if (constant.IsNotNull())
-            {
-                if (constant.Reduce() is ConstantExpression _constant)
-                {
-                    VisitConstant(_constant);
-                }
-            }
-            return constant;
-        }
-
-        protected virtual Expression VisitClientJoin(DbClientJoinExpression join)
+        protected internal virtual Expression VisitClientJoin(DbClientJoinExpression join)
         {
             if (join is null)
             {
@@ -57,18 +21,18 @@ namespace SubSonic.Linq.Expressions.Structure
 
             DbProjectionExpression projection = (DbProjectionExpression)this.Visit(join.Projection);
 
-            var outerKey = this.VisitExpressionList(join.OuterKey);
-            var innerKey = this.VisitExpressionList(join.InnerKey);
+            var outerKey = VisitExpressionList(join.OuterKey);
+            var innerKey = VisitExpressionList(join.InnerKey);
 
             if (projection != join.Projection || outerKey != join.OuterKey || innerKey != join.InnerKey)
             {
-                return new DbClientJoinExpression(projection, outerKey, innerKey);
+                return DbExpression.DbClientJoin(projection, outerKey, innerKey);
             }
 
             return join;
         }
 
-        protected virtual Expression VisitProjection(DbProjectionExpression projection)
+        protected internal virtual Expression VisitProjection(DbProjectionExpression projection)
         {
             if(projection is null)
             {
@@ -79,23 +43,23 @@ namespace SubSonic.Linq.Expressions.Structure
             Expression projector = this.Visit(projection.Projector);
             if (source != projection.Source || projector != projection.Projector)
             {
-                return new DbProjectionExpression(source, projector, projection.Aggregator);
+                return DbExpression.DbProjection(source, projector, projection.Aggregator);
             }
             return projection;
         }
 
-        protected virtual Expression VisitRowNumber(DbRowNumberExpression rowNumber)
+        protected internal virtual Expression VisitRowNumber(DbRowNumberExpression rowNumber)
         {
             if(rowNumber is null)
             {
                 return rowNumber;
             }
 
-            var orderby = this.VisitOrderBy(rowNumber.OrderBy);
+            var orderby = VisitOrderBy(rowNumber.OrderBy);
 
             if (orderby != rowNumber.OrderBy)
             {
-                return new DbRowNumberExpression(orderby);
+                return DbExpression.DbRowNumber(orderby);
             }
 
             return rowNumber;
@@ -126,7 +90,7 @@ namespace SubSonic.Linq.Expressions.Structure
             return between;
         }
 
-        protected virtual Expression VisitAggregateSubQuery(DbAggregateSubQueryExpression aggregate)
+        protected internal virtual Expression VisitAggregateSubQuery(DbAggregateSubQueryExpression aggregate)
         {
             if (aggregate is null)
             {
@@ -143,7 +107,7 @@ namespace SubSonic.Linq.Expressions.Structure
 
                         if (subQuery != aggregate.AggregateAsSubQuery)
                         {
-                            return new DbAggregateSubQueryExpression(aggregate.GroupByAlias, aggregate.AggregateInGroupSelect, subQuery);
+                            return DbExpression.DbAggregateSubQuery(aggregate.GroupByAlias, aggregate.AggregateInGroupSelect, subQuery);
                         }
                     }
                     break;
@@ -228,17 +192,18 @@ namespace SubSonic.Linq.Expressions.Structure
             return isnull;
         }
 
-        protected virtual Expression VisitAggregate(DbAggregateExpression aggregate)
+        protected internal virtual Expression VisitAggregate(DbAggregateExpression aggregate)
         {
             if (aggregate is null)
             {
                 return aggregate;
             }
 
-            Expression arg = this.Visit(aggregate.Argument);
+            Expression arg = Visit(aggregate.Argument);
+
             if (arg != aggregate.Argument)
             {
-                return new DbAggregateExpression(aggregate.Type, aggregate.AggregateType, arg, aggregate.IsDistinct);
+                return DbExpression.DbAggregate(aggregate.Type, aggregate.AggregateType, arg, aggregate.IsDistinct);
             }
             return aggregate;
         }

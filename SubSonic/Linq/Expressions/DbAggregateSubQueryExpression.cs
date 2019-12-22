@@ -4,10 +4,12 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
+    using Structure;
+
     public class DbAggregateSubQueryExpression
         : DbExpression
     {
-        public DbAggregateSubQueryExpression(TableAlias groupByAlias, Expression aggregateInGroupSelect, DbScalarExpression aggregateAsSubquery)
+        protected internal DbAggregateSubQueryExpression(TableAlias groupByAlias, Expression aggregateInGroupSelect, DbScalarExpression aggregateAsSubquery)
             : base(DbExpressionType.AggregateSubQuery, aggregateAsSubquery.IsNullThrowArgumentNull(nameof(aggregateAsSubquery)).Type)
         {
             AggregateInGroupSelect = aggregateInGroupSelect ?? throw new ArgumentNullException(nameof(aggregateInGroupSelect));
@@ -17,5 +19,23 @@ namespace SubSonic.Linq.Expressions
         public TableAlias GroupByAlias { get; }
         public Expression AggregateInGroupSelect { get; }
         public DbScalarExpression AggregateAsSubQuery { get; }
+
+        protected override Expression Accept(ExpressionVisitor visitor)
+        {
+            if (visitor is DbExpressionVisitor db)
+            {
+                return db.VisitAggregateSubQuery(this);
+            }
+
+            return base.Accept(visitor);
+        }
+    }
+
+    public partial class DbExpression
+    {
+        public static DbExpression DbAggregateSubQuery(TableAlias groupByAlias, Expression aggregateInGroupSelect, DbScalarExpression aggregateAsSubquery)
+        {
+            return new DbAggregateSubQueryExpression(groupByAlias, aggregateInGroupSelect, aggregateAsSubquery);
+        }
     }
 }

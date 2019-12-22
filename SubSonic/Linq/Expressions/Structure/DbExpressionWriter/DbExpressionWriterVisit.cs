@@ -50,7 +50,7 @@ namespace SubSonic.Linq.Expressions.Structure
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
-        protected override Expression VisitProjection(DbProjectionExpression projection)
+        protected internal override Expression VisitProjection(DbProjectionExpression projection)
         {
             if (projection != null)
             {
@@ -73,7 +73,7 @@ namespace SubSonic.Linq.Expressions.Structure
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
-        protected override Expression VisitClientJoin(DbClientJoinExpression join)
+        protected internal override Expression VisitClientJoin(DbClientJoinExpression join)
         {
             if (join != null)
             {

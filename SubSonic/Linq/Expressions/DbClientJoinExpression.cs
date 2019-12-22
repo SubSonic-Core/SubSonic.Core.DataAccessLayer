@@ -4,9 +4,11 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
+    using Structure;
+
     public class DbClientJoinExpression : DbExpression
     {
-        public DbClientJoinExpression(DbProjectionExpression projection, IEnumerable<Expression> outerKey, IEnumerable<Expression> innerKey)
+        protected internal DbClientJoinExpression(DbProjectionExpression projection, IEnumerable<Expression> outerKey, IEnumerable<Expression> innerKey)
             : base(DbExpressionType.ClientJoin, projection.IsNullThrowArgumentNull(nameof(projection)).Type)
         {
             OuterKey = outerKey as ReadOnlyCollection<Expression>;
@@ -27,5 +29,23 @@ namespace SubSonic.Linq.Expressions
         public ReadOnlyCollection<Expression> InnerKey { get; }
 
         public DbProjectionExpression Projection { get; }
+
+        protected override Expression Accept(ExpressionVisitor visitor)
+        {
+            if (visitor is DbExpressionVisitor db)
+            {
+                return db.VisitClientJoin(this);
+            }
+
+            return base.Accept(visitor);
+        }
+    }
+
+    public partial class DbExpression
+    {
+        public static DbExpression DbClientJoin(DbProjectionExpression projection, IEnumerable<Expression> outerKey, IEnumerable<Expression> innerKey)
+        {
+            return new DbClientJoinExpression(projection, outerKey, innerKey);
+        }
     }
 }

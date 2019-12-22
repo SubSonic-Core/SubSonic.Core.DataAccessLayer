@@ -91,7 +91,7 @@ namespace SubSonic.Linq
             return true;
         }
 
-        public static DbProjectionExpression AddOuterJoinTest(this DbProjectionExpression projection)
+        public static DbExpression AddOuterJoinTest(this DbProjectionExpression projection)
         {
             if (projection is null)
             {
@@ -105,7 +105,7 @@ namespace SubSonic.Linq
                     new DbColumnExpression(typeof(int?), newSource.Table, colName),
                     projection.Projector);
 
-            return new DbProjectionExpression(newSource, newProjector, projection.Aggregator);
+            return DbExpression.DbProjection(newSource, newProjector, projection.Aggregator);
         }
 
         public static DbSelectExpression SetDistinct(this DbSelectExpression select, bool isDistinct)

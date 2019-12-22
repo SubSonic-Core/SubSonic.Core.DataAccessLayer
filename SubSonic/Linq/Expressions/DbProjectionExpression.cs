@@ -11,11 +11,7 @@ namespace SubSonic.Linq.Expressions
     /// </summary>
     public class DbProjectionExpression : DbExpression
     {
-        public DbProjectionExpression(DbSelectExpression source, Expression projector)
-            : this(source, projector, null)
-        {
-        }
-        public DbProjectionExpression(DbSelectExpression source, Expression projector, LambdaExpression aggregator)
+        protected internal DbProjectionExpression(DbSelectExpression source, Expression projector, LambdaExpression aggregator)
             : base(DbExpressionType.Projection, aggregator != null ? aggregator.Body.Type : typeof(IEnumerable<>).MakeGenericType(projector.IsNullThrowArgumentNull(nameof(projector)).Type))
         {
             Source = source;
@@ -36,6 +32,29 @@ namespace SubSonic.Linq.Expressions
         public string QueryText
         {
             get { return TSqlFormatter.Format(Source); }
+        }
+
+        protected override Expression Accept(ExpressionVisitor visitor)
+        {
+            if (visitor is DbExpressionVisitor db)
+            {
+                return db.VisitProjection(this);
+            }
+
+            return base.Accept(visitor);
+        }
+    }
+
+    public partial class DbExpression
+    {
+        public static DbExpression DbProjection(DbSelectExpression source, Expression projector)
+        {
+            return new DbProjectionExpression(source, projector, null);
+        }
+
+        public static DbExpression DbProjection(DbSelectExpression source, Expression projector, LambdaExpression aggregator)
+        {
+            return new DbProjectionExpression(source, projector, aggregator);
         }
     }
 }

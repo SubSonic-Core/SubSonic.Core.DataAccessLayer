@@ -44,7 +44,7 @@ namespace SubSonic.Linq.Expressions.Structure
             return expression;
         }
 
-        protected override Expression VisitProjection(DbProjectionExpression projection)
+        protected internal override Expression VisitProjection(DbProjectionExpression projection)
         {
             if (projection.IsNotNull())
             {
@@ -142,7 +142,7 @@ namespace SubSonic.Linq.Expressions.Structure
             return source;
         }
 
-        protected override Expression VisitAggregate(DbAggregateExpression aggregate)
+        protected internal override Expression VisitAggregate(DbAggregateExpression aggregate)
         {
             if (aggregate.IsNotNull())
             {
@@ -189,7 +189,7 @@ namespace SubSonic.Linq.Expressions.Structure
             return between;
         }
 
-        protected override Expression VisitRowNumber(DbRowNumberExpression rowNumber)
+        protected internal override Expression VisitRowNumber(DbRowNumberExpression rowNumber)
         {
             if (rowNumber.IsNotNull())
             {
