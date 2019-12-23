@@ -23,8 +23,17 @@ namespace SubSonic.Infrastructure.Builders
                     case ExpressionType.GreaterThanOrEqual:
                     case ExpressionType.LessThan:
                     case ExpressionType.LessThanOrEqual:
-                        comparison = (DbComparisonOperator)Enum.Parse(typeof(DbComparisonOperator), node.NodeType.ToString());
-                        break;
+                        {
+                            comparison = (DbComparisonOperator)Enum.Parse(typeof(DbComparisonOperator), node.NodeType.ToString());
+
+                            Arguments.Push(Visit(node.Left));
+                            Arguments.Push(Visit(node.Right));
+
+                            BuildLogicalExpression();
+
+                            
+                        }
+                        return node;
                     case ExpressionType.Or:
                     case ExpressionType.OrElse:
                     case ExpressionType.And:
@@ -56,28 +65,46 @@ namespace SubSonic.Infrastructure.Builders
                             {
                                 object set = Expression.Lambda(method).Compile().DynamicInvoke();
 
-                                arguments.Enqueue(PullUpParameters(((MLinq.IQueryable)set).Expression));
+                                Arguments.Push(PullUpParameters(((MLinq.IQueryable)set).Expression));
                             }
                             else
                             {
-                                Visit(argument);
+                                Arguments.Push(Visit(argument));
                             }
                         }
                     }
                     else if (comparison.In(DbComparisonOperator.Between, DbComparisonOperator.NotBetween))
                     {
-                        foreach (Expression argument in call.Arguments)
+                        if (call.Method.Name.Contains("Between", StringComparison.CurrentCulture))
                         {
-                            Visit(argument);
-                        }
+                            using (var args = Arguments.FocusOn(call.Method.Name))
+                            {
+                                foreach (Expression argument in call.Arguments)
+                                {
+                                    Arguments.Push(Visit(argument));
+                                }
 
-                        if (body.IsNull())
-                        {
-                            body = DbExpression.DbBetween(comparison, arguments.Dequeue(), arguments.Dequeue(), arguments.Dequeue());
+                                if (body.IsNull())
+                                {
+                                    body = DbExpression.DbBetween(comparison, Arguments.Pop(), Arguments.Pop(), Arguments.Pop());
+                                }
+                                else
+                                {
+                                    body = GetBodyExpression(body, DbExpression.DbBetween(comparison, Arguments.Pop(), Arguments.Pop(), Arguments.Pop()), group);
+                                }
+                            }
                         }
-                        else
+                        else if (call.Method.Name.Contains("IsNull", StringComparison.CurrentCulture))
                         {
-                            body = GetBodyExpression(body, DbExpression.DbBetween(comparison, arguments.Dequeue(), arguments.Dequeue(), arguments.Dequeue()), group);
+                            using (var args = Arguments.FocusOn(call.Method.Name))
+                            {
+                                foreach (Expression argument in call.Arguments)
+                                {
+                                    Arguments.Push(Visit(argument));
+                                }
+
+                                return DbExpression.DbIsNull(args.Pop(), args.Pop());
+                            }
                         }
 
                         return node;
@@ -149,22 +176,19 @@ namespace SubSonic.Infrastructure.Builders
                         {
                             propertyInfo = pi;
 
-                            arguments.Enqueue(GetDbColumnExpression(pi));
+                            return GetDbColumnExpression(pi);
 
-                            if (arguments.Count == 2)
-                            {
-                                BuildLogicalExpression();
-                            }
-
-                            return node;
+                            //if (comparison.NotIn(DbComparisonOperator.Between, DbComparisonOperator.NotBetween) &&
+                            //    Arguments.Count == 2)
+                            //{
+                            //    BuildLogicalExpression();
+                            //}
                         }
                         else if (node.Member is FieldInfo fi)
                         {
                             if (node.Expression is ConstantExpression constant)
                             {
-                                arguments.Enqueue(GetNamedExpression(fi, fi.GetValue(constant.Value)));
-
-                                return node;
+                                return GetNamedExpression(fi, fi.GetValue(constant.Value));
                             }
 
                             throw new NotSupportedException();
@@ -197,9 +221,7 @@ namespace SubSonic.Infrastructure.Builders
 
                 visitingForArray = false;
 
-                arguments.Enqueue(array.Update(elements));
-
-                return node;
+                return array.Update(elements);
             }
             return base.VisitNewArray(node);
         }
@@ -208,34 +230,25 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (node.IsNotNull())
             {
-                if (visitingForArray)
-                {
-                    return GetNamedExpression(propertyInfo, node.Value);
-                }
-                else if (!(arguments.Count == 2 && arguments.Peek() is DbColumnExpression))
-                {
-                    arguments.Enqueue(GetNamedExpression(propertyInfo, node.Value));
-                }
-
-                BuildLogicalExpression();
+                return GetNamedExpression(propertyInfo, node.Value);
             }
             return base.VisitConstant(node);
         }
 
         protected virtual void BuildLogicalExpression()
         {
-            if (arguments.Count != 2)
+            if (Arguments.Count != 2)
             {
                 return;
             }
 
             if (body.IsNull())
             {
-                body = GetComparisonExpression(arguments.Dequeue(), arguments.Dequeue(), comparison);
+                body = GetComparisonExpression(Arguments.Pop(), Arguments.Pop(), comparison);
             }
             else
             {
-                body = GetBodyExpression(body, GetComparisonExpression(arguments.Dequeue(), arguments.Dequeue(), comparison), group);
+                body = GetBodyExpression(body, GetComparisonExpression(Arguments.Pop(), Arguments.Pop(), comparison), group);
             }
             // clear out the left right values in prep for the next one
             //left = right = null;

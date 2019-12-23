@@ -73,6 +73,7 @@ namespace SubSonic.Linq.Expressions.Structure
                                 Write(context.Fragments.SPACE);
                                 this.VisitValue(right);
                             }
+                            
                             break;
                         case ExpressionType.Equal:
                             if (right.NodeType == ExpressionType.Constant)

@@ -87,5 +87,10 @@ namespace SubSonic.Infrastructure
                 DbType = DetermineDbType();
             }
         }
+
+        public override string ToString()
+        {
+            return $"{ParameterName} = {Value}";
+        }
     }
 }

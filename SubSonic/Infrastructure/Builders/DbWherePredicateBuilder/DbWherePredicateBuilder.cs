@@ -25,14 +25,12 @@ namespace SubSonic.Infrastructure.Builders
         private DbComparisonOperator comparison;
         private DbExpressionType whereType;
         private PropertyInfo propertyInfo;
-        //private Expression left, right;
         private bool visitingForArray;
-        private Queue<Expression> arguments;
 
         protected DbWherePredicateBuilder(DbExpressionType whereType, DbTableExpression table)
         {
             parameters = new SubSonicParameterDictionary();
-            arguments = new Queue<Expression>();
+            Arguments = new ArgumentCollection<Expression>(whereType.ToString());
             this.whereType = whereType;
             this.table = table ?? throw new ArgumentNullException(nameof(table));
 
@@ -52,8 +50,20 @@ namespace SubSonic.Infrastructure.Builders
             }
         }
 
+        public ArgumentCollection<Expression> Arguments { get; }
+
         public static Expression GetComparisonExpression(Expression left, Expression right, DbComparisonOperator @operator)
         {
+            if (left is null)
+            {
+                throw new ArgumentNullException(nameof(left));
+            }
+
+            if (right is null)
+            {
+                throw new ArgumentNullException(nameof(right));
+            }
+
             Expression result;
 
             switch (@operator)
@@ -145,6 +155,16 @@ namespace SubSonic.Infrastructure.Builders
 
         public static Expression GetBodyExpression(Expression body, Expression right, DbGroupOperator @group)
         {
+            if (body is null)
+            {
+                throw new ArgumentNullException(nameof(body));
+            }
+
+            if (right is null)
+            {
+                throw new ArgumentNullException(nameof(right));
+            }
+
             Expression result;
 
             switch (group)

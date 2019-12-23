@@ -10,6 +10,16 @@ namespace SubSonic.Linq
             return source == null;
         }
 
+        public static TType IsNull<TType>(this TType? source, TType @default = default(TType))
+            where TType: struct
+        {
+            if (!source.HasValue)
+            {
+                return @default;
+            }
+            return source.Value;
+        }
+
         public static bool IsNotNull<TType>(this TType source)
         {
             return !IsNull(source);

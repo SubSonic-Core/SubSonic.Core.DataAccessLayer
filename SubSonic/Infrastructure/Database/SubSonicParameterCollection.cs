@@ -7,7 +7,7 @@ using System.Collections.ObjectModel;
 namespace SubSonic.Infrastructure
 {
     using Linq.Expressions;
-    using SubSonic.Linq;
+    using Linq;
 
     public class SubSonicParameterDictionary
         : IDictionary<DbExpressionType, List<SubSonicParameter>>
@@ -19,7 +19,7 @@ namespace SubSonic.Infrastructure
             parameters = new Dictionary<DbExpressionType, List<SubSonicParameter>>();
         }
 
-        public int Count => parameters.Count;
+        public int Count => parameters.Sum(x => x.Value.Count);
 
         public bool IsReadOnly => parameters.IsReadOnly;
 

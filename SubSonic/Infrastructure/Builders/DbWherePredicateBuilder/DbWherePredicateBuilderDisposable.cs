@@ -17,6 +17,8 @@ namespace SubSonic.Infrastructure.Builders
             {
                 if (disposing)
                 {
+                    Arguments.Dispose();
+
                     __instances.Pop();
 
                     if (__instances.Count == 0)

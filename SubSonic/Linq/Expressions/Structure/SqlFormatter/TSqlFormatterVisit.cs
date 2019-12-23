@@ -65,6 +65,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 case (ExpressionType)DbExpressionType.Projection:
                 case (ExpressionType)DbExpressionType.NamedValue:
                     
+                    
                     return base.Visit(node);
                 case ExpressionType.Parameter:
                     return node;
@@ -84,6 +85,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 default:
                     return base.Visit(node);
             }
+        
         }
     }
 }

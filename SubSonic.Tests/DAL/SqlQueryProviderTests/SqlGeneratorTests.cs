@@ -618,5 +618,93 @@ WHERE [{0}].[StartDate] NOT BETWEEN @dt_start_1 AND @dt_end_2".Format("T1");
             query.Parameters.Get("@dt_start_1").Value.Should().Be(Start);
             query.Parameters.Get("@dt_end_2").Value.Should().Be(End);
         }
+
+        [Test]
+        public void CanGenerateForDateBetweenStartAndEndComparison()
+        {
+            string expected =
+@"SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
+FROM [dbo].[Renter] AS [{0}]
+WHERE @dt_now_1 BETWEEN [{0}].[StartDate] AND ISNULL([{0}].[EndDate], @dt_default_2)".Format("T1");
+
+            DateTime
+                Now = DateTime.Now,
+                Default = Now.AddDays(1).Date;
+
+            Expression select = DbContext
+                .Renters
+                .Where(Renter =>
+                    Now.Between(Renter.StartDate, Renter.EndDate.IsNull(Default)))
+                .Expression;
+
+            IDbQueryObject query = null;
+
+            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+
+                    query = builder.ToQueryObject(select);
+                }).Should().NotThrow();
+            }
+
+            query.Sql.Should().NotBeNullOrEmpty();
+            query.Sql.Should().Contain("@dt_now_1 BETWEEN [");
+
+            logging.LogInformation("\n" + query.Sql + "\n");
+
+            query.Sql.Should().Be(expected);
+
+            query.Parameters.Should().NotBeEmpty();
+            query.Parameters.Get("@dt_now_1").Value.Should().Be(Now);
+            query.Parameters.Get("@dt_default_2").Value.Should().Be(Default);
+        }
+
+        [Test]
+        public void CanGenerateForDateNotBetweenStartAndEndComparison()
+        {
+            string expected =
+@"SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
+FROM [dbo].[Renter] AS [{0}]
+WHERE @dt_now_1 NOT BETWEEN [{0}].[StartDate] AND ISNULL([{0}].[EndDate], @dt_default_2)".Format("T1");
+
+            DateTime
+                Now = DateTime.Now,
+                Default = Now.AddDays(1).Date;
+
+            Expression select = DbContext
+                .Renters
+                .Where(Renter =>
+                    Now.NotBetween(Renter.StartDate, Renter.EndDate.IsNull(Default)))
+                .Expression;
+
+            IDbQueryObject query = null;
+
+            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+
+                    query = builder.ToQueryObject(select);
+                }).Should().NotThrow();
+            }
+
+            query.Sql.Should().NotBeNullOrEmpty();
+            query.Sql.Should().Contain("@dt_now_1 NOT BETWEEN [");
+
+            logging.LogInformation("\n" + query.Sql + "\n");
+
+            query.Sql.Should().Be(expected);
+
+            query.Parameters.Should().NotBeEmpty();
+            query.Parameters.Get("@dt_now_1").Value.Should().Be(Now);
+            query.Parameters.Get("@dt_default_2").Value.Should().Be(Default);
+        }
     }
 }

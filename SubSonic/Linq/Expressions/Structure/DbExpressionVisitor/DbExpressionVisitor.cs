@@ -360,6 +360,16 @@ namespace SubSonic.Linq.Expressions.Structure
             return this.Visit(source);
         }
 
+        protected internal virtual Expression VisitFunction(DbFunctionExpression dbFunction)
+        {
+            if (dbFunction.IsNull())
+            {
+                return null;
+            }
+
+            return dbFunction;
+        }
+
         protected internal virtual DbExpression VisitExpression(DbExpression expression)
         {
             return expression;

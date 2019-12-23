@@ -2,3 +2,6 @@
 
 # CS1998: Async method lacks 'await' operators and will run synchronously
 dotnet_diagnostic.CS1998.severity = silent
+
+# CA2213: 'DbWherePredicateBuilder' contains field 'arguments' that is of IDisposable type 'ArgumentCollection<Expression>', but it is never disposed. Change the Dispose method on 'DbWherePredicateBuilder' to call Close or Dispose on this field.
+dotnet_diagnostic.CA2213.severity = suggestion

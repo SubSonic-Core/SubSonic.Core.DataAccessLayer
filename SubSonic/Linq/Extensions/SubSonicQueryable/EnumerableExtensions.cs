@@ -34,6 +34,11 @@ namespace SubSonic.Linq
             return Enumerable.Select(source, selector);
         }
 
+        public static IEnumerable<TResult> SelectMany<TSource, TResult>(this IEnumerable<TSource> source, Func<TSource, IEnumerable<TResult>> selector)
+        {
+            return Enumerable.SelectMany(source, selector);
+        }
+
         public static TSource ElementAt<TSource>(this IEnumerable<TSource> source, int index)
         {
             return Enumerable.ElementAt(source, index);
