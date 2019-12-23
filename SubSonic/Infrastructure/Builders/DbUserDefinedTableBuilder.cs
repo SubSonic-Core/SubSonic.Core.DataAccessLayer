@@ -110,7 +110,7 @@ END;";
 
                 Type propertyType = column.Property.PropertyType;
 
-                oUserDefinedTableBody.AppendFormat(CultureInfo.CurrentCulture, "\t[{0}] {1} {2}"
+                oUserDefinedTableBody.AppendFormat(CultureInfo.CurrentCulture, "\t\t[{0}] {1} {2}"
                     , column.Name
                     , GenerateDataType(column.DbType, column.Property.PropertyType)
                     , column.IsNullable ? "NULL" : "NOT NULL");
@@ -126,10 +126,10 @@ END;";
             {
                 oUserDefinedTableBody
                     .AppendLine(",")
-                    .AppendLine("\tPRIMARY KEY CLUSTERED")
-                    .AppendLine("\t(")
-                    .AppendLine(string.Join(",", keys.Select(key => string.Format(CultureInfo.CurrentCulture, "\t\t[{0}] ASC", key.Name))))
-                    .Append("\t) WITH (IGNORE_DUP_KEY = OFF)");
+                    .AppendLine("\t\tPRIMARY KEY CLUSTERED")
+                    .AppendLine("\t\t(")
+                    .AppendLine(string.Join(",", keys.Select(key => string.Format(CultureInfo.CurrentCulture, "\t\t\t[{0}] ASC", key.Name))))
+                    .Append("\t\t) WITH (IGNORE_DUP_KEY = OFF)");
             }
 
             return oUserDefinedTableBody.ToString();
