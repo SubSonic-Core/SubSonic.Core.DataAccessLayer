@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using SubSonic.Extensions.Test.MockDbClient;
 using SubSonic.Extensions.Test.Models;
+using SubSonic.Infrastructure.Logging;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,6 +12,8 @@ namespace SubSonic.Tests.DAL.SUT
     public class BaseTestFixture
     {
         protected TestDbContext DbContext { get => SetUpSubSonic.DbContext; }
+
+        protected ISubSonicLogger logger { get; set; }
 
         [SetUp]
         public virtual void SetupTestFixture()

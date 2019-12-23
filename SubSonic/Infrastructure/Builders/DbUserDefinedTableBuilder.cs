@@ -23,7 +23,7 @@ FROM sys.types
 	JOIN sys.schemas ON types.schema_id = schemas.schema_id
 WHERE schemas.name = '{0}' AND types.name = '{1}'";
 
-            public const string CreateDefinedTable = "CREATE TYPE [{0}].[{1}] AS TABLE({2});";
+            public const string CreateDefinedTable = "CREATE TYPE [{0}].[{1}] AS TABLE({2})";
 
             public static string DropUserDefinedTable = 
 $@"IF (EXISTS({UserDefinedTableExists}))
@@ -104,7 +104,7 @@ END;";
 
             DbUserDefinedTableColumn[] keys = columns.Where(Column => Column.IsPrimaryKey).ToArray();
 
-            for (int x = 0; x < columns.Count(); x++)
+            for (int x = 0, cnt = columns.Count(); x < cnt; x++)
             {
                 DbUserDefinedTableColumn column = columns.ElementAt(x);
 
@@ -115,7 +115,7 @@ END;";
                     , GenerateDataType(column.DbType, column.Property.PropertyType)
                     , column.IsNullable ? "NULL" : "NOT NULL");
 
-                if (x < columns.Count() - 1)
+                if (x < (cnt - 1))
                 {
                     oUserDefinedTableBody
                         .AppendLine(",");
@@ -129,7 +129,7 @@ END;";
                     .AppendLine("\tPRIMARY KEY CLUSTERED")
                     .AppendLine("\t(")
                     .AppendLine(string.Join(",", keys.Select(key => string.Format(CultureInfo.CurrentCulture, "\t\t[{0}] ASC", key.Name))))
-                    .AppendLine("\t) WITH (IGNORE_DUP_KEY = OFF)");
+                    .Append("\t) WITH (IGNORE_DUP_KEY = OFF)");
             }
 
             return oUserDefinedTableBody.ToString();
