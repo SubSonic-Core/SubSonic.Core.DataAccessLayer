@@ -1,8 +1,10 @@
 ﻿using SubSonic.Data.DynamicProxies;
 using SubSonic.Infrastructure;
+using SubSonic.Infrastructure.Factory;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace SubSonic
@@ -26,6 +28,15 @@ namespace SubSonic
             {
                 return Activator.CreateInstance(type);
             }
+        }
+
+        internal static string GenerateSqlFor(Expression query)
+        {
+            if(ServiceProvider.GetService<DbProviderFactory>() is SubSonicDbProvider client)
+            {
+                return client.QueryProvider.GenerateSqlFor(query);
+            }
+            throw new NotSupportedException();
         }
     }
 }

@@ -2,6 +2,7 @@
 using SubSonic.Infrastructure.SqlGenerator;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace SubSonic.Infrastructure
@@ -13,6 +14,6 @@ namespace SubSonic.Infrastructure
 
         IDbEntityModel EntityModel { get; set; }
 
-        void WriteSqlSegment(string segment, bool debug = false);
+        string GenerateSqlFor(Expression query);
     }
 }

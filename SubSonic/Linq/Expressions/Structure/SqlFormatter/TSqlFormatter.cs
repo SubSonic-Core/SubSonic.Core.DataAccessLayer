@@ -30,12 +30,12 @@ namespace SubSonic.Linq.Expressions.Structure
         private readonly TableAliasCollection aliases = new TableAliasCollection();
 
 
-        public static string Format(Expression expression, ISqlContext sqlContext = null)
+        public static string Format(ISqlContext context, Expression expression)
         {
             StringBuilder builder = new StringBuilder();
 
             using (TextWriter writer = new StringWriter(builder))
-            using (TSqlFormatter sqlFormatter = new TSqlFormatter(writer, sqlContext ?? DbContext.ServiceProvider.GetService<ISqlQueryProvider>().Context))
+            using (TSqlFormatter sqlFormatter = new TSqlFormatter(writer, context))
             {
                 sqlFormatter.Visit(expression);
 
@@ -43,12 +43,12 @@ namespace SubSonic.Linq.Expressions.Structure
             }
         }
 
-        protected TSqlFormatter(TextWriter writer, ISqlContext sqlContext)
+        protected TSqlFormatter(TextWriter writer, ISqlContext context)
         {
             this.writer = writer ?? throw new ArgumentNullException(nameof(writer));
-            this.context = sqlContext ?? throw new ArgumentNullException(nameof(sqlContext));
+            this.context = context ?? throw new ArgumentNullException(nameof(context));
 
-            if(__instances is null)
+            if (__instances is null)
             {
                 __instances = new Stack<TSqlFormatter>();
             }

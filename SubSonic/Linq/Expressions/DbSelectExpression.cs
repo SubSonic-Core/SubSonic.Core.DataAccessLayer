@@ -94,7 +94,7 @@ namespace SubSonic.Linq.Expressions
         public Expression Take { get; set; }
         public string QueryText
         {
-            get { return TSqlFormatter.Format(this); }
+            get { return DbContext.GenerateSqlFor(this); }
         }
 
         protected override Expression Accept(ExpressionVisitor visitor)

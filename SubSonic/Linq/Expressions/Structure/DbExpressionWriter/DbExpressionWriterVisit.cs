@@ -31,7 +31,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 default:
                     if (exp is DbExpression)
                     {
-                        Write(TSqlFormatter.Format(exp));
+                        Write(DbContext.GenerateSqlFor(exp));
                         return exp;
                     }
                     else

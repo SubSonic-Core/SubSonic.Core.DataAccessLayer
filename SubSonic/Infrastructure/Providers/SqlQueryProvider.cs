@@ -7,6 +7,8 @@ namespace SubSonic.Infrastructure
 {
     using Schema;
     using SqlGenerator;
+    using SubSonic.Linq.Expressions.Structure;
+    using System.Linq.Expressions;
 
     public class SqlQueryProvider
         : ISqlQueryProvider
@@ -55,9 +57,9 @@ WHERE t.IndexId BETWEEN ((@Page - 1) * @PageSize + 1) AND (@Page * @PageSize);";
 
         public ISqlContext Context { get; }
 
-        public void WriteSqlSegment(string segment, bool debug = false)
+        public string GenerateSqlFor(Expression expression)
         {
-            throw new NotImplementedException();
+            return TSqlFormatter.Format(Context, expression);
         }
 
         public virtual ISqlGenerator BuildDeleteStatement()
