@@ -17,14 +17,14 @@ namespace SubSonic.Infrastructure
         private readonly ISubSonicLogger<DbDatabase> logger;
         private readonly DbContext dbContext;
         private readonly DbProviderFactory dbProvider;
-        private readonly SqlQueryProvider sqlQueryProvider;
+        private readonly ISqlQueryProvider queryProvider;
 
-        public DbDatabase(ISubSonicLogger<DbDatabase> logger, DbContext dbContext, DbProviderFactory dbProviderFactory, SqlQueryProvider sqlQueryProvider)
+        public DbDatabase(ISubSonicLogger<DbDatabase> logger, DbContext dbContext, DbProviderFactory dbProvider, ISqlQueryProvider queryProvider)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-            this.dbProvider = dbProviderFactory ?? throw new ArgumentNullException(nameof(dbProviderFactory));
-            this.sqlQueryProvider = sqlQueryProvider ?? throw new ArgumentNullException(nameof(sqlQueryProvider));
+            this.dbProvider = dbProvider ?? throw new ArgumentNullException(nameof(dbProvider));
+            this.queryProvider = queryProvider ?? throw new ArgumentNullException(nameof(queryProvider));
         }
 
         public DbProviderFactory Instance => dbProvider;

@@ -14,24 +14,44 @@ namespace SubSonic.Infrastructure.Factory
     /// Wanted the ability to wrap the existing DbProviderFactories which are sealed classes.
     /// We need to add some additional functionality to truly have a DAL that knows nothing about a db client.
     /// </remarks>
-    public class DbProviderFactory<TDbFactory>
-        : DbProviderFactory
+    public abstract class SubSonicDbProvider<TDbFactory>
+        : SubSonicDbProvider
         where TDbFactory : DbProviderFactory
     {
-        protected const string InstanceFieldName = "Instance";
+        protected SubSonicDbProvider(TDbFactory factory)
+            : base(factory) { }
 
-        protected DbProviderFactory()
+        protected new TDbFactory Provider
         {
-            Provider = (TDbFactory)typeof(TDbFactory).GetField(InstanceFieldName, BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly).GetValue(null);
+            get
+            {
+                if (base.Provider is TDbFactory factory)
+                {
+                    return factory;
+                }
 
-            InvariantName = Provider.GetType().Namespace;
+                return null;
+            }
         }
+    }
+
+    public abstract class SubSonicDbProvider
+        : DbProviderFactory
+        
+    {
+        protected SubSonicDbProvider(DbProviderFactory factory)
+        {
+            Provider = factory ?? throw new ArgumentNullException(nameof(factory));
+            InvariantName = factory.GetType().Namespace;
+        }
+
+        protected DbProviderFactory Provider { get; }
+
+        public abstract ISqlQueryProvider QueryProvider { get; }
 
         public string InvariantName { get; }
 
         public override bool CanCreateDataSourceEnumerator => Provider.CanCreateDataSourceEnumerator;
-
-        protected TDbFactory Provider { get; }
 
         public override DbConnection CreateConnection() => Provider.CreateConnection();
 
@@ -53,9 +73,6 @@ namespace SubSonic.Infrastructure.Factory
 
         public override string ToString() => Provider.ToString();
 
-        public virtual int GetDbType(Type netType)
-        {
-            return (int)netType.GetDbType();
-        }
+        public abstract int GetDbType(Type netType, bool unicode = false);
     }
 }

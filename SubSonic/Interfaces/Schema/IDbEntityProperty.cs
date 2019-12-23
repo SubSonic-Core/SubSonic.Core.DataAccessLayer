@@ -26,7 +26,7 @@ namespace SubSonic.Infrastructure.Schema
         bool IsComputed { get; }
         bool IsAutoIncrement { get; }
         int Order { get; set; }
-        DbType DbType { get; set; }
+        int DbType { get; set; }
         DbEntityPropertyType EntityPropertyType { get; }
         DbColumnExpression Expression { get; }
     }

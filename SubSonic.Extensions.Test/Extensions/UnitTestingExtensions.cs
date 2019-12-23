@@ -105,7 +105,7 @@ namespace SubSonic.Extensions.Test
                     table.AddRow(row);
                 }
 
-                if (factory is SubSonicMockDbClientFactory db)
+                if (factory is SubSonicMockDbClient db)
                 {
                     db.AddBehavior(new MockCommandBehavior()
                         .When((cmd) => cmd.CommandText == command)
@@ -130,11 +130,6 @@ namespace SubSonic.Extensions.Test
             if (!DbProviderFactories.GetProviderInvariantNames().Any(provider => provider.Equals(dbProviderInvariantName, StringComparison.OrdinalIgnoreCase)))
             {
                 throw new ProviderInvariantNameNotRegisteredException(dbProviderInvariantName, typeof(DbProviderFactories).Name);
-            }
-
-            if (!SqlQueryProviderFactory.GetProviderInvariantNames().Any(provider => provider.Equals(sqlQueryProviderInvariantName, StringComparison.OrdinalIgnoreCase)))
-            {
-                throw new ProviderInvariantNameNotRegisteredException(sqlQueryProviderInvariantName, typeof(SqlQueryProviderFactory).Name);
             }
 
             dbContext.Options.SetDbProviderInvariantName(dbProviderInvariantName);

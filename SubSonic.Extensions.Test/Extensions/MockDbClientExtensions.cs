@@ -61,11 +61,10 @@ namespace SubSonic.Extensions.Test
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            Type providerFactoryType = typeof(SubSonicMockDbClientFactory);
+            Type providerFactoryType = typeof(SubSonicMockDbClient);
 
             builder
                 .RegisterProviderFactory(DbProviderInvariantNames.MockDbProviderInvariantName, providerFactoryType)
-                .RegisterSqlQueryProvider(DbProviderInvariantNames.SqlServiceDbProviderInvariantName, typeof(SqlServerSqlQueryProvider))
                 .SetDefaultProvider(DbProviderInvariantNames.MockDbProviderInvariantName, DbProviderInvariantNames.SqlServiceDbProviderInvariantName)
                 .SetConnectionStringBuilder(config);
 

@@ -84,11 +84,6 @@ namespace SubSonic.Infrastructure
                 throw new ProviderInvariantNameNotRegisteredException(dbProviderInvariantName, typeof(DbProviderFactories).Name);
             }
 
-            if (!SqlQueryProviderFactory.GetProviderInvariantNames().Any(provider => provider.Equals(sqlQueryProviderInvariantName, StringComparison.OrdinalIgnoreCase)))
-            {
-                throw new ProviderInvariantNameNotRegisteredException(sqlQueryProviderInvariantName, typeof(SqlQueryProviderFactory).Name);
-            }
-
             options.DbProviderInvariantName = dbProviderInvariantName;
             options.SqlQueryProviderInvariantName = sqlQueryProviderInvariantName;
 
@@ -115,23 +110,6 @@ namespace SubSonic.Infrastructure
             }
 
             DbProviderFactories.RegisterFactory(providerInvariantName, factory);
-
-            return this;
-        }
-
-        public DbContextOptionsBuilder RegisterSqlQueryProvider(string dbProviderInvariantName, Type sqlQueryProviderType)
-        {
-            if (string.IsNullOrEmpty(dbProviderInvariantName))
-            {
-                throw new ArgumentException("", nameof(dbProviderInvariantName));
-            }
-
-            if (sqlQueryProviderType is null)
-            {
-                throw new ArgumentNullException(nameof(sqlQueryProviderType));
-            }
-
-            SqlQueryProviderFactory.RegisterFactory(dbProviderInvariantName, sqlQueryProviderType);
 
             return this;
         }

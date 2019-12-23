@@ -2,14 +2,15 @@
 using SubSonic.Infrastructure.Builders;
 using SubSonic.Infrastructure.Logging;
 using System.Data.Common;
+using System;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace SubSonic.Infrastructure
 {
     using Schema;
-    using SubSonic.Data.DynamicProxies;
-    using System;
-    using System.Linq;
-    using System.Linq.Expressions;
+    using Data.DynamicProxies;
+    using Infrastructure.Factory;
 
     internal static class DbConfigureExtensions
     {
@@ -18,7 +19,14 @@ namespace SubSonic.Infrastructure
             services
                     .AddSingleton(context)
                     .AddTransient(provider => DbProviderFactories.GetFactory(options.DbProviderInvariantName))
-                    .AddTransient(provider => SqlQueryProviderFactory.GetProvider(options.SqlQueryProviderInvariantName))
+                    .AddTransient(provider =>
+                    {
+                        if (DbProviderFactories.GetFactory(options.DbProviderInvariantName) is SubSonicDbProvider client)
+                        {
+                            return client.QueryProvider;
+                        }
+                        throw new NotSupportedException();
+                    })
                     .AddScoped<DbContextAccessor>()
                     .AddScoped(typeof(ISubSonicLogger<>), typeof(SubSonicLogger<>))
                     .AddScoped(typeof(ISubSonicLogger), typeof(SubSonicLogger<DbContext>))

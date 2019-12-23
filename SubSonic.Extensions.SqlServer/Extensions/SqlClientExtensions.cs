@@ -24,7 +24,6 @@ namespace SubSonic.Extensions.SqlServer
 
             builder
                 .RegisterProviderFactory(providerInvariantName, providerFactoryType)
-                .RegisterSqlQueryProvider(providerInvariantName, typeof(SqlServerSqlQueryProvider))
                 .SetDefaultProvider(providerInvariantName)
                 .SetConnectionStringBuilder(config);
 

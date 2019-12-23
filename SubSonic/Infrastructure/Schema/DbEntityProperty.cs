@@ -44,7 +44,7 @@ namespace SubSonic.Infrastructure.Schema
         public bool IsComputed { get; internal set; }
         public bool IsAutoIncrement { get; internal set; }
         public int Order { get; set; }
-        public DbType DbType { get; set; }
+        public int DbType { get; set; }
 
         public DbEntityPropertyType EntityPropertyType
         {

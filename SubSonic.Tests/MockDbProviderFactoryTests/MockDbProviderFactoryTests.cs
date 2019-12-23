@@ -40,7 +40,7 @@ namespace SubSonic.Tests.MockDbProviderFactoryTests
         [Test]
         public void CanGetTheInstanceFieldOfSubSonicFactoryWrapper()
         {
-            Type providerFactoryType = typeof(SubSonicMockDbClientFactory);
+            Type providerFactoryType = typeof(SubSonicMockDbClient);
 
             FieldInfo fieldInstance = providerFactoryType.GetField(InstanceFieldName, BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Static);
 

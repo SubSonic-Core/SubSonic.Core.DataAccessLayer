@@ -10,11 +10,7 @@ namespace SubSonic.Infrastructure
 
     public class SqlQueryProvider
         : ISqlQueryProvider
-        , IDisposable
     {
-        private readonly StringBuilder sql;
-        private TextWriter sqlWriter;
-
         private const string PAGING_SQL =
 @"
 DECLARE @Page int;
@@ -51,8 +47,6 @@ WHERE t.IndexId BETWEEN ((@Page - 1) * @PageSize + 1) AND (@Page * @PageSize);";
         protected SqlQueryProvider(ISqlContext sqlContext)
         {
             this.Context = sqlContext ?? throw new ArgumentNullException(nameof(sqlContext));
-            this.sql = new StringBuilder();
-            this.sqlWriter = new StringWriter(sql);
         }
 
         public IDbEntityModel EntityModel { get; set; }
@@ -63,19 +57,7 @@ WHERE t.IndexId BETWEEN ((@Page - 1) * @PageSize + 1) AND (@Page * @PageSize);";
 
         public void WriteSqlSegment(string segment, bool debug = false)
         {
-            if (debug)
-            {
-                sqlWriter.WriteLine(segment);
-            }
-            else
-            {
-                sqlWriter.Write(segment);
-            }
-        }
-
-        public override string ToString()
-        {
-            return sql.ToString();
+            throw new NotImplementedException();
         }
 
         public virtual ISqlGenerator BuildDeleteStatement()
@@ -147,42 +129,5 @@ WHERE t.IndexId BETWEEN ((@Page - 1) * @PageSize + 1) AND (@Page * @PageSize);";
         {
             throw new NotImplementedException();
         }
-
-        #region IDisposable Support
-        private bool disposedValue = false; // To detect redundant calls
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    sqlWriter.Dispose();
-                    sqlWriter = null;
-                }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
-                // TODO: set large fields to null.
-
-                disposedValue = true;
-            }
-        }
-
-        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
-        // ~SqlQueryProvider()
-        // {
-        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-        //   Dispose(false);
-        // }
-
-        // This code added to correctly implement the disposable pattern.
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-            Dispose(true);
-            // TODO: uncomment the following line if the finalizer is overridden above.
-            GC.SuppressFinalize(this);
-        }
-        #endregion
     }
 }

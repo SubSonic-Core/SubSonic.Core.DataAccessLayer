@@ -35,7 +35,7 @@ namespace SubSonic.Linq.Expressions.Structure
             StringBuilder builder = new StringBuilder();
 
             using (TextWriter writer = new StringWriter(builder))
-            using (TSqlFormatter sqlFormatter = new TSqlFormatter(writer, sqlContext ?? DbContext.ServiceProvider.GetService<SqlQueryProvider>().Context))
+            using (TSqlFormatter sqlFormatter = new TSqlFormatter(writer, sqlContext ?? DbContext.ServiceProvider.GetService<ISqlQueryProvider>().Context))
             {
                 sqlFormatter.Visit(expression);
 
