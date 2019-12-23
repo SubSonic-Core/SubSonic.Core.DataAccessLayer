@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Text;
+using System.Linq.Expressions;
+using System.Reflection;
+using System.Data;
+using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 
 namespace SubSonic.Infrastructure
 {
+    using Linq.Expressions.Structure;
     using Schema;
     using SqlGenerator;
-    using SubSonic.Linq.Expressions.Structure;
-    using System.Linq.Expressions;
+   
 
     public class SqlQueryProvider
         : ISqlQueryProvider
@@ -60,6 +63,28 @@ WHERE t.IndexId BETWEEN ((@Page - 1) * @PageSize + 1) AND (@Page * @PageSize);";
         public string GenerateSqlFor(Expression expression)
         {
             return TSqlFormatter.Format(Context, expression);
+        }
+
+        public string GenerateColumnDataDefinition(int dbType, PropertyInfo info)
+        {
+            SqlDbType sqlDbType = (SqlDbType)dbType;
+
+            switch (sqlDbType)
+            {
+                case SqlDbType.Char:
+                case SqlDbType.NChar:
+                case SqlDbType.VarChar:
+                case SqlDbType.NVarChar:
+                case SqlDbType.Text:
+                case SqlDbType.NText:
+                    var attribute = info.GetCustomAttribute<MaxLengthAttribute>();
+
+                    return $"[{sqlDbType}]({attribute.IsNotNull(a => a.Length.ToString(CultureInfo.CurrentCulture), "MAX")})";
+                case SqlDbType.Decimal:
+                    return $"[{sqlDbType}](18,2)";
+                default:
+                    return $"[{sqlDbType}]";
+            }
         }
 
         public virtual ISqlGenerator BuildDeleteStatement()
@@ -131,5 +156,7 @@ WHERE t.IndexId BETWEEN ((@Page - 1) * @PageSize + 1) AND (@Page * @PageSize);";
         {
             throw new NotImplementedException();
         }
+
+        
     }
 }

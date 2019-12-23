@@ -36,7 +36,7 @@ namespace SubSonic.Tests.DAL.SUT
                 new Unit() { ID = 4, RealEstatePropertyID = 2, StatusID = 3, NumberOfBedrooms = 2 },
             };
 
-            Occupants = new List<Renter>()
+            Renters = new List<Renter>()
             {
                 new Renter() { PersonID = 1, UnitID = 1, StartDate = new DateTime(1980, 01, 01), EndDate = new DateTime(1990, 02, 28) },
                 new Renter() { PersonID = 2, UnitID = 1, StartDate = new DateTime(1990, 03, 01) },
@@ -54,7 +54,7 @@ namespace SubSonic.Tests.DAL.SUT
 
         protected IEnumerable<Status> Statuses { get; set; }
         protected IEnumerable<Unit> Units { get; set; }
-        protected IEnumerable<Renter> Occupants { get; set; }
+        protected IEnumerable<Renter> Renters { get; set; }
         protected IEnumerable<RealEstateProperty> RealEstateProperties { get; set; }
     }
 }

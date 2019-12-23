@@ -41,27 +41,24 @@ END;";
         }
 
         private readonly Type _type;
-        private readonly object[] _data;
+        private readonly IEnumerable _data;
         private readonly IDbEntityModel _model;
+        private readonly ISqlQueryProvider _provider;
 
-        public DbUserDefinedTableBuilder(params object[] data)
+        public DbUserDefinedTableBuilder(IEnumerable data)
         {
-            if(data.Length == 0)
-            {
-                throw new ArgumentException($"{data.Length} elements found.", nameof(data));
-            }
-
-            _data = data;
+            _data = data ?? throw new ArgumentNullException(nameof(data));
+            _provider = DbContext.ServiceProvider.GetService<ISqlQueryProvider>();
         }
 
-        public DbUserDefinedTableBuilder(IDbEntityModel model, params object[] data)
+        public DbUserDefinedTableBuilder(IDbEntityModel model, IEnumerable data)
             : this(data)
         {
             _model = model ?? throw new ArgumentNullException(nameof(model));
             _type = model.EntityModelType;
         }
 
-        public DbUserDefinedTableBuilder(Type type, params object[] data)
+        public DbUserDefinedTableBuilder(Type type, IEnumerable data)
             : this(data)
         {
             if (type == null)
@@ -112,7 +109,7 @@ END;";
 
                 oUserDefinedTableBody.AppendFormat(CultureInfo.CurrentCulture, "\t\t[{0}] {1} {2}"
                     , column.Name
-                    , GenerateDataType(column.DbType, column.Property.PropertyType)
+                    , GenerateDataType(column.DbType, column.Property)
                     , column.IsNullable ? "NULL" : "NOT NULL");
 
                 if (x < (cnt - 1))
@@ -142,24 +139,9 @@ END;";
         /// <param name="propertyType"></param>
         /// <returns></returns>
         /// TODO: Re-Visit when this can be done based on configured db factory
-        private string GenerateDataType(int dbType, Type propertyType)
+        private string GenerateDataType(int dbType, PropertyInfo info)
         {
-            switch ((SqlDbType)dbType)
-            {
-                case SqlDbType.Char:
-                case SqlDbType.NChar:
-                case SqlDbType.VarChar:
-                case SqlDbType.NVarChar:
-                case SqlDbType.Text:
-                case SqlDbType.NText:
-                    var attribute = propertyType.GetCustomAttribute<MaxLengthAttribute>();
-
-                    return $"[{(SqlDbType)dbType}]({attribute.IsNotNull(a => a.Length.ToString(CultureInfo.CurrentCulture), "MAX")})";
-                case SqlDbType.Decimal:
-                    return $"[{(SqlDbType)dbType}](18,2)";
-                default:
-                    return $"[{(SqlDbType)dbType}]";
-            }
+            return _provider.GenerateColumnDataDefinition(dbType, info);
         }
 
         public DataTable GenerateTable()

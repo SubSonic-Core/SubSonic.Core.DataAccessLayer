@@ -54,6 +54,9 @@ namespace SubSonic.Infrastructure
                     Size = info.GetCustomAttribute<MaxLengthAttribute>().IsNotNull(Max => Max.Length),
                     Scale = info.PropertyType.IsOfType<decimal>() ? 18 : 0,
                     Precision = info.PropertyType.IsOfType<decimal>() ? 2 : 0,
+                    IsNullable = info.PropertyType.IsNullableType(),
+                    IsAutoIncrement = info.GetCustomAttribute<DatabaseGeneratedAttribute>().IsNotNull(x => x.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity),
+                    IsComputed = info.GetCustomAttribute<DatabaseGeneratedAttribute>().IsNotNull(x => x.DatabaseGeneratedOption == DatabaseGeneratedOption.Computed),
                     DbType = info.PropertyType.GetDbType()
                 };
 

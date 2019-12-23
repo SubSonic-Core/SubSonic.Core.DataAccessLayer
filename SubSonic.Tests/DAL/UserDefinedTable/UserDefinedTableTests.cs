@@ -12,7 +12,9 @@ using Models = SubSonic.Extensions.Test.Models;
 
 namespace SubSonic.Tests.DAL.UserDefinedTable
 {
+    using FluentAssertions;
     using Infrastructure;
+    using System.Data;
 
     [TestFixture]
     public class UserDefinedTableTests
@@ -25,11 +27,30 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
             logger = DbContext.Instance.GetService<ISubSonicLogger<DbUserDefinedTableBuilder>>();
         }
         [Test]
-        public void CanGenerateUserDefinedTableForModelRealEstateProperty()
+        [TestCase(typeof(Models.RealEstateProperty))]
+        [TestCase(typeof(Models.Unit))]
+        [TestCase(typeof(Models.Renter))]
+        public void CanGenerateUserDefinedTableForModel(Type modelType)
         {
+            IEnumerable data = null;
+
+            if(modelType == typeof(Models.RealEstateProperty))
+            {
+                data = RealEstateProperties;
+            }
+            else if (modelType == typeof(Models.Unit))
+            {
+                data = Units;
+            }
+            else if (modelType == typeof(Models.Renter))
+            {
+                data = Renters;
+            }
+
+
             DbUserDefinedTableBuilder builder = new DbUserDefinedTableBuilder(
-                DbContext.Model.GetEntityModel<Models.RealEstateProperty>(),
-                RealEstateProperties);
+                DbContext.Model.GetEntityModel(modelType),
+                data);
 
             string sql = null;
 
@@ -37,6 +58,15 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
             {
                  sql = builder.GenerateSql();
             }
+
+            DataTable table = null;
+
+            using (var perf = logger.Start("Generate Data"))
+            {
+                table = builder.GenerateTable();
+            }
+
+            table.Dispose();
 
             logger.LogInformation($"\n{sql}");
         }

@@ -31,55 +31,71 @@ namespace SubSonic.Extensions.Test
 
         public override int GetDbType(Type netType, bool unicode = false)
         {
-            DbType result;
+            if (netType is null)
+            {
+                throw new ArgumentNullException(nameof(netType));
+            }
+
+            SqlDbType result = SqlDbType.Variant;
+
+            // filter down to non nullable types
+            netType = netType.GetUnderlyingType();
 
             if (netType == typeof(int))
             {
-                result = DbType.Int32;
+                result = SqlDbType.Int;
             }
             else if (netType == typeof(short))
             {
-                result = DbType.Int16;
+                result = SqlDbType.SmallInt;
             }
             else if (netType == typeof(long))
             {
-                result = DbType.Int64;
+                result = SqlDbType.BigInt;
             }
             else if (netType == typeof(DateTime))
             {
-                result = DbType.DateTime;
+                result = SqlDbType.DateTime;
             }
             else if (netType == typeof(float))
             {
-                result = DbType.Single;
+                result = SqlDbType.Real;
             }
             else if (netType == typeof(decimal))
             {
-                result = DbType.Decimal;
+                result = SqlDbType.Decimal;
             }
             else if (netType == typeof(double))
             {
-                result = DbType.Double;
+                result = SqlDbType.Float;
             }
             else if (netType == typeof(Guid))
             {
-                result = DbType.Guid;
+                result = SqlDbType.UniqueIdentifier;
             }
             else if (netType == typeof(bool))
             {
-                result = DbType.Boolean;
+                result = SqlDbType.Bit;
+            }
+            else if (netType == typeof(byte))
+            {
+                result = SqlDbType.TinyInt;
             }
             else if (netType == typeof(byte[]))
             {
-                result = DbType.Binary;
+                result = SqlDbType.Binary;
+            }
+            else if (netType == typeof(string))
+            {
+                result = unicode ? SqlDbType.NVarChar : SqlDbType.VarChar;
             }
             else if (netType == typeof(char))
             {
-                result = unicode ? DbType.StringFixedLength : DbType.AnsiStringFixedLength;
+                result = unicode ? SqlDbType.NChar : SqlDbType.Char;
             }
-            else
+            else if (netType.IsSubclassOf(typeof(object)))
             {
-                result = unicode ? DbType.String : DbType.AnsiString;
+                result = SqlDbType.Structured;
             }
 
             return (int)result;

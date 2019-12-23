@@ -25,7 +25,15 @@ namespace SubSonic.Extensions.SqlServer
 
         public override int GetDbType(Type netType, bool unicode = false)
         {
+            if (netType is null)
+            {
+                throw new ArgumentNullException(nameof(netType));
+            }
+
             SqlDbType result = SqlDbType.Variant;
+
+            // filter down to non nullable types
+            netType = netType.GetUnderlyingType();
 
             if (netType == typeof(int))
             {
