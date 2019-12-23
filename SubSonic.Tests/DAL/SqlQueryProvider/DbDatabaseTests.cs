@@ -59,7 +59,7 @@ WHERE ([{0}].[ID] = @id_1)".Format("T1");
             dbQuery.Sql.Should().Be(expected);
             dbQuery.Parameters.Should().NotBeEmpty();
             dbQuery.Parameters.ElementAt(0).Value.Should().Be(1);
-            ((DbType)dbQuery.Parameters.ElementAt(0).DbType).Should().Be(DbType.Int32);
+            ((SqlDbType)dbQuery.Parameters.ElementAt(0).DbType).Should().Be(SqlDbType.Int);
             dbQuery.Parameters.ElementAt(0).SourceColumn.Should().Be("ID");
         }
     }
