@@ -10,6 +10,16 @@ namespace SubSonic.Linq
     /// </summary>
     public static partial class SubSonicQueryable
     {
+        public static int Count<TSource>(this IEnumerable<TSource> source)
+        {
+            return Enumerable.Count(source);
+        }
+
+        public static int Count<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate)
+        {
+            return Enumerable.Count(source, predicate);
+        }
+
         public static TSource[] ToArray<TSource>(this IEnumerable<TSource> sources)
         {
             return Enumerable.ToArray(sources);

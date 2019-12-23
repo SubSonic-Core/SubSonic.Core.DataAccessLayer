@@ -4,6 +4,8 @@ using System.Text;
 
 namespace SubSonic.Infrastructure
 {
+    using Schema;
+
     [AttributeUsage(AttributeTargets.Class, Inherited = true)]
     public class DbUserDefinedTableTypeAttribute
         : DbProgrammabilityAttribute

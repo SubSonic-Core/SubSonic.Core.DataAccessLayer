@@ -171,4 +171,7 @@
   <data name="UnSupportedUnaryOperator" xml:space="preserve">
     <value>The unary operator '{0}' is not supported.</value>
   </data>
+  <data name="UserDefinedTableNotDefined" xml:space="preserve">
+    <value>{0} is not marked up with the {1} Attribute.</value>
+  </data>
 </root>

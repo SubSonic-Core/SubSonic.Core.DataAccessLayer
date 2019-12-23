@@ -3,8 +3,11 @@ using System.Globalization;
 
 namespace SubSonic.Infrastructure
 {
+    using Schema;
+
     public abstract class DbProgrammabilityAttribute
         : Attribute
+        , IDbObject
     {
         #region fields
         private string _schema = null;
@@ -23,18 +26,22 @@ namespace SubSonic.Infrastructure
         }
 
         #region properties
-        public string Schema { get { return _schema ?? "dbo"; } set { _schema = value; } }
+        public string SchemaName { get { return _schema ?? "dbo"; } set { _schema = value; } }
 
         public string Name { get; private set; }
 
         public DbProgrammabilityType DbProgrammabilityType { get; private set; }
 
         public Type[] ResultTypes { get; set; }
+
+        public string FriendlyName => Name;
+
+        public string QualifiedName => ToString();
         #endregion
 
         public override string ToString()
         {
-            return string.Format(CultureInfo.CurrentCulture, "[{0}].[{1}]", Schema, Name);
+            return string.Format(CultureInfo.CurrentCulture, "[{0}].[{1}]", SchemaName, Name);
         }
     }
 }

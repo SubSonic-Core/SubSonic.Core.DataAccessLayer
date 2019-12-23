@@ -221,5 +221,14 @@ namespace SubSonic {
                 return ResourceManager.GetString("UnSupportedUnaryOperator", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} is not marked up with the {1} Attribute..
+        /// </summary>
+        internal static string UserDefinedTableNotDefined {
+            get {
+                return ResourceManager.GetString("UserDefinedTableNotDefined", resourceCulture);
+            }
+        }
     }
 }

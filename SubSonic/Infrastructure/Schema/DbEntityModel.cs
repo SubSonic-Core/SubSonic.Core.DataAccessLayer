@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SubSonic.Infrastructure
+namespace SubSonic.Infrastructure.Schema
 {
     using Linq;
     using Linq.Expressions;

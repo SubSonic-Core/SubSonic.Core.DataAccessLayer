@@ -6,9 +6,9 @@ namespace SubSonic.Infrastructure.Schema
 {
     public interface IDbObject
     {
-        string Name { get; set; }
-        string FriendlyName { get; set; }
+        string Name { get; }
+        string FriendlyName { get; }
         string QualifiedName { get; }
-        string SchemaName { get; set; }
+        string SchemaName { get; }
     }
 }
