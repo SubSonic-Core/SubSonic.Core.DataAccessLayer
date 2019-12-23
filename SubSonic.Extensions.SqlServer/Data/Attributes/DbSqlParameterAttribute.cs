@@ -1,11 +1,12 @@
-﻿using System.Data;
+﻿using SubSonic.Infrastructure;
+using System.Data;
 
-namespace SubSonic.Infrastructure
+namespace SubSonic.Extensions.SqlServer
 {
     public class DbSqlParameterAttribute
         : DbParameterAttribute
     {
-        public DbSqlParameterAttribute(string name) 
+        public DbSqlParameterAttribute(string name)
             : base(name)
         {
         }
