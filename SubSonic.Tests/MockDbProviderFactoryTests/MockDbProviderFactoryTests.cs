@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
+using SubSonic.Extensions.Test;
 using SubSonic.Extensions.Test.Data.Builders;
 using SubSonic.Extensions.Test.MockDbClient;
 using SubSonic.Extensions.Test.MockDbClient.Syntax;
@@ -27,6 +28,19 @@ namespace SubSonic.Tests.MockDbProviderFactoryTests
         public void CanGetTheInstanceFieldOfMockDbProviderFactory()
         {
             Type providerFactoryType = typeof(MockDbClientFactory);
+
+            FieldInfo fieldInstance = providerFactoryType.GetField(InstanceFieldName, BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Static);
+
+            fieldInstance.Should().NotBeNull();
+            fieldInstance.FieldType.Should().BeDerivedFrom<DbProviderFactory>();
+
+            fieldInstance.GetValue(null).Should().NotBeNull();
+        }
+
+        [Test]
+        public void CanGetTheInstanceFieldOfSubSonicFactoryWrapper()
+        {
+            Type providerFactoryType = typeof(SubSonicMockDbClientFactory);
 
             FieldInfo fieldInstance = providerFactoryType.GetField(InstanceFieldName, BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Static);
 

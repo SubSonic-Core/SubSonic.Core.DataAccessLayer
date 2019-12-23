@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 
 namespace SubSonic.Extensions.Test
 {
     using Data.Builders;
+    using Extensions.Test.MockDbClient.Syntax;
     using Infrastructure;
     using Infrastructure.Schema;
-    using MockDbClient;
-    using SubSonic.Extensions.Test.MockDbClient.Syntax;
-    using SubSonic.Linq;
-    using System.Data;
+    using Linq;
 
     public static partial class SubSonicTestExtensions
     {
@@ -106,7 +105,7 @@ namespace SubSonic.Extensions.Test
                     table.AddRow(row);
                 }
 
-                if (factory is MockDbClientFactory db)
+                if (factory is SubSonicMockDbClientFactory db)
                 {
                     db.AddBehavior(new MockCommandBehavior()
                         .When((cmd) => cmd.CommandText == command)

@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using SubSonic.Extensions.Test;
 using SubSonic.Extensions.Test.MockDbClient;
 using SubSonic.Extensions.Test.Models;
 using SubSonic.Infrastructure.Logging;
@@ -18,7 +19,7 @@ namespace SubSonic.Tests.DAL.SUT
         [SetUp]
         public virtual void SetupTestFixture()
         {
-            DbContext.Instance.GetService<DbProviderFactory, MockDbClientFactory>().ClearBehaviors();
+            DbContext.Instance.GetService<DbProviderFactory, SubSonicMockDbClientFactory>().ClearBehaviors();
 
             Statuses = new List<Status>()
             {

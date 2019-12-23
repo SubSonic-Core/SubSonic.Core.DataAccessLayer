@@ -61,7 +61,7 @@ namespace SubSonic.Extensions.Test
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            Type providerFactoryType = typeof(MockDbClient.MockDbClientFactory);
+            Type providerFactoryType = typeof(SubSonicMockDbClientFactory);
 
             builder
                 .RegisterProviderFactory(DbProviderInvariantNames.MockDbProviderInvariantName, providerFactoryType)

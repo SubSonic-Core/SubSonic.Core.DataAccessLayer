@@ -10,7 +10,7 @@ namespace SubSonic.Extensions.Test.MockDbClient
     using Syntax;
     using System.Globalization;
 
-    public class MockDbClientFactory : DbProviderFactory, IMockCommandExecution
+    public sealed class MockDbClientFactory : DbProviderFactory, IMockCommandExecution
     {
         private List<MockCommandBehavior> behaviors;
 
