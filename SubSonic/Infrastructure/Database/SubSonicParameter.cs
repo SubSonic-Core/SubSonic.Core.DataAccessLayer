@@ -10,6 +10,7 @@ namespace SubSonic.Infrastructure
     using Linq;
 
     public class SubSonicParameter
+        : IDbDataParameter
     {
         private readonly IDbEntityProperty property;
 
@@ -40,7 +41,7 @@ namespace SubSonic.Infrastructure
             Initialize();
         }
 
-        public int DbType { get; set; }
+        public virtual DbType DbType { get; set; }
         public ParameterDirection Direction { get; set; }
         public bool IsNullable { get; set; }
         public string ParameterName { get; set; }
@@ -56,14 +57,14 @@ namespace SubSonic.Infrastructure
             OnInitialize();
         }
 
-        protected virtual int DetermineDbType()
+        protected virtual DbType DetermineDbType()
         {
             if(Value is null)
             {
                 throw new InvalidOperationException();
             }
 
-            return (int)Value.GetType().GetDbType();
+            return Value.GetType().GetDbType(DbContext.DbOptions.SupportUnicode);
         }
 
         protected virtual void OnInitialize()

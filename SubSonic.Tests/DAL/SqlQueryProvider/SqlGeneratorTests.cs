@@ -379,7 +379,7 @@ WHERE ([{0}].[IsAvailableStatus] = @isavailablestatus_1)".Format("T1");
 
             query.Parameters.Should().NotBeEmpty();
             query.Parameters.ElementAt(0).ParameterName.Should().Be("@isavailablestatus_1");
-            ((SqlDbType)query.Parameters.ElementAt(0).DbType).Should().Be(SqlDbType.Bit);
+            TypeConvertor.ToSqlDbType(query.Parameters.ElementAt(0).DbType).Should().Be(SqlDbType.Bit);
         }
 
         [Test]

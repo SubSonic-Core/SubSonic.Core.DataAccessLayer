@@ -36,12 +36,9 @@ namespace SubSonic.Infrastructure
 
         public string FriendlyName => Name;
 
-        public string QualifiedName => ToString();
+        public string QualifiedName => $"{SchemaName}.{Name}".EncapsulateQualifiedName();
         #endregion
 
-        public override string ToString()
-        {
-            return string.Format(CultureInfo.CurrentCulture, "[{0}].[{1}]", SchemaName, Name);
-        }
+        public override string ToString() => QualifiedName;
     }
 }

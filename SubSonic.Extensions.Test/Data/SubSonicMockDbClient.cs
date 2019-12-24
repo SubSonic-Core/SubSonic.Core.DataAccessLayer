@@ -4,10 +4,10 @@ using SubSonic.Extensions.Test.MockDbClient.Syntax;
 using SubSonic.Infrastructure;
 using SubSonic.Infrastructure.Factory;
 using System;
-using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
+using System.Data.SqlClient;
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
 
 namespace SubSonic.Extensions.Test
 {
@@ -29,76 +29,34 @@ namespace SubSonic.Extensions.Test
 
         public void AddBehavior(MockCommandBehavior behavior) => Provider.AddBehavior(behavior);
 
-        public override int GetDbType(Type netType, bool unicode = false)
+        public override DbParameter CreateParameter(SubSonicParameter parameter)
         {
-            if (netType is null)
-            {
-                throw new ArgumentNullException(nameof(netType));
-            }
+            DbParameter db = CreateParameter();
 
-            SqlDbType result = SqlDbType.Variant;
+            db.Map(parameter);
 
-            // filter down to non nullable types
-            netType = netType.GetUnderlyingType();
+            return db;
+        }
 
-            if (netType == typeof(int))
+        public override DbParameter CreateStoredProcedureParameter(string name, object value, bool mandatory, int size, bool isUserDefinedTableParameter, string udtType, ParameterDirection direction)
+        {
+            var sqlParameter = new SqlParameter("@" + name, value ?? DBNull.Value)
             {
-                result = SqlDbType.Int;
-            }
-            else if (netType == typeof(short))
-            {
-                result = SqlDbType.SmallInt;
-            }
-            else if (netType == typeof(long))
-            {
-                result = SqlDbType.BigInt;
-            }
-            else if (netType == typeof(DateTime))
-            {
-                result = SqlDbType.DateTime;
-            }
-            else if (netType == typeof(float))
-            {
-                result = SqlDbType.Real;
-            }
-            else if (netType == typeof(decimal))
-            {
-                result = SqlDbType.Decimal;
-            }
-            else if (netType == typeof(double))
-            {
-                result = SqlDbType.Float;
-            }
-            else if (netType == typeof(Guid))
-            {
-                result = SqlDbType.UniqueIdentifier;
-            }
-            else if (netType == typeof(bool))
-            {
-                result = SqlDbType.Bit;
-            }
-            else if (netType == typeof(byte))
-            {
-                result = SqlDbType.TinyInt;
-            }
-            else if (netType == typeof(byte[]))
-            {
-                result = SqlDbType.Binary;
-            }
-            else if (netType == typeof(string))
-            {
-                result = unicode ? SqlDbType.NVarChar : SqlDbType.VarChar;
-            }
-            else if (netType == typeof(char))
-            {
-                result = unicode ? SqlDbType.NChar : SqlDbType.Char;
-            }
-            else if (netType.IsSubclassOf(typeof(object)))
-            {
-                result = SqlDbType.Structured;
-            }
+                Direction = direction,
+                IsNullable = !mandatory,
+                Size = size,
+            };
 
-            return (int)result;
+            if (isUserDefinedTableParameter)
+            {
+                sqlParameter.TypeName = udtType;
+            }
+            //else
+            //{
+            //    sqlParameter.SqlDbType = (SqlDbType)dbType;
+            //}
+
+            return sqlParameter;
         }
     }
 }

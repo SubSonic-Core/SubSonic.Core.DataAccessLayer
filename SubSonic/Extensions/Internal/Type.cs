@@ -1,23 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Text;
 
 namespace SubSonic
 {
+    using Infrastructure;
     using Infrastructure.Factory;
     using Linq;
-    
+
     internal static partial class InternalExtensions
     {
-        public static int GetDbType(this Type netType, bool unicode = false)
+        public static DbType GetDbType(this Type netType, bool unicode = false)
         {
-            if (DbContext.ServiceProvider.GetService<DbProviderFactory>() is SubSonicDbProvider factory)
-            {
-                return factory.GetDbType(netType, unicode);
-            }
+            return TypeConvertor.ToDbType(netType, unicode);
+        }
 
-            throw new NotSupportedException();
+        public static SqlDbType GetSqlDbType(this Type netType, bool unicode = false)
+        {
+            return TypeConvertor.ToSqlDbType(netType, unicode);
         }
         public static bool IsBoolean(this Type type)
         {

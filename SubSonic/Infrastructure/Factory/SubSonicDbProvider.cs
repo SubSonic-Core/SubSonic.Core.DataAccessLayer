@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Reflection;
 using System.Text;
@@ -63,6 +64,10 @@ namespace SubSonic.Infrastructure.Factory
 
         public override DbParameter CreateParameter() => Provider.CreateParameter();
 
+        public abstract DbParameter CreateParameter(SubSonicParameter parameter);
+
+        public abstract DbParameter CreateStoredProcedureParameter(string name, object value, bool mandatory, int size, bool isUserDefinedTableParameter, string udtType, ParameterDirection direction);
+
         public override DbConnectionStringBuilder CreateConnectionStringBuilder() => Provider.CreateConnectionStringBuilder();
 
         public override DbDataSourceEnumerator CreateDataSourceEnumerator() => Provider.CreateDataSourceEnumerator();
@@ -73,6 +78,6 @@ namespace SubSonic.Infrastructure.Factory
 
         public override string ToString() => Provider.ToString();
 
-        public abstract int GetDbType(Type netType, bool unicode = false);
+        //public abstract DbType GetDbType(Type netType, bool unicode = false);
     }
 }

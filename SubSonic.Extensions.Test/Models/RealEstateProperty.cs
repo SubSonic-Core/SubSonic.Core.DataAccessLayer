@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SubSonic.Infrastructure;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -7,6 +8,8 @@ using System.Text;
 namespace SubSonic.Extensions.Test.Models
 {
     [Table(nameof(RealEstateProperty))]
+    [DbCommandQuery(DbCommandQueryType.Insert, typeof(InsertRealEstateProperty))]
+    [DbCommandQuery(DbCommandQueryType.Update, typeof(UpdateRealEstateProperty))]
     public class RealEstateProperty
     {
         public RealEstateProperty()

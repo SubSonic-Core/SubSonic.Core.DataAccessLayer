@@ -106,6 +106,24 @@ namespace SubSonic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} is not decorated with StoredProcedureAttribute..
+        /// </summary>
+        internal static string NotDecoratedWithStoredProcedureAttribute {
+            get {
+                return ResourceManager.GetString("NotDecoratedWithStoredProcedureAttribute", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &quot;Referenced an unsupported Type&quot;.
+        /// </summary>
+        internal static string NotSupportedType {
+            get {
+                return ResourceManager.GetString("NotSupportedType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Provider &quot;{0}&quot;, is not registered in {1}..
         /// </summary>
         internal static string ProviderInvariantNameNotRegisteredException {
@@ -223,7 +241,7 @@ namespace SubSonic {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0} is not marked up with the {1} Attribute..
+        ///   Looks up a localized string similar to {0} has not been decorated with DbUserDefinedTableTypeAttribute..
         /// </summary>
         internal static string UserDefinedTableNotDefined {
             get {

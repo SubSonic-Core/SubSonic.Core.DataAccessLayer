@@ -132,6 +132,12 @@
   <data name="NonScalarProjection" xml:space="preserve">
     <value>Non-scalar projections cannot be translated to SQL.</value>
   </data>
+  <data name="NotDecoratedWithStoredProcedureAttribute" xml:space="preserve">
+    <value>{0} is not decorated with StoredProcedureAttribute.</value>
+  </data>
+  <data name="NotSupportedType" xml:space="preserve">
+    <value>"Referenced an unsupported Type"</value>
+  </data>
   <data name="ProviderInvariantNameNotRegisteredException" xml:space="preserve">
     <value>Provider "{0}", is not registered in {1}.</value>
   </data>
@@ -172,6 +178,6 @@
     <value>The unary operator '{0}' is not supported.</value>
   </data>
   <data name="UserDefinedTableNotDefined" xml:space="preserve">
-    <value>{0} is not marked up with the {1} Attribute.</value>
+    <value>{0} has not been decorated with DbUserDefinedTableTypeAttribute.</value>
   </data>
 </root>

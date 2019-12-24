@@ -14,7 +14,7 @@ namespace SubSonic.Infrastructure
         {
         }
 
-        protected internal int DbType { get; set; }
+        public DbType DbType { get; set; }
 
         public ParameterDirection Direction { get; set; }
 
@@ -24,7 +24,5 @@ namespace SubSonic.Infrastructure
         /// Size of the parameter, typically used for output parameters. If an output parameter has a size of 0 then its default to -1 (equivalent to MAX)
         /// </summary>
         public int Size { get { return Direction != ParameterDirection.Input && _size == 0 ? -1 : _size; } set { _size = value; } }
-
-        
     }
 }

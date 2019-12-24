@@ -15,6 +15,7 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
     using FluentAssertions;
     using Infrastructure;
     using System.Data;
+    using System.Reflection;
 
     [TestFixture]
     public class UserDefinedTableTests
@@ -69,6 +70,42 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
             table.Dispose();
 
             logger.LogInformation($"\n{sql}");
+        }
+
+        [Test]
+        [TestCase(typeof(Models.RealEstateProperty), DbCommandQueryType.Insert)]
+        public void CanGenerateInsertStoredProcedureSqlFor(Type modelType, DbCommandQueryType queryType)
+        {
+            IEnumerable data = null;
+
+            if (modelType == typeof(Models.RealEstateProperty))
+            {
+                data = RealEstateProperties;
+            }
+            else if (modelType == typeof(Models.Unit))
+            {
+                data = Units;
+            }
+            else if (modelType == typeof(Models.Renter))
+            {
+                data = Renters;
+            }
+
+            Type StoredProcedureType = modelType.GetCustomAttributes<DbCommandQueryAttribute>().Single(x => x.QueryType == queryType).StoredProcedureType;
+
+            object procedure = Activator.CreateInstance(StoredProcedureType, data);
+
+            DbStoredProcedure proc = DbStoredProcedureParser.ParseStoredProcedure(procedure);
+
+            proc.Sql.Should().Be("EXEC [dbo].[InsertRealEstateProperty] @Properties = @Properties");
+
+            proc.Parameters.Count().Should().Be(1);
+
+            IDbDataParameter parameter = proc.Parameters.First();
+
+            parameter.ParameterName.Should().Be("@Properties");
+            parameter.Value.Should().BeOfType<DataTable>();
+            parameter.DbType.Should().Be(DbType.Object);
         }
     }
 }

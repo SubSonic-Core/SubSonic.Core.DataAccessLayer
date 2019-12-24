@@ -10,22 +10,28 @@ namespace SubSonic.Extensions.SqlServer
         public SubSonicSqlParameter(string name, object value)
             : base(name, value)
         {
+            SqlDbType = TypeConvertor.ToSqlDbType(value.GetType(), DbContext.DbOptions.SupportUnicode);
         }
 
         public SubSonicSqlParameter(string name, object value, IDbEntityProperty property)
             : base(name, value, property)
         {
+            SqlDbType = TypeConvertor.ToSqlDbType(value.GetType(), DbContext.DbOptions.SupportUnicode);
         }
 
-        public new SqlDbType DbType
+        private SqlDbType sqlDbType;
+
+        public SqlDbType SqlDbType
         {
             get
             {
-                return (SqlDbType)base.DbType;
+                return sqlDbType;
             }
             set
             {
-                DbType = value;
+                sqlDbType = value;
+
+                DbType = TypeConvertor.ToDbType(value, DbContext.DbOptions.SupportUnicode);
             }
         }
     }

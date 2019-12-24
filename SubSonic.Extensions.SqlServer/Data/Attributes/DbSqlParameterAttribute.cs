@@ -11,15 +11,19 @@ namespace SubSonic.Extensions.SqlServer
         {
         }
 
+        private SqlDbType sqlDbType;
+
         public SqlDbType SqlDbType
         {
             get
             {
-                return (SqlDbType)DbType;
+                return sqlDbType;
             }
             set
             {
-                DbType = (int)value;
+                sqlDbType = value;
+
+                DbType = TypeConvertor.ToDbType(value);
             }
         }
     }
