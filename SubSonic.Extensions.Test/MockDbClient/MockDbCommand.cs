@@ -39,7 +39,7 @@ namespace SubSonic.Extensions.Test.MockDbClient
             set;
         }
 
-        public override System.Data.CommandType CommandType
+        public override CommandType CommandType
         {
             get;
             set;

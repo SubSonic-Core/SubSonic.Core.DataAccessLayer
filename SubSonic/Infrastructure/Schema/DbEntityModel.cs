@@ -15,9 +15,18 @@ namespace SubSonic.Infrastructure.Schema
 
         public DbEntityModel()
         {
+            Commands = new DbCommandQueryCollection()
+            {
+                new DbCommandQuery(DbQueryType.Insert),
+                new DbCommandQuery(DbQueryType.Update),
+                new DbCommandQuery(DbQueryType.Delete),
+            };
+
             RelationshipMaps = new DbRelationshipMapCollection(this);
             Properties = new DbEntityPropertyCollection(this);
         }
+
+        public DbCommandQueryCollection Commands { get; }
 
         public ICollection<IDbRelationshipMap> RelationshipMaps { get; }
 

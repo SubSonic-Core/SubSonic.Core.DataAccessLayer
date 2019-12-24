@@ -38,6 +38,11 @@ namespace SubSonic.Infrastructure
                 SchemaName = TableAttr.IsNotNull(Table => Table.Schema).IsNull(SubSonicDefaults.SchemaName)
             };
 
+            foreach(DbCommandQueryAttribute command in entityModelType.GetCustomAttributes<DbCommandQueryAttribute>())
+            {
+                entity.Commands[command.QueryType] = new DbCommandQuery(command.QueryType, command.StoredProcedureType);
+            }
+
             entity.SetPrimaryKey(Ext.GetPrimaryKeyName<TEntity>());
 
             foreach (PropertyInfo info in entityModelType.GetProperties())

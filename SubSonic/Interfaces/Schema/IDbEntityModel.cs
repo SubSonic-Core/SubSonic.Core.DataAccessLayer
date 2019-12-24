@@ -10,6 +10,7 @@ namespace SubSonic.Infrastructure.Schema
         IDbEntityProperty this[string name] { get; }
         IDbEntityProperty this[int index] { get; }
 
+        DbCommandQueryCollection Commands { get; }
         ICollection<IDbRelationshipMap> RelationshipMaps { get; }
         ICollection<IDbEntityProperty> Properties { get; }
         bool HasRelationships { get; }

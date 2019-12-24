@@ -8,8 +8,8 @@ using System.Text;
 namespace SubSonic.Extensions.Test.Models
 {
     [Table(nameof(RealEstateProperty))]
-    [DbCommandQuery(DbCommandQueryType.Insert, typeof(InsertRealEstateProperty))]
-    [DbCommandQuery(DbCommandQueryType.Update, typeof(UpdateRealEstateProperty))]
+    [DbCommandQuery(DbQueryType.Insert, typeof(InsertRealEstateProperty))]
+    [DbCommandQuery(DbQueryType.Update, typeof(UpdateRealEstateProperty))]
     public class RealEstateProperty
     {
         public RealEstateProperty()

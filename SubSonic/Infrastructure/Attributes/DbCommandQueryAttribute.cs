@@ -8,14 +8,14 @@ namespace SubSonic.Infrastructure
     public class DbCommandQueryAttribute
         : Attribute
     {
-        public DbCommandQueryAttribute(DbCommandQueryType queryType, Type storedProcedureType) 
+        public DbCommandQueryAttribute(DbQueryType queryType, Type storedProcedureType) 
             : base()
         {
             QueryType = queryType;
             StoredProcedureType = storedProcedureType;
         }
 
-        public DbCommandQueryType QueryType { get; }
+        public DbQueryType QueryType { get; }
 
         public Type StoredProcedureType { get; }
     }

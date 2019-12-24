@@ -73,8 +73,8 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
         }
 
         [Test]
-        [TestCase(typeof(Models.RealEstateProperty), DbCommandQueryType.Insert)]
-        public void CanGenerateInsertStoredProcedureSqlFor(Type modelType, DbCommandQueryType queryType)
+        [TestCase(typeof(Models.RealEstateProperty), DbQueryType.Insert)]
+        public void CanGenerateInsertStoredProcedureSqlFor(Type modelType, DbQueryType queryType)
         {
             IEnumerable data = null;
 
@@ -106,6 +106,7 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
             parameter.ParameterName.Should().Be("@Properties");
             parameter.Value.Should().BeOfType<DataTable>();
             parameter.DbType.Should().Be(DbType.Object);
+            ((System.Data.SqlClient.SqlParameter)parameter).SqlDbType.Should().Be(SqlDbType.Structured);
         }
     }
 }
