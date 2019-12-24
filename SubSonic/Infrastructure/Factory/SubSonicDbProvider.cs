@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SubSonic.Infrastructure.Schema;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -65,6 +66,8 @@ namespace SubSonic.Infrastructure.Factory
         public override DbParameter CreateParameter() => Provider.CreateParameter();
 
         public abstract DbParameter CreateParameter(SubSonicParameter parameter);
+
+        public abstract DbParameter CreateSubSonicParameter(string name, object value, IDbEntityProperty property);
 
         public abstract DbParameter CreateStoredProcedureParameter(string name, object value, bool mandatory, int size, bool isUserDefinedTableParameter, string udtType, ParameterDirection direction);
 

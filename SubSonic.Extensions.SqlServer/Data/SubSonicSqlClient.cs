@@ -8,6 +8,7 @@ namespace SubSonic.Extensions.SqlServer
 {
     using Infrastructure;
     using Infrastructure.Factory;
+    using SubSonic.Infrastructure.Schema;
     using System.Data.Common;
 
     public class SubSonicSqlClient
@@ -31,6 +32,11 @@ namespace SubSonic.Extensions.SqlServer
             db.Map(parameter);
 
             return db;
+        }
+
+        public override DbParameter CreateSubSonicParameter(string name, object value, IDbEntityProperty property)
+        {
+            return new SubSonicSqlParameter(name, value, property);
         }
 
         public override DbParameter CreateStoredProcedureParameter(string name, object value, bool mandatory, int size, bool isUserDefinedTableParameter, string udtType, ParameterDirection direction)

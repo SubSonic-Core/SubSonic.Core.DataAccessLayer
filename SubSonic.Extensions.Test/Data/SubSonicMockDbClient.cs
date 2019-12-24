@@ -3,6 +3,7 @@ using SubSonic.Extensions.Test.MockDbClient;
 using SubSonic.Extensions.Test.MockDbClient.Syntax;
 using SubSonic.Infrastructure;
 using SubSonic.Infrastructure.Factory;
+using SubSonic.Infrastructure.Schema;
 using System;
 using System.Data;
 using System.Data.Common;
@@ -36,6 +37,11 @@ namespace SubSonic.Extensions.Test
             db.Map(parameter);
 
             return db;
+        }
+
+        public override DbParameter CreateSubSonicParameter(string name, object value, IDbEntityProperty property)
+        {
+            return new SubSonicSqlParameter(name, value, property);
         }
 
         public override DbParameter CreateStoredProcedureParameter(string name, object value, bool mandatory, int size, bool isUserDefinedTableParameter, string udtType, ParameterDirection direction)
