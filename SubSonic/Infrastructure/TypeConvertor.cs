@@ -17,14 +17,21 @@ namespace SubSonic.Infrastructure
         {
             public Type Type;
             public DbType DbType;
+            public DbType? UnicodeDbType;
             public SqlDbType SqlDbType;
+            public SqlDbType? UnicodeSqlDbType;
 
-            public DbTypeMapEntry(Type type, DbType dbType, SqlDbType sqlDbType)
+            public DbTypeMapEntry(Type type, DbType dbType, DbType? unicodeDbType, SqlDbType sqlDbType, SqlDbType? unicodeSqlDbType)
             {
                 Type = type;
                 DbType = dbType;
+                UnicodeDbType = unicodeDbType;
                 SqlDbType = sqlDbType;
+                UnicodeSqlDbType = unicodeSqlDbType;
             }
+
+            public DbTypeMapEntry(Type type, DbType dbType, SqlDbType sqlDbType)
+                : this(type, dbType, null, sqlDbType, null) { }
 
         };
 
@@ -79,7 +86,7 @@ namespace SubSonic.Infrastructure
             _DbTypeList.Add(dbTypeMapEntry);
 
             dbTypeMapEntry
-            = new DbTypeMapEntry(typeof(string), DbType.String, SqlDbType.VarChar);
+            = new DbTypeMapEntry(typeof(string), DbType.AnsiString, DbType.String, SqlDbType.VarChar, SqlDbType.NVarChar);
             _DbTypeList.Add(dbTypeMapEntry);
 
             dbTypeMapEntry
@@ -125,8 +132,8 @@ namespace SubSonic.Infrastructure
         /// <returns></returns>
         public static DbType ToDbType(Type netType, bool unicode = false)
         {
-            DbTypeMapEntry entry = Find(netType, unicode);
-            return entry.DbType;
+            DbTypeMapEntry entry = Find(netType);
+            return unicode ? entry.UnicodeDbType.GetValueOrDefault(entry.DbType) : entry.DbType;
         }
 
         /// <summary>
@@ -136,8 +143,8 @@ namespace SubSonic.Infrastructure
         /// <returns></returns>
         public static DbType ToDbType(SqlDbType sqlDbType, bool unicode = false)
         {
-            DbTypeMapEntry entry = Find(sqlDbType, unicode);
-            return entry.DbType;
+            DbTypeMapEntry entry = Find(sqlDbType);
+            return unicode ? entry.UnicodeDbType.GetValueOrDefault(entry.DbType) : entry.DbType;
         }
 
         /// <summary>
@@ -147,8 +154,8 @@ namespace SubSonic.Infrastructure
         /// <returns></returns>
         public static SqlDbType ToSqlDbType(Type netType, bool unicode = false)
         {
-            DbTypeMapEntry entry = Find(netType, unicode);
-            return entry.SqlDbType;
+            DbTypeMapEntry entry = Find(netType);
+            return unicode ? entry.UnicodeSqlDbType.GetValueOrDefault(entry.SqlDbType) : entry.SqlDbType;
         }
 
         /// <summary>
@@ -158,11 +165,11 @@ namespace SubSonic.Infrastructure
         /// <returns></returns>
         public static SqlDbType ToSqlDbType(DbType dbType, bool unicode = false)
         {
-            DbTypeMapEntry entry = Find(dbType, unicode);
-            return entry.SqlDbType;
+            DbTypeMapEntry entry = Find(dbType);
+            return unicode ? entry.UnicodeSqlDbType.GetValueOrDefault(entry.SqlDbType) : entry.SqlDbType;
         }
 
-        private static DbTypeMapEntry Find(Type type, bool unicode = false)
+        private static DbTypeMapEntry Find(Type type)
         {
             object retObj = null;
             for (int i = 0; i < _DbTypeList.Count; i++)
@@ -182,7 +189,7 @@ namespace SubSonic.Infrastructure
             return (DbTypeMapEntry)retObj;
         }
 
-        private static DbTypeMapEntry Find(DbType dbType, bool unicode = false)
+        private static DbTypeMapEntry Find(DbType dbType)
         {
             object retObj = null;
             for (int i = 0; i < _DbTypeList.Count; i++)
@@ -201,7 +208,7 @@ namespace SubSonic.Infrastructure
 
             return (DbTypeMapEntry)retObj;
         }
-        private static DbTypeMapEntry Find(SqlDbType sqlDbType, bool unicode = false)
+        private static DbTypeMapEntry Find(SqlDbType sqlDbType)
         {
             object retObj = null;
             for (int i = 0; i < _DbTypeList.Count; i++)
