@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace SubSonic.Linq
 {
     using Expressions;
-    using Alias = Expressions.Alias;
-    using Infrastructure.Schema;
     using Infrastructure;
+    using Infrastructure.Schema;
+    using Alias = Expressions.Alias;
 
-    public static partial class SubSonicExtensions
+    public static partial class SubSonicModel
     {
         public static Alias.TableAlias ToAlias(this IDbEntityModel model)
         {

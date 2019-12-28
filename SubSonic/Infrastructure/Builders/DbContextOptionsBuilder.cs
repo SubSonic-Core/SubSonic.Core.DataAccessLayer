@@ -45,18 +45,13 @@ namespace SubSonic.Infrastructure
         {
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             this.options = options ?? throw new ArgumentNullException(nameof(options));
+
+            this.options.EnableProxyGeneration = true;
         }
 
         public DbContextOptions Options => options;
 
         public IServiceProvider ServiceProvider => dbContext.Instance;
-
-        public DbContextOptionsBuilder EnableProxyGeneration()
-        {
-            options.EnableProxyGeneration = true;
-
-            return this;
-        }
 
         public DbContextOptionsBuilder SetConnectionStringBuilder(Action<DbConnectionStringBuilder, DbContextOptions> connection)
         {
