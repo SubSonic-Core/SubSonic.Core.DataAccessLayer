@@ -18,9 +18,14 @@ namespace SubSonic
             {
                 if (property.EntityPropertyType == DbEntityPropertyType.Value)
                 {
-                    model.EntityModelType
-                        .GetProperty(property.PropertyName)
-                        .SetValue(entity, data[property.Name]);
+                    object value = data[property.Name];
+
+                    if (property.PropertyType.IsAssignableFrom(value.GetType()))
+                    {
+                        model.EntityModelType
+                            .GetProperty(property.PropertyName)
+                            .SetValue(entity, value);
+                    }
                 }
             }
 

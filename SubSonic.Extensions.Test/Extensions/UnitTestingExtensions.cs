@@ -98,7 +98,7 @@ namespace SubSonic.Extensions.Test
                         {
                             row[property.Name] = model.EntityModelType
                                 .GetProperty(property.PropertyName)
-                                .GetValue(entity);
+                                .GetValue(entity) ?? DBNull.Value;
                         }
                     }
 

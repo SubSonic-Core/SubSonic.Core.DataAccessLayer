@@ -13,6 +13,7 @@ namespace SubSonic.Infrastructure
     using Linq.Expressions;
     using Linq.Expressions.Alias;
     using Schema;
+    using Data.DynamicProxies;
 
     public class DbSetCollection<TEntity>
         : ISubSonicCollection<TEntity>
@@ -45,10 +46,27 @@ namespace SubSonic.Infrastructure
         public IQueryProvider Provider => provider;
 
         #region ICollection<TEntity> Implementation
-        [EditorBrowsable(EditorBrowsableState.Never)]
         public void Add(TEntity entity)
         {
+            if (!(entity is IEntityProxy))
+            {
+                entity = DynamicProxy.MapInstanceOf(DbContext, entity);
+            }
+
             queryableData.Add(entity);
+        }
+
+        public void AddRange(IEnumerable<TEntity> entities)
+        {
+            if (entities is null)
+            {
+                throw new ArgumentNullException(nameof(entities));
+            }
+
+            foreach (TEntity entity in entities)
+            {
+                queryableData.Add(entity);
+            }
         }
 
         public bool Remove(TEntity entity)
@@ -86,10 +104,7 @@ namespace SubSonic.Infrastructure
 
         private IQueryable<TEntity> Load()
         {
-            foreach(TEntity entity in SubSonicQueryable.Load(this.Select()))
-            {
-                Add(entity);
-            }
+            AddRange(SubSonicQueryable.Load(this.Select()));
 
             return this;
         }

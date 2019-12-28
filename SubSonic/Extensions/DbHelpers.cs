@@ -85,16 +85,27 @@ namespace SubSonic
             foreach (PropertyInfo property in destinationType.GetProperties())
             {
                 PropertyInfo sourceInfo = sourceType.GetProperty(nameOf(property.Name));
+
                 if (sourceInfo.IsNotNull())
                 {
+                    object value = sourceInfo.GetValue(source);
+
                     if (!property.PropertyType.IsEnum)
                     {
-                        property.SetValue(destination, Convert.ChangeType(sourceInfo.GetValue(source), property.PropertyType, CultureInfo.CurrentCulture));
+                        if (!(value is null))
+                        {
+                            if (property.PropertyType.IsAssignableFrom(value.GetType()))
+                            {
+                                property.SetValue(destination, value);
+                            }
+                            else
+                            {
+                                property.SetValue(destination, Convert.ChangeType(value, property.PropertyType, CultureInfo.CurrentCulture));
+                            }
+                        }
                     }
                     else
                     {
-                        object value = sourceInfo.GetValue(source);
-
                         if (!(value is string))
                         {
                             value = Enum.GetName(property.PropertyType, value);
@@ -115,7 +126,7 @@ namespace SubSonic
                         {
                             property.SetValue(destination, property.GetCustomAttribute<DefaultValueAttribute>().IsNotNull(Def => Def.Value, Activator.CreateInstance(property.PropertyType)));
                         }
-                        
+
                     }
                 }
             }

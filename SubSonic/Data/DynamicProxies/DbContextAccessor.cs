@@ -116,7 +116,7 @@ namespace SubSonic.Data.DynamicProxies
 
             string[] 
                 keys = DbContext.Model
-                    .GetEntityModel<TProperty>().GetPrimaryKey().ToArray(),
+                    .GetEntityModel<TEntity>().GetPrimaryKey().ToArray(),
                 foreignKeys = DbContext.Model
                     .GetRelationshipMapping<TEntity, TProperty>().GetForeignKeys().ToArray();
             object[] keyData = GetKeyData(entity, keys);

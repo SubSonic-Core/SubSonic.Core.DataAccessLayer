@@ -7,10 +7,10 @@ using System.Text;
 namespace SubSonic
 {
     public interface ISubSonicCollection<TEntity>
-        : IQueryable<TEntity>, IEnumerable<TEntity>, IQueryable, IEnumerable, ICollection<TEntity>
+        : ISubSonicCollection, IQueryable<TEntity>, IEnumerable<TEntity>, IQueryable, IEnumerable, ICollection<TEntity>
     {
-
-
+        IQueryable<TEntity> FindByID(object[] keyData, params string[] keyNames);
+        IQueryable<TEntity> FindByID(params object[] keyData);
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1010:Collections should implement generic interface", Justification = "Implemented on generic sub interface")]

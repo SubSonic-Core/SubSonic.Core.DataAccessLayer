@@ -60,6 +60,45 @@ namespace SubSonic.Infrastructure
             return TableData.Convert<TElement>().GetEnumerator();
         }
         #endregion
+
+        public IQueryable<TElement> FindByID(params object[] keyData)
+        {
+            return FindByID(keyData, DbContext.DbModel.GetEntityModel<TElement>().GetPrimaryKey().ToArray());
+        }
+
+        public IQueryable<TElement> FindByID(object[] keyData, params string[] keyNames)
+        {
+            if (keyData is null)
+            {
+                throw new ArgumentNullException(nameof(keyData));
+            }
+
+            if (keyNames is null)
+            {
+                throw new ArgumentNullException(nameof(keyNames));
+            }
+
+            if (Expression is DbSelectExpression select)
+            {
+                ISubSonicQueryProvider<TElement> builder = (ISubSonicQueryProvider<TElement>)Provider;
+
+                Expression
+                    logical = null;
+
+                for (int i = 0; i < keyNames.Length; i++)
+                {
+                    logical = builder.BuildLogicalBinary(logical, DbExpressionType.Where, keyNames[i], keyData[i], DbComparisonOperator.Equal, DbGroupOperator.AndAlso);
+                }
+
+                LambdaExpression predicate = (LambdaExpression)builder.BuildLambda(logical, LambdaType.Predicate);
+
+                Expression where = builder.BuildWhere(select.From, null, typeof(TElement), predicate);
+
+                return builder.CreateQuery<TElement>(builder.BuildSelect(select, where));
+            }
+
+            throw new NotSupportedException();
+        }
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1010:Collections should implement generic interface", Justification = "Generic Class that inherits from this one addresses the generic interface")]

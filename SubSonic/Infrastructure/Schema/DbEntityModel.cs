@@ -48,7 +48,8 @@ namespace SubSonic.Infrastructure.Schema
             {
                 foreach (IDbRelationshipMap map in RelationshipMaps)
                 {
-                    if (map.ForeignModel.QualifiedName == model.QualifiedName)
+                    if (map.ForeignModel.QualifiedName == model.QualifiedName ||
+                        map.LookupModel?.QualifiedName == model.QualifiedName)
                     {
                         return map;
                     }

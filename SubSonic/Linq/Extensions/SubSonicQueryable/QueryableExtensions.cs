@@ -192,7 +192,7 @@ namespace SubSonic.Linq
             {
                 IQueryable<TSource> query = source.AsQueryable();
 
-                return Enumerable.Single(query.Provider.Execute<IQueryable<TSource>>(query.Expression));
+                return Enumerable.Single(query.Load());
             }
 
             return Queryable.Single(source);
@@ -203,9 +203,14 @@ namespace SubSonic.Linq
         {
             if (source.IsNotNull() && source.IsSubSonicQuerable())
             {
+                if (predicate is null)
+                {
+                    throw new ArgumentNullException(nameof(predicate));
+                }
+
                 IQueryable<TSource> query = source.AsQueryable();
 
-                return Enumerable.Single(query.Where(predicate).Provider.Execute<IQueryable<TSource>>(query.Expression));
+                return Enumerable.Single(query.Where(predicate).Load());
             }
 
             return Queryable.Single(source, predicate);

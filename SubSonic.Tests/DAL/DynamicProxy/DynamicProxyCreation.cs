@@ -100,6 +100,10 @@ FROM [dbo].[Unit] AS [{0}]",
 @"SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
 FROM [dbo].[RealEstateProperty] AS [{0}]
 WHERE ([{0}].[ID] = {1})",
+                renters =
+@"SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
+FROM [dbo].[Renter] AS [{0}]
+WHERE ([{0}].[UnitID] = {1})",
                 status =
 @"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
 FROM [dbo].[Status] AS [{0}]
@@ -108,6 +112,10 @@ WHERE ([{0}].[ID] = {1})";
             DbContext.Database.Instance.AddCommandBehavior(units.Format("T1"), Units);
             DbContext.Database.Instance.AddCommandBehavior(property.Format("T1", 1), RealEstateProperties.Where(x => x.ID == 1));
             DbContext.Database.Instance.AddCommandBehavior(property.Format("T1", 2), RealEstateProperties.Where(x => x.ID == 2));
+            DbContext.Database.Instance.AddCommandBehavior(renters.Format("T1", 1), Renters.Where(x => x.UnitID == 1));
+            DbContext.Database.Instance.AddCommandBehavior(renters.Format("T1", 2), Renters.Where(x => x.UnitID == 2));
+            DbContext.Database.Instance.AddCommandBehavior(renters.Format("T1", 3), Renters.Where(x => x.UnitID == 3));
+            DbContext.Database.Instance.AddCommandBehavior(renters.Format("T1", 4), Renters.Where(x => x.UnitID == 4));
             DbContext.Database.Instance.AddCommandBehavior(status.Format("T1", 1), Statuses.Where(x => x.ID == 1));
             DbContext.Database.Instance.AddCommandBehavior(status.Format("T1", 2), Statuses.Where(x => x.ID == 2));
             DbContext.Database.Instance.AddCommandBehavior(status.Format("T1", 3), Statuses.Where(x => x.ID == 3));
@@ -123,6 +131,11 @@ WHERE ([{0}].[ID] = {1})";
 
                 unit.RealEstateProperty.Status.Should().NotBeNull();
                 unit.RealEstateProperty.Status.ID.Should().Be(unit.RealEstateProperty.StatusID);
+
+                foreach (Renter renter in unit.Renters)
+                {
+                    ((IEntityProxy)renter).IsNew.Should().BeFalse();
+                }
 
                 ((IEntityProxy)unit.RealEstateProperty.Status).IsNew.Should().BeFalse();
             }

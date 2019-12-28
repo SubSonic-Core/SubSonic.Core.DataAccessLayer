@@ -5,7 +5,6 @@
         Unknown = 0,
         Insert,
         Update,
-        Delete,
-        Select
+        Delete
     }
 }

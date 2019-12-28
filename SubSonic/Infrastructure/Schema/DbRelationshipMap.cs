@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SubSonic.Linq;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -35,7 +36,16 @@ namespace SubSonic.Infrastructure.Schema
 
         public IEnumerable<string> GetForeignKeys()
         {
-            return foreignKeyNames;
+            if (RelationshipType == DbRelationshipType.HasManyWithMany)
+            {
+                return foreignKeyNames
+                    .Where(x => !x.StartsWith(ForeignModel.Name, StringComparison.CurrentCultureIgnoreCase))
+                    .ToArray();
+            }
+            else
+            {
+                return foreignKeyNames;
+            }
         }
     }
 }

@@ -20,7 +20,6 @@ namespace SubSonic.Data.DynamicProxies
         private static ModuleBuilder ModuleBuilder = DynamicAssembly.DefineDynamicModule("DynamicProxiesTypeGenerator");
 
         public static TEntity CreateProxyInstanceOf<TEntity>(DbContext dbContext)
-            where TEntity : class
         {
             if (dbContext is null)
             {
@@ -37,6 +36,15 @@ namespace SubSonic.Data.DynamicProxies
             {
                 return Activator.CreateInstance<TEntity>();
             }
+        }
+
+        public static TEntity MapInstanceOf<TEntity>(DbContext context, TEntity instance)
+        {
+            TEntity entity = CreateProxyInstanceOf<TEntity>(context);
+
+            entity.Map(instance);
+
+            return entity;
         }
 
         public static DynamicProxyWrapper GetProxyWrapper(Type proxyType)
