@@ -1,34 +1,41 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Collections.ObjectModel;
 
 namespace SubSonic.Infrastructure
 {
+    using Data.Caching;
+    using Data.DynamicProxies;
     using Linq;
     using Linq.Expressions;
-    using Linq.Expressions.Alias;
     using Schema;
-    using Data.DynamicProxies;
 
     public class DbSetCollection<TEntity>
         : ISubSonicCollection<TEntity>
     {
         private readonly IQueryProvider provider;
         private readonly IDbEntityModel model;
-        private readonly ICollection<TEntity> queryableData;
+        private readonly ICollection<IEntityProxy<TEntity>> dataset;
         
         public DbSetCollection(ISubSonicQueryProvider<TEntity> provider)
         {
             this.provider = provider ?? throw new ArgumentNullException(nameof(provider));
 
-            queryableData = new ObservableCollection<TEntity>();
+            var dataset = DbContext.Cache.GetCacheFor<TEntity>();
+                
+            dataset.CollectionChanged += OnDbSetCollectionChanged;
+
+            this.dataset = dataset;
+
             model = DbContext.Model.GetEntityModel<TEntity>();
             Expression = DbExpression.DbSelect(this, model.Table);
+        }
+
+        private void OnDbSetCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
         }
 
         protected DbContext DbContext => DbContext.ServiceProvider.GetService<DbContext>();
@@ -46,60 +53,87 @@ namespace SubSonic.Infrastructure
         public IQueryProvider Provider => provider;
 
         #region ICollection<TEntity> Implementation
-        public void Add(TEntity entity)
+        public void Add(TEntity item)
         {
-            if (!(entity is IEntityProxy))
+            if (item is IEntityProxy<TEntity> entity)
             {
-                entity = DynamicProxy.MapInstanceOf(DbContext, entity);
+                dataset.Add(entity);
             }
-
-            queryableData.Add(entity);
-        }
-
-        public void AddRange(IEnumerable<TEntity> entities)
-        {
-            if (entities is null)
+            else
             {
-                throw new ArgumentNullException(nameof(entities));
-            }
+                IEntityProxy<TEntity> _new = new Entity<TEntity>(item);
 
-            foreach (TEntity entity in entities)
-            {
-                queryableData.Add(entity);
+                _new.IsNew = true;
+
+                dataset.Add(_new);
             }
         }
 
-        public bool Remove(TEntity entity)
+        public void AddRange(IEnumerable<TEntity> items)
         {
-            return queryableData.Remove(entity);
+            if (items is null)
+            {
+                throw new ArgumentNullException(nameof(items));
+            }
+
+            foreach (TEntity item in items)
+            {
+                Add(item);
+            }
         }
 
-        public bool Contains(TEntity entity) => queryableData.Contains(entity);
+        public bool Remove(TEntity item)
+        {
+            if (item is IEntityProxy<TEntity> entity)
+            {
+               return dataset.Remove(entity);
+            }
+            else
+            {
+                return dataset.Remove(new Entity<TEntity>(item));
+            }
+        }
 
-        public void CopyTo(TEntity[] entities, int startAt) => queryableData.CopyTo(entities, startAt);
+        public bool Contains(TEntity item)
+        {
+            if (item is IEntityProxy<TEntity> entity)
+            {
+                return dataset.Contains(entity);
+            }
+            else
+            {
+                return dataset.Contains(new Entity<TEntity>(item));
+            }
+        }
 
-        public void Clear() => queryableData.Clear();
+        public void CopyTo(TEntity[] entities, int startAt)
+        {
+            throw new NotImplementedException();
+        }
 
-        public int Count => queryableData.Count;
+        public void Clear() => dataset.Clear();
+
+        public int Count => dataset.Count;
 
         public bool IsReadOnly => false;
 
         public IEnumerator GetEnumerator()
         {
-            if (queryableData.Count == 0)
+            if (dataset.Count == 0)
             {
                 Load();
             }
-            return ((IEnumerable)queryableData).GetEnumerator();
+            return ((IEnumerable)dataset).GetEnumerator();
         }
 
         IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()
         {
-            if (queryableData.Count == 0)
+            if (dataset.Count == 0)
             {
                 Load();
             }
-            return queryableData.GetEnumerator();
+
+            return dataset.Select(x => DynamicProxy.MapInstanceOf(DbContext, x)).GetEnumerator();
         }
 
         private IQueryable<TEntity> Load()

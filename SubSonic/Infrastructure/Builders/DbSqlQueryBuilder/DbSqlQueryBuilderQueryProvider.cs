@@ -46,7 +46,10 @@ namespace SubSonic.Infrastructure.Builders
 
                     while (reader.Read())
                     {
-                        results.Add(reader.ActivateAndLoadInstanceOf(elementType));
+                        object obj = reader.ActivateAndLoadInstanceOf(elementType);
+
+                        DbContext.Cache.Add(elementType, obj);
+                        results.Add(obj);
                     }
 
                     return (TResult)Activator.CreateInstance(typeof(SubSonicCollection<>).MakeGenericType(elementType), this, expression, results);

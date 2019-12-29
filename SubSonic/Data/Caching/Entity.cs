@@ -96,8 +96,6 @@ namespace SubSonic.Data.Caching
             }
         }
 
-        
-
         public void OnPropertyChange(IEntityProxy proxy)
         {
             if (proxy.IsNotNull())
@@ -106,6 +104,35 @@ namespace SubSonic.Data.Caching
             }
 
             IsDirty = true;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj as Entity);
+        }
+
+        public bool Equals(Entity right)
+        {
+            return this == right;
+        }
+
+        public static bool operator ==(Entity left, Entity right)
+        {
+            if (left is null && right is null)
+            {
+                return true;
+            }
+            else if (left is null || right is null)
+            {
+                return false;
+            }
+
+            return left.Data.GetHashCode() == right.Data.GetHashCode();
+        }
+
+        public static bool operator !=(Entity left, Entity right)
+        {
+            return !(left == right);
         }
     }
 }

@@ -38,11 +38,27 @@ namespace SubSonic.Data.DynamicProxies
             }
         }
 
-        public static TEntity MapInstanceOf<TEntity>(DbContext context, TEntity instance)
+        public static TEntity MapInstanceOf<TEntity>(DbContext context, IEntityProxy<TEntity> instance)
         {
+            if (context is null)
+            {
+                throw new ArgumentNullException(nameof(context));
+            }
+
+            if (instance is null)
+            {
+                throw new ArgumentNullException(nameof(instance));
+            }
+
             TEntity entity = CreateProxyInstanceOf<TEntity>(context);
 
-            entity.Map(instance);
+            entity.Map(instance.Data);  
+
+            if (entity is IEntityProxy<TEntity> proxy)
+            {
+                proxy.IsDirty = instance.IsDirty;
+                proxy.IsNew = instance.IsNew;
+            }
 
             return entity;
         }

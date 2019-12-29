@@ -47,5 +47,14 @@ WHERE ([{0}].[ID] = {1})";
             proxy.Data.StatusID.Should().Be(property.StatusID);
             property.Should().BeEquivalentTo(proxy.Data);
         }
+
+        [Test]
+        public void CanEnumerateCacheObject()
+        {
+            foreach(var item in SubSonic.DbContext.Cache)
+            {
+
+            }
+        }
     }
 }
