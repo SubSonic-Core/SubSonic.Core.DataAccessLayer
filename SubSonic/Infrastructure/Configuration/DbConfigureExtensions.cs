@@ -11,6 +11,7 @@ namespace SubSonic.Infrastructure
     using Schema;
     using Data.DynamicProxies;
     using Infrastructure.Factory;
+    using Data.Caching;
 
     internal static class DbConfigureExtensions
     {
@@ -18,6 +19,7 @@ namespace SubSonic.Infrastructure
         {
             services
                     .AddSingleton(context)
+                    .AddSingleton(new EntityCacheCollection())
                     .AddTransient(provider => DbProviderFactories.GetFactory(options.DbProviderInvariantName))
                     .AddTransient(provider =>
                     {
