@@ -12,6 +12,21 @@ namespace SubSonic
     using Linq;
     public static partial class SubSonicExtensions
     {
+        public static bool IsSameAs<TSource>(this IEnumerable<TSource> left, IEnumerable<TSource> right)
+        {
+            TSource[]
+                _left = left.ToArray(),
+                _right = right.ToArray();
+
+            bool result = _left.Length == _right.Length;
+
+            for (int i = 0, n = _left.Length; i < n; i++)
+            {
+                result &= _left[i].Equals(_right[i]);
+            }
+
+            return result;
+        }
         public static string[] GetForeignKeyName(this PropertyInfo propertyInfo)
         {
             if (propertyInfo is null)

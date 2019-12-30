@@ -123,7 +123,7 @@ namespace SubSonic.Infrastructure
         public SubSonicCollection(Type elementType, IQueryProvider provider, Expression expression)
             : this(elementType)
         {
-            TableData = new ObservableCollection<object>();
+            TableData = new HashSet<object>();
             Expression = expression ?? throw new ArgumentNullException(nameof(expression));
             Provider = provider ?? new DbSqlQueryBuilder(ElementType, DbContext.ServiceProvider.GetService<ISubSonicLogger>());
         }
@@ -131,7 +131,7 @@ namespace SubSonic.Infrastructure
         public SubSonicCollection(Type elementType, IQueryProvider provider, Expression expression, IEnumerable<object> elements)
             : this(elementType, provider, expression)
         {
-            TableData = new ObservableCollection<object>(elements);
+            TableData = new HashSet<object>(elements);
 
             if (TableData.Count > 0 && !TableData.ElementAt(0).IsOfType(elementType))
             {

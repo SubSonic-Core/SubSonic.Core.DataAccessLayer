@@ -10,14 +10,17 @@ namespace SubSonic.Tests.DAL
     using SubSonic.Data.Caching;
     using SubSonic.Data.DynamicProxies;
     using SUT;
+    using System.Collections.Generic;
+    using System.Linq.Expressions;
 
     [TestFixture]
     public class DbSetCollectionTests
         : BaseTestFixture
     {
-        [Test]
-        public void CanAddNewInstanceToCollection()
+        public override void SetupTestFixture()
         {
+            base.SetupTestFixture();
+
             string
                 units =
 @"SELECT [{0}].[ID], [{0}].[Bedrooms] AS [NumberOfBedrooms], [{0}].[StatusID], [{0}].[RealEstatePropertyID]
@@ -30,14 +33,18 @@ WHERE ([{0}].[ID] = {1})";
 
             DbContext.Database.Instance.AddCommandBehavior(units.Format("T1", 0), Units.Where(x => x.ID == 0));
             DbContext.Database.Instance.AddCommandBehavior(status.Format("T1", 1), Statuses.Where(x => x.ID == 1));
+        }
 
-            Status _status = DbContext.Statuses.Single(x => x.ID == 1);
+        [Test]
+        public void CanAddNewInstanceToCollection()
+        {
+            Status status = DbContext.Statuses.Single(x => x.ID == 1);
 
             RealEstateProperty property = new RealEstateProperty()
             {
                 HasParallelPowerGeneration = true,
-                StatusID = _status.ID,
-                Status = _status
+                StatusID = status.ID,
+                Status = status
             };
 
             DbContext.RealEstateProperties.Add(property);
@@ -80,6 +87,18 @@ WHERE ([{0}].[ID] = {1})";
                     }
                 }
             }
+        }
+
+        [Test]
+        public void CanQueryFromCacheObject()
+        {
+            Expression expression = DbContext.Statuses.Where(x => x.ID == 1).Expression;
+
+            Status 
+                status_ctrl = DbContext.Statuses.Where(x => x.ID == 1).Single(),
+                status_cache = SubSonic.DbContext.Cache.Where<IEnumerable<Status>>(typeof(Status), DbContext.Statuses.Provider, expression).Single();
+
+            status_ctrl.Should().BeSameAs(status_cache);
         }
     }
 }

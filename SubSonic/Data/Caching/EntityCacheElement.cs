@@ -1,5 +1,6 @@
 ﻿using SubSonic.Infrastructure;
 using SubSonic.Linq;
+using SubSonic.Linq.Expressions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -20,8 +21,52 @@ namespace SubSonic.Data.Caching
 
         public ICollection<IEntityProxy<TEntity>> Entities { get; }
 
-        public override TResult Where<TResult>(Expression expression)
+        public override void Add(object record)
         {
+            if (Cache is ObservableCollection<IEntityProxy<TEntity>> cache)
+            {
+                if(record is IEntityProxy<TEntity> entity)
+                {
+                    if (cache.Count(x => x.IsNew == false && x.KeyData.IsSameAs(entity.KeyData)) == 0)
+                    {
+                        cache.Add(entity);
+                    }
+                    return;
+                }
+            }
+
+            throw new NotSupportedException();
+        }
+
+        public override TResult Where<TResult>(System.Linq.IQueryProvider provider, Expression expression)
+        {
+            if (Cache is ObservableCollection<IEntityProxy<TEntity>> cache)
+            {
+                if (expression is DbSelectExpression select)
+                {
+                    IEnumerable<TEntity> results = cache
+                            .Where(x => x.IsNew == false && x.IsDirty == false)
+                            .Select(x => x.Data);
+
+                    if (select.Where is DbWhereExpression where)
+                    {
+                        
+
+                        return (TResult)Activator.CreateInstance(typeof(SubSonicCollection<>).MakeGenericType(Key),
+                            provider,
+                            expression,
+                            results.Where((Expression<Func<TEntity, bool>>)where.LambdaPredicate));
+                    }
+                    else if (select.Where is null)
+                    {
+                        return (TResult)Activator.CreateInstance(typeof(SubSonicCollection<>).MakeGenericType(Key),
+                            provider,
+                            expression,
+                            results);
+                    }
+                }
+            }
+
             throw new NotImplementedException();
         }
 
@@ -48,7 +93,14 @@ namespace SubSonic.Data.Caching
 
         public ICollection Cache { get; protected set; }
 
-        public abstract TResult Where<TResult>(Expression expression);
+        public void Clear()
+        {
+            ((IList)Cache).Clear();
+        }
+
+        public abstract void Add(object entity);
+
+        public abstract TResult Where<TResult>(System.Linq.IQueryProvider provider, Expression expression);
 
         public IEnumerator GetEnumerator()
         {

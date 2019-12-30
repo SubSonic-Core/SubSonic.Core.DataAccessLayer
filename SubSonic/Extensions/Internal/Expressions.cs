@@ -8,6 +8,30 @@ namespace SubSonic
 
     internal static partial class InternalExtensions
     {
+        public static Expression ReBuild(this Expression expression, ParameterExpression parameter)
+        {
+            if (expression is BinaryExpression binary)
+            {
+                return Expression.MakeBinary(binary.NodeType, binary.Left.ReBuild(parameter), binary.Right.ReBuild(parameter));
+            }
+            else if (expression is MemberExpression access)
+            {
+                if (access.Member is PropertyInfo pi)
+                {
+                    return Expression.Property(parameter, pi);
+                }
+                else if (access.Member is FieldInfo fi)
+                {
+                    return Expression.Field(parameter, fi);
+                }
+            }
+            else if (expression is ConstantExpression constant)
+            {
+                return constant;
+            }
+
+            return expression;
+        }
         public static string GetPropertyName<TEntity, TColumn>(this Expression<Func<TEntity, TColumn>> lambda)
         {
             return ((LambdaExpression)lambda).GetProperty()?.Name;

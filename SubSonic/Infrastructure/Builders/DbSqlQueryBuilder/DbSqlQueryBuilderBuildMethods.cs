@@ -10,8 +10,10 @@ namespace SubSonic.Infrastructure.Builders
 
     public partial class DbSqlQueryBuilder
     {
+        private ParameterExpression _parameter;
+
         #region properties
-        protected ParameterExpression Parameter => Expression.Parameter(DbEntity.EntityModelType, DbEntity.Name);
+        protected ParameterExpression Parameter => _parameter ?? (_parameter = Expression.Parameter(DbEntity.EntityModelType, DbEntity.Name));
         #endregion
 
         #region Build Select
@@ -139,14 +141,13 @@ namespace SubSonic.Infrastructure.Builders
 
         public Expression BuildLogicalBinary(Expression body, DbExpressionType type, string property, object value, DbComparisonOperator @operator, DbGroupOperator @group)
         {
-            ParameterExpression parameter = Expression.Parameter(DbEntity.EntityModelType, DbEntity.QualifiedName);
             PropertyInfo propertyInfo = DbEntity.EntityModelType.GetProperty(property);
 
             Type constantType = propertyInfo.PropertyType.GetUnderlyingType();
 
             Expression
-                left = Expression.Property(parameter, propertyInfo), // GetDbColumnExpression(propertyInfo),
-                right = Expression.Constant(value, constantType); // GetNamedExpression(type, propertyInfo, value);
+                left = Expression.Property(Parameter, propertyInfo), 
+                right = Expression.Constant(value, constantType); 
 
             if (body.IsNull())
             {

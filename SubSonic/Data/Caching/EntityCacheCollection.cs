@@ -46,18 +46,20 @@ namespace SubSonic.Data.Caching
 
         public void Add(Type elementKey, object entity)
         {
-            if (collection[elementKey].Cache is IList list)
+            collection[elementKey].Add(entity);
+        }
+
+        public void Flush()
+        {
+            foreach(var entity in collection)
             {
-                if (!list.Contains(entity))
-                {
-                    list.Add(entity);
-                }
+                entity.Value.Clear();
             }
         }
 
-        public TResult Where<TResult>(Type elementKey, Expression expression)
+        public TResult Where<TResult>(Type elementKey, System.Linq.IQueryProvider provider, Expression expression)
         {
-            return collection[elementKey].Where<TResult>(expression);
+            return collection[elementKey].Where<TResult>(provider, expression);
         }
 
         private IEnumerable<KeyValuePair<Type, IEnumerable<IEntityProxy>>> BuildEnumeration()

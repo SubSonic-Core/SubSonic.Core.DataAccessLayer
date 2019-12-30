@@ -30,6 +30,8 @@ namespace SubSonic.Infrastructure.Builders
 
         public TResult Execute<TResult>(Expression expression)
         {
+            //DbContext.Cache.Flush();
+
             using (SharedDbConnectionScope Scope = DbContext.ServiceProvider.GetService<SharedDbConnectionScope>())
             {
                 try
@@ -42,17 +44,12 @@ namespace SubSonic.Infrastructure.Builders
 
                     Type elementType = typeof(TResult).GetQualifiedType();
 
-                    IList results = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(elementType));
-
                     while (reader.Read())
                     {
-                        object obj = reader.ActivateAndLoadInstanceOf(elementType);
-
-                        DbContext.Cache.Add(elementType, obj);
-                        results.Add(obj);
+                        DbContext.Cache.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
                     }
 
-                    return (TResult)Activator.CreateInstance(typeof(SubSonicCollection<>).MakeGenericType(elementType), this, expression, results);
+                    return DbContext.Cache.Where<TResult>(elementType, this, expression);
                 }
                 finally
                 {
