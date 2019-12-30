@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace SubSonic.Data.Caching
@@ -52,6 +53,11 @@ namespace SubSonic.Data.Caching
                     list.Add(entity);
                 }
             }
+        }
+
+        public TResult Where<TResult>(Type elementKey, Expression expression)
+        {
+            return collection[elementKey].Where<TResult>(expression);
         }
 
         private IEnumerable<KeyValuePair<Type, IEnumerable<IEntityProxy>>> BuildEnumeration()

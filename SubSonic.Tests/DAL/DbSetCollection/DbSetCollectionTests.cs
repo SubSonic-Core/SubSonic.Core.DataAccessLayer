@@ -7,6 +7,8 @@ using SubSonic.Linq;
 
 namespace SubSonic.Tests.DAL
 {
+    using SubSonic.Data.Caching;
+    using SubSonic.Data.DynamicProxies;
     using SUT;
 
     [TestFixture]
@@ -51,9 +53,32 @@ WHERE ([{0}].[ID] = {1})";
         [Test]
         public void CanEnumerateCacheObject()
         {
-            foreach(var item in SubSonic.DbContext.Cache)
-            {
+            SubSonic.DbContext.Cache.Add(typeof(RealEstateProperty), new Entity<RealEstateProperty>(new RealEstateProperty() { ID = -1, StatusID = 1 }));
 
+            SubSonic.DbContext.Cache.Add(typeof(RealEstateProperty), DynamicProxy.MapInstanceOf(DbContext, new Entity<RealEstateProperty>(new RealEstateProperty() { ID = -2, StatusID = 1 })));
+
+            SubSonic.DbContext.Cache.Add(typeof(Status), DynamicProxy.MapInstanceOf(DbContext, new Entity<Status>(new Status() { ID = -1, Name = "None", IsAvailableStatus = false })));
+
+            foreach (var item in SubSonic.DbContext.Cache)
+            {
+                foreach(IEntityProxy proxy in item.Value)
+                {
+                    object value = null;
+                    
+                    if (proxy is Entity entity)
+                    {
+                        value = entity.Data;
+                    }
+                    
+                    if ((value ?? proxy) is RealEstateProperty property)
+                    {
+                        property.Should().NotBeNull();
+                    }
+                    else if ((value ?? proxy) is Status status)
+                    {
+                        status.Should().NotBeNull();
+                    }
+                }
             }
         }
     }
