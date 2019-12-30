@@ -50,20 +50,13 @@ namespace SubSonic.Data.Caching
 
                     if (select.Where is DbWhereExpression where)
                     {
-                        
-
-                        return (TResult)Activator.CreateInstance(typeof(SubSonicCollection<>).MakeGenericType(Key),
-                            provider,
-                            expression,
-                            results.Where((Expression<Func<TEntity, bool>>)where.LambdaPredicate));
+                        results = results.Where((Expression<Func<TEntity, bool>>)where.LambdaPredicate);
                     }
-                    else if (select.Where is null)
-                    {
-                        return (TResult)Activator.CreateInstance(typeof(SubSonicCollection<>).MakeGenericType(Key),
+
+                    return (TResult)Activator.CreateInstance(typeof(SubSonicCollection<>).MakeGenericType(Key),
                             provider,
                             expression,
                             results);
-                    }
                 }
             }
 
