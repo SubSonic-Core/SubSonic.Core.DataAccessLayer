@@ -30,31 +30,32 @@ namespace SubSonic.Infrastructure.Builders
 
         public TResult Execute<TResult>(Expression expression)
         {
-            //DbContext.Cache.Flush();
-
             using (SharedDbConnectionScope Scope = DbContext.ServiceProvider.GetService<SharedDbConnectionScope>())
             {
-                try
+                CmdBehavior = typeof(TResult).IsEnumerable() ? CommandBehavior.Default : CommandBehavior.SingleRow;
+
+                Type elementType = typeof(TResult).GetQualifiedType();
+
+                if (DbContext.Cache.Count(elementType, expression) == 0)
                 {
-                    Scope.CurrentConnection.Open();
-
-                    CmdBehavior = typeof(TResult).IsEnumerable() ? CommandBehavior.Default : CommandBehavior.SingleRow;
-                    
-                    DbDataReader reader = (DbDataReader)Execute(expression);
-
-                    Type elementType = typeof(TResult).GetQualifiedType();
-
-                    while (reader.Read())
+                    try
                     {
-                        DbContext.Cache.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
+                        Scope.CurrentConnection.Open();
+                        
+                        DbDataReader reader = (DbDataReader)Execute(expression);
+                        
+                        while (reader.Read())
+                        {
+                            DbContext.Cache.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
+                        }
                     }
+                    finally
+                    {
+                        Scope.CurrentConnection.Close();
+                    }
+                }
 
-                    return DbContext.Cache.Where<TResult>(elementType, this, expression);
-                }
-                finally
-                {
-                    Scope.CurrentConnection.Close();
-                }
+                return DbContext.Cache.Where<TResult>(elementType, this, expression);
             }
         }
 

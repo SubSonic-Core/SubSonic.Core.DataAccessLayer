@@ -29,10 +29,14 @@ WHERE ([{0}].[RealEstatePropertyID] = {1})",
                 status =
 @"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
 FROM [dbo].[Status] AS [{0}]
-WHERE ([{0}].[ID] = {1})";
+WHERE ([{0}].[ID] = {1})",
+                statuses =
+@"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
+FROM [dbo].[Status] AS [{0}]";
 
             DbContext.Database.Instance.AddCommandBehavior(units.Format("T1", 0), Units.Where(x => x.ID == 0));
             DbContext.Database.Instance.AddCommandBehavior(status.Format("T1", 1), Statuses.Where(x => x.ID == 1));
+            DbContext.Database.Instance.AddCommandBehavior(statuses.Format("T1"), Statuses);
         }
 
         [Test]
@@ -99,6 +103,22 @@ WHERE ([{0}].[ID] = {1})";
                 status_cache = SubSonic.DbContext.Cache.Where<IEnumerable<Status>>(typeof(Status), DbContext.Statuses.Provider, expression).Single();
 
             status_ctrl.Should().BeSameAs(status_cache);
+        }
+
+        [Test]
+        public void CanPullFromCacheInsteadOfDatabase()
+        {
+            List<Status> statuses = DbContext.Statuses.ToList();
+
+            foreach(Status status in statuses)
+            {
+                status.Should().NotBeNull();
+            }
+
+            Status _status = DbContext.Statuses.Single(x => x.ID == 2);
+
+            _status.Should().NotBeNull();
+            _status.ID.Should().Be(2);
         }
     }
 }

@@ -19,6 +19,8 @@ namespace SubSonic.Tests.DAL.SUT
         [SetUp]
         public virtual void SetupTestFixture()
         {
+            SubSonic.DbContext.Cache.Flush();
+
             DbContext.Instance.GetService<DbProviderFactory, SubSonicMockDbClient>().ClearBehaviors();
 
             Statuses = new List<Status>()

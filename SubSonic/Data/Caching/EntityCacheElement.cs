@@ -38,6 +38,28 @@ namespace SubSonic.Data.Caching
             throw new NotSupportedException();
         }
 
+        public override int Count(Expression expression)
+        {
+            if (Cache is ObservableCollection<IEntityProxy<TEntity>> cache)
+            {
+                if (expression is DbSelectExpression select)
+                {
+                    IEnumerable<TEntity> results = cache
+                            .Where(x => x.IsNew == false && x.IsDirty == false)
+                            .Select(x => x.Data);
+
+                    if (select.Where is DbWhereExpression where)
+                    {
+                        results = results.Where((Expression<Func<TEntity, bool>>)where.LambdaPredicate);
+                    }
+
+                    return results.Count();
+                }
+            }
+
+            throw new NotSupportedException();
+        }
+
         public override TResult Where<TResult>(System.Linq.IQueryProvider provider, Expression expression)
         {
             if (Cache is ObservableCollection<IEntityProxy<TEntity>> cache)
@@ -60,7 +82,7 @@ namespace SubSonic.Data.Caching
                 }
             }
 
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public new IEnumerator<TEntity> GetEnumerator()
@@ -92,6 +114,8 @@ namespace SubSonic.Data.Caching
         }
 
         public abstract void Add(object entity);
+
+        public abstract int Count(Expression expression);
 
         public abstract TResult Where<TResult>(System.Linq.IQueryProvider provider, Expression expression);
 

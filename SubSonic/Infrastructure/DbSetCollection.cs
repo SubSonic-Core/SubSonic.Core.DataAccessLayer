@@ -108,7 +108,7 @@ namespace SubSonic.Infrastructure
 
         public void CopyTo(TEntity[] entities, int startAt)
         {
-            throw new NotImplementedException();
+            dataset.Select(x => x.Data).ToList().CopyTo(entities, startAt);
         }
 
         public void Clear() => dataset.Clear();

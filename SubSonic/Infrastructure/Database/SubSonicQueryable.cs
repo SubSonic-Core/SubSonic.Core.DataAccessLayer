@@ -29,7 +29,7 @@ namespace SubSonic.Infrastructure
         }
 
         public SubSonicCollection(IQueryProvider provider, Expression expression, IEnumerable<TElement> enumerable)
-            : base(typeof(TElement), provider, expression, Array.ConvertAll(enumerable.ToArray(), (ele) => ele as object))
+            : base(typeof(TElement), provider, expression, enumerable.Select(x => x as object))
         {
 
         }
@@ -53,7 +53,7 @@ namespace SubSonic.Infrastructure
 
         public void CopyTo(TElement[]  elements, int startAt)
         {
-            TableData.CopyTo(Array.ConvertAll(elements, x => x as object), startAt);
+            TableData.Select(x => (TElement)x).ToArray().CopyTo(elements, startAt);
         }
         IEnumerator<TElement> IEnumerable<TElement>.GetEnumerator()
         {

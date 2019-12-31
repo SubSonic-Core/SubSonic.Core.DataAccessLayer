@@ -57,6 +57,11 @@ namespace SubSonic.Data.Caching
             }
         }
 
+        public int Count(Type elementKey, Expression expression)
+        {
+            return collection[elementKey].Count(expression);
+        }
+
         public TResult Where<TResult>(Type elementKey, System.Linq.IQueryProvider provider, Expression expression)
         {
             return collection[elementKey].Where<TResult>(provider, expression);
