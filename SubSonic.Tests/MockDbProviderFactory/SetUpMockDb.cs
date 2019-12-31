@@ -3,7 +3,7 @@ using SubSonic.Extensions.Test.MockDbClient;
 using System;
 using System.Data.Common;
 
-namespace SubSonic.Tests.MockDbProviderFactoryTests
+namespace SubSonic.Tests.MockDbProviderFactory
 {
     [SetUpFixture]
     public class SetUpMockDb

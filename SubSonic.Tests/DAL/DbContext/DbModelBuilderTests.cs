@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SubSonic.Tests.DAL.DbContextTests
+namespace SubSonic.Tests.DAL
 {
     [TestFixture]
     public partial class DbContextTests

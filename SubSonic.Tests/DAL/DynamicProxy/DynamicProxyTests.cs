@@ -6,7 +6,7 @@ using SubSonic.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SubSonic.Tests.DAL.DynamicProxyTests
+namespace SubSonic.Tests.DAL
 {
     using Extensions.Test;
     using Linq;
@@ -15,7 +15,7 @@ namespace SubSonic.Tests.DAL.DynamicProxyTests
     [TestFixture]
     public partial class DynamicProxyTests
         : BaseTestFixture
-    { 
+    {
         [Test]
         public void BuildProxyForElegibleType()
         {
@@ -120,7 +120,7 @@ WHERE ([{0}].[ID] = {1})";
             DbContext.Database.Instance.AddCommandBehavior(status.Format("T1", 2), Statuses.Where(x => x.ID == 2));
             DbContext.Database.Instance.AddCommandBehavior(status.Format("T1", 3), Statuses.Where(x => x.ID == 3));
 
-            foreach(Unit unit in DbContext.Units)
+            foreach (Unit unit in DbContext.Units)
             {
                 ((IEntityProxy)unit).IsNew.Should().BeFalse();
 

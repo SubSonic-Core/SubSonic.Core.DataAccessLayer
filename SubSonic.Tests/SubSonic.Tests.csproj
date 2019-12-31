@@ -32,7 +32,4 @@
     <ProjectReference Include="..\SubSonic.Extensions.Test\SubSonic.Extensions.Test.csproj" />
     <ProjectReference Include="..\SubSonic\SubSonic.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="MockDbProviderFactoryTests\SUT\" />
-  </ItemGroup>
 </Project>

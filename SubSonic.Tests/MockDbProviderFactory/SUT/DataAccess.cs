@@ -5,8 +5,9 @@ using System.Text;
 using System.Configuration;
 using System.Data.Common;
 using System.Data;
+using SubSonic.Tests.MockDbProviderFactory;
 
-namespace SubSonic.Tests.MockDbProviderFactoryTests.SUT
+namespace SubSonic.Tests.MockDbProviderFactory.SUT
 {
     class DataAccess
     {

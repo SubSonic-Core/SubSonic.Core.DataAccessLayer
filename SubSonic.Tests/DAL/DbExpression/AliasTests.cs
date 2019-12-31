@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SubSonic.Tests.DAL.DbExpressionTests
+namespace SubSonic.Tests.DAL.DbExpression
 {
     using FluentAssertions;
     using Linq.Expressions.Alias;

@@ -5,7 +5,7 @@ using SubSonic.Extensions.Test.Models;
 using SubSonic.Infrastructure;
 using SubSonic.Linq;
 
-namespace SubSonic.Tests.DAL
+namespace SubSonic.Tests.DAL.DbSetCollection
 {
     using SubSonic.Data.Caching;
     using SubSonic.Data.DynamicProxies;
@@ -72,15 +72,15 @@ FROM [dbo].[Status] AS [{0}]";
 
             foreach (var item in SubSonic.DbContext.Cache)
             {
-                foreach(IEntityProxy proxy in item.Value)
+                foreach (IEntityProxy proxy in item.Value)
                 {
                     object value = null;
-                    
+
                     if (proxy is Entity entity)
                     {
                         value = entity.Data;
                     }
-                    
+
                     if ((value ?? proxy) is RealEstateProperty property)
                     {
                         property.Should().NotBeNull();
@@ -98,7 +98,7 @@ FROM [dbo].[Status] AS [{0}]";
         {
             Expression expression = DbContext.Statuses.Where(x => x.ID == 1).Expression;
 
-            Status 
+            Status
                 status_ctrl = DbContext.Statuses.Where(x => x.ID == 1).Single(),
                 status_cache = SubSonic.DbContext.Cache.Where<IEnumerable<Status>>(typeof(Status), DbContext.Statuses.Provider, expression).Single();
 
@@ -110,7 +110,7 @@ FROM [dbo].[Status] AS [{0}]";
         {
             List<Status> statuses = DbContext.Statuses.ToList();
 
-            foreach(Status status in statuses)
+            foreach (Status status in statuses)
             {
                 status.Should().NotBeNull();
             }

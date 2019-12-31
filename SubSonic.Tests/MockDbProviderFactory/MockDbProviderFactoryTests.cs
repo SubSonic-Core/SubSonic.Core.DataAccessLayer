@@ -9,7 +9,7 @@ using System.Data;
 using System.Data.Common;
 using System.Reflection;
 
-namespace SubSonic.Tests.MockDbProviderFactoryTests
+namespace SubSonic.Tests.MockDbProviderFactory
 {
     [TestFixture]
     public partial class MockDbProviderFactoryTests
@@ -65,8 +65,8 @@ namespace SubSonic.Tests.MockDbProviderFactoryTests
 
             using (DataTableBuilder builder = new DataTableBuilder())
             {
-                builder.AddColumn("userid", typeof(Int32))
-                .AddColumn("email", typeof(String))
+                builder.AddColumn("userid", typeof(int))
+                .AddColumn("email", typeof(string))
                 .AddRow(1, "a@a.com")
                 .AddRow(10, "b@b.com");
 
@@ -97,9 +97,9 @@ namespace SubSonic.Tests.MockDbProviderFactoryTests
             using (var builder = new DataTableBuilder())
             {
                 builder
-                .AddColumn("customerid", typeof(Int32))
-                .AddColumn("firstname", typeof(String))
-                .AddColumn("lastname", typeof(String))
+                .AddColumn("customerid", typeof(int))
+                .AddColumn("firstname", typeof(string))
+                .AddColumn("lastname", typeof(string))
                 .AddRow(1, "joe", "black")
                 .AddRow(1, "kurt", "vonnegut");
 
@@ -107,16 +107,16 @@ namespace SubSonic.Tests.MockDbProviderFactoryTests
             }
 
             using (var builder = new DataTableBuilder())
-            { 
+            {
                 builder
-                .AddColumn("orderid", typeof(Int32))
-                .AddColumn("userid", typeof(Int32))
+                .AddColumn("orderid", typeof(int))
+                .AddColumn("userid", typeof(int))
                 .AddColumn("total", typeof(double))
                 .AddRow(100, 1, 10.10)
                 .AddRow(101, 1, 10.20)
                 .AddRow(202, 2, 20.10)
                 .AddRow(203, 2, 20.20);
-                
+
                 orders = builder.DataTable;
             }
 
