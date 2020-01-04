@@ -116,6 +116,11 @@ namespace SubSonic.Data.Caching
             return this == right;
         }
 
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
         public static bool operator ==(Entity left, Entity right)
         {
             if (left is null && right is null)
