@@ -18,6 +18,7 @@ namespace SubSonic.Extensions.Test.MockDbClient
         {
             _exec = exec;
             parameters = new MockDbParameterCollection();
+            CommandType = CommandType.Text;
         }
 
         protected static Regex ParameterRegex => new Regex(@"\@([^=<>\s]+)(?:[a-z]|[0-9]|_|\b)", RegexOptions.Multiline | RegexOptions.Compiled);
