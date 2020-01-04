@@ -6,6 +6,7 @@ namespace SubSonic.Infrastructure.Builders
 {
     using Linq;
     using Linq.Expressions;
+    using System.Data;
     using System.Reflection;
 
     public partial class DbSqlQueryBuilder
@@ -164,7 +165,7 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (expression is DbSelectExpression select)
             {
-                return new DbQueryObject(select.ToString(), ((DbWhereExpression)select.Where)?.Parameters);
+                return new DbQueryObject(select.ToString(), CmdBehavior, ((DbWhereExpression)select.Where)?.Parameters);
             }
             return null;
         }

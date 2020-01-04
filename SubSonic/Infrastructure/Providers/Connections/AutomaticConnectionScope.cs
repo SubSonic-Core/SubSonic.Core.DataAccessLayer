@@ -6,7 +6,8 @@ namespace SubSonic.Infrastructure
     using Linq;
 
     public class AutomaticConnectionScope
-        : IDisposable
+        : IConnectionScope
+        , IDisposable
     {
         private readonly DbDatabase dbDatabase;
         private readonly DbConnection dbConnection;
@@ -29,6 +30,8 @@ namespace SubSonic.Infrastructure
         }
 
         public DbConnection Connection => dbConnection;
+
+        public DbDatabase Database => dbDatabase;
 
         public bool IsUsingSharedConnection => isUsingSharedConnection;
 

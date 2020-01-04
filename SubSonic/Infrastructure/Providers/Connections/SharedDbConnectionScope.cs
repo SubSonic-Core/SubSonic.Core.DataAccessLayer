@@ -6,7 +6,8 @@ using System.Text;
 namespace SubSonic.Infrastructure
 {
     public class SharedDbConnectionScope
-        : IDisposable
+        : IConnectionScope
+        , IDisposable
     {
         [ThreadStatic]
         private static Stack<SharedDbConnectionScope> __instances;
@@ -25,7 +26,9 @@ namespace SubSonic.Infrastructure
             __instances.Push(this);
         }
 
-        public DbConnection CurrentConnection => this.dbDatabase.CurrentSharedConnection;
+        public DbConnection Connection => dbDatabase.CurrentSharedConnection;
+
+        public DbDatabase Database => dbDatabase;
 
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls

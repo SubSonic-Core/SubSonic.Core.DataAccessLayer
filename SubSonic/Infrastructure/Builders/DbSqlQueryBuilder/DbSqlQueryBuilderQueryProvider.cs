@@ -8,11 +8,13 @@ namespace SubSonic.Infrastructure.Builders
     using SubSonic.Linq.Expressions;
     using System.Collections;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Data;
     using System.Data.Common;
 
     public partial class DbSqlQueryBuilder
     {
+        [DefaultValue(CommandBehavior.Default)]
         protected CommandBehavior CmdBehavior { get; set; }
 
         public IQueryable CreateQuery(Expression expression)
@@ -40,9 +42,9 @@ namespace SubSonic.Infrastructure.Builders
                 {
                     try
                     {
-                        Scope.CurrentConnection.Open();
-                        
-                        DbDataReader reader = (DbDataReader)Execute(expression);
+                        Scope.Connection.Open();
+
+                        DbDataReader reader = Scope.Database.ExecuteReader(ToQueryObject(expression));
                         
                         while (reader.Read())
                         {
@@ -51,7 +53,7 @@ namespace SubSonic.Infrastructure.Builders
                     }
                     finally
                     {
-                        Scope.CurrentConnection.Close();
+                        Scope.Connection.Close();
                     }
                 }
 
@@ -66,40 +68,10 @@ namespace SubSonic.Infrastructure.Builders
                 throw new ArgumentNullException(nameof(expression));
             }
 
-            using (AutomaticConnectionScope Scope = DbContext.ServiceProvider.GetService<AutomaticConnectionScope>())
-            using (DbCommand cmd = GetCommand(Scope.Connection, expression))
-            using (var perf = logger.Start(GetType(), $"{nameof(Execute)}::{((DbSelectExpression)expression).From.Type.GetTypeName()}"))
+            using (SharedDbConnectionScope Scope = DbContext.ServiceProvider.GetService<SharedDbConnectionScope>())
             {
-                    return cmd.ExecuteReader(CmdBehavior);
+                return Scope.Database.ExecuteReader(ToQueryObject(expression));
             }
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Builder paramatizes all user inputs when sql expression tree is visited")]
-        protected DbCommand GetCommand(DbConnection connection, Expression expression)
-        {
-            if (connection is null)
-            {
-                throw new ArgumentNullException(nameof(connection));
-            }
-
-            IDbQueryObject query = ToQueryObject(expression);
-
-            DbCommand command = connection.CreateCommand();
-
-            command.CommandType = CommandType.Text;
-
-            foreach(SubSonicParameter parameter in query.Parameters)
-            {
-                DbParameter dbParameter = command.CreateParameter();
-
-                dbParameter.Map(parameter);
-
-                command.Parameters.Add(dbParameter);
-            }
-            
-            command.CommandText = query.Sql;
-
-            return command;
         }
     }
 }
