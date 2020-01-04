@@ -60,6 +60,8 @@ namespace SubSonic.Tests.DAL
             instance.Status = new Status() { ID = 1, Name = "Available" };
 
             instance.StatusID.Should().Be(1);
+
+            ((IEntityProxy)instance).IsDirty.Should().BeTrue();
         }
 
         [Test]

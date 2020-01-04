@@ -85,6 +85,17 @@ namespace SubSonic.Infrastructure
         }
         #endregion
 
+
+        public DbDataReader ExecuteReader(string sql, IEnumerable<SubSonicParameter> parameters)
+        {
+            using (AutomaticConnectionScope Scope = dbContext.Instance.GetService<AutomaticConnectionScope>())
+            using (DbCommand cmd = GetCommand(Scope, sql, parameters))
+            using (var perf = logger.Start(GetType(), $"{nameof(ExecuteReader)}"))
+            {
+                return cmd.ExecuteReader();
+            }
+        }
+
         public DbDataReader ExecuteReader(IDbQueryObject queryObject)
         {
             if (queryObject is null)

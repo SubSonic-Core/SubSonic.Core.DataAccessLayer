@@ -3,6 +3,12 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <Platforms>x64;x86;AnyCPU</Platforms>
+    <Copyright>Kenneth Carter © 2020</Copyright>
+    <Description>Mock Db Wrapper for SubSonic Data layer. Primary use is to facilitate unit testing of the Data Layer</Description>
+    <PackageTags>DAL; Unit-Testing</PackageTags>
+    <Authors>Kenneth Carter</Authors>
+    <RepositoryType>Git</RepositoryType>
+    <RepositoryUrl>https://github.com/kccarter76/SubSonic-Core/tree/master/SubSonic.Extensions.Test</RepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Platform)'=='x64'">

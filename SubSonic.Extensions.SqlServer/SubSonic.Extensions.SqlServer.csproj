@@ -3,6 +3,11 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <Platforms>AnyCPU;x64</Platforms>
+    <Authors>Kenneth Carter</Authors>
+    <Description>Sql Client Wrapper for the SubSonic Data Layer</Description>
+    <Copyright>Kenneth Carter © 2020</Copyright>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>DAL; SQLClient;</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

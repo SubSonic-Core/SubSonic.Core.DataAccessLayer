@@ -83,20 +83,25 @@ namespace SubSonic.Data.DynamicProxies
                 throw new ArgumentNullException(nameof(info));
             }
 
-            string[] 
+            string[]
                 keys = DbContext.Model.GetEntityModel<TProperty>()
                     .GetPrimaryKey()
                     .ToArray(),
                 foreignKeys = Ext.GetForeignKeyName(info);
             TProperty property = info.GetValue<TProperty>(entity);
 
-            for(int i = 0; i < keys.Length; i++)
+            for (int i = 0; i < keys.Length; i++)
             {
-                PropertyInfo 
+                PropertyInfo
                     primaryKeyInfo = typeof(TProperty).GetProperty(keys[i]),
                     foriegnKeyInfo = typeof(TEntity).GetProperty(foreignKeys[i]);
 
                 foriegnKeyInfo.SetValue(entity, primaryKeyInfo.GetValue(property), null);
+            }
+
+            if (entity is IEntityProxy proxy)
+            {
+                proxy.IsDirty = true;
             }
         }
 
