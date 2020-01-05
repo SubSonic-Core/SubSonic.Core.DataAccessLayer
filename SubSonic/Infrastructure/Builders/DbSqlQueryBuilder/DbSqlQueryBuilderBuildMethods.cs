@@ -165,7 +165,14 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (expression is DbSelectExpression select)
             {
-                return new DbQueryObject(select.ToString(), CmdBehavior, ((DbWhereExpression)select.Where)?.Parameters);
+                if (select.Where is DbWhereExpression where)
+                {
+                    return new DbQueryObject(select.ToString(), CmdBehavior, where.Parameters.ToArray());
+                }
+                else
+                {
+                    return new DbQueryObject(select.ToString(), CmdBehavior, Array.Empty<SubSonicParameter>());
+                }
             }
             return null;
         }

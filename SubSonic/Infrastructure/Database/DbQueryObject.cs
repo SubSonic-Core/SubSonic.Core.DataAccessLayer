@@ -15,20 +15,20 @@ namespace SubSonic.Infrastructure
 
         }
 
-        public DbQueryObject(string sql, params IEnumerable<SubSonicParameter>[] parameters)
+        public DbQueryObject(string sql, params SubSonicParameter[] parameters)
             : this(sql, CommandBehavior.Default, parameters)
         {
             
         }
 
-        public DbQueryObject(string sql, CommandBehavior behavior, params IEnumerable<SubSonicParameter>[] parameters)
+        public DbQueryObject(string sql, CommandBehavior behavior, params SubSonicParameter[] parameters)
         {
             if (string.IsNullOrEmpty(sql))
             {
                 throw new ArgumentException("", nameof(sql));
             }
 
-            IList<SubSonicParameter> _parameters = new List<SubSonicParameter>(parameters.SelectMany(p => p.IsNull(Array.Empty<SubSonicParameter>())));
+            IList<SubSonicParameter> _parameters = new List<SubSonicParameter>(parameters);
 
             Sql = sql;
             Behavior = behavior;
