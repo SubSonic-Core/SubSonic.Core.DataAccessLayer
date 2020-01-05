@@ -21,6 +21,13 @@ namespace SubSonic
 
         public IServiceProvider Instance => ServiceProvider;
 
+        public bool SaveChanges()
+        {
+            bool result = false;
+
+            return result;
+        }
+
         /// <summary>
         /// Use a shared connection to get data faster and reduce connection overhead
         /// </summary>

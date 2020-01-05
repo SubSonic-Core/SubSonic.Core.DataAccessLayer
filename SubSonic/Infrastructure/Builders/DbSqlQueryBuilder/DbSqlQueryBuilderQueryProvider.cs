@@ -32,33 +32,63 @@ namespace SubSonic.Infrastructure.Builders
 
         public TResult Execute<TResult>(Expression expression)
         {
-            using (SharedDbConnectionScope Scope = DbContext.ServiceProvider.GetService<SharedDbConnectionScope>())
+            if (expression is null)
             {
-                CmdBehavior = typeof(TResult).IsEnumerable() ? CommandBehavior.Default : CommandBehavior.SingleRow;
+                throw new ArgumentNullException(nameof(expression));
+            }
 
-                Type elementType = typeof(TResult).GetQualifiedType();
-
-                if (DbContext.Cache.Count(elementType, expression) == 0)
+            if (expression is DbSelectExpression select)
+            {
+                using (SharedDbConnectionScope Scope = DbContext.ServiceProvider.GetService<SharedDbConnectionScope>())
                 {
-                    try
-                    {
-                        Scope.Connection.Open();
+                    CmdBehavior = typeof(TResult).IsEnumerable() ? CommandBehavior.Default : CommandBehavior.SingleRow;
 
-                        DbDataReader reader = Scope.Database.ExecuteReader(ToQueryObject(expression));
-                        
-                        while (reader.Read())
+                    Type elementType = typeof(TResult).GetQualifiedType();
+
+                    if (DbContext.Cache.Count(elementType, select) == 0)
+                    {
+                        try
                         {
-                            DbContext.Cache.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
+                            Scope.Connection.Open();
+
+                            DbDataReader reader = Scope.Database.ExecuteReader(ToQueryObject(select));
+
+                            while (reader.Read())
+                            {
+                                DbContext.Cache.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
+                            }
+                        }
+                        finally
+                        {
+                            Scope.Connection.Close();
                         }
                     }
-                    finally
-                    {
-                        Scope.Connection.Close();
-                    }
+
+                    return DbContext.Cache.Where<TResult>(elementType, this, expression);
+                }
+            }
+            else if (expression is MethodCallExpression method)
+            {   // Linq call is coming from System.Linq namespace directly.
+                // expression needs to be rebuilt into something the DAL can use
+                while (method.Arguments[0] is MethodCallExpression _method)
+                {
+                    method = _method;
                 }
 
-                return DbContext.Cache.Where<TResult>(elementType, this, expression);
+                if (method.Arguments[0] is DbSelectExpression _select)
+                {
+                    Expression where = null;
+
+                    for(int i = 1, n = method.Arguments.Count; i < n; i++)
+                    {
+                        where = BuildWhere(_select.From, where, _select.Type, method.Arguments[i]);
+                    }
+
+                    return Execute<TResult>(BuildSelect(_select, where));
+                }
             }
+
+            throw new NotSupportedException(expression.ToString());
         }
 
         public object Execute(Expression expression)

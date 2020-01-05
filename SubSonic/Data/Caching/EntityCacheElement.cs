@@ -42,12 +42,12 @@ namespace SubSonic.Data.Caching
         {
             if (Cache is ObservableCollection<IEntityProxy<TEntity>> cache)
             {
-                if (expression is DbSelectExpression select)
-                {
-                    IEnumerable<TEntity> results = cache
+                IEnumerable<TEntity> results = cache
                             .Where(x => x.IsNew == false && x.IsDirty == false)
                             .Select(x => x.Data);
 
+                if (expression is DbSelectExpression select)
+                {
                     if (select.Where is DbWhereExpression where)
                     {
                         results = results.Where((Expression<Func<TEntity, bool>>)where.LambdaPredicate);
@@ -75,10 +75,17 @@ namespace SubSonic.Data.Caching
                         results = results.Where((Expression<Func<TEntity, bool>>)where.LambdaPredicate);
                     }
 
-                    return (TResult)Activator.CreateInstance(typeof(SubSonicCollection<>).MakeGenericType(Key),
-                            provider,
-                            expression,
-                            results);
+                    if (typeof(TResult).IsEnumerable())
+                    {
+                        return (TResult)Activator.CreateInstance(typeof(SubSonicCollection<>).MakeGenericType(Key),
+                                provider,
+                                expression,
+                                results);
+                    }
+                    else
+                    {
+                        return results.SingleOrDefault();
+                    }
                 }
             }
 

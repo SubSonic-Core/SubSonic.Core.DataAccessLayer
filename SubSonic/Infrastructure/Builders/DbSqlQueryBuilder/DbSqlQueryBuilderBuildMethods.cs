@@ -84,6 +84,21 @@ namespace SubSonic.Infrastructure.Builders
             return DbExpression.Where(table, type, predicate);
         }
 
+        public Expression BuildWhere(DbTableExpression table, Expression where, Type type, Expression predicate)
+        {
+            LambdaExpression lambda = null;
+
+            if (predicate is UnaryExpression unary)
+            {
+                if (unary.Operand is LambdaExpression _unary)
+                {
+                    lambda = _unary;
+                }
+            }
+
+            return BuildWhere(table, where, type, lambda);
+        }
+
         public Expression BuildWherePredicate(Expression collection, Expression lambda)
         {
             return BuildCall("Where", collection, lambda);
@@ -174,6 +189,7 @@ namespace SubSonic.Infrastructure.Builders
                     return new DbQueryObject(select.ToString(), CmdBehavior, Array.Empty<SubSonicParameter>());
                 }
             }
+
             return null;
         }
 

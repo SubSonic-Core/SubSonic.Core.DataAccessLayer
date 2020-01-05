@@ -1,21 +1,47 @@
-﻿using NUnit.Framework;
-using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using FluentAssertions;
+using NUnit.Framework;
+using SubSonic.Extensions.Test;
+using SubSonic.Infrastructure;
+using System.Data.Common;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SubSonic.Tests.DAL
 {
-    using FluentAssertions;
     using SUT;
-    using System.Data.Common;
+    using Models = Extensions.Test.Models;
+    //using Linq;
 
     [TestFixture]
     public partial class DbContextTests
         : BaseTestFixture
     {
+        public override void SetupTestFixture()
+        {
+            base.SetupTestFixture();
+
+            string
+                units =
+            @"SELECT [{0}].[ID], [{0}].[Bedrooms] AS [NumberOfBedrooms], [{0}].[StatusID], [{0}].[RealEstatePropertyID]
+FROM [dbo].[Unit] AS [{0}]
+WHERE ([{0}].[RealEstatePropertyID] = {1})",
+                status =
+            @"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
+FROM [dbo].[Status] AS [{0}]
+WHERE ([{0}].[ID] = {1})",
+                statuses =
+            @"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
+FROM [dbo].[Status] AS [{0}]",
+                property =
+@"SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
+FROM [dbo].[RealEstateProperty] AS [{0}]
+WHERE ([{0}].[ID] = {1})";
+
+            DbContext.Database.Instance.AddCommandBehavior(units.Format("T1", 0), Units.Where(x => x.ID == 0));
+            DbContext.Database.Instance.AddCommandBehavior(status.Format("T1", 1), Statuses.Where(x => x.ID == 1));
+            DbContext.Database.Instance.AddCommandBehavior(statuses.Format("T1"), Statuses);
+            DbContext.Database.Instance.AddCommandBehavior(property.Format("T1", 1), RealEstateProperties.Where(x => x.ID == 1));
+        }
+
         [Test]
         public void DbSetCollectionsShouldBeInitialized()
         {
@@ -43,6 +69,20 @@ namespace SubSonic.Tests.DAL
 
             dbConnection.Should().NotBeNull();
             dbConnection.ConnectionString.Should().NotBeNullOrEmpty();
+        }
+
+        [Test]
+        public void ShouldBeAbleToSaveChangesToTheDatabaseContext()
+        {
+            Models.RealEstateProperty property = DbContext.RealEstateProperties
+                .Where(x => x.ID == 1)
+                .Single();
+
+            property.HasParallelPowerGeneration = !(property.HasParallelPowerGeneration ?? false);
+
+            ((IEntityProxy)property).IsDirty.Should().BeTrue();
+
+            DbContext.SaveChanges().Should().BeTrue();
         }
     }
 }
