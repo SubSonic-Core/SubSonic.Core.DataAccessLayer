@@ -84,7 +84,7 @@ namespace SubSonic.Data.Caching
                     }
                     else
                     {
-                        return results.SingleOrDefault();
+                        return results.SingleOrDefault<TEntity, TResult>();
                     }
                 }
             }

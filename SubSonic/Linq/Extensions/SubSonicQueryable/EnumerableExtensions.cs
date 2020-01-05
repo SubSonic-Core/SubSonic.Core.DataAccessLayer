@@ -114,6 +114,18 @@ namespace SubSonic.Linq
             return Enumerable.SingleOrDefault(source);
         }
 
+        public static TResult SingleOrDefault<TSource, TResult>(this IEnumerable<TSource> source)
+        {
+            TSource single = Enumerable.SingleOrDefault(source);
+
+            if (single is TResult result)
+            {
+                return result;
+            }
+
+            return default(TResult);
+        }
+
         public static TSource SingleOrDefault<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate)
         {
             return Enumerable.SingleOrDefault(source, predicate);

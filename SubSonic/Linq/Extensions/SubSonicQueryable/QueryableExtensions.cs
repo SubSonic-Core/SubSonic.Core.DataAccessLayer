@@ -228,6 +228,18 @@ namespace SubSonic.Linq
             return Queryable.SingleOrDefault(source);
         }
 
+        public static TResult SingleOrDefault<TSource, TResult>(this IQueryable<TSource> source)
+        {
+            TSource single = Queryable.SingleOrDefault(source);
+
+            if (single is TResult result)
+            {
+                return result;
+            }
+
+            return default(TResult);
+        }
+
         public static TSource SingleOrDefault<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
         {
             if (source.IsNotNull() && source.IsSubSonicQuerable())
