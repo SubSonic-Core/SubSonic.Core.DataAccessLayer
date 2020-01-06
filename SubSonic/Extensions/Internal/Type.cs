@@ -1,13 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.Text;
 
 namespace SubSonic
 {
     using Infrastructure;
-    using Infrastructure.Factory;
     using Linq;
 
     internal static partial class InternalExtensions
@@ -28,7 +27,7 @@ namespace SubSonic
 
         public static bool IsEnumerable(this Type type)
         {
-            return type.GetInterface(typeof(IEnumerable<>).FullName).IsNotNull();
+            return type.GetInterface(typeof(IEnumerable).FullName).IsNotNull();
         }
 
         public static bool IsNullableType(this Type type)

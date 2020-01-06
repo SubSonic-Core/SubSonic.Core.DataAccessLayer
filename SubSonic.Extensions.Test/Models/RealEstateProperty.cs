@@ -26,7 +26,7 @@ namespace SubSonic.Extensions.Test.Models
         [ForeignKey(nameof(StatusID))]
         public virtual Status Status { get; set; }
 
-        public bool? HasParallelPowerGeneration { get; set; }
+        public virtual bool? HasParallelPowerGeneration { get; set; }
 
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2227:Collection properties should be read only", Justification = "<Pending>")]

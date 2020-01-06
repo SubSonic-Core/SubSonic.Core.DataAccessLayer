@@ -21,6 +21,8 @@ namespace SubSonic.Data.DynamicProxies
         private FieldBuilder fieldIsDirty;
         private FieldBuilder fieldIsNew;
 
+        private MethodBuilder onPropertyChange;
+
         public static class ProxyStub
         {
             public static Func<TEntity, DbContextAccessor, object[]> KeyData { get; } =
@@ -55,6 +57,17 @@ namespace SubSonic.Data.DynamicProxies
 
             IDbEntityModel model = dbContext.Model.GetEntityModel(baseType);
 
+            #region implement the IEntityProxy interface
+            BuildKeyDataProperty();
+            BuildIsDirtyProperty();
+            BuildIsNewProperty();
+            BuildOnPropertyChangeMethod();
+            #endregion
+
+            #region implement Data per the IEntityProxy<TEntity> interface
+            BuildDataProperty();
+            #endregion
+
             foreach (IDbEntityProperty property in model.Properties)
             {
                 PropertyInfo info = baseType.GetProperty(property.PropertyName);
@@ -68,18 +81,13 @@ namespace SubSonic.Data.DynamicProxies
                 {
                     BuildOverriddenProperty(property.PropertyName, property.PropertyType, property.EntityPropertyType == DbEntityPropertyType.Collection);
                 }
+                else if (property.EntityPropertyType == DbEntityPropertyType.Value)
+                {
+                    BuildValueOverriddenProperty(property.PropertyName, property.PropertyType);
+                }
             }
 
-            #region implement the IEntityProxy interface
-            BuildKeyDataProperty();
-            BuildIsDirtyProperty();
-            BuildIsNewProperty();
-            BuildOnPropertyChangeMethod();
-            #endregion
-
-            #region implement IsDirty per the IEntityProxy<TEntity> interface
-            BuildDataProperty();
-            #endregion
+            
 
             return typeBuilder.CreateType();
         }
@@ -106,9 +114,9 @@ namespace SubSonic.Data.DynamicProxies
 
         private void BuildOnPropertyChangeMethod()
         {
-            MethodInfo method = BuildMethod<Proxy>(() => ProxyStub.OnPropertyChange);
+            onPropertyChange = BuildMethod<Proxy>(() => ProxyStub.OnPropertyChange);
 
-            typeBuilder.DefineMethodOverride(method, typeof(IEntityProxy).GetMethod("OnPropertyChange"));
+            typeBuilder.DefineMethodOverride(onPropertyChange, typeof(IEntityProxy).GetMethod(onPropertyChange.Name));
         }
 
         private void BuildProxyConstructor()
@@ -139,6 +147,50 @@ namespace SubSonic.Data.DynamicProxies
             iLGenerator.Emit(OpCodes.Ret);
         }
 
+        private void BuildValueOverriddenProperty(string propertyName, Type propertyType)
+        {
+            PropertyBuilder propertyBuilder = typeBuilder.DefineProperty(
+                    propertyName,
+                    PropertyAttributes.None,
+                    propertyType,
+                    Type.EmptyTypes);
+
+            MethodAttributes methodAttributesForGetAndSet = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
+
+            MethodBuilder
+                getMethod = typeBuilder.DefineMethod($"get_{propertyName}", methodAttributesForGetAndSet, propertyType, Type.EmptyTypes),
+                setMethod = typeBuilder.DefineMethod($"set_{propertyName}", methodAttributesForGetAndSet, null, new Type[] { propertyType });
+
+            MethodInfo
+                getter = baseType.GetProperty(propertyName).GetGetMethod(),
+                setter = baseType.GetProperty(propertyName).GetSetMethod(); 
+
+            ILGenerator
+                iLGetGenerator = getMethod.GetILGenerator(),
+                iLSetGenerator = setMethod.GetILGenerator();
+
+            #region getter
+            iLGetGenerator.Emit(OpCodes.Ldarg_0);                                                       // this
+            iLGetGenerator.Emit(OpCodes.Call, getter);                                                  // propertyField
+            iLGetGenerator.Emit(OpCodes.Ret);
+
+            typeBuilder.DefineMethodOverride(getMethod, getter);
+            #endregion
+            #region setter
+            iLSetGenerator.Emit(OpCodes.Ldarg_0);
+            iLSetGenerator.Emit(OpCodes.Ldarg_1);
+            iLSetGenerator.Emit(OpCodes.Call, setter);
+
+            //iLSetGenerator.Emit(OpCodes.Ldarg_0);
+            
+            //iLSetGenerator.Emit(OpCodes.Stfld, fieldIsDirty);
+
+            iLSetGenerator.Emit(OpCodes.Ret);
+
+            typeBuilder.DefineMethodOverride(setMethod, setter);
+            #endregion
+        }
+
         private void BuildOverriddenProperty(string propertyName, Type propertyType, bool isCollection)
         {
             PropertyBuilder propertyBuilder = typeBuilder.DefineProperty(
@@ -147,7 +199,7 @@ namespace SubSonic.Data.DynamicProxies
                     propertyType,
                     Type.EmptyTypes);
 
-            MethodAttributes methodAttributesForGetAndSet = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual ;
+            MethodAttributes methodAttributesForGetAndSet = MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig | MethodAttributes.NewSlot | MethodAttributes.Virtual;
 
             MethodBuilder
                 getMethod = typeBuilder.DefineMethod($"get_{propertyName}", methodAttributesForGetAndSet, propertyType, Type.EmptyTypes),
@@ -198,7 +250,7 @@ namespace SubSonic.Data.DynamicProxies
             iLGetGenerator.Emit(OpCodes.Stloc, propertyInfo);                                                                   // store PropertyInfo object in the local variable propertyInfo
 
             iLGetGenerator.Emit(OpCodes.Ldarg_0);                                                       // this
-            iLGetGenerator.Emit(OpCodes.Call, getter);       // propertyField
+            iLGetGenerator.Emit(OpCodes.Call, getter);                                                  // propertyField
             iLGetGenerator.EmitCall(OpCodes.Call, isNull, null);                                        // use the static extension method IsNull
             if (!isCollection)
             {
@@ -252,18 +304,18 @@ namespace SubSonic.Data.DynamicProxies
             {
                 iLGetGenerator.MarkLabel(fieldIsNotNullOrForeignKeyIsDefault);               // jump here when propertyField is not null
             }
-            iLGetGenerator.Emit(OpCodes.Ldarg_0);   // this
-            iLGetGenerator.Emit(OpCodes.Call, getter); // propertyField
+            iLGetGenerator.Emit(OpCodes.Ldarg_0);                                       // this
+            iLGetGenerator.Emit(OpCodes.Call, getter);                                  // propertyField
             iLGetGenerator.Emit(OpCodes.Ret);
 
-            typeBuilder.DefineMethodOverride(getMethod, baseType.GetProperty(propertyName).GetMethod);
+            typeBuilder.DefineMethodOverride(getMethod, getter);
             #endregion
             #region setter
             propertyInfo = iLSetGenerator.DeclareLocal(typeof(PropertyInfo));
 
             iLSetGenerator.Emit(OpCodes.Ldarg_0);
             iLSetGenerator.Emit(OpCodes.Ldarg_1);
-            iLSetGenerator.Emit(OpCodes.Call, baseType.GetProperty(propertyName).GetSetMethod());
+            iLSetGenerator.Emit(OpCodes.Call, setter);
 
             if (!isCollection)
             {
@@ -282,7 +334,7 @@ namespace SubSonic.Data.DynamicProxies
 
             iLSetGenerator.Emit(OpCodes.Ret);
 
-            typeBuilder.DefineMethodOverride(setMethod, baseType.GetProperty(propertyName).SetMethod);
+            typeBuilder.DefineMethodOverride(setMethod, setter);
             #endregion
         }
 
@@ -480,7 +532,7 @@ namespace SubSonic.Data.DynamicProxies
             return null;
         }
 
-        public MethodInfo BuildMethod<TType>(Expression<Func<object>> @delegate, Type returnType = null)
+        public MethodBuilder BuildMethod<TType>(Expression<Func<object>> @delegate, Type returnType = null)
             where TType : class
         {
             MemberExpression
