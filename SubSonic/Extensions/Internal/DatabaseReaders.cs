@@ -32,6 +32,7 @@ namespace SubSonic
             if (entity is IEntityProxy)
             {
                 ((IEntityProxy)entity).IsNew = false;
+                ((IEntityProxy)entity).IsDirty = false;
             }
 
             return entity;

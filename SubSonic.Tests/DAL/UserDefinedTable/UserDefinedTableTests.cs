@@ -14,6 +14,7 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
 {
     using FluentAssertions;
     using Infrastructure;
+    using SubSonic.Data.Caching;
     using System.Data;
     using System.Reflection;
 
@@ -80,15 +81,15 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
 
             if (modelType == typeof(Models.RealEstateProperty))
             {
-                data = RealEstateProperties;
+                data = RealEstateProperties.Select(x => new Entity<Models.RealEstateProperty>(x));
             }
             else if (modelType == typeof(Models.Unit))
             {
-                data = Units;
+                data = Units.Select(x => new Entity<Models.Unit>(x));
             }
             else if (modelType == typeof(Models.Renter))
             {
-                data = Renters;
+                data = Renters.Select(x => new Entity<Models.Renter>(x));
             }
 
             Type StoredProcedureType = modelType.GetCustomAttributes<DbCommandQueryAttribute>().Single(x => x.QueryType == queryType).StoredProcedureType;

@@ -59,6 +59,31 @@ namespace SubSonic.Extensions.Test
             return "";
         }
 
+        public static void AddCommandBehavior<TResult>(this DbProviderFactory factory, string command, Func<DbCommand, TResult> result)
+        {
+            if (factory is null)
+            {
+                throw new ArgumentNullException(nameof(factory));
+            }
+
+            if (string.IsNullOrEmpty(command))
+            {
+                throw new ArgumentException("", nameof(command));
+            }
+
+            if (result is null)
+            {
+                throw new ArgumentNullException(nameof(result));
+            }
+
+            if (factory is SubSonicMockDbClient db)
+            {
+                db.AddBehavior(new MockCommandBehavior()
+                    .When((cmd) => cmd.CommandText == command)
+                    .ReturnsData(result));
+            }
+        }
+
         public static void AddCommandBehavior<TEntity>(this DbProviderFactory factory, string command, IEnumerable<TEntity> entities)
         {
             if (factory is null)

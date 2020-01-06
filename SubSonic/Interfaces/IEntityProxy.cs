@@ -16,6 +16,8 @@ namespace SubSonic.Infrastructure
         bool IsDirty { get; set; }
         bool IsNew { get; set; }
 
-        void OnPropertyChange(IEntityProxy proxy);
+        void OnPropertyChanged(IEntityProxy proxy);
+
+        Type ModelType { get; }
     }
 }

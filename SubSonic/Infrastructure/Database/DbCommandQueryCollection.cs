@@ -33,7 +33,11 @@ namespace SubSonic.Infrastructure
         {
             get
             {
-                return commands[dbQueryType];
+                if (commands.ContainsKey(dbQueryType))
+                {
+                    return commands[dbQueryType];
+                }
+                return null;
             }
             set
             {

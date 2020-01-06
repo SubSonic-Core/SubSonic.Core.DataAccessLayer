@@ -74,6 +74,15 @@ WHERE ([{0}].[ID] = {1})";
         [Test]
         public void ShouldBeAbleToSaveChangesToTheDatabaseContext()
         {
+            string
+                update =
+@"EXEC [dbo].[UpdateRealEstateProperty] @Properties = @Properties";
+
+            DbContext.Database.Instance.AddCommandBehavior(update, (cmd) =>
+            {
+                return 0;
+            });
+
             Models.RealEstateProperty property = DbContext.RealEstateProperties
                 .Where(x => x.ID == 1)
                 .Single();
@@ -83,6 +92,14 @@ WHERE ([{0}].[ID] = {1})";
             ((IEntityProxy)property).IsDirty.Should().BeTrue();
 
             DbContext.SaveChanges().Should().BeTrue();
+
+            ((IEntityProxy)property).IsDirty.Should().BeFalse();
+
+            property = DbContext.RealEstateProperties
+                .Where(x => x.ID == 1)
+                .Single();
+
+            ((IEntityProxy)property).IsDirty.Should().BeFalse();
         }
     }
 }

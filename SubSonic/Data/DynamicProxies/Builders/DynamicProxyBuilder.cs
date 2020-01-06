@@ -21,7 +21,7 @@ namespace SubSonic.Data.DynamicProxies
         private FieldBuilder fieldIsDirty;
         private FieldBuilder fieldIsNew;
 
-        private MethodBuilder onPropertyChange;
+        private MethodBuilder onPropertyChanged;
 
         public static class ProxyStub
         {
@@ -36,10 +36,15 @@ namespace SubSonic.Data.DynamicProxies
                     return context.GetKeyData(entity, keys);
                 };
             public static Func<TEntity, TEntity> Data { get; } = (entity) => entity;
-            public static Action<IEntityProxy> OnPropertyChange { get; } =
+            public static Action<IEntityProxy> OnPropertyChanged { get; } =
                 (entity) =>
                 {
                     entity.IsDirty = true;
+                };
+            public static Func<TEntity, Type> ModelType { get; } = 
+                (entity) =>
+                {
+                    return entity.GetType().BaseType;
                 };
             
         }
@@ -61,6 +66,7 @@ namespace SubSonic.Data.DynamicProxies
             BuildKeyDataProperty();
             BuildIsDirtyProperty();
             BuildIsNewProperty();
+            BuildModelTypeProperty();
             BuildOnPropertyChangeMethod();
             #endregion
 
@@ -112,11 +118,16 @@ namespace SubSonic.Data.DynamicProxies
             PropertyInfo property = BuildProperty<IEntityProxy, bool>((Proxy) => Proxy.IsNew, fieldIsNew);
         }
 
+        private void BuildModelTypeProperty()
+        {
+            BuildProperty<IEntityProxy, Type>((Proxy) => Proxy.ModelType, getter: () => ProxyStub.ModelType);
+        }
+
         private void BuildOnPropertyChangeMethod()
         {
-            onPropertyChange = BuildMethod<Proxy>(() => ProxyStub.OnPropertyChange);
+            onPropertyChanged = BuildMethod<Proxy>(() => ProxyStub.OnPropertyChanged);
 
-            typeBuilder.DefineMethodOverride(onPropertyChange, typeof(IEntityProxy).GetMethod(onPropertyChange.Name));
+            typeBuilder.DefineMethodOverride(onPropertyChanged, typeof(IEntityProxy).GetMethod(onPropertyChanged.Name));
         }
 
         private void BuildProxyConstructor()
@@ -162,6 +173,9 @@ namespace SubSonic.Data.DynamicProxies
                 setMethod = typeBuilder.DefineMethod($"set_{propertyName}", methodAttributesForGetAndSet, null, new Type[] { propertyType });
 
             MethodInfo
+                onChange = fieldDbContextAccessor.FieldType
+                    .GetMethod("OnPropertyChanged", BindingFlags.Public | BindingFlags.Instance)
+                    .MakeGenericMethod(new[] { baseType }),
                 getter = baseType.GetProperty(propertyName).GetGetMethod(),
                 setter = baseType.GetProperty(propertyName).GetSetMethod(); 
 
@@ -181,9 +195,10 @@ namespace SubSonic.Data.DynamicProxies
             iLSetGenerator.Emit(OpCodes.Ldarg_1);
             iLSetGenerator.Emit(OpCodes.Call, setter);
 
-            //iLSetGenerator.Emit(OpCodes.Ldarg_0);
-            
-            //iLSetGenerator.Emit(OpCodes.Stfld, fieldIsDirty);
+            iLSetGenerator.Emit(OpCodes.Ldarg_0);                           // this
+            iLSetGenerator.Emit(OpCodes.Ldfld, fieldDbContextAccessor);     // field variable _dbContextAccessor
+            iLSetGenerator.Emit(OpCodes.Ldarg_0);                           // this ptr as the first parameter
+            iLSetGenerator.EmitCall(OpCodes.Call, onChange, null);          // call the OnPropertyChanged on the DBContextAccessor object
 
             iLSetGenerator.Emit(OpCodes.Ret);
 

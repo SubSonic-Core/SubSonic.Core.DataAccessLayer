@@ -51,6 +51,14 @@ namespace SubSonic.Data.Caching
             }
         }
 
+        public Type ModelType
+        {
+            get
+            {
+                return Model.EntityModelType;
+            }
+        }
+
         public IEnumerable<object> KeyData
         {
             get
@@ -96,7 +104,7 @@ namespace SubSonic.Data.Caching
             }
         }
 
-        public void OnPropertyChange(IEntityProxy proxy)
+        public void OnPropertyChanged(IEntityProxy proxy)
         {
             if (proxy.IsNotNull())
             {
@@ -105,6 +113,8 @@ namespace SubSonic.Data.Caching
 
             IsDirty = true;
         }
+
+        
 
         public override bool Equals(object obj)
         {

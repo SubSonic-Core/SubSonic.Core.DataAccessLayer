@@ -68,23 +68,49 @@ namespace SubSonic.Extensions.Test.MockDbClient
         private MockCommandBehavior FindBehavior(MockDbCommand cmd)
         {
             foreach (var behavior in behaviors)
+            {
                 if (behavior.Matches(cmd))
+                {
                     return behavior;
+                }
+            }
+
             throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Could not find behavior for command '{0}'", cmd.CommandText));
         }
         int IMockCommandExecution.ExecuteNonQuery(MockDbCommand cmd)
         {
-            return (int)FindBehavior(cmd).ReturnValue;
+            return GetReturnValue<int>(cmd);
         }
 
         object IMockCommandExecution.ExecuteScalar(MockDbCommand cmd)
         {
-            return FindBehavior(cmd).ReturnValue;
+            return GetReturnValue<object>(cmd);
         }
 
         MockDbDataReaderCollection IMockCommandExecution.ExecuteDataReader(MockDbCommand cmd)
         {
-            return new MockDbDataReaderCollection(((DataTable)FindBehavior(cmd).ReturnValue).CreateDataReader());
+            return new MockDbDataReaderCollection(GetReturnValue<DataTable>(cmd).CreateDataReader());
+        }
+
+        public TReturn GetReturnValue<TReturn>(MockDbCommand cmd)
+        {
+            if (cmd is null)
+            {
+                throw new ArgumentNullException(nameof(cmd));
+            }
+
+            object value = FindBehavior(cmd).ReturnValue;
+
+            if (value is Func<DbCommand, TReturn> func)
+            {
+                return func(cmd);
+            }
+            else if (value is TReturn @return)
+            {
+                return @return;
+            }
+
+            throw new NotSupportedException();
         }
 
         public void ClearBehaviors()

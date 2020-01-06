@@ -8,6 +8,7 @@ namespace SubSonic.Extensions.Test.MockDbClient.Syntax
     public class MockCommandBehavior
     {
         Predicate<DbCommand> match;
+
         internal object ReturnValue { get; private set; }
 
         internal bool Matches(DbCommand cmd)
@@ -18,12 +19,20 @@ namespace SubSonic.Extensions.Test.MockDbClient.Syntax
         public MockCommandBehavior When(Predicate<DbCommand> match)
         {
             this.match = match;
+
             return this;
         }
 
         public MockCommandBehavior ReturnsData(DataTable dt)
         {
             ReturnValue = dt;
+            return this;
+        }
+
+        public MockCommandBehavior ReturnsData<TResult>(Func<DbCommand, TResult> command)
+        {
+            ReturnValue = command;
+
             return this;
         }
 

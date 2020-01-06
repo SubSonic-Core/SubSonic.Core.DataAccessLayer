@@ -117,14 +117,25 @@ namespace SubSonic.Extensions.Test.MockDbClient
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "prepare is looking for parameters and replacing with real values")]
         public override void Prepare()
         {
-            if(ParameterRegex.IsMatch(this.CommandText))
+            if (CommandType == CommandType.Text)
             {
-                foreach(Match match in ParameterRegex.Matches(this.CommandText))
+                if (ParameterRegex.IsMatch(this.CommandText))
                 {
-                    object value = Parameters[match.Value].Value;
+                    foreach (Match match in ParameterRegex.Matches(this.CommandText))
+                    {
+                        object value = Parameters[match.Value].Value;
 
-                    CommandText = CommandText.Replace(match.Value, (value is string || value is Guid) ? $"'{value}'" : value.ToString(), StringComparison.CurrentCulture);
+                        CommandText = CommandText.Replace(match.Value, (value is string || value is Guid) ? $"'{value}'" : value.ToString(), StringComparison.CurrentCulture);
+                    }
                 }
+            }
+            else if (CommandType == CommandType.StoredProcedure)
+            {
+
+            }
+            else if (CommandType == CommandType.TableDirect)
+            {
+
             }
         }
 

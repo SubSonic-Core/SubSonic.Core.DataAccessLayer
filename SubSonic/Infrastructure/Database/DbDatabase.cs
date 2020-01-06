@@ -85,10 +85,35 @@ namespace SubSonic.Infrastructure
         }
         #endregion
 
+        public int ExecuteStoredProcedure(object procedure)
+        {
+            DbStoredProcedure db = DbStoredProcedureParser.ParseStoredProcedure(procedure);
+
+            using (AutomaticConnectionScope Scope = GetConnectionScope())
+            using (DbCommand cmd = GetCommand(Scope, db.Sql, db.Parameters))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                return cmd.ExecuteNonQuery();
+            }
+        }
+
+        public IEnumerable<TEntity> ExecuteStoredProcedure<TEntity>(object procedure)
+        {
+            DbStoredProcedure db = DbStoredProcedureParser.ParseStoredProcedure(procedure);
+
+            using (AutomaticConnectionScope Scope = GetConnectionScope())
+            using (DbCommand cmd = GetCommand(Scope, db.Sql, db.Parameters))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                return cmd.ExecuteReader().Map<TEntity>();
+            }
+        }
 
         public DbDataReader ExecuteReader(string sql, IEnumerable<SubSonicParameter> parameters)
         {
-            using (AutomaticConnectionScope Scope = dbContext.Instance.GetService<AutomaticConnectionScope>())
+            using (AutomaticConnectionScope Scope = GetConnectionScope())
             using (DbCommand cmd = GetCommand(Scope, sql, parameters))
             using (var perf = logger.Start(GetType(), $"{nameof(ExecuteReader)}"))
             {
@@ -103,13 +128,15 @@ namespace SubSonic.Infrastructure
                 throw new ArgumentNullException(nameof(queryObject));
             }
 
-            using (AutomaticConnectionScope Scope = dbContext.Instance.GetService<AutomaticConnectionScope>())
+            using (AutomaticConnectionScope Scope = GetConnectionScope())
             using (DbCommand cmd = GetCommand(Scope, queryObject))
             using (var perf = logger.Start(GetType(), $"{nameof(ExecuteReader)}"))
             {
                 return cmd.ExecuteReader(queryObject.Behavior);
             }
         }
+
+        public AutomaticConnectionScope GetConnectionScope() => dbContext.Instance.GetService<AutomaticConnectionScope>();
 
         public static DbCommand GetCommand(IConnectionScope scope, IDbQueryObject queryObject)
         {
@@ -127,7 +154,7 @@ namespace SubSonic.Infrastructure
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "Builder paramatizes all user inputs when sql expression tree is visited")]
-        public static DbCommand GetCommand(IConnectionScope scope, string sql, IEnumerable<SubSonicParameter> parameters)
+        public static DbCommand GetCommand(IConnectionScope scope, string sql, IEnumerable<DbParameter> parameters)
         {
             if (scope is null)
             {
@@ -148,7 +175,7 @@ namespace SubSonic.Infrastructure
 
             Debug.Assert(command.CommandType == CommandType.Text);
 
-            foreach (SubSonicParameter parameter in parameters)
+            foreach (DbParameter parameter in parameters)
             {
                 DbParameter dbParameter = command.CreateParameter();
 

@@ -38,6 +38,19 @@ namespace SubSonic.Data.Caching
             throw new NotSupportedException();
         }
 
+        public override bool Remove(object record)
+        {
+            if (Cache is ObservableCollection<IEntityProxy<TEntity>> cache)
+            {
+                if (record is IEntityProxy<TEntity> entity)
+                {
+                    return cache.Remove(entity);
+                }
+            }
+
+            throw new NotSupportedException();
+        }
+
         public override int Count(Expression expression)
         {
             if (Cache is ObservableCollection<IEntityProxy<TEntity>> cache)
@@ -120,7 +133,9 @@ namespace SubSonic.Data.Caching
             ((IList)Cache).Clear();
         }
 
-        public abstract void Add(object entity);
+        public abstract void Add(object record);
+
+        public abstract bool Remove(object record);
 
         public abstract int Count(Expression expression);
 

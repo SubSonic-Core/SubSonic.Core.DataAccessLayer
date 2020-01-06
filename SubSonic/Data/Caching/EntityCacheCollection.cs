@@ -49,6 +49,11 @@ namespace SubSonic.Data.Caching
             collection[elementKey].Add(entity);
         }
 
+        public bool Remove(Type elementKey, object entity)
+        {
+            return collection[elementKey].Remove(entity);
+        }
+
         public void Flush()
         {
             foreach(var entity in collection)

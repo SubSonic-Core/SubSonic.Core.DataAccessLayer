@@ -10,6 +10,9 @@ using System.Reflection;
 namespace SubSonic
 {
     using Linq;
+    using SubSonic.Data.DynamicProxies;
+    using System.Data.Common;
+
     public static partial class SubSonicExtensions
     {
         public static bool IsSameAs<TSource>(this IEnumerable<TSource> left, IEnumerable<TSource> right)
@@ -145,6 +148,35 @@ namespace SubSonic
                     }
                 }
             }
+        }
+
+        public static IEnumerable<TEntity> Map<TEntity>(this DbDataReader reader)
+        {
+            if (reader is null)
+            {
+                throw new ArgumentNullException(nameof(reader));
+            }
+
+            List<TEntity> result = new List<TEntity>();
+
+            while(reader.Read())
+            {
+                TEntity item = DynamicProxy.CreateProxyInstanceOf<TEntity>(DbContext.Current);
+
+                foreach(PropertyInfo info in typeof(TEntity).GetProperties())
+                {
+                    if (reader[info.Name] != DBNull.Value)
+                    {
+                        info.SetValue(item, reader[info.Name]);
+                    }
+                }
+
+                result.Add(item);
+            }
+
+            reader.Close();
+
+            return result;
         }
     }
 }

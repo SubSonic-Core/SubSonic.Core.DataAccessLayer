@@ -105,6 +105,14 @@ namespace SubSonic.Data.DynamicProxies
             }
         }
 
+        public void OnPropertyChanged<TEntity>(TEntity entity)
+        {
+            if (entity is IEntityProxy proxy)
+            {
+                proxy.IsDirty = true;
+            }
+        }
+
         public System.Linq.IQueryable<TProperty> LoadCollection<TEntity, TProperty>(TEntity entity, PropertyInfo info)
             where TEntity : class
             where TProperty : class

@@ -11,6 +11,25 @@ namespace SubSonic.Linq
     /// </summary>
     public static partial class SubSonicQueryable
     {
+        public static IEnumerable<TSource> ForEach<TSource>(this IEnumerable<TSource> source, Action<TSource> action)
+        {
+            if (source is null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            if (action is null)
+            {
+                throw new ArgumentNullException(nameof(action));
+            }
+
+            foreach (TSource item in source)
+            {
+                action(item);
+            }
+
+            return source;
+        }
         public static int Count<TSource>(this IEnumerable<TSource> source)
         {
             return Enumerable.Count(source);
