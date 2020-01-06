@@ -89,7 +89,7 @@ namespace SubSonic
 
                 data.ForEach(x =>
                 {
-                    if (x.KeyData.Count() == 0)
+                    if (x.KeyData.Count() == 0 || x.KeyData.IsSameAs(new object[] { 0 }))
                     {
                         Cache.Remove(x.ModelType, x);
 

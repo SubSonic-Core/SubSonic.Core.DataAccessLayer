@@ -4,12 +4,12 @@ using SubSonic.Extensions.Test;
 using SubSonic.Infrastructure;
 using System.Data.Common;
 using System.Linq;
+using System.Data;
 
 namespace SubSonic.Tests.DAL
 {
     using SUT;
     using Models = Extensions.Test.Models;
-    //using Linq;
 
     [TestFixture]
     public partial class DbContextTests
@@ -72,7 +72,7 @@ WHERE ([{0}].[ID] = {1})";
         }
 
         [Test]
-        public void ShouldBeAbleToSaveChangesToTheDatabaseContext()
+        public void ShouldBeAbleToSaveUpdateChangesToTheDatabaseContext()
         {
             string
                 update =
@@ -91,6 +91,8 @@ WHERE ([{0}].[ID] = {1})";
 
             ((IEntityProxy)property).IsDirty.Should().BeTrue();
 
+            SubSonic.DbContext.Cache.SelectMany(x => x.Value).Count(x => x.IsDirty).Should().Be(1);
+
             DbContext.SaveChanges().Should().BeTrue();
 
             ((IEntityProxy)property).IsDirty.Should().BeFalse();
@@ -100,6 +102,42 @@ WHERE ([{0}].[ID] = {1})";
                 .Single();
 
             ((IEntityProxy)property).IsDirty.Should().BeFalse();
+
+            SubSonic.DbContext.Cache.SelectMany(x => x.Value).Count(x => x.IsDirty).Should().Be(0);
+        }
+
+        [Test]
+        public void ShouldBeAbleToSaveInsertChangesToTheDatabaseContext()
+        {
+            string
+                insert =
+@"EXEC [dbo].[InsertRealEstateProperty] @Properties = @Properties";
+
+            DbContext.Database.Instance.AddCommandBehavior(insert, (cmd) =>
+            {
+                if (cmd.Parameters[0].Value is DataTable data)
+                {
+                    data.Rows[0]["ID"].Should().Be(0);
+                    data.Rows[0]["StatusID"].Should().Be(1);
+                    data.Rows[0]["HasParallelPowerGeneration"].Should().Be(true);
+                }
+
+                return 0;
+            });
+
+            Models.RealEstateProperty property = new Models.RealEstateProperty()
+            {
+                StatusID = 1,
+                HasParallelPowerGeneration = true
+            };
+
+            DbContext.RealEstateProperties.Add(property);
+
+            SubSonic.DbContext.Cache.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
+
+            DbContext.SaveChanges().Should().BeTrue();
+
+            SubSonic.DbContext.Cache.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(0);
         }
     }
 }
