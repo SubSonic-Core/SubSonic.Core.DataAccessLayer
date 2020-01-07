@@ -232,7 +232,7 @@ namespace SubSonic.Linq
         {
             TSource single = Queryable.SingleOrDefault(source);
 
-            if (single is TResult result)
+            if ((object)single is TResult result)
             {
                 return result;
             }

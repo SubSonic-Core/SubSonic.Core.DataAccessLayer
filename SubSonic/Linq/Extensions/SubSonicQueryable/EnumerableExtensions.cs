@@ -137,7 +137,7 @@ namespace SubSonic.Linq
         {
             TSource single = Enumerable.SingleOrDefault(source);
 
-            if (single is TResult result)
+            if ((object)single is TResult result)
             {
                 return result;
             }
