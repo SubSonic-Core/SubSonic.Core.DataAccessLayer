@@ -1,9 +1,10 @@
 ﻿CREATE TABLE [dbo].[RealEstateProperty]
 (
-	[Id] INT NOT NULL PRIMARY KEY IDENTITY, 
+	[Id] INT IDENTITY (1, 1) NOT NULL, 
     [StatusId] INT NOT NULL, 
-    [HasParallelPowerGeneration] BIT NULL
-) WITH (DATA_COMPRESSION=PAGE)
+    [HasParallelPowerGeneration] BIT NULL,
+    PRIMARY KEY CLUSTERED ([Id] ASC) WITH (DATA_COMPRESSION=PAGE)
+);
 
 GO
 
