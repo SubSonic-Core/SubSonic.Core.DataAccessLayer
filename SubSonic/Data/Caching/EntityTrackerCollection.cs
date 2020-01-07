@@ -38,7 +38,7 @@ namespace SubSonic.Data.Caching
 
             if (!collection.ContainsKey(elementKey))
             {
-                collection.Add(elementKey, new EntityCacheElementCollection<TEntity>());
+                collection.Add(elementKey, new EntityTrackerElement<TEntity>());
             }
 
             return GetCacheElementFor<TEntity>();

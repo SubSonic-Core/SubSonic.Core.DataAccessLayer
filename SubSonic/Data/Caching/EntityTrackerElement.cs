@@ -12,16 +12,17 @@ using System.Text;
 
 namespace SubSonic.Data.Caching
 {
-    public class EntityCacheElementCollection<TEntity>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "It is getting to wordy if I do this")]
+    public class EntityTrackerElement<TEntity>
         : EntityTrackerElement, IEnumerable<TEntity>
     {
-        public EntityCacheElementCollection()
+        public EntityTrackerElement()
             : base(typeof(TEntity)) 
         {
             Cache = new ObservableCollection<IEntityProxy<TEntity>>();
         }
 
-        private DbDatabase Database => DbContext.Current.Database;
+        private static DbDatabase Database => DbContext.Current.Database;
 
         public ICollection<IEntityProxy<TEntity>> Entities { get; }
 
@@ -187,6 +188,7 @@ namespace SubSonic.Data.Caching
         }
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "Generic inteface is implemented at a higher level.")]
     public abstract class EntityTrackerElement
         : IEnumerable
     {
