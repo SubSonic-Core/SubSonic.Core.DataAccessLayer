@@ -53,7 +53,14 @@ namespace SubSonic.Infrastructure.Schema
                 DbEntityPropertyType result;
                 if (PropertyType.GetUnderlyingType().IsValueType || PropertyType.IsAssignableFrom(typeof(string)))
                 {
-                    result = DbEntityPropertyType.Value;
+                    if (PropertyName.IsNotNullOrEmpty())
+                    {
+                        result = DbEntityPropertyType.Value;
+                    }
+                    else
+                    {
+                        result = DbEntityPropertyType.DAL;
+                    }
                 }
                 else if (PropertyType.IsClass)
                 {
@@ -81,7 +88,7 @@ namespace SubSonic.Infrastructure.Schema
 
         public override string ToString()
         {
-            return PropertyName;
+            return PropertyName ?? Name;
         }
     }
 }

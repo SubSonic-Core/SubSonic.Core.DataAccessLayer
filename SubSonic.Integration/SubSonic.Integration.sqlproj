@@ -56,5 +56,13 @@
   <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
   <ItemGroup>
     <Folder Include="Properties" />
+    <Folder Include="Models" />
+    <Folder Include="Models\RealEstateProperty" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="Models\RealEstateProperty\RealEstateProperty.sql" />
+    <Build Include="Models\RealEstateProperty\RealEstatePropertyType.sql" />
+    <Build Include="Models\RealEstateProperty\InsertRealEstateProperty.sql" />
+    <Build Include="Models\RealEstateProperty\UpdateRealEstateProperty.sql" />
   </ItemGroup>
 </Project>

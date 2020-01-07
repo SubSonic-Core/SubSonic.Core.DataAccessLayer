@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Data;
 
 namespace SubSonic.Infrastructure
 {
@@ -17,6 +16,6 @@ namespace SubSonic.Infrastructure
 
         public bool IsNullable { get; set; }
 
-        public int DbType { get; set; }
+        public DbType DbType { get; set; }
     }
 }

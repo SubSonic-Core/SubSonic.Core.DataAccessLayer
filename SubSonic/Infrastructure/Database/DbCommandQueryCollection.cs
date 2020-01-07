@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Text;
 
 namespace SubSonic.Infrastructure
@@ -53,6 +55,8 @@ namespace SubSonic.Infrastructure
         }
 
         public int Count => commands.Count;
+
+        public bool DisableKeysForDefinedTableTypes => this.Any(x => x.QueryType == DbQueryType.Insert && x.CommandType == CommandType.StoredProcedure);
 
         public bool IsReadOnly => false;
 

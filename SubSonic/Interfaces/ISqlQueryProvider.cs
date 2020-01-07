@@ -1,10 +1,8 @@
 ﻿using SubSonic.Infrastructure.Schema;
 using SubSonic.Infrastructure.SqlGenerator;
-using System;
-using System.Collections.Generic;
+using System.Data;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 
 namespace SubSonic.Infrastructure
 {
@@ -16,6 +14,7 @@ namespace SubSonic.Infrastructure
         IDbEntityModel EntityModel { get; set; }
 
         string GenerateSqlFor(Expression query);
-        string GenerateColumnDataDefinition(int dbType, PropertyInfo info);
+        string GenerateColumnDataDefinition(DbType dbType, PropertyInfo info);
+        string GenerateDefaultConstraint(DbType dbType);
     }
 }

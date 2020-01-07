@@ -20,12 +20,14 @@ namespace SubSonic
 
         public static bool IsNotNullOrEmpty(this string instance)
         {
-            return IsNullOrEmpty(instance);
+            return !IsNullOrEmpty(instance);
         }
 
         public static string EncapsulateQualifiedName(this string source)
         {
             return string.Join('.', source
+                .Replace("[", "", StringComparison.CurrentCulture)
+                .Replace("]", "", StringComparison.CurrentCulture)
                 .Split('.')
                 .Select(name => $"[{name}]")
                 .ToArray());            

@@ -6,8 +6,10 @@ namespace SubSonic.Infrastructure
 {
     public enum DbEntityPropertyType
     {
-        Value = 0,
+        Unknown = 0,
+        Value,
         Navigation,
-        Collection
+        Collection,
+        DAL
     }
 }

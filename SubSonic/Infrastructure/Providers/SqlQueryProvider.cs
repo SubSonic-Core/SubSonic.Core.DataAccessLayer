@@ -65,9 +65,9 @@ WHERE t.IndexId BETWEEN ((@Page - 1) * @PageSize + 1) AND (@Page * @PageSize);";
             return TSqlFormatter.Format(Context, expression);
         }
 
-        public string GenerateColumnDataDefinition(int dbType, PropertyInfo info)
+        public string GenerateColumnDataDefinition(DbType dbType, PropertyInfo info)
         {
-            SqlDbType sqlDbType = (SqlDbType)dbType;
+            SqlDbType sqlDbType = TypeConvertor.ToSqlDbType(dbType);
 
             switch (sqlDbType)
             {
@@ -84,6 +84,21 @@ WHERE t.IndexId BETWEEN ((@Page - 1) * @PageSize + 1) AND (@Page * @PageSize);";
                     return $"[{sqlDbType}](18,2)";
                 default:
                     return $"[{sqlDbType}]";
+            }
+        }
+
+        public string GenerateDefaultConstraint(DbType dbType)
+        {
+            SqlDbType sqlDbType = TypeConvertor.ToSqlDbType(dbType);
+
+            switch(sqlDbType)
+            {
+                case SqlDbType.DateTime:
+                    return "DEFAULT(GETDATE())";
+                case SqlDbType.UniqueIdentifier:
+                    return "DEFAULT(NEWID())";
+                default:
+                    throw new NotImplementedException();
             }
         }
 

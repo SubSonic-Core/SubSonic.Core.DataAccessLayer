@@ -14,6 +14,10 @@ namespace SubSonic.Infrastructure.Schema
         private IEnumerable<string> primaryKey;
 
         public DbEntityModel()
+            : this("dbo") { }
+
+        public DbEntityModel(string schemaName)
+            : base(schemaName)
         {
             Commands = new DbCommandQueryCollection()
             {

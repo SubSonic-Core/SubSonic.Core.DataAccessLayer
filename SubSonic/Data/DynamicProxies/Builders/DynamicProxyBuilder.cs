@@ -86,6 +86,11 @@ namespace SubSonic.Data.DynamicProxies
 
             foreach (IDbEntityProperty property in model.Properties)
             {
+                if (property.EntityPropertyType.In(DbEntityPropertyType.Unknown, DbEntityPropertyType.DAL))
+                {
+                    continue;
+                }
+
                 PropertyInfo info = baseType.GetProperty(property.PropertyName);
 
                 if(!info.GetMethod.IsVirtual)

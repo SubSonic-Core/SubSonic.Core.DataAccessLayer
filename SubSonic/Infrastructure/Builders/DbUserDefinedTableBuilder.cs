@@ -26,13 +26,13 @@ WHERE schemas.name = '{0}' AND types.name = '{1}'";
             public const string CreateDefinedTable = "CREATE TYPE [{0}].[{1}] AS TABLE({2})";
 
             public static string DropUserDefinedTable = 
-$@"IF (EXISTS({UserDefinedTableExists}))
+$@"IF (({UserDefinedTableExists}) > 0)
 BEGIN
 	DROP TYPE [{{0}}].[{{1}}];
 END;";
 
             public static string CreateDefinedTableIfNotExist =
-$@"IF (NOT EXISTS({UserDefinedTableExists}))
+$@"IF (({UserDefinedTableExists}) = 0)
 BEGIN
 	{CreateDefinedTable};
 END;";
@@ -105,12 +105,13 @@ END;";
             {
                 DbUserDefinedTableColumn column = columns.ElementAt(x);
 
-                Type propertyType = column.Property.PropertyType;
+                Type propertyType = column.PropertyType;
 
-                oUserDefinedTableBody.AppendFormat(CultureInfo.CurrentCulture, "\t\t[{0}] {1} {2}"
+                oUserDefinedTableBody.Append(String.Format(CultureInfo.CurrentCulture, "\t\t[{0}] {1} {2} {3}"
                     , column.Name
                     , GenerateDataType(column.DbType, column.Property)
-                    , column.IsNullable ? "NULL" : "NOT NULL");
+                    , column.IsNullable ? "NULL" : "NOT NULL"
+                    , GenerateDefault(column)).TrimEnd());
 
                 if (x < (cnt - 1))
                 {
@@ -139,9 +140,21 @@ END;";
         /// <param name="propertyType"></param>
         /// <returns></returns>
         /// TODO: Re-Visit when this can be done based on configured db factory
-        private string GenerateDataType(int dbType, PropertyInfo info)
+        private string GenerateDataType(DbType dbType, PropertyInfo info)
         {
             return _provider.GenerateColumnDataDefinition(dbType, info);
+        }
+
+        private string GenerateDefault(DbUserDefinedTableColumn column)
+        {
+            string result = "";
+
+            if (column.Property is null)
+            {
+                result = $" {_provider.GenerateDefaultConstraint(column.DbType)}";
+            }
+
+            return result;
         }
 
         public DataTable GenerateTable()
@@ -168,7 +181,12 @@ END;";
 
                 foreach (DbUserDefinedTableColumn column in columns)
                 {
-                    row.SetField(column.Name, column.Property.GetValue(obj));
+                    if (column.Property is null)
+                    {
+                        continue;
+                    }
+
+                    row.SetField(column.Name, column.Property.GetValue(obj) ?? DBNull.Value);
                 }
 
                 dt.Rows.Add(row);
@@ -179,7 +197,12 @@ END;";
         {
             foreach (DbUserDefinedTableColumn column in columns)
             {
-                Type type = column.Property.PropertyType;
+                if (column.Property is null)
+                {
+                    continue;
+                }
+
+                Type type = column.PropertyType;
 
                 dt.Columns.Add(new DataColumn(column.Name, type.GetUnderlyingType())
                 {
@@ -223,12 +246,19 @@ END;";
 
             foreach (IDbEntityProperty property in model.Properties)
             {
-                if (property.EntityPropertyType != DbEntityPropertyType.Value)
+                if (property.EntityPropertyType.NotIn(DbEntityPropertyType.Value, DbEntityPropertyType.DAL))
                 {
                     continue;
                 }
 
-                DbUserDefinedTableColumn column = new DbUserDefinedTableColumn(_type.GetProperty(property.PropertyName), property);
+                PropertyInfo info = null;
+
+                if(property.PropertyName.IsNotNullOrEmpty())
+                {
+                    info = _type.GetProperty(property.PropertyName);
+                }
+
+                DbUserDefinedTableColumn column = new DbUserDefinedTableColumn(info, property, model.Commands.DisableKeysForDefinedTableTypes);
 
                 columns.Add(column);
             }
