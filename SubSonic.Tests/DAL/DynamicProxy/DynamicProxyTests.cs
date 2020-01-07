@@ -43,9 +43,8 @@ namespace SubSonic.Tests.DAL
             ((IEntityProxy)instance).IsNew = false;
             ((IEntityProxy)instance).IsNew.Should().BeFalse();
 
-            ((IEntityProxy)instance).IsDirty.Should().BeFalse();
-            ((IEntityProxy)instance).OnPropertyChanged((IEntityProxy)instance);
-            ((IEntityProxy)instance).IsDirty.Should().BeTrue();
+            ((IEntityProxy)instance).SetKeyData(new object[] { 1 });
+            ((IEntityProxy)instance).KeyData.Should().BeEquivalentTo(new object[] { 1 });
 
             ((IEntityProxy<RealEstateProperty>)instance).Data.Should().BeSameAs(instance);
         }

@@ -12,7 +12,7 @@ namespace SubSonic
 {
     public partial class DbContext
     {
-        internal static EntityCacheCollection Cache => ServiceProvider.GetService<EntityCacheCollection>();
+        internal static EntityTrackerCollection ChangeControl => ServiceProvider.GetService<EntityTrackerCollection>();
         internal static DbModel DbModel => ServiceProvider.GetService<DbContext>().IsNotNull(Ctx => Ctx.Model);
         internal static DbContextOptions DbOptions => ServiceProvider.GetService<DbContext>().IsNotNull(Ctx => Ctx.Options);
         internal static IServiceProvider ServiceProvider { get; set; }

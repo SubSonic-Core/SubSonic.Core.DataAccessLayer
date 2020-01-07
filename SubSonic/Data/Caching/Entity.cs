@@ -89,6 +89,21 @@ namespace SubSonic.Data.Caching
             }
         }
 
+        private bool _isDeleted;
+
+        public bool IsDeleted
+        {
+            get => Proxy?.IsDeleted ?? _isDeleted;
+            set
+            {
+                if (Proxy.IsNotNull())
+                {
+                    Proxy.IsDeleted = value;
+                }
+                _isDeleted = value;
+            }
+        }
+
         private bool _isNew;
 
         public bool IsNew
@@ -104,17 +119,17 @@ namespace SubSonic.Data.Caching
             }
         }
 
-        public void OnPropertyChanged(IEntityProxy proxy)
+        public void SetKeyData(IEnumerable<object> keyData)
         {
-            if (proxy.IsNotNull())
+            string[] keys = Model
+                        .GetPrimaryKey()
+                        .ToArray();
+
+            for (int i = 0, n = keys.Length; i < n; i++)
             {
-                proxy.IsDirty = true;
+                Type.GetProperty(keys[i]).SetValue(Data, keyData.ElementAt(i));
             }
-
-            IsDirty = true;
         }
-
-        
 
         public override bool Equals(object obj)
         {

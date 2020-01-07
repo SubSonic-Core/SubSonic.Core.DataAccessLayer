@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
+using System.Reflection;
 
 namespace SubSonic
 {
@@ -11,6 +12,33 @@ namespace SubSonic
 
     internal static partial class InternalExtensions
     {
+        public static PropertyInfo GetProperty(this Type type, string name)
+        {
+            if (type is null)
+            {
+                throw new ArgumentNullException(nameof(type));
+            }
+
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentException("", nameof(name));
+            }
+
+            PropertyInfo info = null;
+
+            if (type.IsInterface)
+            {
+                foreach(Type @interface in new[] { type }.Union(type.GetInterfaces()))
+                {
+                    if ((info = @interface.GetProperty(name)).IsNotNull())
+                    {
+                        return info;
+                    }
+                }
+            }
+
+            return info ?? type.GetProperty(name);
+        }
         public static DbType GetDbType(this Type netType, bool unicode = false)
         {
             return TypeConvertor.ToDbType(netType, unicode);

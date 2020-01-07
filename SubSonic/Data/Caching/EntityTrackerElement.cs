@@ -1,23 +1,27 @@
 ﻿using SubSonic.Infrastructure;
+using SubSonic.Infrastructure.Schema;
 using SubSonic.Linq;
 using SubSonic.Linq.Expressions;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data;
 using System.Linq.Expressions;
 using System.Text;
 
 namespace SubSonic.Data.Caching
 {
     public class EntityCacheElementCollection<TEntity>
-        : EntityCacheElement, IEnumerable<TEntity>
+        : EntityTrackerElement, IEnumerable<TEntity>
     {
         public EntityCacheElementCollection()
             : base(typeof(TEntity)) 
         {
             Cache = new ObservableCollection<IEntityProxy<TEntity>>();
         }
+
+        private DbDatabase Database => DbContext.Current.Database;
 
         public ICollection<IEntityProxy<TEntity>> Entities { get; }
 
@@ -73,6 +77,73 @@ namespace SubSonic.Data.Caching
             throw new NotSupportedException();
         }
 
+        public override bool SaveChanges(DbQueryType queryType, IEnumerable<IEntityProxy> data)
+        {
+            if (data is null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+
+            bool success = false;
+
+            try
+            {
+                IDbEntityModel model = DbContext.DbModel.GetEntityModel<TEntity>();
+
+                DbCommandQuery command = model.Commands[queryType];
+
+                IEntityProxy<TEntity>[] result = null;
+
+                if (command is null || command.CommandType == CommandType.Text)
+                {
+                    switch (queryType)
+                    {
+                        case DbQueryType.Insert:
+                        case DbQueryType.Update:
+                        case DbQueryType.Delete:
+                        default:
+                            throw new NotImplementedException();
+                    }
+                }
+                else if (command.CommandType == CommandType.StoredProcedure)
+                {
+                    object procedure = Activator.CreateInstance(command.StoredProcedureType, data);
+
+                    result = Database.ExecuteStoredProcedure<TEntity>(procedure).Select(x => x as IEntityProxy<TEntity>).ToArray();
+                }
+
+                for(int i = 0, n = data.Count(); i < n; i++)
+                {
+                    if (data.ElementAt(i) is IEntityProxy<TEntity> entity)
+                    {
+                        if (queryType == DbQueryType.Delete)
+                        {
+                            Remove(entity);
+
+                            continue;
+                        }
+
+                        if(queryType == DbQueryType.Insert)
+                        {
+                            entity.SetKeyData(result[i].KeyData);
+                        }
+
+                        if(queryType.In(DbQueryType.Insert, DbQueryType.Update))
+                        {
+                            entity.IsNew = false;
+                            entity.IsDirty = false;
+                            entity.IsDeleted = false;
+                        }
+                    }
+                }
+
+                success = true;
+            }
+            finally { }
+
+            return success;
+        }
+
         public override TResult Where<TResult>(System.Linq.IQueryProvider provider, Expression expression)
         {
             if (Cache is ObservableCollection<IEntityProxy<TEntity>> cache)
@@ -116,10 +187,10 @@ namespace SubSonic.Data.Caching
         }
     }
 
-    public abstract class EntityCacheElement
+    public abstract class EntityTrackerElement
         : IEnumerable
     {
-        protected EntityCacheElement(Type key)
+        protected EntityTrackerElement(Type key)
         {
             Key = key ?? throw new ArgumentNullException(nameof(key));
         }
@@ -138,6 +209,8 @@ namespace SubSonic.Data.Caching
         public abstract bool Remove(object record);
 
         public abstract int Count(Expression expression);
+
+        public abstract bool SaveChanges(DbQueryType queryType, IEnumerable<IEntityProxy> data);
 
         public abstract TResult Where<TResult>(System.Linq.IQueryProvider provider, Expression expression);
 

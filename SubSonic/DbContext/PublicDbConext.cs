@@ -35,71 +35,12 @@ namespace SubSonic
             {
                 using (SharedDbConnectionScope Scope = UseSharedDbConnection())
                 {
-                    foreach (var dataset in Cache)
-                    {
-                        IDbEntityModel model = Model.GetEntityModel(dataset.Key);
-
-                        var insert = dataset.Value.Where(x => x.IsNew);
-                        var update = dataset.Value.Where(x => !x.IsNew && x.IsDirty);
-
-                        if (insert.Count() > 0)
-                        {
-                            SaveChanges(DbQueryType.Insert, model, insert);
-                        }
-
-                        if (update.Count() > 0)
-                        {
-                            SaveChanges(DbQueryType.Update, model, update);
-                        }
-                    }
+                    result = ChangeControl.SaveChanges();
                 }
-                result = true;
             }
-            finally
-            {
-
-            }
+            finally { }
 
             return result;
-        }
-
-        protected virtual void SaveChanges(DbQueryType queryType, IDbEntityModel model, IEnumerable<IEntityProxy> data)
-        {
-            if (model is null)
-            {
-                throw new ArgumentNullException(nameof(model));
-            }
-
-            if (data is null)
-            {
-                throw new ArgumentNullException(nameof(data));
-            }
-
-            DbCommandQuery command = model.Commands[queryType];
-
-            if (command is null || command.CommandType == CommandType.Text)
-            {
-                throw new NotImplementedException();
-            }
-            else if (command.CommandType == CommandType.StoredProcedure)
-            {
-                object procedure = Activator.CreateInstance(command.StoredProcedureType, data);
-
-                Database.ExecuteStoredProcedure(procedure);
-
-                data.ForEach(x =>
-                {
-                    if (x.KeyData.Count() == 0 || x.KeyData.IsSameAs(new object[] { 0 }))
-                    {
-                        Cache.Remove(x.ModelType, x);
-
-                        return;
-                    }
-
-                    x.IsNew = false;
-                    x.IsDirty = false;
-                });
-            }
         }
 
         /// <summary>

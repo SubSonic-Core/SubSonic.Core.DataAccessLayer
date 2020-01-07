@@ -11,6 +11,7 @@ namespace SubSonic
 {
     using Linq;
     using SubSonic.Data.DynamicProxies;
+    using SubSonic.Infrastructure.Schema;
     using System.Data.Common;
 
     public static partial class SubSonicExtensions
@@ -159,15 +160,22 @@ namespace SubSonic
 
             List<TEntity> result = new List<TEntity>();
 
-            while(reader.Read())
+            IDbEntityModel model = DbContext.DbModel.GetEntityModel<TEntity>();
+
+            while (reader.Read())
             {
                 TEntity item = DynamicProxy.CreateProxyInstanceOf<TEntity>(DbContext.Current);
 
-                foreach(PropertyInfo info in typeof(TEntity).GetProperties())
+                foreach(IDbEntityProperty property in model.Properties)
                 {
-                    if (reader[info.Name] != DBNull.Value)
+                    if (property.EntityPropertyType != DbEntityPropertyType.Value)
                     {
-                        info.SetValue(item, reader[info.Name]);
+                        continue;
+                    }
+
+                    if (reader[property.Name] != DBNull.Value)
+                    {
+                        model.EntityModelType.GetProperty(property.PropertyName).SetValue(item, reader[property.Name]);
                     }
                 }
 

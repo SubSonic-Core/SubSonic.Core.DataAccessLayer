@@ -45,7 +45,7 @@ namespace SubSonic.Infrastructure.Builders
 
                     Type elementType = typeof(TResult).GetQualifiedType();
 
-                    if (DbContext.Cache.Count(elementType, select) == 0)
+                    if (DbContext.ChangeControl.Count(elementType, select) == 0)
                     {
                         try
                         {
@@ -55,7 +55,7 @@ namespace SubSonic.Infrastructure.Builders
 
                             while (reader.Read())
                             {
-                                DbContext.Cache.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
+                                DbContext.ChangeControl.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
                             }
                         }
                         finally
@@ -64,7 +64,7 @@ namespace SubSonic.Infrastructure.Builders
                         }
                     }
 
-                    return DbContext.Cache.Where<TResult>(elementType, this, expression);
+                    return DbContext.ChangeControl.Where<TResult>(elementType, this, expression);
                 }
             }
             else if (expression is MethodCallExpression method)

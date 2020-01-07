@@ -5,6 +5,7 @@ using SubSonic.Infrastructure;
 using System.Data.Common;
 using System.Linq;
 using System.Data;
+using System;
 
 namespace SubSonic.Tests.DAL
 {
@@ -72,7 +73,7 @@ WHERE ([{0}].[ID] = {1})";
         }
 
         [Test]
-        public void ShouldBeAbleToSaveUpdateChangesToTheDatabaseContext()
+        public void ShouldBeAbleToUpdateRecordsUsingCQRS()
         {
             string
                 update =
@@ -80,7 +81,14 @@ WHERE ([{0}].[ID] = {1})";
 
             DbContext.Database.Instance.AddCommandBehavior(update, (cmd) =>
             {
-                return 0;
+                if (cmd.Parameters[0].Value is DataTable data)
+                {
+                    data.Rows[0]["ID"].Should().Be(1);
+
+                    return data;
+                }
+
+                throw new NotSupportedException();
             });
 
             Models.RealEstateProperty property = DbContext.RealEstateProperties
@@ -91,7 +99,7 @@ WHERE ([{0}].[ID] = {1})";
 
             ((IEntityProxy)property).IsDirty.Should().BeTrue();
 
-            SubSonic.DbContext.Cache.SelectMany(x => x.Value).Count(x => x.IsDirty).Should().Be(1);
+            SubSonic.DbContext.ChangeControl.SelectMany(x => x.Value).Count(x => x.IsDirty).Should().Be(1);
 
             DbContext.SaveChanges().Should().BeTrue();
 
@@ -103,11 +111,11 @@ WHERE ([{0}].[ID] = {1})";
 
             ((IEntityProxy)property).IsDirty.Should().BeFalse();
 
-            SubSonic.DbContext.Cache.SelectMany(x => x.Value).Count(x => x.IsDirty).Should().Be(0);
+            SubSonic.DbContext.ChangeControl.SelectMany(x => x.Value).Count(x => x.IsDirty).Should().Be(0);
         }
 
         [Test]
-        public void ShouldBeAbleToSaveInsertChangesToTheDatabaseContext()
+        public void ShouldBeAbleToInsertRecordsUsingCQRS()
         {
             string
                 insert =
@@ -120,10 +128,16 @@ WHERE ([{0}].[ID] = {1})";
                     data.Rows[0]["ID"].Should().Be(0);
                     data.Rows[0]["StatusID"].Should().Be(1);
                     data.Rows[0]["HasParallelPowerGeneration"].Should().Be(true);
+
+                    data.Rows[0]["ID"] = RealEstateProperties.Count() + 1;
+
+                    return data;
                 }
 
-                return 0;
+                throw new NotSupportedException();
             });
+
+            int id = RealEstateProperties.Count() + 1;
 
             Models.RealEstateProperty property = new Models.RealEstateProperty()
             {
@@ -133,11 +147,13 @@ WHERE ([{0}].[ID] = {1})";
 
             DbContext.RealEstateProperties.Add(property);
 
-            SubSonic.DbContext.Cache.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
+            SubSonic.DbContext.ChangeControl.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
 
             DbContext.SaveChanges().Should().BeTrue();
 
-            SubSonic.DbContext.Cache.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(0);
+            property.ID.Should().Be(id);
+
+            SubSonic.DbContext.ChangeControl.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(0);
         }
     }
 }

@@ -19,6 +19,7 @@ namespace SubSonic.Data.DynamicProxies
 
         private FieldBuilder fieldDbContextAccessor;
         private FieldBuilder fieldIsDirty;
+        private FieldBuilder fieldIsDeleted;
         private FieldBuilder fieldIsNew;
 
         private MethodBuilder onPropertyChanged;
@@ -36,17 +37,24 @@ namespace SubSonic.Data.DynamicProxies
                     return context.GetKeyData(entity, keys);
                 };
             public static Func<TEntity, TEntity> Data { get; } = (entity) => entity;
-            public static Action<IEntityProxy> OnPropertyChanged { get; } =
-                (entity) =>
-                {
-                    entity.IsDirty = true;
-                };
             public static Func<TEntity, Type> ModelType { get; } = 
                 (entity) =>
                 {
                     return entity.GetType().BaseType;
                 };
-            
+            public static Action<TEntity, IEnumerable<object>> SetKeyData { get; } =
+                (entity, keyData) =>
+                {
+                    string[] keys = DbContext.DbModel
+                        .GetEntityModel<TEntity>()
+                        .GetPrimaryKey()
+                        .ToArray();
+
+                    for (int i = 0, n = keys.Length; i < n; i++)
+                    {
+                        typeof(TEntity).GetProperty(keys[i]).SetValue(entity, keyData.ElementAt(i));
+                    }
+                };
         }
 
         public DynamicProxyBuilder(TypeBuilder typeBuilder, Type baseType, DbContext dbContext)
@@ -66,8 +74,10 @@ namespace SubSonic.Data.DynamicProxies
             BuildKeyDataProperty();
             BuildIsDirtyProperty();
             BuildIsNewProperty();
+            BuildIsDeletedProperty();
             BuildModelTypeProperty();
-            BuildOnPropertyChangeMethod();
+
+            BuildSetKeyDataMethod();
             #endregion
 
             #region implement Data per the IEntityProxy<TEntity> interface
@@ -93,41 +103,44 @@ namespace SubSonic.Data.DynamicProxies
                 }
             }
 
-            
-
             return typeBuilder.CreateType();
         }
 
         private void BuildDataProperty()
         {
-            PropertyInfo property = BuildProperty<IEntityProxy<TEntity>, TEntity>(entity => entity.Data, getter: () => ProxyStub.Data);
+            PropertyInfo property = BuildProperty(entity => entity.Data, getter: () => ProxyStub.Data);
         }
 
         private void BuildKeyDataProperty()
         {
-            BuildProperty<IEntityProxy, IEnumerable<object>>((Proxy) => Proxy.KeyData, getter: () => ProxyStub.KeyData);
+            BuildProperty((Proxy) => Proxy.KeyData, getter: () => ProxyStub.KeyData);
         }
 
         private void BuildIsDirtyProperty()
         {
-            BuildProperty<IEntityProxy, bool>((Proxy) => Proxy.IsDirty, fieldIsDirty);
+            BuildProperty((Proxy) => Proxy.IsDirty, fieldIsDirty);
         }
 
         private void BuildIsNewProperty()
         {
-            PropertyInfo property = BuildProperty<IEntityProxy, bool>((Proxy) => Proxy.IsNew, fieldIsNew);
+            PropertyInfo property = BuildProperty((Proxy) => Proxy.IsNew, fieldIsNew);
+        }
+
+        private void BuildIsDeletedProperty()
+        {
+            BuildProperty((Proxy) => Proxy.IsDeleted, fieldIsDeleted);
         }
 
         private void BuildModelTypeProperty()
         {
-            BuildProperty<IEntityProxy, Type>((Proxy) => Proxy.ModelType, getter: () => ProxyStub.ModelType);
+            BuildProperty((Proxy) => Proxy.ModelType, getter: () => ProxyStub.ModelType);
         }
 
-        private void BuildOnPropertyChangeMethod()
+        private void BuildSetKeyDataMethod()
         {
-            onPropertyChanged = BuildMethod<Proxy>(() => ProxyStub.OnPropertyChanged);
+            MethodInfo info = BuildMethod<Action<IEnumerable<object>>>((proxy) => proxy.SetKeyData, () => ProxyStub.SetKeyData);
 
-            typeBuilder.DefineMethodOverride(onPropertyChanged, typeof(IEntityProxy).GetMethod(onPropertyChanged.Name));
+            typeBuilder.DefineMethodOverride(info, typeof(IEntityProxy).GetMethod(info.Name));
         }
 
         private void BuildProxyConstructor()
@@ -353,7 +366,7 @@ namespace SubSonic.Data.DynamicProxies
             #endregion
         }
 
-        public PropertyInfo BuildProperty<TType, TProperty>(Expression<Func<TType, TProperty>> selector, FieldBuilder field = null, Expression<Func<object>> getter = null, Expression<Func<object>> setter = null)
+        public PropertyInfo BuildProperty<TProperty>(Expression<Func<IEntityProxy<TEntity>, TProperty>> selector, FieldBuilder field = null, Expression<Func<object>> getter = null, Expression<Func<object>> setter = null)
         {
             if (selector is null)
             {
@@ -383,7 +396,7 @@ namespace SubSonic.Data.DynamicProxies
                         Type.EmptyTypes);
 
                 bool
-                    isInterface = typeof(TType).IsInterface;
+                    isInterface = true;
 
                 string
                     getterName = property.GetMethod.Name,
@@ -493,7 +506,7 @@ namespace SubSonic.Data.DynamicProxies
 
                     if (isInterface)
                     {
-                        typeBuilder.DefineMethodOverride(getMethod, typeof(TType).GetProperty(propertyBuilder.Name).GetMethod);
+                        typeBuilder.DefineMethodOverride(getMethod, InternalExtensions.GetProperty(typeof(IEntityProxy<TEntity>), propertyBuilder.Name).GetMethod);
                     }
                 }
 
@@ -537,7 +550,7 @@ namespace SubSonic.Data.DynamicProxies
 
                     if (isInterface)
                     {
-                        typeBuilder.DefineMethodOverride(setMethod, typeof(TType).GetProperty(propertyBuilder.Name).SetMethod);
+                        typeBuilder.DefineMethodOverride(setMethod, InternalExtensions.GetProperty(typeof(IEntityProxy<TEntity>), propertyBuilder.Name).SetMethod);
                     }
                 }
 
@@ -547,8 +560,10 @@ namespace SubSonic.Data.DynamicProxies
             return null;
         }
 
-        public MethodBuilder BuildMethod<TType>(Expression<Func<object>> @delegate, Type returnType = null)
-            where TType : class
+        public MethodBuilder BuildMethod<TMethodInfo>(
+            Expression<Func<IEntityProxy<TEntity>, TMethodInfo>> method,
+            Expression<Func<object>> @delegate,
+            Type returnType = null)
         {
             MemberExpression
                 body = @delegate.Body as MemberExpression;
@@ -568,30 +583,46 @@ namespace SubSonic.Data.DynamicProxies
                 throw new InvalidOperationException();
             }
 
-            MethodBuilder method = typeBuilder.DefineMethod(
-                body.Member.Name,
-                MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
-                returnType ?? typeof(void),
-                type.GetGenericArguments());
-
-            ILGenerator iL = method.GetILGenerator();
-
-            MethodInfo invoke = type.GetMethod("Invoke");
-
-            if(body.Member is PropertyInfo)
+            if (method.Body is UnaryExpression unary)
             {
-                iL.Emit(OpCodes.Call, ((PropertyInfo)body.Member).GetGetMethod());
-            }
-            else if (body.Member is FieldInfo)
-            {
-                iL.Emit(OpCodes.Ldsfld, ((FieldInfo)body.Member));
-            }
+                if (unary.Operand is MethodCallExpression call)
+                {
+                    if (call.Object is ConstantExpression constant)
+                    {
+                        MethodInfo info = constant.Value as MethodInfo;
 
-            iL.Emit(OpCodes.Ldarg_0);
-            iL.Emit(OpCodes.Callvirt, invoke);
-            iL.Emit(OpCodes.Ret);
+                        MethodBuilder builder = typeBuilder.DefineMethod(
+                            info.Name,
+                            MethodAttributes.Public | MethodAttributes.Virtual | MethodAttributes.HideBySig,
+                            info.ReturnType,
+                            info.GetParameters().Select(x => x.ParameterType).ToArray());
 
-            return method;
+                        ILGenerator iL = builder.GetILGenerator();
+
+                        MethodInfo invoke = type.GetMethod("Invoke");
+
+                        if (body.Member is PropertyInfo)
+                        {
+                            iL.Emit(OpCodes.Call, ((PropertyInfo)body.Member).GetGetMethod());
+                        }
+                        else if (body.Member is FieldInfo)
+                        {
+                            iL.Emit(OpCodes.Ldsfld, ((FieldInfo)body.Member));
+                        }
+
+                        iL.Emit(OpCodes.Ldarg_0);
+                        for (int i = 0, n = info.GetParameters().Count(); i < n; i++)
+                        {
+                            iL.Emit((OpCode)typeof(OpCodes).GetField($"Ldarg_{(i + 1)}").GetValue(null));
+                        }
+                        iL.Emit(OpCodes.Callvirt, invoke);
+                        iL.Emit(OpCodes.Ret);
+
+                        return builder;
+                    }
+                }
+            }
+            throw new NotSupportedException();
         }
     }
 }

@@ -9,14 +9,14 @@ using System.Text;
 
 namespace SubSonic.Data.Caching
 {
-    public class EntityCacheCollection
+    public class EntityTrackerCollection
         : IEnumerable<KeyValuePair<Type, IEnumerable<IEntityProxy>>>
     {
-        private readonly Dictionary<Type, EntityCacheElement> collection;
+        private readonly Dictionary<Type, EntityTrackerElement> collection;
 
-        public EntityCacheCollection()
+        public EntityTrackerCollection()
         {
-            collection = new Dictionary<Type, EntityCacheElement>();
+            collection = new Dictionary<Type, EntityTrackerElement>();
         }
 
         protected ObservableCollection<IEntityProxy<TEntity>> GetCacheElementFor<TEntity>()
@@ -65,6 +65,35 @@ namespace SubSonic.Data.Caching
         public int Count(Type elementKey, Expression expression)
         {
             return collection[elementKey].Count(expression);
+        }
+
+        public bool SaveChanges()
+        {
+            bool success = true;
+
+            foreach (var dataset in this)
+            {
+                var insert = dataset.Value.Where(x => x.IsNew);
+                var update = dataset.Value.Where(x => !x.IsNew && x.IsDirty);
+                var delete = dataset.Value.Where(x => !x.IsNew && x.IsDeleted);
+
+                if (insert.Count() > 0)
+                {
+                   success &= collection[dataset.Key].SaveChanges(DbQueryType.Insert, insert);
+                }
+
+                if (update.Count() > 0)
+                {
+                    success &= collection[dataset.Key].SaveChanges(DbQueryType.Update, update);
+                }
+
+                if (delete.Count() > 0)
+                {
+                    success &= collection[dataset.Key].SaveChanges(DbQueryType.Delete, delete);
+                }
+            }
+
+            return success;
         }
 
         public TResult Where<TResult>(Type elementKey, System.Linq.IQueryProvider provider, Expression expression)

@@ -24,7 +24,7 @@ namespace SubSonic.Infrastructure
         {
             this.provider = provider ?? throw new ArgumentNullException(nameof(provider));
 
-            var dataset = DbContext.Cache.GetCacheFor<TEntity>();
+            var dataset = DbContext.ChangeControl.GetCacheFor<TEntity>();
                 
             dataset.CollectionChanged += OnDbSetCollectionChanged;
 

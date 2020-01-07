@@ -13,11 +13,11 @@ namespace SubSonic.Infrastructure
     public interface IEntityProxy
     {
         IEnumerable<object> KeyData { get; }
+        Type ModelType { get; }
         bool IsDirty { get; set; }
         bool IsNew { get; set; }
+        bool IsDeleted { get; set; }
 
-        void OnPropertyChanged(IEntityProxy proxy);
-
-        Type ModelType { get; }
+        void SetKeyData(IEnumerable<object> keyData);
     }
 }
