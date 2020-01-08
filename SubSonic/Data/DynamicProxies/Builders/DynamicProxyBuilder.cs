@@ -22,8 +22,6 @@ namespace SubSonic.Data.DynamicProxies
         private FieldBuilder fieldIsDeleted;
         private FieldBuilder fieldIsNew;
 
-        private MethodBuilder onPropertyChanged;
-
         public static class ProxyStub
         {
             public static Func<TEntity, DbContextAccessor, object[]> KeyData { get; } =
@@ -151,9 +149,10 @@ namespace SubSonic.Data.DynamicProxies
         private void BuildProxyConstructor()
         {
             fieldDbContextAccessor = typeBuilder.DefineField($"_dbContextAccessor", typeof(DbContextAccessor), FieldAttributes.Private);
+            fieldIsDeleted = typeBuilder.DefineField($"_isDeleted", typeof(bool), FieldAttributes.Private);
             fieldIsDirty = typeBuilder.DefineField($"_isDirty", typeof(bool), FieldAttributes.Private);
             fieldIsNew = typeBuilder.DefineField($"_isNew", typeof(bool), FieldAttributes.Private);
-
+            
             ConstructorInfo baseCtor = baseType.GetConstructor(Type.EmptyTypes);
 
             ConstructorBuilder constructorBuilder = typeBuilder.DefineConstructor(
@@ -178,7 +177,7 @@ namespace SubSonic.Data.DynamicProxies
 
         private void BuildValueOverriddenProperty(string propertyName, Type propertyType)
         {
-            PropertyBuilder propertyBuilder = typeBuilder.DefineProperty(
+            _ = typeBuilder.DefineProperty(
                     propertyName,
                     PropertyAttributes.None,
                     propertyType,
@@ -469,7 +468,9 @@ namespace SubSonic.Data.DynamicProxies
                     iLGetGenerator = getMethod?.GetILGenerator(),
                     iLSetGenerator = setMethod?.GetILGenerator();
 
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
                 Type[] arguments = Array.Empty<Type>();
+#pragma warning restore IDE0059 // Unnecessary assignment of a value
 
                 if (property.CanRead)
                 {
@@ -567,8 +568,7 @@ namespace SubSonic.Data.DynamicProxies
 
         public MethodBuilder BuildMethod<TMethodInfo>(
             Expression<Func<IEntityProxy<TEntity>, TMethodInfo>> method,
-            Expression<Func<object>> @delegate,
-            Type returnType = null)
+            Expression<Func<object>> @delegate)
         {
             MemberExpression
                 body = @delegate.Body as MemberExpression;

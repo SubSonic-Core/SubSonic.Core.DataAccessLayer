@@ -109,6 +109,22 @@ namespace SubSonic.Extensions.Test.MockDbClient
             {
                 return @return;
             }
+            else if (cmd.Parameters.Count > 0)
+            {   
+                if (cmd.Parameters[0].Value is TReturn param_0)
+                {
+                    if (param_0 is DataTable data)
+                    {
+                        data.Clear();
+                    }
+
+                    return param_0;
+                }
+            }
+            else
+            {
+                return default(TReturn);
+            }
 
             throw new NotSupportedException();
         }

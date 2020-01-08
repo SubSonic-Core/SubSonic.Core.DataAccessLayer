@@ -61,9 +61,10 @@ namespace SubSonic.Infrastructure
             }
             else
             {
-                IEntityProxy<TEntity> _new = new Entity<TEntity>(item);
-
-                _new.IsNew = true;
+                IEntityProxy<TEntity> _new = new Entity<TEntity>(item)
+                {
+                    IsNew = true
+                };
 
                 dataset.Add(_new);
             }
@@ -143,6 +144,18 @@ namespace SubSonic.Infrastructure
             return this;
         }
         #endregion
+
+        public bool Delete(TEntity entity)
+        {
+            if (entity is IEntityProxy<TEntity> proxy)
+            {
+                proxy.IsDeleted = true;
+
+                return proxy.IsDeleted;
+            }
+
+            return false;
+        }
 
         public IQueryable<TEntity> FindByID(params object[] keyData)
         {

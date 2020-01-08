@@ -115,6 +115,44 @@ WHERE ([{0}].[ID] = {1})";
         }
 
         [Test]
+        public void ShouldBeAbleToDeleteRecordsUsingCQRS()
+        {
+            string
+                delete =
+@"EXEC [dbo].[DeleteRealEstateProperty] @Properties = @Properties";
+
+            DbContext.Database.Instance.AddCommandBehavior(delete, (cmd) =>
+            {
+                if (cmd.Parameters[0].Value is DataTable data)
+                {
+                    data.Rows[0]["ID"].Should().Be(1);
+
+                    return 0;
+                }
+
+                throw new NotSupportedException();
+            });
+
+            Models.RealEstateProperty property = DbContext.RealEstateProperties
+                .Where(x => x.ID == 1)
+                .Single();
+
+            ((IEntityProxy)property).IsDeleted.Should().BeFalse();
+
+            DbContext.RealEstateProperties.Delete(property);
+
+            ((IEntityProxy)property).IsDeleted.Should().BeTrue();
+
+            SubSonic.DbContext.ChangeControl.SelectMany(x => x.Value).Count(x => x.IsDeleted).Should().Be(1);
+
+            DbContext.SaveChanges().Should().BeTrue();
+
+            SubSonic.DbContext.ChangeControl.SelectMany(x => x.Value).Count(x => x.KeyData.IsSameAs(new object[] { 1 })).Should().Be(0);
+
+            SubSonic.DbContext.ChangeControl.SelectMany(x => x.Value).Count(x => x.IsDeleted).Should().Be(0);
+        }
+
+        [Test]
         public void ShouldBeAbleToInsertRecordsUsingCQRS()
         {
             string
