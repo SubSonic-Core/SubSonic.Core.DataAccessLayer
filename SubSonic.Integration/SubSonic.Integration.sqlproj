@@ -58,11 +58,22 @@
     <Folder Include="Properties" />
     <Folder Include="Models" />
     <Folder Include="Models\RealEstateProperty" />
+    <Folder Include="Models\Status" />
+    <Folder Include="Models\Unit" />
+    <Folder Include="Models\Renter" />
+    <Folder Include="Models\Person" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Models\RealEstateProperty\RealEstateProperty.sql" />
     <Build Include="Models\RealEstateProperty\RealEstatePropertyType.sql" />
     <Build Include="Models\RealEstateProperty\InsertRealEstateProperty.sql" />
     <Build Include="Models\RealEstateProperty\UpdateRealEstateProperty.sql" />
+    <Build Include="Models\Status\Status.sql" />
+    <Build Include="Models\Unit\Unit.sql" />
+    <Build Include="Models\Renter\Renter.sql" />
+    <Build Include="Models\Person\Person.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="SubSonic.Integration.refactorlog" />
   </ItemGroup>
 </Project>
