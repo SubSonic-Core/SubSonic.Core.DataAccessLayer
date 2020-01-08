@@ -12,7 +12,7 @@ namespace SubSonic.Extensions.Test.MockDbClient
 
     public sealed class MockDbClientFactory : DbProviderFactory, IMockCommandExecution
     {
-        private List<MockCommandBehavior> behaviors;
+        private readonly List<MockCommandBehavior> behaviors;
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2211:Non-constant fields should not be visible", Justification = "ProviderFactory Pattern")]
         public static readonly MockDbClientFactory Instance = new MockDbClientFactory();
@@ -113,7 +113,7 @@ namespace SubSonic.Extensions.Test.MockDbClient
             {   
                 if (cmd.Parameters[0].Value is TReturn param_0)
                 {
-                    if (param_0 is DataTable data)
+                    if ((object)param_0 is DataTable data)
                     {
                         data.Clear();
                     }
@@ -123,7 +123,9 @@ namespace SubSonic.Extensions.Test.MockDbClient
             }
             else
             {
+#pragma warning disable IDE0034 // Simplify 'default' expression
                 return default(TReturn);
+#pragma warning restore IDE0034 // Simplify 'default' expression
             }
 
             throw new NotSupportedException();

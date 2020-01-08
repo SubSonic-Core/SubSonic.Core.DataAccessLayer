@@ -12,8 +12,8 @@ namespace SubSonic.Extensions.Test.MockDbClient
 {
     public class MockDbCommand : DbCommand
     {
-        IMockCommandExecution _exec;
-        MockDbParameterCollection parameters;
+        readonly IMockCommandExecution _exec;
+        readonly MockDbParameterCollection parameters;
         internal MockDbCommand(IMockCommandExecution exec)
         {
             _exec = exec;
