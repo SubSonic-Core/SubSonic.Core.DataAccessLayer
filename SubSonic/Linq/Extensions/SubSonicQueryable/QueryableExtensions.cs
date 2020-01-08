@@ -74,7 +74,7 @@ namespace SubSonic.Linq
 
                     if (source.Expression is ConstantExpression)
                     {
-                        where = provider.BuildWhere(provider.GetDbTable(), null, source.GetType(), predicate);
+                        where = provider.BuildWhere(provider.DbTable, null, source.GetType(), predicate);
                     }
                     else if (source.Expression is DbSelectExpression select)
                     {
@@ -102,7 +102,7 @@ namespace SubSonic.Linq
 
                 if (source.Expression is DbTableExpression)
                 {
-                    where = provider.BuildWhereExists(provider.GetDbTable(), source.GetType(), select);
+                    where = provider.BuildWhereExists(provider.DbTable, source.GetType(), select);
                 }
                 else if (source.Expression is DbSelectExpression _select)
                 {
@@ -125,7 +125,7 @@ namespace SubSonic.Linq
 
                 if (source.Expression is DbTableExpression)
                 {
-                    where = provider.BuildWhereNotExists(provider.GetDbTable(), source.GetType(), select);
+                    where = provider.BuildWhereNotExists(provider.DbTable, source.GetType(), select);
                 }
                 else if (source.Expression is DbSelectExpression _select)
                 {

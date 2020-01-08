@@ -11,7 +11,5 @@
             : base(typeof(TEntity), logger)
         {
         }
-
-        public DbTableExpression GetDbTable() => DbTable;
     }
 }

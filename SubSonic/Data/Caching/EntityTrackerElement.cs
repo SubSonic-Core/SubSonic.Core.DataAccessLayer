@@ -189,6 +189,7 @@ namespace SubSonic.Data.Caching
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "Generic inteface is implemented at a higher level.")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1010:Collections should implement generic interface", Justification = "handled through inheritance")]
     public abstract class EntityTrackerElement
         : IEnumerable
     {
