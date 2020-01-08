@@ -72,6 +72,7 @@
     <Build Include="Models\Unit\Unit.sql" />
     <Build Include="Models\Renter\Renter.sql" />
     <Build Include="Models\Person\Person.sql" />
+    <Build Include="Models\RealEstateProperty\DeleteRealEstateProperty.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SubSonic.Integration.refactorlog" />
