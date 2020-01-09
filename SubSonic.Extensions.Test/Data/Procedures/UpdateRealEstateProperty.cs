@@ -8,6 +8,7 @@ namespace SubSonic.Extensions.Test
 {
     [DbStoredProcedure(nameof(UpdateRealEstateProperty))]
     public class UpdateRealEstateProperty
+        : DbSubSonicStoredProcedure
     {
         public UpdateRealEstateProperty(IEnumerable<IEntityProxy> properties)
         {
@@ -25,5 +26,8 @@ namespace SubSonic.Extensions.Test
 
         [DbSqlParameter(nameof(Properties), Direction = ParameterDirection.Input, SqlDbType = SqlDbType.Structured)]
         public IEnumerable<Models.RealEstateProperty> Properties { get; }
+
+        [DbSqlParameter(nameof(Result), Direction = ParameterDirection.ReturnValue, SqlDbType = SqlDbType.Int)]
+        public override int Result { get; set; }
     }
 }

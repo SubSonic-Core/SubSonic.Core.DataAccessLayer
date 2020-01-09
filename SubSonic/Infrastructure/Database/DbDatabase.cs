@@ -94,7 +94,11 @@ namespace SubSonic.Infrastructure
             {
                 cmd.CommandType = CommandType.StoredProcedure;
 
-                return cmd.ExecuteNonQuery();
+                int result = cmd.ExecuteNonQuery();
+
+                cmd.Parameters.ApplyOutputParameters(procedure);
+
+                return result;
             }
         }
 
@@ -107,7 +111,11 @@ namespace SubSonic.Infrastructure
             {
                 cmd.CommandType = CommandType.StoredProcedure;
 
-                return cmd.ExecuteReader().Map<TEntity>();
+                IEnumerable<TEntity> results = cmd.ExecuteReader().Map<TEntity>();
+
+                cmd.Parameters.ApplyOutputParameters(procedure);
+
+                return results;
             }
         }
 

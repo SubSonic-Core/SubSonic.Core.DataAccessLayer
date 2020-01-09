@@ -77,7 +77,7 @@ WHERE ([{0}].[ID] = {1})";
         {
             string
                 update =
-@"EXEC [dbo].[UpdateRealEstateProperty] @Properties = @Properties";
+@"EXEC [dbo].[UpdateRealEstateProperty] @Properties = @Properties, @Result = @Result";
 
             DbContext.Database.Instance.AddCommandBehavior(update, (cmd) =>
             {
@@ -119,7 +119,7 @@ WHERE ([{0}].[ID] = {1})";
         {
             string
                 delete =
-@"EXEC [dbo].[DeleteRealEstateProperty] @Properties = @Properties";
+@"EXEC [dbo].[DeleteRealEstateProperty] @Properties = @Properties, @Result = @Result";
 
             DbContext.Database.Instance.AddCommandBehavior(delete, (cmd) =>
             {
@@ -157,22 +157,34 @@ WHERE ([{0}].[ID] = {1})";
         {
             string
                 insert =
-@"EXEC [dbo].[InsertRealEstateProperty] @Properties = @Properties";
+@"EXEC [dbo].[InsertRealEstateProperty] @Properties = @Properties, @Result = @Result";
 
             DbContext.Database.Instance.AddCommandBehavior(insert, (cmd) =>
             {
-                if (cmd.Parameters[0].Value is DataTable data)
+                DataTable correlation = null;
+
+                foreach (DbParameter parameter in cmd.Parameters)
                 {
-                    data.Rows[0]["ID"].Should().Be(0);
-                    data.Rows[0]["StatusID"].Should().Be(1);
-                    data.Rows[0]["HasParallelPowerGeneration"].Should().Be(true);
+                    if (parameter.Direction == ParameterDirection.ReturnValue)
+                    {
+                        parameter.Value = 0;
+                    }
+                    else
+                    {
+                        if (parameter.Value is DataTable properties)
+                        {
+                            correlation = properties;
 
-                    data.Rows[0]["ID"] = RealEstateProperties.Count() + 1;
+                            properties.Rows[0]["ID"].Should().Be(0);
+                            properties.Rows[0]["StatusID"].Should().Be(1);
+                            properties.Rows[0]["HasParallelPowerGeneration"].Should().Be(true);
 
-                    return data;
+                            correlation.Rows[0]["ID"] = RealEstateProperties.Count() + 1;
+                        }
+                    }
                 }
 
-                throw new NotSupportedException();
+                return correlation;
             });
 
             int id = RealEstateProperties.Count() + 1;
@@ -192,6 +204,56 @@ WHERE ([{0}].[ID] = {1})";
             property.ID.Should().Be(id);
 
             SubSonic.DbContext.ChangeControl.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(0);
+        }
+
+        [Test]
+        public void ShouldBeAbleToDetectWhenFailInsertRecordsUsingCQRS()
+        {
+            string
+                insert =
+@"EXEC [dbo].[InsertRealEstateProperty] @Properties = @Properties, @Result = @Result";
+
+            DbContext.Database.Instance.AddCommandBehavior(insert, (cmd) =>
+            {
+                DataTable correlation = null;
+
+                foreach(DbParameter parameter in cmd.Parameters)
+                {
+                    if (parameter.Direction == ParameterDirection.ReturnValue)
+                    {
+                        parameter.Value = -1;
+                    }
+                    else
+                    {
+                        if (parameter.Value is DataTable properties)
+                        {
+                            correlation = properties;
+
+                            correlation.Clear(); // nothing was inserted because of transaction rollback
+                        }
+                    }
+                }
+
+                return correlation;
+            });
+
+            int id = RealEstateProperties.Count() + 1;
+
+            Models.RealEstateProperty property = new Models.RealEstateProperty()
+            {
+                StatusID = 1,
+                HasParallelPowerGeneration = true
+            };
+
+            DbContext.RealEstateProperties.Add(property);
+
+            SubSonic.DbContext.ChangeControl.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
+
+            DbContext.SaveChanges().Should().BeFalse();
+
+            property.ID.Should().Be(0);
+
+            SubSonic.DbContext.ChangeControl.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
         }
     }
 }

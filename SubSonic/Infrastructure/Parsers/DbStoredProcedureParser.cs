@@ -32,7 +32,7 @@ namespace SubSonic.Infrastructure
                 CultureInfo.CurrentCulture,
                 "EXEC {0} {1}",
                 helper.StoreProcedureName(procedure.GetType()),
-                string.Join(',', parameters.Select(p => $"@{p.Name} = @{p.Name}{(p.Direction == ParameterDirection.Output ? " out" : "")}")));
+                string.Join(", ", parameters.Select(p => $"@{p.Name} = @{p.Name}{(p.Direction == ParameterDirection.Output ? " out" : "")}")));
         }
 
         private static DbParameter[] GenerateSqlParameters(object procedure, IEnumerable<DbStoredProcedureParameter> parameters)

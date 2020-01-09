@@ -1,18 +1,20 @@
-﻿using SubSonic.Infrastructure;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Globalization;
 using System.Reflection;
+using System.Data;
+using System.Data.Common;
 
 namespace SubSonic
 {
     using Linq;
-    using SubSonic.Data.DynamicProxies;
-    using SubSonic.Infrastructure.Schema;
-    using System.Data.Common;
+    using Data.DynamicProxies;
+    using Infrastructure;
+    using Infrastructure.Schema;
+    
 
     public static partial class SubSonicExtensions
     {
@@ -88,6 +90,31 @@ namespace SubSonic
                 }
             }
             return null;
+        }
+
+        public static void ApplyOutputParameters(this DbParameterCollection parameters, object procedure)
+        {
+            if (parameters is null)
+            {
+                throw new ArgumentNullException(nameof(parameters));
+            }
+
+            if (procedure is null)
+            {
+                throw new ArgumentNullException(nameof(procedure));
+            }
+
+            Type procedureType = procedure.GetType();
+
+            foreach (DbParameter parameter in parameters)
+            {
+                if (parameter.Direction.In(ParameterDirection.Input))
+                {
+                    continue;
+                }
+
+                procedureType.GetProperty(parameter.ParameterName.TrimStart('@')).IsNotNull(info => info.SetValue(procedure, parameter.Value));
+            }
         }
 
         public static void Map<TDestination, TSource>(this TDestination destination, TSource source, Func<string, string> nameOf = null)

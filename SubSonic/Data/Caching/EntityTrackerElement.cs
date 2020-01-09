@@ -108,9 +108,14 @@ namespace SubSonic.Data.Caching
                 }
                 else if (command.CommandType == CommandType.StoredProcedure)
                 {
-                    object procedure = Activator.CreateInstance(command.StoredProcedureType, data);
+                    DbSubSonicStoredProcedure procedure = (DbSubSonicStoredProcedure)Activator.CreateInstance(command.StoredProcedureType, data);
 
                     result = Database.ExecuteStoredProcedure<TEntity>(procedure).Select(x => x as IEntityProxy<TEntity>).ToArray();
+
+                    if (procedure.Result != 0)
+                    {
+                        return success;
+                    }
                 }
 
                 for(int i = 0, n = data.Count(); i < n; i++)
