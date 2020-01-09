@@ -8,5 +8,5 @@ one goal of this project is to minimize the references to 3rd party projects whi
 # Reference Material
 https://docs.microsoft.com/en-us/dotnet/api/system.reflection.emit.assemblybuilder
 
-# Refernce Projects
+# Reference Projects
 This Project has been influenced by previous iterations of SubSonic up to and including Entity Frameworks Feature Set.
