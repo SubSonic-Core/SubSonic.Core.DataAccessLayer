@@ -2,21 +2,20 @@
 // This source code is made available under the terms of the Microsoft Public License (MS-PL)
 //Original code created by Matt Warren: http://iqtoolkit.codeplex.com/Release/ProjectReleases.aspx?ReleaseId=19725
 
-// refactored by Kenneth Carter
+// refactored by Kenneth Carter (c) 2019
 
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq.Expressions;
 using System.Text;
-using System.Collections.Generic;
-using System.Globalization;
 
 namespace SubSonic.Linq.Expressions.Structure
 {
     using Alias;
-    using Infrastructure;
     using Infrastructure.SqlGenerator;
-    
+
 
     public partial class TSqlFormatter
         : DbExpressionVisitor
