@@ -5,3 +5,12 @@ dotnet_diagnostic.CS1998.severity = silent
 
 # CA2213: 'DbWherePredicateBuilder' contains field 'arguments' that is of IDisposable type 'ArgumentCollection<Expression>', but it is never disposed. Change the Dispose method on 'DbWherePredicateBuilder' to call Close or Dispose on this field.
 dotnet_diagnostic.CA2213.severity = suggestion
+
+# CA1822: Member CurrentSharedConnection does not access instance data and can be marked as static (Shared in VisualBasic)
+dotnet_diagnostic.CA1822.severity = none
+
+# CA1716: Identifiers should not match keywords
+dotnet_diagnostic.CA1716.severity = none
+
+# IDE0034: Simplify 'default' expression
+csharp_prefer_simple_default_expression = true:none

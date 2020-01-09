@@ -47,6 +47,7 @@ namespace SubSonic.Linq.Expressions.Structure
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "object initialization is wrapped in a using statement.")]
         public int Count
         {
             get
@@ -64,6 +65,7 @@ namespace SubSonic.Linq.Expressions.Structure
             return new ArgumentCollection<TArgument>(method);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "object initialization is wrapped in a using statement.")]
         public TArgument Peek()
         {
             if (__instance.TryPeek(out ArgumentCollection<TArgument> _instance))

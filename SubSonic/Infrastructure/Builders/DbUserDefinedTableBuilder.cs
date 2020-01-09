@@ -193,7 +193,7 @@ END;";
             }
         }
 
-        private void AddColumns(IEnumerable<DbUserDefinedTableColumn> columns, DataTable dt)
+        private static void AddColumns(IEnumerable<DbUserDefinedTableColumn> columns, DataTable dt)
         {
             foreach (DbUserDefinedTableColumn column in columns)
             {
@@ -221,7 +221,7 @@ END;";
             return GetColumnInformation(_type);
         }
 
-        private IEnumerable<DbUserDefinedTableColumn> GetColumnInformation(Type runtimeType)
+        private static IEnumerable<DbUserDefinedTableColumn> GetColumnInformation(Type runtimeType)
         {
             List<DbUserDefinedTableColumn> columns = new List<DbUserDefinedTableColumn>();
 

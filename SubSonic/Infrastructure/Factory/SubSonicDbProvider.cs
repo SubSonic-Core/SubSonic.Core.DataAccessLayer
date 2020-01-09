@@ -67,7 +67,7 @@ namespace SubSonic.Infrastructure.Factory
 
         public abstract DbParameter CreateParameter(SubSonicParameter parameter);
 
-        public abstract DbParameter CreateSubSonicParameter(string name, object value, IDbEntityProperty property);
+        public abstract DbParameter CreateSubSonicParameter(string name, object value, IDbEntityProperty entityProperty);
 
         public abstract DbParameter CreateStoredProcedureParameter(string name, object value, bool mandatory, int size, bool isUserDefinedTableParameter, string udtType, ParameterDirection direction);
 

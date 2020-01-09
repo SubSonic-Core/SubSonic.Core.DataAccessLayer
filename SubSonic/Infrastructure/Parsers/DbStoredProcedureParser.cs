@@ -41,9 +41,9 @@ namespace SubSonic.Infrastructure
 
             foreach (DbStoredProcedureParameter oInfo in parameters)
             {
-                object value = null;
                 IDbEntityModel model = null;
 
+                object value;
                 if (oInfo.IsUserDefinedTable)
                 {
                     if (DbContext.DbModel.TryGetEntityModel(oInfo.PropertyInfo.PropertyType.GetQualifiedType(), out model))

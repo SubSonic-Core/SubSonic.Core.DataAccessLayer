@@ -86,7 +86,7 @@ namespace SubSonic.Infrastructure.Parsers
             return generator.GenerateTable();
         }
 
-        public Type GetCollectionType(Type type)
+        public static Type GetCollectionType(Type type)
         {
             if (type.IsGenericType)
             {
