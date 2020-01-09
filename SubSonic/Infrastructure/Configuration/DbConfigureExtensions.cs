@@ -19,7 +19,7 @@ namespace SubSonic.Infrastructure
         {
             services
                     .AddSingleton(context)
-                    .AddSingleton(new EntityTrackerCollection())
+                    .AddSingleton(new ChangeTrackerCollection())
                     .AddTransient(provider => DbProviderFactories.GetFactory(options.DbProviderInvariantName))
                     .AddTransient(provider =>
                     {

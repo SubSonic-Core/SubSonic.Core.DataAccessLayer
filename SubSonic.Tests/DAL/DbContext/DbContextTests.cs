@@ -99,7 +99,7 @@ WHERE ([{0}].[ID] = {1})";
 
             ((IEntityProxy)property).IsDirty.Should().BeTrue();
 
-            SubSonic.DbContext.ChangeControl.SelectMany(x => x.Value).Count(x => x.IsDirty).Should().Be(1);
+            SubSonic.DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsDirty).Should().Be(1);
 
             DbContext.SaveChanges().Should().BeTrue();
 
@@ -111,7 +111,7 @@ WHERE ([{0}].[ID] = {1})";
 
             ((IEntityProxy)property).IsDirty.Should().BeFalse();
 
-            SubSonic.DbContext.ChangeControl.SelectMany(x => x.Value).Count(x => x.IsDirty).Should().Be(0);
+            SubSonic.DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsDirty).Should().Be(0);
         }
 
         [Test]
@@ -143,13 +143,13 @@ WHERE ([{0}].[ID] = {1})";
 
             ((IEntityProxy)property).IsDeleted.Should().BeTrue();
 
-            SubSonic.DbContext.ChangeControl.SelectMany(x => x.Value).Count(x => x.IsDeleted).Should().Be(1);
+            SubSonic.DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsDeleted).Should().Be(1);
 
             DbContext.SaveChanges().Should().BeTrue();
 
-            SubSonic.DbContext.ChangeControl.SelectMany(x => x.Value).Count(x => x.KeyData.IsSameAs(new object[] { 1 })).Should().Be(0);
+            SubSonic.DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.KeyData.IsSameAs(new object[] { 1 })).Should().Be(0);
 
-            SubSonic.DbContext.ChangeControl.SelectMany(x => x.Value).Count(x => x.IsDeleted).Should().Be(0);
+            SubSonic.DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsDeleted).Should().Be(0);
         }
 
         [Test]
@@ -197,13 +197,13 @@ WHERE ([{0}].[ID] = {1})";
 
             DbContext.RealEstateProperties.Add(property);
 
-            SubSonic.DbContext.ChangeControl.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
+            SubSonic.DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
 
             DbContext.SaveChanges().Should().BeTrue();
 
             property.ID.Should().Be(id);
 
-            SubSonic.DbContext.ChangeControl.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(0);
+            SubSonic.DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(0);
         }
 
         [Test]
@@ -247,13 +247,13 @@ WHERE ([{0}].[ID] = {1})";
 
             DbContext.RealEstateProperties.Add(property);
 
-            SubSonic.DbContext.ChangeControl.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
+            SubSonic.DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
 
             DbContext.SaveChanges().Should().BeFalse();
 
             property.ID.Should().Be(0);
 
-            SubSonic.DbContext.ChangeControl.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
+            SubSonic.DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
         }
     }
 }

@@ -9,12 +9,12 @@ using System.Text;
 
 namespace SubSonic.Data.Caching
 {
-    public class EntityTrackerCollection
+    public class ChangeTrackerCollection
         : IEnumerable<KeyValuePair<Type, IEnumerable<IEntityProxy>>>
     {
         private readonly Dictionary<Type, EntityTrackerElement> collection;
 
-        public EntityTrackerCollection()
+        public ChangeTrackerCollection()
         {
             collection = new Dictionary<Type, EntityTrackerElement>();
         }
@@ -38,7 +38,7 @@ namespace SubSonic.Data.Caching
 
             if (!collection.ContainsKey(elementKey))
             {
-                collection.Add(elementKey, new EntityTrackerElement<TEntity>());
+                collection.Add(elementKey, new ChangeTrackerElement<TEntity>());
             }
 
             return GetCacheElementFor<TEntity>();

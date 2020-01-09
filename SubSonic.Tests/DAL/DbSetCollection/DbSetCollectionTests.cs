@@ -64,13 +64,13 @@ FROM [dbo].[Status] AS [{0}]";
         [Test]
         public void CanEnumerateCacheObject()
         {
-            SubSonic.DbContext.ChangeControl.Add(typeof(RealEstateProperty), new Entity<RealEstateProperty>(new RealEstateProperty() { ID = -1, StatusID = 1 }));
+            SubSonic.DbContext.ChangeTracking.Add(typeof(RealEstateProperty), new Entity<RealEstateProperty>(new RealEstateProperty() { ID = -1, StatusID = 1 }));
 
-            SubSonic.DbContext.ChangeControl.Add(typeof(RealEstateProperty), DynamicProxy.MapInstanceOf(DbContext, new Entity<RealEstateProperty>(new RealEstateProperty() { ID = -2, StatusID = 1 })));
+            SubSonic.DbContext.ChangeTracking.Add(typeof(RealEstateProperty), DynamicProxy.MapInstanceOf(DbContext, new Entity<RealEstateProperty>(new RealEstateProperty() { ID = -2, StatusID = 1 })));
 
-            SubSonic.DbContext.ChangeControl.Add(typeof(Status), DynamicProxy.MapInstanceOf(DbContext, new Entity<Status>(new Status() { ID = -1, Name = "None", IsAvailableStatus = false })));
+            SubSonic.DbContext.ChangeTracking.Add(typeof(Status), DynamicProxy.MapInstanceOf(DbContext, new Entity<Status>(new Status() { ID = -1, Name = "None", IsAvailableStatus = false })));
 
-            foreach (var item in SubSonic.DbContext.ChangeControl)
+            foreach (var item in SubSonic.DbContext.ChangeTracking)
             {
                 foreach (IEntityProxy proxy in item.Value)
                 {
@@ -100,7 +100,7 @@ FROM [dbo].[Status] AS [{0}]";
 
             Status
                 status_ctrl = DbContext.Statuses.Where(x => x.ID == 1).Single(),
-                status_cache = SubSonic.DbContext.ChangeControl.Where<IEnumerable<Status>>(typeof(Status), DbContext.Statuses.Provider, expression).Single();
+                status_cache = SubSonic.DbContext.ChangeTracking.Where<IEnumerable<Status>>(typeof(Status), DbContext.Statuses.Provider, expression).Single();
 
             status_ctrl.Should().BeSameAs(status_cache);
         }

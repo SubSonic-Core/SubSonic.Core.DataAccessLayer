@@ -35,7 +35,7 @@ namespace SubSonic
             {
                 using (SharedDbConnectionScope Scope = UseSharedDbConnection())
                 {
-                    result = ChangeControl.SaveChanges();
+                    result = ChangeTracking.SaveChanges();
                 }
             }
             finally { }

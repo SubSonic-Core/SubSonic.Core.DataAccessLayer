@@ -13,10 +13,10 @@ using System.Text;
 namespace SubSonic.Data.Caching
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "It is getting to wordy if I do this")]
-    public class EntityTrackerElement<TEntity>
+    public class ChangeTrackerElement<TEntity>
         : EntityTrackerElement, IEnumerable<TEntity>
     {
-        public EntityTrackerElement()
+        public ChangeTrackerElement()
             : base(typeof(TEntity)) 
         {
             Cache = new ObservableCollection<IEntityProxy<TEntity>>();

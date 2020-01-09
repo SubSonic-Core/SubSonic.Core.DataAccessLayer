@@ -19,7 +19,7 @@ namespace SubSonic.Tests.DAL.SUT
         [SetUp]
         public virtual void SetupTestFixture()
         {
-            SubSonic.DbContext.ChangeControl.Flush();
+            SubSonic.DbContext.ChangeTracking.Flush();
 
             DbContext.Instance.GetService<DbProviderFactory, SubSonicMockDbClient>().ClearBehaviors();
 
