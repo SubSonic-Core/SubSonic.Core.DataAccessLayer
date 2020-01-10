@@ -26,14 +26,98 @@ namespace SubSonic.Linq.Expressions.Structure
             return expression;
         }
 
-        protected DbExpression VisitSelect(DbPagedSelectExpression select)
+        protected DbExpression VisitSelect(DbPagedSelectExpression paged)
         {
-            if (select.IsNotNull())
+            if (paged.IsNotNull())
             {
-                throw new NotImplementedException();
+                WriteNewLine($";{Fragments.WITH} {paged.PageCte.QualifiedName} {Fragments.AS}");
+                WriteNewLine(Fragments.LEFT_PARENTHESIS);
+                WriteNewLine(Indentation.Inner);
+                this.VisitSelect(paged.PrimaryKeySelect);
+                WriteNewLine();
+                WriteNewLine($"{Fragments.OFFSET} @{nameof(paged.PageSize)} * {Fragments.LEFT_PARENTHESIS}@{nameof(paged.PageNumber)} - 1{Fragments.RIGHT_PARENTHESIS} {Fragments.ROWS}");
+                WriteNewLine($"{Fragments.FETCH} {Fragments.NEXT} @{nameof(paged.PageSize)} {Fragments.ROWS} {Fragments.ONLY}", Indentation.Outer);
+                WriteNewLine(Fragments.RIGHT_PARENTHESIS);
+                Write($"{Fragments.SELECT} ");
+                if (paged.Select.IsDistinct)
+                {
+                    Write($"{Fragments.DISTINCT} ");
+                }
+                if (paged.Select.Take != null)
+                {
+                    Write($"{Fragments.TOP} {Fragments.LEFT_PARENTHESIS}");
+                    this.Visit(paged.Select.Take);
+                    Write($"{Fragments.RIGHT_PARENTHESIS} ");
+                }
+                if (paged.Select.Columns.Count > 0)
+                {
+                    for (int i = 0, n = paged.Select.Columns.Count; i < n; i++)
+                    {
+                        DbColumnDeclaration column = paged.Select.Columns.ElementAt(i);
+                        if (i > 0)
+                        {
+                            Write($"{Fragments.COMMA} ");
+                        }
+                        DbColumnExpression c = this.VisitValue(column.Expression) as DbColumnExpression;
+                        if (!string.IsNullOrEmpty(column.PropertyName) && (c == null || c.Name != column.PropertyName))
+                        {
+                            Write($" {Fragments.AS} ");
+                            Write($"[{column.PropertyName}]");
+                        }
+                    }
+                }
+                else
+                {
+                    Write($"[{GetAliasName(paged.Select.Alias)}].{Fragments.ASTRIX}");
+                }
+                if (paged.Select.From != null)
+                {
+                    WriteNewLine();
+                    Write($"{Fragments.FROM} ");
+
+                    VisitSource(paged.Select.From);
+
+                    foreach (DbExpression expression in paged.Select.From.Joins)
+                    {
+                        VisitSource(expression);
+                    }
+                }
+                if (paged.Select.GroupBy != null && paged.Select.GroupBy.Count > 0)
+                {
+                    WriteNewLine();
+                    Write($"{Fragments.GROUP_BY} ");
+                    for (int i = 0, n = paged.Select.GroupBy.Count; i < n; i++)
+                    {
+                        if (i > 0)
+                        {
+                            Write($"{Fragments.COMMA} ");
+                        }
+                        this.VisitValue(paged.Select.GroupBy[i]);
+                    }
+                }
+                if (paged.Select.OrderBy != null && paged.Select.OrderBy.Count > 0)
+                {
+                    WriteNewLine();
+                    Write($"{Fragments.ORDER_BY} ");
+                    for (int i = 0, n = paged.Select.OrderBy.Count; i < n; i++)
+                    {
+                        DbOrderByDeclaration exp = paged.Select.OrderBy[i];
+                        if (i > 0)
+                        {
+                            Write($"{Fragments.COMMA} ");
+                        }
+                        VisitValue(exp.Expression);
+                        if (exp.OrderByType != OrderByType.Ascending)
+                        {
+                            Write($" {Fragments.DESC}");
+                        }
+                    }
+                }
+                WriteNewLine(Indentation.Outer);
+                Write($"{Fragments.OPTION} {Fragments.LEFT_PARENTHESIS}{Fragments.RECOMPILE}{Fragments.RIGHT_PARENTHESIS};");
             }
 
-            return select;
+            return paged;
         }
 
         protected DbExpression VisitSelect(DbSelectExpression select)
@@ -82,6 +166,10 @@ namespace SubSonic.Linq.Expressions.Structure
                     WriteNewLine();
                     Write($"{Fragments.FROM} ");
                     VisitSource(select.From);
+                    foreach (DbExpression expression in select.From.Joins)
+                    {
+                        VisitSource(expression, select.IsCte);
+                    }
                 }
                 if (select.Where != null)
                 {

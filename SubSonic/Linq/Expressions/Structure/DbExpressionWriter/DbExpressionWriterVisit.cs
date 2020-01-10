@@ -54,7 +54,7 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             if (projection != null)
             {
-                AddAlias(projection.Source.Table);
+                AddAlias(projection.Source.Alias);
                 Write("Project(");
                 WriteLine(Indentation.Inner);
                 Write("@\"");
@@ -77,7 +77,7 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             if (join != null)
             {
-                this.AddAlias(join.Projection.Source.Table);
+                this.AddAlias(join.Projection.Source.Alias);
                 Write("ClientJoin(");
                 WriteLine(Indentation.Inner);
                 Write("OuterKey(");

@@ -12,6 +12,8 @@ namespace SubSonic.Linq.Expressions.Alias
 
         public string Name { get; protected set; }
 
+        public bool UseNameForAlias { get; protected set; }
+
         public override string ToString()
         {
             return Name ?? $"A:{GetHashCode().ToString(CultureInfo.CurrentCulture)}";

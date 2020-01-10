@@ -81,9 +81,9 @@ namespace SubSonic.Infrastructure.Schema
 
         public DbColumnExpression Expression { get; private set; }
 
-        internal void SetExpression(TableAlias table)
+        internal void SetExpression(TableAlias alias)
         {
-            Expression = new DbColumnExpression(PropertyType, table, Name);
+            Expression = new DbColumnExpression(PropertyType, alias, Name);
         }
 
         public override string ToString()

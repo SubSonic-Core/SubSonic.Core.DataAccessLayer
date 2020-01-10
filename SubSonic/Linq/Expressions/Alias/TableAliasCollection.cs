@@ -16,7 +16,7 @@ namespace SubSonic.Linq.Expressions.Alias
 
             if(!__aliases.TryGetValue(alias, out name))
             {
-                __aliases.Add(alias, NextAlias);
+                __aliases.Add(alias, alias.UseNameForAlias ? alias.Name : NextAlias);
 
                 name = __aliases[alias];
             }

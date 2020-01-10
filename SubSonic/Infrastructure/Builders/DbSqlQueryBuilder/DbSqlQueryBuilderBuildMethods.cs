@@ -62,6 +62,8 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (expression is DbSelectExpression select)
             {
+                //DbTableExpression dbTable = (DbTableExpression)DbExpression.DbTable(select.From.Model, select.From.Alias);
+
                 return DbExpression.DbPagedSelect(select, pageNumber, pageSize);
             }
             else if (expression is DbPagedSelectExpression paged)
@@ -162,6 +164,21 @@ namespace SubSonic.Infrastructure.Builders
         public Expression BuildWhereNotExists<TEntity>(DbTableExpression from, Type type, Expression<Func<TEntity, System.Linq.IQueryable>> select)
         {
             return DbExpression.Where(from, type, select, DbExpressionType.NotExists);
+        }
+        #endregion
+
+        #region Build Joins
+        public Expression BuildJoin(JoinType type, Expression left, Expression right)
+        {
+            if (left is DbSelectExpression select)
+            {
+                if (right is DbExpression right_table)
+                {
+                    return DbExpression.DbSelect(select, (DbJoinExpression)DbExpression.DbJoin(type, select.From, right_table));
+                }
+            }
+
+            throw new NotSupportedException();
         }
         #endregion
 

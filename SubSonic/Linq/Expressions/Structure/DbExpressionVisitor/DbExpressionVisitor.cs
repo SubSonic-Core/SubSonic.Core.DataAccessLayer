@@ -224,15 +224,15 @@ namespace SubSonic.Linq.Expressions.Structure
             return outer;
         }
 
-        protected internal virtual Expression VisitJoin(DbJoinExpression join)
+        protected internal virtual Expression VisitJoin(DbJoinExpression join, bool cte = false)
         {
             if(join is null)
             {
                 return join;
             }
 
-            Expression left = this.VisitSource(join.Left);
-            Expression right = this.VisitSource(join.Right);
+            DbExpression left = (DbExpression)VisitSource(join.Left);
+            DbExpression right = (DbExpression)VisitSource(join.Right);
             Expression condition = this.Visit(join.Condition);
 
             if (left != join.Left || right != join.Right || condition != join.Condition)
@@ -366,7 +366,7 @@ namespace SubSonic.Linq.Expressions.Structure
             return expressions;
         }
 
-        protected virtual Expression VisitSource(Expression source)
+        protected virtual Expression VisitSource(Expression source, bool cte = false)
         {
             return this.Visit(source);
         }

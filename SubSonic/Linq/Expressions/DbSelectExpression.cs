@@ -24,7 +24,7 @@ namespace SubSonic.Linq.Expressions
             object collection,
             DbTableExpression table,
             IEnumerable<DbColumnDeclaration> columns)
-            : base(collection, table.IsNullThrowArgumentNull(nameof(table)).Table)
+            : base(collection, table.IsNullThrowArgumentNull(nameof(table)).Alias)
         {
             Columns = columns as ReadOnlyCollection<DbColumnDeclaration>;
             if (Columns == null)
@@ -79,6 +79,8 @@ namespace SubSonic.Linq.Expressions
             Take = take;
         }
 
+        public bool IsCte { get; set; }
+
         public override ExpressionType NodeType => (ExpressionType)DbExpressionType.Select;
 
         public IReadOnlyCollection<DbColumnDeclaration> Columns { get; }
@@ -112,9 +114,36 @@ namespace SubSonic.Linq.Expressions
             return new DbSelectExpression(collection, table);
         }
 
-        public static DbExpression DbSelect(object collection, DbTableExpression table, IEnumerable<DbColumnDeclaration> columns, Expression where, IEnumerable<DbOrderByDeclaration> orderBy)
+        public static DbExpression DbSelect(object collection, DbTableExpression table, IEnumerable<DbColumnDeclaration> columns, Expression where, IEnumerable<DbOrderByDeclaration> orderBy, bool cte = false)
         {
-            return new DbSelectExpression(collection, table, columns, where, orderBy, null);
+            return new DbSelectExpression(collection, table, columns, where, orderBy, null)
+            {
+                IsCte = cte
+            };
+        }
+
+        public static DbExpression DbSelect(DbSelectExpression select, DbJoinExpression join)
+        {
+            if (select is null)
+            {
+                throw new System.ArgumentNullException(nameof(select));
+            }
+
+            if (join is null)
+            {
+                throw new System.ArgumentNullException(nameof(join));
+            }
+
+            DbTableExpression dbTable = (DbTableExpression)DbExpression.DbTable(select.From.Model, select.From.Alias);
+
+            foreach (DbExpression existing_joins in select.From.Joins)
+            {
+                dbTable.Joins.Add(existing_joins);
+            }
+
+            dbTable.Joins.Add(join);
+
+            return new DbSelectExpression(select.QueryObject, dbTable, select.Columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take);
         }
     }
 }

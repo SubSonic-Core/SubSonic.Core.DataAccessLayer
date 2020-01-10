@@ -64,5 +64,13 @@ namespace SubSonic.Infrastructure.SqlGenerator
         string OUTER_APPLY { get; }
         string ASTRIX { get; }
         string EXISTS { get; }
+        string WITH { get; }
+        string ROWS { get; }
+        string OFFSET { get; }
+        string OPTION { get; }
+        string RECOMPILE { get; }
+        string FETCH { get; }
+        string NEXT { get; }
+        string ONLY { get; }
     }
 }

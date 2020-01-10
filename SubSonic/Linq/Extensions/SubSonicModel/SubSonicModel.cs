@@ -20,16 +20,16 @@ namespace SubSonic.Linq
             return new Alias.TableAlias(model.ToString());
         }
 
-        public static IEnumerable<DbColumnDeclaration> ToColumnList(this ICollection<IDbEntityProperty> properties, DbTableExpression expression)
+        public static IEnumerable<DbColumnDeclaration> ToColumnList(this ICollection<IDbEntityProperty> properties, DbTableExpression table)
         {
             if (properties is null)
             {
                 throw new ArgumentNullException(nameof(properties));
             }
 
-            if (expression is null)
+            if (table is null)
             {
-                throw new ArgumentNullException(nameof(expression));
+                throw new ArgumentNullException(nameof(table));
             }
 
             ICollection<DbColumnDeclaration> columns = new List<DbColumnDeclaration>();
@@ -40,7 +40,7 @@ namespace SubSonic.Linq
                 {
                     if (property.EntityPropertyType == DbEntityPropertyType.Value)
                     {
-                        property.SetExpression(expression.Table);
+                        property.SetExpression(table.IsNamedAlias ? table.Alias.SetTable(table, true) : table.Alias);
 
                         columns.Add(new DbColumnDeclaration(property));
                     }

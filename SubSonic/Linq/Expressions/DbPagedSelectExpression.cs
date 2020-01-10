@@ -15,30 +15,37 @@ namespace SubSonic.Linq.Expressions
     public class DbPagedSelectExpression
         : DbConstantExpression
     {
+        private DbSelectExpression _primaryKeySelect;
+
         protected internal DbPagedSelectExpression(DbSelectExpression select, int pageNumber, int pageSize)
             : base(
                   select.IsNullThrowArgumentNull(nameof(select)).QueryObject,
-                  select.IsNullThrowArgumentNull(nameof(select)).Table)
+                  select.IsNullThrowArgumentNull(nameof(select)).Alias)
         {
-            Select = select ?? throw new ArgumentNullException(nameof(select));
+            if (select is null)
+            {
+                throw new ArgumentNullException(nameof(select));
+            }
+
+            PageCte = (DbTableExpression)DbTable(select.From.Model.Table, "page");
+            Select = (DbSelectExpression)DbSelect(select, (DbJoinExpression)DbJoin(JoinType.InnerJoin, select.From, PageCte));
             PageNumber = pageNumber;
             PageSize = pageSize;
         }
 
         public DbSelectExpression Select { get; }
 
-        public DbSelectExpression SelectPrimaryKey
-        {
-            get
-            {
-                return (DbSelectExpression)DbExpression.DbSelect(
+        public DbTableExpression PageCte { get; }
+
+        public DbSelectExpression PrimaryKeySelect =>
+            _primaryKeySelect ?? (_primaryKeySelect = (DbSelectExpression)DbSelect(
                     Select.QueryObject,
                     Select.From,
                     Select.From.Columns.Where(column => column.Property.IsPrimaryKey),
                     Select.Where,
-                    Select.OrderBy);
-            }
-        }
+                    Select.OrderBy,
+                    true
+                ));
 
         public int PageNumber { get; }
 

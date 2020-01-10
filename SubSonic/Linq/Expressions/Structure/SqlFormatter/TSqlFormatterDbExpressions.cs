@@ -70,47 +70,53 @@ namespace SubSonic.Linq.Expressions.Structure
             return projection;
         }
 
-        protected internal override Expression VisitJoin(DbJoinExpression join)
+        protected internal override Expression VisitJoin(DbJoinExpression join, bool cte = false)
         {
             if (join.IsNotNull())
             {
-                this.VisitSource(join.Left);
-
-                WriteNewLine();
-
-                switch (join.Join)
+                if (join.Right is DbTableExpression table)
                 {
-                    case JoinType.CrossJoin:
-                        Write($"{context.Fragments.CROSS_JOIN} ");
-                        break;
-                    case JoinType.InnerJoin:
-                        Write($"{context.Fragments.INNER_JOIN} ");
-                        break;
-                    case JoinType.CrossApply:
-                        Write($"{context.Fragments.CROSS_APPLY} ");
-                        break;
-                    case JoinType.OuterApply:
-                        Write($"{context.Fragments.OUTER_APPLY} ");
-                        break;
-                    case JoinType.LeftOuter:
-                        Write($"{context.Fragments.LEFT_OUTER_JOIN} ");
-                        break;
-                }
+                    if (cte && table.IsNamedAlias)
+                    {
+                        return join;
+                    }
 
-                this.VisitSource(join.Right);
-
-                if (join.Condition != null)
-                {
                     WriteNewLine(Indentation.Inner);
-                    Write(context.Fragments.ON);
-                    this.VisitPredicate(join.Condition);
-                    this.Indent(Indentation.Outer);
+
+                    switch (join.Join)
+                    {
+                        case JoinType.CrossJoin:
+                            Write($"{context.Fragments.CROSS_JOIN} ");
+                            break;
+                        case JoinType.InnerJoin:
+                            Write($"{context.Fragments.INNER_JOIN} ");
+                            break;
+                        case JoinType.CrossApply:
+                            Write($"{context.Fragments.CROSS_APPLY} ");
+                            break;
+                        case JoinType.OuterApply:
+                            Write($"{context.Fragments.OUTER_APPLY} ");
+                            break;
+                        case JoinType.LeftOuter:
+                            Write($"{context.Fragments.LEFT_OUTER_JOIN} ");
+                            break;
+                    }
+
+                    this.VisitSource(join.Right);
+
+                    if (join.Condition != null)
+                    {
+                        WriteNewLine(Indentation.Inner);
+                        Write($"{Fragments.ON} ");
+                        VisitPredicate(join.Condition);
+                        Indent(Indentation.Outer);
+                    }
                 }
             }
             return join;
         }
 
-        protected override Expression VisitSource(Expression source)
+        protected override Expression VisitSource(Expression source, bool cte = false)
         {
             if (source.IsNotNull())
             {
@@ -124,23 +130,20 @@ namespace SubSonic.Linq.Expressions.Structure
                     if (!DbTable.IsNamedAlias)
                     {
                         Write($" {context.Fragments.AS} ");
-                        Write($"[{GetAliasName(DbTable.Table)}]");
+                        Write($"[{GetAliasName(DbTable.Alias)}]");
                     }
                 }
                 else if (source is DbSelectExpression select)
                 {
-                    Write(context.Fragments.LEFT_PARENTHESIS);
+                    WriteNewLine(Fragments.LEFT_PARENTHESIS);
                     WriteNewLine(Indentation.Inner);
                     this.Visit(select);
-                    WriteNewLine();
-                    Write(context.Fragments.RIGHT_PARENTHESIS);
-                    Write($" {context.Fragments.AS} ");
-                    Write(GetAliasName(select.Table));
-                    this.Indent(Indentation.Outer);
+                    WriteNewLine(Indentation.Outer);
+                    WriteNewLine(Fragments.RIGHT_PARENTHESIS);
                 }
                 else if (source is DbJoinExpression join)
                 {
-                    this.VisitJoin(join);
+                    this.VisitJoin(join, cte);
                 }
                 else
                 {

@@ -12,13 +12,13 @@ namespace SubSonic.Linq.Expressions
         : DbExpression
     {
         private readonly ConstantExpression _constant;
-        private readonly TableAlias _table;
+        private readonly TableAlias _alias;
 
-        protected internal DbConstantExpression(object value, TableAlias table)
+        protected internal DbConstantExpression(object value, TableAlias alias)
             : base((DbExpressionType)ExpressionType.Constant, null)
         {
             _constant = Constant(value);
-            _table = table;
+            _alias = alias;
         }
 
         internal static DbConstantExpression Build(object value, TableAlias alias)
@@ -30,7 +30,7 @@ namespace SubSonic.Linq.Expressions
 
         public object QueryObject => _constant.Value;
 
-        public TableAlias Table => _table;
+        public TableAlias Alias => _alias;
 
         public sealed override bool CanReduce => true;
 

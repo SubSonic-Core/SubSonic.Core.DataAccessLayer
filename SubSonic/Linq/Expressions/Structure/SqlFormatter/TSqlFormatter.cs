@@ -82,12 +82,14 @@ namespace SubSonic.Linq.Expressions.Structure
             return WriteNewLine();
         }
 
-        protected TSqlFormatter WriteNewLine(string text)
+        protected TSqlFormatter WriteNewLine(string text, Indentation style = Indentation.Same)
         {
             if (text.IsNotNullOrEmpty())
             {
                 Write(text);
             }
+
+            Indent(style);
 
             WriteNewLine();
 

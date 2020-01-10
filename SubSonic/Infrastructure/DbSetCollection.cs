@@ -40,12 +40,6 @@ namespace SubSonic.Infrastructure
 
         protected DbContext DbContext => DbContext.ServiceProvider.GetService<DbContext>();
 
-        public DbSetCollection(ISubSonicQueryProvider<TEntity> provider, Expression expression)
-            : this(provider)
-        {
-            this.Expression = expression ?? throw new ArgumentNullException(nameof(expression));
-        }
-
         public Type ElementType => typeof(TEntity);
 
         public Expression Expression { get; }

@@ -6,32 +6,38 @@ namespace SubSonic.Linq.Expressions
 {
     using Infrastructure.Schema;
     using SubSonic.Linq.Expressions.Structure;
+    using System.Collections;
     using System.Collections.Generic;
+
 
     /// <summary>
     /// A custom expression node that represents a table reference in a SQL query
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "<Pending>")]
     public class DbTableExpression
         : DbConstantExpression
     {
         private readonly string _alias;
 
-        protected internal DbTableExpression(IDbEntityModel model)
-            : this(model.IsNullThrowArgumentNull(nameof(model)).CreateObject(), model.ToAlias())
+        protected internal DbTableExpression(IDbEntityModel model, TableAlias alias)
+            : this(model.IsNullThrowArgumentNull(nameof(model)).CreateObject(), alias ?? model.ToAlias())
         {
             Model = model;
+            Joins = new List<DbExpression>();
         }
 
-        protected internal DbTableExpression(IDbEntityModel model, string alias)
-            : this(model)
+        protected internal DbTableExpression(DbTableExpression table, string alias)
+            : this(table.IsNullThrowArgumentNull(nameof(table)).QueryObject, table.IsNullThrowArgumentNull(nameof(table)).Alias)
         {
+            Model = table.IsNullThrowArgumentNull(nameof(table)).Model;
+            Joins = new List<DbExpression>();
             _alias = alias;
         }
 
         public DbTableExpression(object value, TableAlias alias)
             : base(value, alias)
         {
-            Table.IsNotNull(Al => Al.SetTable(this));
+            Alias.IsNotNull(Al => Al.SetTable(this));
         }
 
         public override ExpressionType NodeType => (ExpressionType)DbExpressionType.Table;
@@ -41,6 +47,9 @@ namespace SubSonic.Linq.Expressions
         public bool IsNamedAlias => _alias.IsNotNullOrEmpty();
 
         public IEnumerable<DbColumnDeclaration> Columns => Model.Properties.ToColumnList(this);
+
+        public ICollection<DbExpression> Joins { get; }
+
         protected override Expression Accept(ExpressionVisitor visitor)
         {
             if (visitor is DbExpressionVisitor db)
@@ -64,14 +73,14 @@ namespace SubSonic.Linq.Expressions
 
     public partial class DbExpression
     {
-        public static DbExpression DbTable(IDbEntityModel model)
-        {
-            return new DbTableExpression(model);
-        }
-
-        public static DbExpression DbTable(IDbEntityModel model, string alias)
+        public static DbExpression DbTable(IDbEntityModel model, TableAlias alias = null)
         {
             return new DbTableExpression(model, alias);
+        }
+
+        public static DbExpression DbTable(DbTableExpression table, string alias)
+        {
+            return new DbTableExpression(table, alias);
         }
 
         public static DbExpression DbTable(object value, TableAlias alias)

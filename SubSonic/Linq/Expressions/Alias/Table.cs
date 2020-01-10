@@ -28,9 +28,12 @@ namespace SubSonic.Linq.Expressions.Alias
 
         public DbTableExpression Table { get; private set; }
 
-        internal void SetTable(DbTableExpression table)
+        internal TableAlias SetTable(DbTableExpression table, bool force = false)
         {
             Table = table ?? throw new ArgumentNullException(nameof(table));
+            Name = Table.QualifiedName;
+            UseNameForAlias = force;
+            return this;
         }
 
         public override bool Equals(object obj)

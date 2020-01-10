@@ -50,7 +50,9 @@ namespace SubSonic.Infrastructure.SqlGenerator
         public virtual string UNEQUAL_JOIN => "JOIN";
         public virtual string UPDATE => "UPDATE";
         public virtual string WHERE => "WHERE";
+        public virtual string WITH => "WITH";
         public virtual string ROW_NUMBER => "ROW_NUMBER() OVER";
+        public virtual string ROWS => "ROWS";
         public virtual string COMMA => ",";
         public virtual string LEFT_PARENTHESIS => "(";
         public virtual string RIGHT_PARENTHESIS => ")";
@@ -61,6 +63,12 @@ namespace SubSonic.Infrastructure.SqlGenerator
         public virtual string AVG => "AVG";
         public virtual string SUM => "SUM";
         public virtual string ASTRIX => "*";
+        public virtual string OFFSET => "OFFSET";
+        public virtual string FETCH => "FETCH";
+        public virtual string NEXT => "NEXT";
+        public virtual string OPTION => "OPTION";
+        public virtual string ONLY => "ONLY";
+        public virtual string RECOMPILE => "RECOMPILE";
     }
 }
 
