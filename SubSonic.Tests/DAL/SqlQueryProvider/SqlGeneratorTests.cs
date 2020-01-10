@@ -800,7 +800,7 @@ OPTION (RECOMPILE);".Format("T1");
 
             IDbQueryObject query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbPagedSelectExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
