@@ -780,16 +780,16 @@ FROM [dbo].[Renter] AS [{0}]".Format("T1");
         public void CanGenerateSelectQueryWithPagination()
         {
             string expected =
-@";WITH page AS
+@";WITH paged AS
     (
-        SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
+        SELECT [{0}].[PersonID], [{0}].[UnitID]
         FROM [dbo].[Renter] AS [{0}]
         OFFSET @PageSize * (@PageNumber - 1) ROWS
         FETCH NEXT @PageSize ROWS ONLY
     )
 SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
 FROM [dbo].[Renter] AS [{0}]
-    INNER JOIN page ON page.[PersonID] = [{0}].[PersonID] AND page.[UnitID] = [{0}].[UnitID]
+    INNER JOIN paged ON paged.[PersonID] = [{0}].[PersonID] AND paged.[UnitID] = [{0}].[UnitID]
 OPTION (RECOMPILE)".Format("T1");
 
             Expression select = DbContext

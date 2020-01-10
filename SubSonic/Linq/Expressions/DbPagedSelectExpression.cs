@@ -27,6 +27,19 @@ namespace SubSonic.Linq.Expressions
 
         public DbSelectExpression Select { get; }
 
+        public DbSelectExpression SelectPrimaryKey
+        {
+            get
+            {
+                return (DbSelectExpression)DbExpression.DbSelect(
+                    Select.QueryObject,
+                    Select.From,
+                    Select.From.Columns.Where(column => column.Property.IsPrimaryKey),
+                    Select.Where,
+                    Select.OrderBy);
+            }
+        }
+
         public int PageNumber { get; }
 
         public int PageSize { get; }

@@ -119,9 +119,13 @@ namespace SubSonic.Linq.Expressions.Structure
 
                 if(source is DbTableExpression DbTable)
                 {
-                    Write(DbTable.Model);
-                    Write($" {context.Fragments.AS} ");
-                    Write($"[{GetAliasName(DbTable.Table)}]");
+                    Write(DbTable.QualifiedName);
+
+                    if (!DbTable.IsNamedAlias)
+                    {
+                        Write($" {context.Fragments.AS} ");
+                        Write($"[{GetAliasName(DbTable.Table)}]");
+                    }
                 }
                 else if (source is DbSelectExpression select)
                 {

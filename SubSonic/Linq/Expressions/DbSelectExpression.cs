@@ -111,5 +111,10 @@ namespace SubSonic.Linq.Expressions
         {
             return new DbSelectExpression(collection, table);
         }
+
+        public static DbExpression DbSelect(object collection, DbTableExpression table, IEnumerable<DbColumnDeclaration> columns, Expression where, IEnumerable<DbOrderByDeclaration> orderBy)
+        {
+            return new DbSelectExpression(collection, table, columns, where, orderBy, null);
+        }
     }
 }

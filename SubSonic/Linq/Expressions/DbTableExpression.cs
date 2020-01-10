@@ -14,11 +14,20 @@ namespace SubSonic.Linq.Expressions
     public class DbTableExpression
         : DbConstantExpression
     {
+        private readonly string _alias;
+
         protected internal DbTableExpression(IDbEntityModel model)
             : this(model.IsNullThrowArgumentNull(nameof(model)).CreateObject(), model.ToAlias())
         {
             Model = model;
         }
+
+        protected internal DbTableExpression(IDbEntityModel model, string alias)
+            : this(model)
+        {
+            _alias = alias;
+        }
+
         public DbTableExpression(object value, TableAlias alias)
             : base(value, alias)
         {
@@ -29,8 +38,9 @@ namespace SubSonic.Linq.Expressions
 
         public IDbEntityModel Model { get; }
 
-        public IEnumerable<DbColumnDeclaration> Columns => Model.Properties.ToColumnList(this);
+        public bool IsNamedAlias => _alias.IsNotNullOrEmpty();
 
+        public IEnumerable<DbColumnDeclaration> Columns => Model.Properties.ToColumnList(this);
         protected override Expression Accept(ExpressionVisitor visitor)
         {
             if (visitor is DbExpressionVisitor db)
@@ -41,9 +51,14 @@ namespace SubSonic.Linq.Expressions
             return base.Accept(visitor);
         }
 
+        public string QualifiedName
+        {
+            get => _alias ?? Model?.QualifiedName;
+        }
+
         public override string ToString()
         {
-            return "T(" + Model.IsNotNull(M => M.QualifiedName, Type.Name) + ")";
+            return "T(" + QualifiedName ?? Type.Name + ")";
         }
     }
 
@@ -52,6 +67,11 @@ namespace SubSonic.Linq.Expressions
         public static DbExpression DbTable(IDbEntityModel model)
         {
             return new DbTableExpression(model);
+        }
+
+        public static DbExpression DbTable(IDbEntityModel model, string alias)
+        {
+            return new DbTableExpression(model, alias);
         }
 
         public static DbExpression DbTable(object value, TableAlias alias)
