@@ -15,9 +15,9 @@ This way I know the DAL from the ground up and speak for its performance and imp
 
 
 # Reference Material
-https://docs.microsoft.com/en-us/dotnet/api/system.reflection.emit.assemblybuilder
-https://www.databasejournal.com/features/mssql/article.php/3766391/SqlCredit-Part-18-Exploring-the-Performance-of-SQL-2005146s-OUTPUT-Clause.htm
-https://sqlperformance.com/2015/01/t-sql-queries/pagination-with-offset-fetch
+* https://docs.microsoft.com/en-us/dotnet/api/system.reflection.emit.assemblybuilder
+* https://www.databasejournal.com/features/mssql/article.php/3766391/SqlCredit-Part-18-Exploring-the-Performance-of-SQL-2005146s-OUTPUT-Clause.htm
+* https://sqlperformance.com/2015/01/t-sql-queries/pagination-with-offset-fetch
 
 # Reference Projects
 This Project has been influenced by previous iterations of SubSonic up to and including Entity Frameworks Feature Set.
