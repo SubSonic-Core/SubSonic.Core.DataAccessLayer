@@ -706,5 +706,116 @@ WHERE @dt_now_1 NOT BETWEEN [{0}].[StartDate] AND ISNULL([{0}].[EndDate], @dt_de
             query.Parameters.Get("@dt_now_1").Value.Should().Be(Now);
             query.Parameters.Get("@dt_default_2").Value.Should().Be(Default);
         }
+
+        [Test]
+        public void CanGenerateSelectDistinctSql()
+        {
+            string expected =
+@"SELECT DISTINCT [{0}].[PersonID]
+FROM [dbo].[Renter] AS [{0}]".Format("T1");
+
+            Expression select = DbContext
+                .Renters
+                .Distinct()
+                .Select(x => x.PersonID)
+                .Expression;
+
+            IDbQueryObject query = null;
+
+            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+
+                    query = builder.ToQueryObject(select);
+                }).Should().NotThrow();
+            }
+
+            query.Sql.Should().NotBeNullOrEmpty();
+            query.Sql.Should().Contain("SELECT DISTINCT");
+
+            logging.LogInformation("\n" + query.Sql + "\n");
+
+            query.Sql.Should().Be(expected);
+        }
+
+        [Test]
+        public void CanGenerateSelectTopSql()
+        {
+            string expected =
+@"SELECT TOP (1) [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
+FROM [dbo].[Renter] AS [{0}]".Format("T1");
+
+            Expression select = DbContext
+                .Renters
+                .Take(1)
+                .Expression;
+
+            IDbQueryObject query = null;
+
+            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+
+                    query = builder.ToQueryObject(select);
+                }).Should().NotThrow();
+            }
+
+            query.Sql.Should().NotBeNullOrEmpty();
+            query.Sql.Should().Contain("SELECT TOP (1)");
+
+            logging.LogInformation("\n" + query.Sql + "\n");
+
+            query.Sql.Should().Be(expected);
+        }
+
+        [Test]
+        public void CanGenerateSelectQueryWithPagination()
+        {
+            string expected =
+@";WITH page AS
+    (
+        SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
+        FROM [dbo].[Renter] AS [{0}]
+        OFFSET @PageSize * (@PageNumber - 1) ROWS
+        FETCH NEXT @PageSize ROWS ONLY
+    )
+SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
+FROM [dbo].[Renter] AS [{0}]
+    INNER JOIN page ON page.[PersonID] = [{0}].[PersonID] AND page.[UnitID] = [{0}].[UnitID]
+OPTION (RECOMPILE)".Format("T1");
+
+            Expression select = DbContext
+                .Renters
+                .Page(1, 20)
+                .Expression;
+
+            IDbQueryObject query = null;
+
+            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+
+                    query = builder.ToQueryObject(select);
+                }).Should().NotThrow();
+            }
+
+            query.Sql.Should().NotBeNullOrEmpty();
+
+            logging.LogInformation("\n" + query.Sql + "\n");
+
+            query.Sql.Should().Be(expected);
+        }
     }
 }

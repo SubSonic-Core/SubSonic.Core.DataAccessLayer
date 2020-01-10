@@ -4,6 +4,7 @@
 
 // refactored by Kenneth Carter (c) 2019
 using System.Linq.Expressions;
+using System;
 
 namespace SubSonic.Linq.Expressions.Structure
 {
@@ -11,7 +12,31 @@ namespace SubSonic.Linq.Expressions.Structure
 
     public partial class TSqlFormatter
     {
-        protected internal override Expression VisitSelect(DbSelectExpression select)
+        protected internal override Expression VisitSelect(DbExpression expression)
+        {
+            if (expression is DbSelectExpression select)
+            {
+                return VisitSelect(select);
+            }
+            else if (expression is DbPagedSelectExpression pagedSelect)
+            {
+                return VisitSelect(pagedSelect);
+            }
+
+            return expression;
+        }
+
+        protected DbExpression VisitSelect(DbPagedSelectExpression select)
+        {
+            if (select.IsNotNull())
+            {
+                throw new NotImplementedException();
+            }
+
+            return select;
+        }
+
+        protected DbExpression VisitSelect(DbSelectExpression select)
         {
             if (select.IsNotNull())
             {

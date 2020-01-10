@@ -14,6 +14,7 @@ namespace SubSonic.Linq
         {
             return source is ISubSonicCollection<TSource>;
         }
+
         public static IQueryable<TEntity> Load<TEntity>(this IQueryable<TEntity> query)
         {
             if (query is null)
@@ -22,6 +23,57 @@ namespace SubSonic.Linq
             }
 
             return query.Provider.Execute<IQueryable<TEntity>>(query.Expression);
+        }
+
+        public static IQueryable<TSource> Distinct<TSource>(this IQueryable<TSource> source)
+        {
+            if (source.IsNotNull() && source.IsSubSonicQuerable())
+            {
+                IQueryable<TSource> query = source.AsQueryable();
+
+                IDbSqlQueryBuilderProvider builder = (IDbSqlQueryBuilderProvider)query.Provider;
+
+                if (query.Expression is DbSelectExpression select)
+                {
+                    return builder.CreateQuery<TSource>(builder.BuildSelect(select, true));
+                }
+            }
+
+            return Queryable.Distinct(source);
+        }
+
+        public static IQueryable<TSource> Take<TSource>(this IQueryable<TSource> source, int count)
+        {
+            if (source.IsNotNull() && source.IsSubSonicQuerable())
+            {
+                IQueryable<TSource> query = source.AsQueryable();
+
+                IDbSqlQueryBuilderProvider builder = (IDbSqlQueryBuilderProvider)query.Provider;
+
+                if (query.Expression is DbSelectExpression select)
+                {
+                    return builder.CreateQuery<TSource>(builder.BuildSelect(select, count));
+                }
+            }
+
+            return Queryable.Take(source, count);
+        }
+
+        public static IQueryable<TSource> Page<TSource>(this IQueryable<TSource> source, int number, int size)
+        {
+            if (source.IsNotNull() && source.IsSubSonicQuerable())
+            {
+                IQueryable<TSource> query = source.AsQueryable();
+
+                IDbSqlQueryBuilderProvider builder = (IDbSqlQueryBuilderProvider)query.Provider;
+
+                if (query.Expression is DbSelectExpression select)
+                {
+                    return builder.CreateQuery<TSource>(builder.BuildSelect(select, number, size));
+                }
+            }
+
+            throw new NotSupportedException();
         }
 
         /// <summary>
@@ -36,7 +88,7 @@ namespace SubSonic.Linq
             {
                 IQueryable<TSource> query = source.AsQueryable();
 
-                ISubSonicQueryProvider<TSource> builder = DbContext.ServiceProvider.GetService<ISubSonicQueryProvider<TSource>>();
+                IDbSqlQueryBuilderProvider builder = (IDbSqlQueryBuilderProvider)query.Provider;
 
                 Expression where = null;
 
@@ -66,9 +118,9 @@ namespace SubSonic.Linq
         {
             if (source.IsNotNull() && source.IsSubSonicQuerable())
             {
-                if (source.Expression is DbSelectExpression query)
+                if (source.Expression is DbSelectExpression)
                 {
-                    ISubSonicQueryProvider<TSource> provider = (ISubSonicQueryProvider<TSource>)source.Provider;
+                    IDbSqlQueryBuilderProvider provider = (IDbSqlQueryBuilderProvider)source.Provider;
 
                     Expression where = null;
 

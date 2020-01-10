@@ -142,9 +142,9 @@ namespace SubSonic.Linq.Expressions.Structure
 
             Expression left = Visit(inExp.Left);
 
-            if (inExp.Inside is DbSelectExpression select)
+            if (inExp.Inside is DbSelectExpression)
             {
-                select = (DbSelectExpression)Visit(inExp.Inside);
+                DbSelectExpression select = (DbSelectExpression)Visit(inExp.Inside);
 
                 if (left != inExp.Left || select != inExp.Inside)
                 {
@@ -243,32 +243,43 @@ namespace SubSonic.Linq.Expressions.Structure
             return join;
         }
 
-        protected internal virtual Expression VisitSelect(DbSelectExpression selectExp)
+        protected internal virtual Expression VisitSelect(DbExpression expression)
         {
-            if (selectExp.IsNull())
+            if (expression.IsNull())
             {
-                return selectExp;
+                return expression;
             }
 
-            DbTableExpression from = (DbTableExpression)VisitSource(selectExp.From);
-            Expression where = selectExp.Where;
-            ReadOnlyCollection<DbOrderByDeclaration> orderBy = VisitOrderBy(selectExp.OrderBy);
-            ReadOnlyCollection<Expression> groupBy = VisitExpressionList(selectExp.GroupBy);
-            Expression skip = Visit(selectExp.Skip);
-            Expression take = Visit(selectExp.Take);
-            IReadOnlyCollection<DbColumnDeclaration> columns = VisitColumnDeclarations(selectExp.Columns);
-            if (from != selectExp.From
-                || where != selectExp.Where
-                || orderBy != selectExp.OrderBy
-                || groupBy != selectExp.GroupBy
-                || take != selectExp.Take
-                || skip != selectExp.Skip
-                || columns != selectExp.Columns
-                )
+            if (expression is DbSelectExpression select)
             {
-                return new DbSelectExpression(selectExp.QueryObject, from, columns, where, orderBy, groupBy, selectExp.IsDistinct, skip, take);
+                DbTableExpression from = (DbTableExpression)VisitSource(select.From);
+                Expression where = select.Where;
+                ReadOnlyCollection<DbOrderByDeclaration> orderBy = VisitOrderBy(select.OrderBy);
+                ReadOnlyCollection<Expression> groupBy = VisitExpressionList(select.GroupBy);
+                Expression take = Visit(select.Take);
+                IReadOnlyCollection<DbColumnDeclaration> columns = VisitColumnDeclarations(select.Columns);
+                if (from != select.From
+                    || where != select.Where
+                    || orderBy != select.OrderBy
+                    || groupBy != select.GroupBy
+                    || take != select.Take
+                    || columns != select.Columns
+                    )
+                {
+                    return new DbSelectExpression(select.QueryObject, from, columns, where, orderBy, groupBy, select.IsDistinct, take);
+                }
             }
-            return selectExp;
+            else if (expression is DbPagedSelectExpression paged)
+            {
+                DbSelectExpression pagedSelect = VisitSelect(paged.Select) as DbSelectExpression;
+
+                if (paged.Select != pagedSelect)
+                {
+                    return DbExpression.DbPagedSelect(pagedSelect, paged.PageNumber, paged.PageSize);
+                }
+            }
+
+            return expression;
         }
 
         protected virtual IReadOnlyCollection<DbColumnDeclaration> VisitColumnDeclarations(IReadOnlyCollection<DbColumnDeclaration> columns)

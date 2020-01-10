@@ -10,6 +10,6 @@ namespace SubSonic.Infrastructure
     public interface ISubSonicQueryProvider<out TEntity>
         : IDbSqlQueryBuilderProvider
     {
-        DbTableExpression DbTable { get; }
+        
     }
 }

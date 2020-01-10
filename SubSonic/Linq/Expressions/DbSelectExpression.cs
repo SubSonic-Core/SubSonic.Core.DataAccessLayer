@@ -50,7 +50,7 @@ namespace SubSonic.Linq.Expressions
             IEnumerable<DbOrderByDeclaration> orderBy,
             IEnumerable<Expression> groupBy
             )
-            : this(collection, table, columns, where, orderBy, groupBy, false, null, null) { }
+            : this(collection, table, columns, where, orderBy, groupBy, false, null) { }
 
         protected internal DbSelectExpression(
             object collection,
@@ -60,7 +60,6 @@ namespace SubSonic.Linq.Expressions
             IEnumerable<DbOrderByDeclaration> orderBy,
             IEnumerable<Expression> groupBy,
             bool isDistinct,
-            Expression skip,
             Expression take)
             : this(collection, table, columns)
         {
@@ -78,7 +77,6 @@ namespace SubSonic.Linq.Expressions
                 GroupBy = new List<Expression>(groupBy).AsReadOnly();
             }
             Take = take;
-            Skip = skip;
         }
 
         public override ExpressionType NodeType => (ExpressionType)DbExpressionType.Select;
@@ -90,7 +88,6 @@ namespace SubSonic.Linq.Expressions
         public ReadOnlyCollection<DbOrderByDeclaration> OrderBy { get; }
         public ReadOnlyCollection<Expression> GroupBy { get; }
         public bool IsDistinct { get; }
-        public Expression Skip { get; set; }
         public Expression Take { get; set; }
         public string QueryText
         {

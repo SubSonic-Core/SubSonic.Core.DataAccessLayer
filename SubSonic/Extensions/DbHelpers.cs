@@ -75,14 +75,14 @@ namespace SubSonic
             return (TType)source.GetValue(value, index);
         }
 
-        public static SubSonicParameter Get(this IReadOnlyCollection<SubSonicParameter> parameters, string name)
+        public static DbParameter Get(this IReadOnlyCollection<DbParameter> parameters, string name)
         {
             if (parameters is null)
             {
                 throw new ArgumentNullException(nameof(parameters));
             }
 
-            foreach (SubSonicParameter parameter in parameters)
+            foreach (DbParameter parameter in parameters)
             {
                 if(parameter.ParameterName == name)
                 {

@@ -85,7 +85,7 @@ namespace SubSonic.Infrastructure
         }
         #endregion
 
-        public int ExecuteStoredProcedure(object procedure)
+        public int ExecuteStoredProcedure(DbSubSonicStoredProcedure procedure)
         {
             DbStoredProcedure db = DbStoredProcedureParser.ParseStoredProcedure(procedure);
 
@@ -102,7 +102,7 @@ namespace SubSonic.Infrastructure
             }
         }
 
-        public IEnumerable<TEntity> ExecuteStoredProcedure<TEntity>(object procedure)
+        public IEnumerable<TEntity> ExecuteStoredProcedure<TEntity>(DbSubSonicStoredProcedure procedure)
         {
             DbStoredProcedure db = DbStoredProcedureParser.ParseStoredProcedure(procedure);
 

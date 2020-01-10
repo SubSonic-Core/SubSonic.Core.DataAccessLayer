@@ -41,7 +41,19 @@ namespace SubSonic.Extensions.Test
 
         public override DbParameter CreateSubSonicParameter(string name, object value, IDbEntityProperty property)
         {
-            return new SubSonicSqlParameter(name, value, property);
+            if (property is null)
+            {
+                return new SubSonicSqlParameter(name, value);
+            }
+            else
+            {
+                return new SubSonicSqlParameter(name, value, property);
+            }
+        }
+
+        public override DbParameter CreateParameter(string name, object value)
+        {
+            return CreateSubSonicParameter(name, value, null);
         }
 
         public override DbParameter CreateStoredProcedureParameter(string name, object value, bool mandatory, int size, bool isUserDefinedTableParameter, string udtType, ParameterDirection direction)

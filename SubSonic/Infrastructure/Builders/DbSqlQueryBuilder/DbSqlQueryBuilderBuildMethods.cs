@@ -7,6 +7,7 @@ namespace SubSonic.Infrastructure.Builders
     using Linq;
     using Linq.Expressions;
     using System.Data;
+    using System.Data.Common;
     using System.Reflection;
 
     public partial class DbSqlQueryBuilder
@@ -32,7 +33,59 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (select is DbSelectExpression _select)
             {
-                return new DbSelectExpression(_select.QueryObject, _select.From, _select.Columns, where);
+                return new DbSelectExpression(_select.QueryObject, _select.From, _select.Columns, where, _select.OrderBy, _select.GroupBy, _select.IsDistinct, _select.Take);
+            }
+
+            throw new NotSupportedException();
+        }
+
+        public Expression BuildSelect(Expression expression, bool isDistinct)
+        {
+            if (expression is DbSelectExpression select)
+            {
+                return new DbSelectExpression(select.QueryObject, select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, isDistinct, select.Take);
+            }
+
+            throw new NotSupportedException();
+        }
+
+        public Expression BuildSelect(Expression expression, int count)
+        {
+            if (expression is DbSelectExpression select)
+            {
+                return new DbSelectExpression(select.QueryObject, select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, Expression.Constant(count));
+            }
+
+            throw new NotSupportedException();
+        }
+        public Expression BuildSelect(Expression expression, int pageNumber, int pageSize)
+        {
+            if (expression is DbSelectExpression select)
+            {
+                return DbExpression.DbPagedSelect(select, pageNumber, pageSize);
+            }
+            else if (expression is DbPagedSelectExpression paged)
+            {
+                return DbExpression.DbPagedSelect(paged.Select, pageNumber, pageSize);
+            }
+
+            throw new NotSupportedException();
+        }
+
+        public Expression BuildSelect(Expression expression, IEnumerable<DbOrderByDeclaration> orderBy)
+        {
+            if (expression is DbSelectExpression select)
+            {
+                return new DbSelectExpression(select.QueryObject, select.From, select.Columns, select.Where, orderBy, select.GroupBy, select.IsDistinct, select.Take);
+            }
+
+            throw new NotSupportedException();
+        }
+        public Expression BuildSelect(Expression expression, IEnumerable<Expression> groupBy)
+        {
+            if (expression is DbSelectExpression select)
+            {
+                return new DbSelectExpression(select.QueryObject, select.From, select.Columns, select.Where, select.OrderBy, groupBy, select.IsDistinct, select.Take);
             }
 
             throw new NotSupportedException();
@@ -49,11 +102,9 @@ namespace SubSonic.Infrastructure.Builders
 
         public Expression BuildSelect<TEntity, TColumn>(Expression expression, Expression<Func<TEntity, TColumn>> selector)
         {
-            if (expression is DbSelectExpression)
+            if (expression is DbSelectExpression select)
             {
-                DbSelectExpression _select = (DbSelectExpression)expression;
-
-                return new DbSelectExpression(_select.QueryObject, _select.From, _select.Columns.Where(col => col.PropertyName == selector.GetPropertyName()), _select.Where, _select.OrderBy, _select.GroupBy, _select.IsDistinct, _select.Skip, _select.Take);
+                return new DbSelectExpression(select.QueryObject, select.From, select.Columns.Where(col => col.PropertyName == selector.GetPropertyName()), select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take);
             }
             return expression;
         }
@@ -131,7 +182,7 @@ namespace SubSonic.Infrastructure.Builders
 
         public Expression BuildLambda(Expression body, LambdaType @call, params string[] properties)
         {
-            Expression result = null;
+            Expression result;
             switch (call)
             {
                 case Infrastructure.LambdaType.Predicate:
@@ -180,17 +231,32 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (expression is DbSelectExpression select)
             {
-                if (select.Where is DbWhereExpression where)
-                {
-                    return new DbQueryObject(select.ToString(), CmdBehavior, where.Parameters.ToArray());
-                }
-                else
-                {
-                    return new DbQueryObject(select.ToString(), CmdBehavior, Array.Empty<SubSonicParameter>());
-                }
+                return new DbQueryObject(
+                    select.ToString(),
+                    CmdBehavior,
+                    GetSubSonicParameters(select.Where));
+            }
+            else if (expression is DbPagedSelectExpression paged)
+            {
+                return new DbQueryObject(
+                    paged.ToString(),
+                    CmdBehavior,
+                    GetSubSonicParameters(paged.Select.Where)
+                        .Union(paged.Parameters)
+                        .ToArray());
             }
 
             return null;
+        }
+
+        private DbParameter[] GetSubSonicParameters(Expression expression)
+        {
+            if (expression is DbWhereExpression where)
+            {
+                return where.Parameters.ToArray();
+            }
+
+            return Array.Empty<SubSonicParameter>();
         }
 
         protected virtual Expression BuildQuery(Expression expression)

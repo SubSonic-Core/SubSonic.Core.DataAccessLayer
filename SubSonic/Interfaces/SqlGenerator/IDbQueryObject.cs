@@ -1,15 +1,13 @@
-﻿using SubSonic.Infrastructure;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
-using System.Text;
+using System.Data.Common;
 
 namespace SubSonic
 {
     public interface IDbQueryObject
     {
         string Sql { get; }
-        IReadOnlyCollection<SubSonicParameter> Parameters { get; }
+        IReadOnlyCollection<DbParameter> Parameters { get; }
         CommandBehavior Behavior { get; }
     }
 }

@@ -65,6 +65,8 @@ namespace SubSonic.Infrastructure.Factory
 
         public override DbParameter CreateParameter() => Provider.CreateParameter();
 
+        public abstract DbParameter CreateParameter(string name, object value);
+
         public abstract DbParameter CreateParameter(SubSonicParameter parameter);
 
         public abstract DbParameter CreateSubSonicParameter(string name, object value, IDbEntityProperty entityProperty);

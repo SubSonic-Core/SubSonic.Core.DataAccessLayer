@@ -9,7 +9,7 @@ namespace SubSonic.Linq.Expressions.Structure
 
     public partial class DbExpressionWriter
     {
-        Dictionary<TableAlias, int> aliasMap = new Dictionary<TableAlias, int>();
+        readonly Dictionary<TableAlias, int> aliasMap = new Dictionary<TableAlias, int>();
 
         public override Expression Visit(Expression exp)
         {
@@ -114,14 +114,14 @@ namespace SubSonic.Linq.Expressions.Structure
             return outer;
         }
 
-        protected internal override Expression VisitSelect(DbSelectExpression select)
+        protected internal override Expression VisitSelect(DbExpression expression)
         {
-            if (select != null)
+            if (expression.IsNotNull())
             {
-                Write(select.QueryText);
+                Write(DbContext.GenerateSqlFor(expression));
             }
 
-            return select;
+            return expression;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Globalization", "CA1303:Do not pass literals as localized parameters", Justification = "<Pending>")]
@@ -132,9 +132,8 @@ namespace SubSonic.Linq.Expressions.Structure
                 throw new ArgumentNullException(nameof(column));
             }
 
-            int iAlias;
             string aliasName =
-                aliasMap.TryGetValue(column.Alias, out iAlias)
+                aliasMap.TryGetValue(column.Alias, out int iAlias)
                 ? "A" + iAlias
                 : "A?";
 
