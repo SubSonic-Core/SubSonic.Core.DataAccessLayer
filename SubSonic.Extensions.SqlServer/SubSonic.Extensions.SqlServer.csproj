@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SubSonic\SubSonic.csproj" />
+    <ProjectReference Include="..\SubSonic\SubSonic.Core.csproj" />
   </ItemGroup>
 
 </Project>

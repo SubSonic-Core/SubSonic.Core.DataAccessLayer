@@ -40,6 +40,7 @@ Not Ready For Production Use.
     Proxy Metadata: IsNew, IsDirty, etc...
 </PackageReleaseNotes>
     <NeutralLanguage></NeutralLanguage>
+    <RootNamespace>SubSonic</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Platform)'=='x64'">
