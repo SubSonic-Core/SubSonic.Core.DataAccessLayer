@@ -12,11 +12,11 @@ namespace SubSonic.Data.Caching
     public class ChangeTrackerCollection
         : IEnumerable<KeyValuePair<Type, IEnumerable<IEntityProxy>>>
     {
-        private readonly Dictionary<Type, EntityTrackerElement> collection;
+        private readonly Dictionary<Type, ChangeTrackerElement> collection;
 
         public ChangeTrackerCollection()
         {
-            collection = new Dictionary<Type, EntityTrackerElement>();
+            collection = new Dictionary<Type, ChangeTrackerElement>();
         }
 
         protected ObservableCollection<IEntityProxy<TEntity>> GetCacheElementFor<TEntity>()

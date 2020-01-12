@@ -8,6 +8,10 @@
     <Copyright>Kenneth Carter © 2020</Copyright>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>DAL; SQLClient;</PackageTags>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageLicenseFile>LICENSE.MD</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/kccarter76/SubSonic-Core/projects/1</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/kccarter76/SubSonic-Core/tree/master/SubSonic.Extensions.Test</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,6 +20,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SubSonic\SubSonic.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE.MD">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

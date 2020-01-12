@@ -14,7 +14,7 @@ namespace SubSonic.Data.Caching
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "It is getting to wordy if I do this")]
     public class ChangeTrackerElement<TEntity>
-        : EntityTrackerElement, IEnumerable<TEntity>
+        : ChangeTrackerElement, IEnumerable<TEntity>
     {
         public ChangeTrackerElement()
             : base(typeof(TEntity)) 
@@ -195,10 +195,10 @@ namespace SubSonic.Data.Caching
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "Generic inteface is implemented at a higher level.")]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1010:Collections should implement generic interface", Justification = "handled through inheritance")]
-    public abstract class EntityTrackerElement
+    public abstract class ChangeTrackerElement
         : IEnumerable
     {
-        protected EntityTrackerElement(Type key)
+        protected ChangeTrackerElement(Type key)
         {
             Key = key ?? throw new ArgumentNullException(nameof(key));
         }

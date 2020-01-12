@@ -2,14 +2,14 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <Platforms>x64;x86;AnyCPU</Platforms>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Kenneth Carter</Authors>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>DAL</PackageTags>
     <Version>1.0.0</Version>
-    <PackageId>SubSonic</PackageId>
+    <PackageId>SubSonic.Core</PackageId>
     <Company />
-    <PackageProjectUrl />
+    <PackageProjectUrl>https://github.com/kccarter76/SubSonic-Core/wiki</PackageProjectUrl>
     <RepositoryType>Git</RepositoryType>
     <RepositoryUrl>https://github.com/kccarter76/SubSonic-Core</RepositoryUrl>
     <Description>Inspired by previous iterations of SubSonic and the need for a reliable feature rich data layer.</Description>
@@ -41,6 +41,7 @@ Not Ready For Production Use.
 </PackageReleaseNotes>
     <NeutralLanguage></NeutralLanguage>
     <RootNamespace>SubSonic</RootNamespace>
+    <PackageLicenseFile>LICENSE.MD</PackageLicenseFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Platform)'=='x64'">
@@ -103,6 +104,13 @@ Not Ready For Production Use.
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>SubSonicErrorMessages.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\LICENSE.MD">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
