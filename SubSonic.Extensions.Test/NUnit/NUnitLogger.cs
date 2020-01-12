@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace SubSonic.Tests.DAL.SUT.NUnit
+namespace SubSonic.Extensions.Test.NUnit
 {
     public class NUnitLogger<TClassName>
         : ILogger
@@ -28,6 +26,11 @@ namespace SubSonic.Tests.DAL.SUT.NUnit
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
+            if (formatter is null)
+            {
+                throw new ArgumentNullException(nameof(formatter));
+            }
+
             TestContext.WriteLine(formatter(state, exception));
         }
     }

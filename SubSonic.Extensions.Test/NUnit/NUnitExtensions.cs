@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SubSonic.Tests.DAL.SUT.NUnit
+namespace SubSonic.Extensions.Test.NUnit
 {
-    static class NUnitExtensions
+    public static class NUnitExtensions
     {
         public static ILoggingBuilder AddNUnitLogger<TClassName>(this ILoggingBuilder builder, LogLevel logLevel)
         {

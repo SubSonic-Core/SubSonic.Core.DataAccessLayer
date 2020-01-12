@@ -1,10 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Text;
 
-namespace SubSonic.Tests.DAL.SUT.NUnit
+namespace SubSonic.Extensions.Test.NUnit
 {
     public sealed class NUnitLoggerProvider<TClassName>
         : ILoggerProvider

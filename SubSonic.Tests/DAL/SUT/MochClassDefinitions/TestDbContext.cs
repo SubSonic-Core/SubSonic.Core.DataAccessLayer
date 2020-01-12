@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using SubSonic.Extensions;
 using SubSonic.Extensions.Test;
+using SubSonic.Extensions.Test.NUnit;
 using SubSonic.Infrastructure;
-using SubSonic.Tests.DAL.SUT.NUnit;
 using Models = SubSonic.Extensions.Test.Models;
 
 namespace SubSonic.Tests.DAL.SUT
