@@ -5,13 +5,13 @@
     <Platforms>x64;x86;AnyCPU</Platforms>
     <Copyright>Kenneth Carter © 2020</Copyright>
     <Description>Mock Db Wrapper for SubSonic Data layer. Primary use is to facilitate unit testing of the Data Layer</Description>
-    <PackageTags>DAL; Unit-Testing</PackageTags>
+    <PackageTags>DAL; Unit-Testing; x64</PackageTags>
     <Authors>Kenneth Carter</Authors>
     <RepositoryType>Git</RepositoryType>
     <RepositoryUrl>https://github.com/kccarter76/SubSonic-Core/tree/master/SubSonic.Extensions.Test</RepositoryUrl>
     <PackageLicenseFile>LICENSE.MD</PackageLicenseFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.0.1-alpha</Version>
+    <Version>1.0.0.2-alpha</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Platform)'=='x64'">
@@ -23,7 +23,11 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Platform)'=='AnyCPU'">
-    <DefineConstants>X86</DefineConstants>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>

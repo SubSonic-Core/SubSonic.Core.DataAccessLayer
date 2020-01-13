@@ -18,7 +18,7 @@ namespace SubSonic.Extensions.SqlServer
                 throw new ArgumentNullException(nameof(builder));
             }
 
-            Type providerFactoryType = typeof(SqlClientFactory);
+            Type providerFactoryType = typeof(SubSonicSqlClient);
 
             string providerInvariantName = providerFactoryType.Namespace;
 
