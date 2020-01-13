@@ -77,7 +77,8 @@ WHERE ([{0}].[ID] = {1})";
         {
             string
                 update =
-@"EXEC @Result = [dbo].[UpdateRealEstateProperty] @Properties = @Properties";
+@"DECLARE @Result [Int];
+EXEC @Result = [dbo].[UpdateRealEstateProperty] @Properties = @Properties";
 
             DbContext.Database.Instance.AddCommandBehavior(update, (cmd) =>
             {
@@ -119,7 +120,8 @@ WHERE ([{0}].[ID] = {1})";
         {
             string
                 delete =
-@"EXEC @Result = [dbo].[DeleteRealEstateProperty] @Properties = @Properties";
+@"DECLARE @Result [Int];
+EXEC @Result = [dbo].[DeleteRealEstateProperty] @Properties = @Properties";
 
             DbContext.Database.Instance.AddCommandBehavior(delete, (cmd) =>
             {
@@ -157,7 +159,8 @@ WHERE ([{0}].[ID] = {1})";
         {
             string
                 insert =
-@"EXEC @Result = [dbo].[InsertRealEstateProperty] @Properties = @Properties";
+@"DECLARE @Result [Int];
+EXEC @Result = [dbo].[InsertRealEstateProperty] @Properties = @Properties";
 
             DbContext.Database.Instance.AddCommandBehavior(insert, (cmd) =>
             {
@@ -211,7 +214,8 @@ WHERE ([{0}].[ID] = {1})";
         {
             string
                 insert =
-@"EXEC @Result = [dbo].[InsertRealEstateProperty] @Properties = @Properties";
+@"DECLARE @Result [Int];
+EXEC @Result = [dbo].[InsertRealEstateProperty] @Properties = @Properties";
 
             DbContext.Database.Instance.AddCommandBehavior(insert, (cmd) =>
             {

@@ -27,13 +27,33 @@ namespace SubSonic.Infrastructure
         }
 
         private static string GenerateSql(object procedure, IEnumerable<DbStoredProcedureParameter> parameters)
-        {
-            return string.Format(
-                CultureInfo.CurrentCulture,
-                "EXEC {0}{1} {2}",
-                parameters.Count(x => x.Direction == ParameterDirection.ReturnValue) == 1 ? $"@{parameters.Single(x => x.Direction == ParameterDirection.ReturnValue).Name} = " : "",
-                helper.StoreProcedureName(procedure.GetType()),
-                string.Join(", ", parameters.Where(x => x.Direction != ParameterDirection.ReturnValue).Select(p => $"@{p.Name} = @{p.Name}{(p.Direction == ParameterDirection.Output ? " out" : "")}")));
+        { 
+            int CountOfReturnParameters = parameters.Count(x => x.Direction == ParameterDirection.ReturnValue);
+            if (CountOfReturnParameters == 0)
+            {
+                return string.Format(
+                    CultureInfo.CurrentCulture,
+                    "EXEC {0} {1}",
+                    helper.StoreProcedureName(procedure.GetType()),
+                    string.Join(", ", parameters.Select(p => $"@{p.Name} = @{p.Name}{(p.Direction == ParameterDirection.Output ? " out" : "")}")));
+            }
+            else if (CountOfReturnParameters == 1)
+            {
+                DbStoredProcedureParameter parameter = parameters.Single(x => x.Direction == ParameterDirection.ReturnValue);
+
+                return string.Format(
+                    CultureInfo.CurrentCulture,
+@"DECLARE @{0} [{1}];
+EXEC @{0} = {2} {3}",
+                    parameter.Name,
+                    TypeConvertor.ToSqlDbType(parameter.DbType),
+                    helper.StoreProcedureName(procedure.GetType()),
+                    string.Join(", ", parameters.Where(x => x.Direction != ParameterDirection.ReturnValue).Select(p => $"@{p.Name} = @{p.Name}{(p.Direction == ParameterDirection.Output ? " out" : "")}")));
+            }
+            else
+            {
+                throw new InvalidOperationException(/*can not have more than one return parameter*/);
+            }
         }
 
         private static DbParameter[] GenerateSqlParameters(object procedure, IEnumerable<DbStoredProcedureParameter> parameters)

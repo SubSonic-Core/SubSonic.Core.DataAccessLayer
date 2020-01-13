@@ -79,6 +79,10 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
         {
             IEnumerable data = null;
 
+            string expected =
+@"DECLARE @Result [Int];
+EXEC @Result = [dbo].[InsertRealEstateProperty] @Properties = @Properties";
+
             if (modelType == typeof(Models.RealEstateProperty))
             {
                 data = RealEstateProperties.Select(x => new Entity<Models.RealEstateProperty>(x));
@@ -98,7 +102,7 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
 
             DbStoredProcedure proc = DbStoredProcedureParser.ParseStoredProcedure(procedure);
 
-            proc.Sql.Should().Be("EXEC @Result = [dbo].[InsertRealEstateProperty] @Properties = @Properties");
+            proc.Sql.Should().Be(expected);
 
             proc.Parameters.Count().Should().Be(2);
 
