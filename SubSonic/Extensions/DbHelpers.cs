@@ -125,8 +125,8 @@ namespace SubSonic
             }
 
             Type
-                destinationType = typeof(TDestination),
-                sourceType = typeof(TSource);
+                destinationType = destination.GetType(),
+                sourceType = source.GetType();
 
             foreach (PropertyInfo property in destinationType.GetProperties())
             {
