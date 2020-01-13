@@ -45,7 +45,7 @@ Not Ready For Production Use.
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Platform)'=='x64'">
-    <DefineConstants>X64</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;X64</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Platform)'=='x86'">
