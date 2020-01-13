@@ -33,7 +33,7 @@ namespace SubSonic.Infrastructure.Parsers
                     SubSonicErrorMessages.NotDecoratedWithStoredProcedureAttribute,
                     procedureType));
 
-            return attribute.ToString();
+            return attribute.QualifiedName;
         }
 
         public bool IsUserDefinedTableParameter(PropertyInfo propertyInfo)

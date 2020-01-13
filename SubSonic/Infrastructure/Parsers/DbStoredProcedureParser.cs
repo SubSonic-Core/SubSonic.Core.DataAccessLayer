@@ -22,8 +22,14 @@ namespace SubSonic.Infrastructure
 
             return new DbStoredProcedure(
                 GenerateSql(procedure, parameters),
+                GenerateName(procedure),
                 GenerateSqlParameters(procedure, parameters));
 
+        }
+
+        private static string GenerateName(object procedure)
+        {
+            return helper.StoreProcedureName(procedure.GetType());
         }
 
         private static string GenerateSql(object procedure, IEnumerable<DbStoredProcedureParameter> parameters)

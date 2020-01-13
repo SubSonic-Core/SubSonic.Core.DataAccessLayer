@@ -90,11 +90,13 @@ namespace SubSonic.Infrastructure
             DbStoredProcedure db = DbStoredProcedureParser.ParseStoredProcedure(procedure);
 
             using (AutomaticConnectionScope Scope = GetConnectionScope())
-            using (DbCommand cmd = GetCommand(Scope, db.Sql, db.Parameters))
+            using (DbCommand cmd = GetCommand(Scope, db.Name, db.Parameters))
             using (var perf = logger.Start(GetType(), $"{nameof(ExecuteStoredProcedure)}"))
             {
                 try
                 {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
                     cmd.Connection.Open();
 
                     int result = cmd.ExecuteNonQuery();
@@ -115,11 +117,13 @@ namespace SubSonic.Infrastructure
             DbStoredProcedure db = DbStoredProcedureParser.ParseStoredProcedure(procedure);
 
             using (AutomaticConnectionScope Scope = GetConnectionScope())
-            using (DbCommand cmd = GetCommand(Scope, db.Sql, db.Parameters))
+            using (DbCommand cmd = GetCommand(Scope, db.Name, db.Parameters))
             using (var perf = logger.Start(GetType(), $"{nameof(ExecuteStoredProcedure)}"))
             {
                 try
                 {
+                    cmd.CommandType = CommandType.StoredProcedure;
+
                     cmd.Connection.Open();
 
                     IEnumerable<TEntity> results = cmd.ExecuteReader().Map<TEntity>();

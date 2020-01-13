@@ -76,9 +76,7 @@ WHERE ([{0}].[ID] = {1})";
         public void ShouldBeAbleToUpdateRecordsUsingCQRS()
         {
             string
-                update =
-@"DECLARE @Result [Int];
-EXEC @Result = [dbo].[UpdateRealEstateProperty] @Properties = @Properties";
+                update = "[dbo].[UpdateRealEstateProperty]";
 
             DbContext.Database.Instance.AddCommandBehavior(update, (cmd) =>
             {
@@ -119,9 +117,7 @@ EXEC @Result = [dbo].[UpdateRealEstateProperty] @Properties = @Properties";
         public void ShouldBeAbleToDeleteRecordsUsingCQRS()
         {
             string
-                delete =
-@"DECLARE @Result [Int];
-EXEC @Result = [dbo].[DeleteRealEstateProperty] @Properties = @Properties";
+                delete = "[dbo].[DeleteRealEstateProperty]";
 
             DbContext.Database.Instance.AddCommandBehavior(delete, (cmd) =>
             {
@@ -158,9 +154,7 @@ EXEC @Result = [dbo].[DeleteRealEstateProperty] @Properties = @Properties";
         public void ShouldBeAbleToInsertRecordsUsingCQRS()
         {
             string
-                insert =
-@"DECLARE @Result [Int];
-EXEC @Result = [dbo].[InsertRealEstateProperty] @Properties = @Properties";
+                insert = "[dbo].[InsertRealEstateProperty]";
 
             DbContext.Database.Instance.AddCommandBehavior(insert, (cmd) =>
             {
@@ -213,9 +207,7 @@ EXEC @Result = [dbo].[InsertRealEstateProperty] @Properties = @Properties";
         public void ShouldBeAbleToDetectWhenFailInsertRecordsUsingCQRS()
         {
             string
-                insert =
-@"DECLARE @Result [Int];
-EXEC @Result = [dbo].[InsertRealEstateProperty] @Properties = @Properties";
+                insert = "[dbo].[InsertRealEstateProperty]";
 
             DbContext.Database.Instance.AddCommandBehavior(insert, (cmd) =>
             {

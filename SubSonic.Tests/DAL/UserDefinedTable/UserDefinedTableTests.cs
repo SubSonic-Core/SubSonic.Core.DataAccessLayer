@@ -103,6 +103,8 @@ EXEC @Result = [dbo].[InsertRealEstateProperty] @Properties = @Properties";
             DbStoredProcedure proc = DbStoredProcedureParser.ParseStoredProcedure(procedure);
 
             proc.Sql.Should().Be(expected);
+            
+            proc.Name.Should().Be("[dbo].[InsertRealEstateProperty]");
 
             proc.Parameters.Count().Should().Be(2);
 
