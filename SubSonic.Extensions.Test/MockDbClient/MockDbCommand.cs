@@ -76,9 +76,16 @@ namespace SubSonic.Extensions.Test.MockDbClient
 
         protected override DbDataReader ExecuteDbDataReader(System.Data.CommandBehavior behavior)
         {
-            Prepare();
+            if (this.Connection.State == ConnectionState.Open)
+            {
+                Prepare();
 
-            return _exec.ExecuteDataReader(this);
+                return _exec.ExecuteDataReader(this);
+            }
+            else
+            {
+                throw new InvalidOperationException("Connection State Not Open");
+            }
         }
 
         protected override Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
@@ -88,9 +95,16 @@ namespace SubSonic.Extensions.Test.MockDbClient
 
         public override int ExecuteNonQuery()
         {
-            Prepare();
+            if (this.Connection.State == ConnectionState.Open)
+            {
+                Prepare();
 
-            return _exec.ExecuteNonQuery(this);
+                return _exec.ExecuteNonQuery(this);
+            }
+            else
+            {
+                throw new InvalidOperationException("Connection State Not Open");
+            }
         }
 
         public override Task<int> ExecuteNonQueryAsync(CancellationToken cancellationToken)
