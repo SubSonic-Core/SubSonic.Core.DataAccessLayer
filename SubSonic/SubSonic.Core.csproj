@@ -6,7 +6,7 @@
     <Authors>Kenneth Carter</Authors>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>DAL; x64</PackageTags>
-    <Version>1.0.0.1-alpha</Version>
+    <Version>1.0.0.2-alpha</Version>
     <PackageId>SubSonic.Core</PackageId>
     <Company />
     <PackageProjectUrl>https://github.com/kccarter76/SubSonic-Core/wiki</PackageProjectUrl>
@@ -49,7 +49,7 @@ Not Ready For Production Use.
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Platform)'=='x86'">
-    <DefineConstants>X86</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;X86</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Platform)'=='AnyCPU'">
@@ -58,6 +58,10 @@ Not Ready For Production Use.
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>

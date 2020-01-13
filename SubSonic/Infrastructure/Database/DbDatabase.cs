@@ -91,14 +91,24 @@ namespace SubSonic.Infrastructure
 
             using (AutomaticConnectionScope Scope = GetConnectionScope())
             using (DbCommand cmd = GetCommand(Scope, db.Sql, db.Parameters))
+            using (var perf = logger.Start(GetType(), $"{nameof(ExecuteStoredProcedure)}"))
             {
                 cmd.CommandType = CommandType.StoredProcedure;
 
-                int result = cmd.ExecuteNonQuery();
+                try
+                {
+                    cmd.Connection.Open();
 
-                cmd.Parameters.ApplyOutputParameters(procedure);
+                    int result = cmd.ExecuteNonQuery();
 
-                return result;
+                    cmd.Parameters.ApplyOutputParameters(procedure);
+
+                    return result;
+                }
+                finally
+                {
+                    cmd.Connection.Close();
+                }
             }
         }
 
@@ -108,14 +118,24 @@ namespace SubSonic.Infrastructure
 
             using (AutomaticConnectionScope Scope = GetConnectionScope())
             using (DbCommand cmd = GetCommand(Scope, db.Sql, db.Parameters))
+            using (var perf = logger.Start(GetType(), $"{nameof(ExecuteStoredProcedure)}"))
             {
                 cmd.CommandType = CommandType.StoredProcedure;
 
-                IEnumerable<TEntity> results = cmd.ExecuteReader().Map<TEntity>();
+                try
+                {
+                    cmd.Connection.Open();
 
-                cmd.Parameters.ApplyOutputParameters(procedure);
+                    IEnumerable<TEntity> results = cmd.ExecuteReader().Map<TEntity>();
 
-                return results;
+                    cmd.Parameters.ApplyOutputParameters(procedure);
+
+                    return results;
+                }
+                finally
+                {
+                    cmd.Connection.Close();
+                }
             }
         }
 
