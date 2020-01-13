@@ -139,7 +139,10 @@ namespace SubSonic.Extensions.Test.MockDbClient
                     {
                         object value = Parameters[match.Value].Value;
 
-                        CommandText = CommandText.Replace(match.Value, (value is string || value is Guid) ? $"'{value}'" : value.ToString(), StringComparison.CurrentCulture);
+                        if (!CommandText.StartsWith("EXEC", StringComparison.CurrentCulture))
+                        {
+                            CommandText = CommandText.Replace(match.Value, (value is string || value is Guid) ? $"'{value}'" : value.ToString(), StringComparison.CurrentCulture);
+                        }
                     }
                 }
             }

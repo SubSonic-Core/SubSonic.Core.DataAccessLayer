@@ -93,8 +93,6 @@ namespace SubSonic.Infrastructure
             using (DbCommand cmd = GetCommand(Scope, db.Sql, db.Parameters))
             using (var perf = logger.Start(GetType(), $"{nameof(ExecuteStoredProcedure)}"))
             {
-                cmd.CommandType = CommandType.StoredProcedure;
-
                 try
                 {
                     cmd.Connection.Open();
@@ -120,8 +118,6 @@ namespace SubSonic.Infrastructure
             using (DbCommand cmd = GetCommand(Scope, db.Sql, db.Parameters))
             using (var perf = logger.Start(GetType(), $"{nameof(ExecuteStoredProcedure)}"))
             {
-                cmd.CommandType = CommandType.StoredProcedure;
-
                 try
                 {
                     cmd.Connection.Open();
