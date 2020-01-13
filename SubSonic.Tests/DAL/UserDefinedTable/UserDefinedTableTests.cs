@@ -98,7 +98,7 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
 
             DbStoredProcedure proc = DbStoredProcedureParser.ParseStoredProcedure(procedure);
 
-            proc.Sql.Should().Be("EXEC [dbo].[InsertRealEstateProperty] @Properties = @Properties, @Result = @Result");
+            proc.Sql.Should().Be("EXEC @Result = [dbo].[InsertRealEstateProperty] @Properties = @Properties");
 
             proc.Parameters.Count().Should().Be(2);
 

@@ -30,9 +30,10 @@ namespace SubSonic.Infrastructure
         {
             return string.Format(
                 CultureInfo.CurrentCulture,
-                "EXEC {0} {1}",
+                "EXEC {0}{1} {2}",
+                parameters.Count(x => x.Direction == ParameterDirection.ReturnValue) == 1 ? $"@{parameters.Single(x => x.Direction == ParameterDirection.ReturnValue).Name} = " : "",
                 helper.StoreProcedureName(procedure.GetType()),
-                string.Join(", ", parameters.Select(p => $"@{p.Name} = @{p.Name}{(p.Direction == ParameterDirection.Output ? " out" : "")}")));
+                string.Join(", ", parameters.Where(x => x.Direction != ParameterDirection.ReturnValue).Select(p => $"@{p.Name} = @{p.Name}{(p.Direction == ParameterDirection.Output ? " out" : "")}")));
         }
 
         private static DbParameter[] GenerateSqlParameters(object procedure, IEnumerable<DbStoredProcedureParameter> parameters)
