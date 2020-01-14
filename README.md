@@ -11,7 +11,7 @@ This way I know the DAL from the ground up and speak for its performance and imp
 4. utilize MARS statements when eagerloading data for an object graph.
 5. implement asynchonous operations at some point.
 6. support SQL Server, Oracle, MySql, etc. Database engines.
-7. apply TDD, DRY, YAGNI, and KISS priciples were applicable.
+7. apply TDD, DRY, YAGNI, and KISS principles where applicable.
 
 
 # Reference Material
