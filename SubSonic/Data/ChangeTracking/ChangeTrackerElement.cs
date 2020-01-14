@@ -68,6 +68,11 @@ namespace SubSonic.Data.Caching
                 {
                     if (select.Where is DbWhereExpression where)
                     {
+                        if (!where.CanReadFromCache)
+                        {
+                            return 0;
+                        }
+
                         results = results.Where((Expression<Func<TEntity, bool>>)where.LambdaPredicate);
                     }
 

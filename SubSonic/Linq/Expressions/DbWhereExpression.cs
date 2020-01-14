@@ -12,13 +12,16 @@ namespace SubSonic.Linq.Expressions
     public class DbWhereExpression
         : DbExpression
     {
-        public DbWhereExpression(DbExpressionType eType, Type type, LambdaExpression lambda, Expression predicate, IReadOnlyCollection<SubSonicParameter> parameters = null) 
+        public DbWhereExpression(DbExpressionType eType, Type type, LambdaExpression lambda, Expression predicate, bool canReadFromCache, IReadOnlyCollection<SubSonicParameter> parameters = null) 
             : base(eType, eType == DbExpressionType.Where ? type : typeof(bool))
         {
             LambdaPredicate = lambda ?? throw new ArgumentNullException(nameof(lambda));
             Expression = predicate ?? throw new ArgumentNullException(nameof(predicate));
+            CanReadFromCache = canReadFromCache;
             Parameters = parameters ?? new ReadOnlyCollection<SubSonicParameter>(Array.Empty<SubSonicParameter>());
         }
+
+        public bool CanReadFromCache { get; }
 
         public LambdaExpression LambdaPredicate { get; }
 

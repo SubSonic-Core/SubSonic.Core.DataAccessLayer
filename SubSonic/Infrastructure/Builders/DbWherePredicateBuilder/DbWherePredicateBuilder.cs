@@ -25,6 +25,7 @@ namespace SubSonic.Infrastructure.Builders
         private DbComparisonOperator comparison;
         private DbExpressionType whereType;
         private PropertyInfo propertyInfo;
+        private bool CanReadFromCache;
         private bool visitingForArray;
 
         protected DbWherePredicateBuilder(DbExpressionType whereType, DbTableExpression table)
@@ -46,7 +47,7 @@ namespace SubSonic.Infrastructure.Builders
         {
             using (var builder = new DbWherePredicateBuilder(whereType, table))
             {
-                return new DbWhereExpression(whereType, type, lambda, builder.ParseLambda(lambda), builder.parameters.ToReadOnlyCollection(DbExpressionType.Where));
+                return new DbWhereExpression(whereType, type, lambda, builder.ParseLambda(lambda), builder.CanReadFromCache, builder.parameters.ToReadOnlyCollection(DbExpressionType.Where));
             }
         }
 
@@ -214,6 +215,8 @@ namespace SubSonic.Infrastructure.Builders
             {
                 if (column.PropertyName == propertyInfo.Name)
                 {
+                    CanReadFromCache |= column.Property.IsPrimaryKey;
+
                     return column.Expression;
                 }
             }

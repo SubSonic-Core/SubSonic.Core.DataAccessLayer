@@ -75,7 +75,12 @@ namespace SubSonic.Data.Caching
 
             if (!result && error_feedback.IsNotNullOrEmpty())
             {
-                DbContext.ServiceProvider.GetService<ISubSonicLogger<ChangeTrackerCollection>>().LogError(error_feedback);
+                var logger = DbContext.ServiceProvider.GetService<ISubSonicLogger<ChangeTrackerCollection>>();
+
+                if (logger.IsNotNull())
+                {
+                    logger.LogError(error_feedback);
+                }
             }
 
             return result;

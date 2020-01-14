@@ -177,12 +177,6 @@ namespace SubSonic.Infrastructure.Builders
                             propertyInfo = pi;
 
                             return GetDbColumnExpression(pi);
-
-                            //if (comparison.NotIn(DbComparisonOperator.Between, DbComparisonOperator.NotBetween) &&
-                            //    Arguments.Count == 2)
-                            //{
-                            //    BuildLogicalExpression();
-                            //}
                         }
                         else if (node.Member is FieldInfo fi)
                         {
