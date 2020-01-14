@@ -39,7 +39,7 @@ WHERE [{0}].[StatusID] IN (@el_1, @el_2, @el_3)".Format("T1");
                     rep.StatusID.In(new[] { 1, 2, 3 }))
                 .Expression;
 
-            IDbQueryObject query = null;
+            IDbQuery query = null;
 
             var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
@@ -87,7 +87,7 @@ WHERE [T1].[StatusID] IN (
                             .Select(x => x.ID)))
                 .Expression;
 
-            IDbQueryObject query = null;
+            IDbQuery query = null;
 
             var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
@@ -133,7 +133,7 @@ WHERE [{0}].[StatusID] NOT IN (
                             .Select(x => x.ID)))
                 .Expression;
 
-            IDbQueryObject query = null;
+            IDbQuery query = null;
 
             var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
@@ -172,7 +172,7 @@ WHERE [{0}].[StatusID] NOT IN (@el_1, @el_2, @el_3)".Format("T1");
                     rep.StatusID.NotIn(new[] { 1, 2, 3 }))
                 .Expression;
 
-            IDbQueryObject query = null;
+            IDbQuery query = null;
 
             var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
@@ -354,7 +354,7 @@ WHERE ([{0}].[IsAvailableStatus] = @isavailablestatus_1)".Format("T1");
 
             select.Should().BeOfType<DbSelectExpression>();
 
-            IDbQueryObject query = null;
+            IDbQuery query = null;
 
             var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
@@ -402,7 +402,7 @@ WHERE EXISTS (
                         .Select(unit => unit.ID))
                 .Expression;
 
-            IDbQueryObject query = null;
+            IDbQuery query = null;
 
             var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
@@ -447,7 +447,7 @@ WHERE NOT EXISTS (
                         .Select(x => x.ID))
                 .Expression;
 
-            IDbQueryObject query = null;
+            IDbQuery query = null;
 
             var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
@@ -506,7 +506,7 @@ WHERE (([{0}].[RealEstatePropertyID] = @realestatepropertyid_1) AND ([{0}].[Stat
 
             select.Should().NotBeNull();
 
-            IDbQueryObject query = null;
+            IDbQuery query = null;
 
             var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
@@ -549,7 +549,7 @@ WHERE [{0}].[StartDate] BETWEEN @dt_start_1 AND @dt_end_2".Format("T1");
                     Renter.StartDate.Between(Start, End))
                 .Expression;
 
-            IDbQueryObject query = null;
+            IDbQuery query = null;
 
             var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
@@ -593,7 +593,7 @@ WHERE [{0}].[StartDate] NOT BETWEEN @dt_start_1 AND @dt_end_2".Format("T1");
                     Renter.StartDate.NotBetween(Start, End))
                 .Expression;
 
-            IDbQueryObject query = null;
+            IDbQuery query = null;
 
             var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
@@ -637,7 +637,7 @@ WHERE @dt_now_1 BETWEEN [{0}].[StartDate] AND ISNULL([{0}].[EndDate], @dt_defaul
                     Now.Between(Renter.StartDate, Renter.EndDate.IsNull(Default)))
                 .Expression;
 
-            IDbQueryObject query = null;
+            IDbQuery query = null;
 
             var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
@@ -681,7 +681,7 @@ WHERE @dt_now_1 NOT BETWEEN [{0}].[StartDate] AND ISNULL([{0}].[EndDate], @dt_de
                     Now.NotBetween(Renter.StartDate, Renter.EndDate.IsNull(Default)))
                 .Expression;
 
-            IDbQueryObject query = null;
+            IDbQuery query = null;
 
             var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
@@ -720,7 +720,7 @@ FROM [dbo].[Renter] AS [{0}]".Format("T1");
                 .Select(x => x.PersonID)
                 .Expression;
 
-            IDbQueryObject query = null;
+            IDbQuery query = null;
 
             var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
@@ -754,7 +754,7 @@ FROM [dbo].[Renter] AS [{0}]".Format("T1");
                 .Take(1)
                 .Expression;
 
-            IDbQueryObject query = null;
+            IDbQuery query = null;
 
             var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
@@ -798,7 +798,7 @@ OPTION (RECOMPILE);".Format("T1");
                 .Page(1, 20)
                 .Expression;
 
-            IDbQueryObject query = null;
+            IDbQuery query = null;
 
             var logging = DbContext.Instance.GetService<ISubSonicLogger<DbPagedSelectExpression>>();
 

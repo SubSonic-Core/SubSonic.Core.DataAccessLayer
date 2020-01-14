@@ -36,7 +36,7 @@ FROM [dbo].[Status] AS [{0}]".Format("T1");
 
             ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
-            IDbQueryObject dbQuery = builder.ToQueryObject(DbContext.Statuses.Expression);
+            IDbQuery dbQuery = builder.ToQueryObject(DbContext.Statuses.Expression);
 
             dbQuery.Should().NotBeNull();
             dbQuery.Sql.Should().Be(expected);
@@ -53,7 +53,7 @@ WHERE ([{0}].[ID] = @id_1)".Format("T1");
 
             ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
-            IDbQueryObject dbQuery = builder.ToQueryObject(DbContext.Statuses.FindByID(1).Expression);
+            IDbQuery dbQuery = builder.ToQueryObject(DbContext.Statuses.FindByID(1).Expression);
 
             dbQuery.Should().NotBeNull();
             dbQuery.Sql.Should().Be(expected);

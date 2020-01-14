@@ -244,7 +244,7 @@ namespace SubSonic.Infrastructure.Builders
         }
         #endregion
 
-        public IDbQueryObject ToQueryObject(Expression expression)
+        public IDbQuery ToQueryObject(Expression expression)
         {
             if (expression is DbSelectExpression select)
             {

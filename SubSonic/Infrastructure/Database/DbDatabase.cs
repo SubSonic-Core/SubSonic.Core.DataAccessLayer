@@ -149,7 +149,7 @@ namespace SubSonic.Infrastructure
             }
         }
 
-        public DbDataReader ExecuteReader(IDbQueryObject queryObject)
+        public DbDataReader ExecuteReader(IDbQuery queryObject)
         {
             if (queryObject is null)
             {
@@ -166,7 +166,7 @@ namespace SubSonic.Infrastructure
 
         public AutomaticConnectionScope GetConnectionScope() => dbContext.Instance.GetService<AutomaticConnectionScope>();
 
-        public static DbCommand GetCommand(IConnectionScope scope, IDbQueryObject queryObject)
+        public static DbCommand GetCommand(IConnectionScope scope, IDbQuery queryObject)
         {
             if (scope is null)
             {

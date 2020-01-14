@@ -7,7 +7,7 @@ using System.Data.Common;
 namespace SubSonic.Infrastructure
 {
     internal class DbQueryObject
-        : IDbQueryObject
+        : IDbQuery
     {
         public DbQueryObject(string sql)
             : this(sql, Array.Empty<DbParameter>())

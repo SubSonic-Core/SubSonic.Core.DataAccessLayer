@@ -28,6 +28,6 @@ namespace SubSonic.Infrastructure
         Expression BuildJoin(JoinType type, Expression left, Expression right);
         Expression BuildLambda(Expression body, LambdaType callType, params string[] properties);
         Expression BuildCall(string nameOfCallee, Expression collection, Expression lambda);
-        IDbQueryObject ToQueryObject(Expression expr);
+        IDbQuery ToQueryObject(Expression expr);
     }
 }

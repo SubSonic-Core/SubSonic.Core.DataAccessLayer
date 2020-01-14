@@ -93,7 +93,7 @@ namespace SubSonic
             {
                 if (disposing)
                 {
-                    // TODO: dispose managed state (managed objects).
+                    ChangeTracking.Flush();
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
