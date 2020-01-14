@@ -120,16 +120,19 @@ EXEC @{0} = {2} {3}",
             {
                 DbParameterAttribute attribute = info.GetCustomAttribute<DbParameterAttribute>();
 
-                parameters.Add(new DbStoredProcedureParameter()
-                { 
-                    Name = attribute.IsNotNull(x => x.Name, info.Name),
-                    IsUserDefinedTable = helper.IsUserDefinedTableParameter(info),
-                    PropertyInfo = info,
-                    IsMandatory = helper.ParameterIsMandatory(attribute.Options),
-                    DbType = attribute.IsNotNull(x => x.DbType, info.PropertyType.GetDbType()),
-                    Direction = attribute.IsNotNull(x => x.Direction, ParameterDirection.Input),
-                    Size = attribute.IsNotNull(x => x.Size)
-                });
+                if (attribute.IsNotNull())
+                {
+                    parameters.Add(new DbStoredProcedureParameter()
+                    {
+                        Name = attribute.IsNotNull(x => x.Name, info.Name),
+                        IsUserDefinedTable = helper.IsUserDefinedTableParameter(info),
+                        PropertyInfo = info,
+                        IsMandatory = helper.ParameterIsMandatory(attribute.Options),
+                        DbType = attribute.IsNotNull(x => x.DbType, info.PropertyType.GetDbType()),
+                        Direction = attribute.IsNotNull(x => x.Direction, ParameterDirection.Input),
+                        Size = attribute.IsNotNull(x => x.Size)
+                    });
+                }
             }
 
             return parameters;

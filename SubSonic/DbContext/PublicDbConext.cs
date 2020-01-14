@@ -8,6 +8,7 @@ namespace SubSonic
     using Infrastructure;
     using Infrastructure.Schema;
     using Linq;
+    using SubSonic.Data.Caching;
 
     public partial class DbContext
     {
@@ -24,6 +25,8 @@ namespace SubSonic
         }
 
         public DbDatabase Database => Instance.GetService<DbDatabase>();
+
+        public ChangeTrackerCollection ChangeTracking => Instance.GetService<ChangeTrackerCollection>();
 
         public IServiceProvider Instance => ServiceProvider;
 

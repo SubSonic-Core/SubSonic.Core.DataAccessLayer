@@ -45,7 +45,7 @@ namespace SubSonic.Infrastructure.Builders
 
                     Type elementType = typeof(TResult).GetQualifiedType();
 
-                    if (DbContext.ChangeTracking.Count(elementType, select) == 0)
+                    if (DbContext.Current.ChangeTracking.Count(elementType, select) == 0)
                     {
                         try
                         {
@@ -55,7 +55,7 @@ namespace SubSonic.Infrastructure.Builders
 
                             while (reader.Read())
                             {
-                                DbContext.ChangeTracking.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
+                                DbContext.Current.ChangeTracking.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
                             }
                         }
                         finally
@@ -64,7 +64,7 @@ namespace SubSonic.Infrastructure.Builders
                         }
                     }
 
-                    return DbContext.ChangeTracking.Where<TResult>(elementType, this, expression);
+                    return DbContext.Current.ChangeTracking.Where<TResult>(elementType, this, expression);
                 }
             }
             else if (expression is MethodCallExpression method)

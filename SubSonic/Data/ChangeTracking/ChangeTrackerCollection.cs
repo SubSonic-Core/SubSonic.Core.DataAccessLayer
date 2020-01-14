@@ -1,4 +1,6 @@
-﻿using SubSonic.Infrastructure;
+﻿using Microsoft.Extensions.Logging;
+using SubSonic.Infrastructure;
+using SubSonic.Infrastructure.Logging;
 using SubSonic.Linq;
 using System;
 using System.Collections;
@@ -69,7 +71,21 @@ namespace SubSonic.Data.Caching
 
         public bool SaveChanges()
         {
+            bool result = SaveChanges(out string error_feedback);
+
+            if (!result && error_feedback.IsNotNullOrEmpty())
+            {
+                DbContext.ServiceProvider.GetService<ISubSonicLogger<ChangeTrackerCollection>>().LogError(error_feedback);
+            }
+
+            return result;
+        }
+
+        public bool SaveChanges(out string feedback)
+        {
             bool success = true;
+
+            StringBuilder errors = new StringBuilder();
 
             foreach (var dataset in this)
             {
@@ -77,21 +93,43 @@ namespace SubSonic.Data.Caching
                 var update = dataset.Value.Where(x => !x.IsNew && x.IsDirty);
                 var delete = dataset.Value.Where(x => !x.IsNew && x.IsDeleted);
 
+                string error_feedback = "";
+
                 if (insert.Count() > 0)
                 {
-                   success &= collection[dataset.Key].SaveChanges(DbQueryType.Insert, insert);
+                    success &= collection[dataset.Key].SaveChanges(DbQueryType.Insert, insert, out error_feedback);
+                    if (!success && error_feedback.IsNotNullOrEmpty())
+                    {
+                        errors.AppendLine(error_feedback);
+
+                        error_feedback = "";
+                    }
                 }
 
                 if (update.Count() > 0)
                 {
-                    success &= collection[dataset.Key].SaveChanges(DbQueryType.Update, update);
+                    success &= collection[dataset.Key].SaveChanges(DbQueryType.Update, update, out error_feedback);
+                    if (!success && error_feedback.IsNotNullOrEmpty())
+                    {
+                        errors.AppendLine(error_feedback);
+
+                        error_feedback = "";
+                    }
                 }
 
                 if (delete.Count() > 0)
                 {
-                    success &= collection[dataset.Key].SaveChanges(DbQueryType.Delete, delete);
+                    success &= collection[dataset.Key].SaveChanges(DbQueryType.Delete, delete, out error_feedback);
+                    if (!success && error_feedback.IsNotNullOrEmpty())
+                    {
+                        errors.AppendLine(error_feedback);
+
+                        error_feedback = "";
+                    }
                 }
             }
+
+            feedback = errors.ToString();
 
             return success;
         }

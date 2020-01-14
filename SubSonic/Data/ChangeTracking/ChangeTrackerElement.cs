@@ -78,7 +78,7 @@ namespace SubSonic.Data.Caching
             throw new NotSupportedException();
         }
 
-        public override bool SaveChanges(DbQueryType queryType, IEnumerable<IEntityProxy> data)
+        public override bool SaveChanges(DbQueryType queryType, IEnumerable<IEntityProxy> data, out string error)
         {
             if (data is null)
             {
@@ -86,6 +86,8 @@ namespace SubSonic.Data.Caching
             }
 
             bool success = false;
+
+            error = "";
 
             try
             {
@@ -114,6 +116,11 @@ namespace SubSonic.Data.Caching
 
                     if (procedure.Result != 0)
                     {
+                        // flush the invalid data
+                        result.ForEach(x => Remove(x));
+
+                        error = procedure.Error;
+
                         return success;
                     }
                 }
@@ -218,7 +225,7 @@ namespace SubSonic.Data.Caching
 
         public abstract int Count(Expression expression);
 
-        public abstract bool SaveChanges(DbQueryType queryType, IEnumerable<IEntityProxy> data);
+        public abstract bool SaveChanges(DbQueryType queryType, IEnumerable<IEntityProxy> data, out string error);
 
         public abstract TResult Where<TResult>(System.Linq.IQueryProvider provider, Expression expression);
 
