@@ -248,8 +248,8 @@ WHERE ([{0}].[ID] = {1})";
             DbContext.SaveChanges().Should().BeFalse();
 
             property.ID.Should().Be(0);
-
-            DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
+            // bad data removed from change tracking.
+            DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(0);
         }
     }
 }

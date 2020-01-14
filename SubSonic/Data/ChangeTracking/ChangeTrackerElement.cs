@@ -117,7 +117,7 @@ namespace SubSonic.Data.Caching
                     if (procedure.Result != 0)
                     {
                         // flush the invalid data
-                        result.ForEach(x => Remove(x));
+                        data.ForEach(x => Remove(x));
 
                         error = procedure.Error;
 
