@@ -1,9 +1,10 @@
-﻿using SubSonic.Linq;
-using SubSonic.Linq.Expressions;
+﻿using SubSonic.Linq.Expressions;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data;
-using System.Text;
+using System.Data.Common;
+using System.Linq;
 
 namespace SubSonic.Infrastructure
 {
@@ -20,16 +21,15 @@ namespace SubSonic.Infrastructure
         public DbPagedQuery(DbSelectPagedExpression select)
             : base(CommandBehavior.Default)
         {
-            PageSize = select.PageSize;
-            PageNumber = select.PageNumber;
-
             if (select.Select.From.Columns.Count(x => x.Property.IsPrimaryKey) == 1)
             {
-                SelectRecordCount = DbExpression.DbSelectAggregate(select.PrimaryKeySelect, new[] { DbExpression.DbAggregate(typeof(int), AggregateType.Count, select.Select.From.Columns.Single(x => x.Property.IsPrimaryKey).Expression) });
+                SelectRecordCount = DbExpression.DbSelectAggregate(select.PrimaryKeySelect, new[] { 
+                    DbExpression.DbColumnAggregate(DbExpression.DbAggregate(typeof(int), AggregateType.Count, select.Select.From.Columns.Single(x => x.Property.IsPrimaryKey).Expression), nameof(RecordCount)) });
             }
             else
             {
-                SelectRecordCount = DbExpression.DbSelectAggregate(select.PrimaryKeySelect, new[] { DbExpression.DbAggregate(typeof(int), AggregateType.Count, null) });
+                SelectRecordCount = DbExpression.DbSelectAggregate(select.PrimaryKeySelect, new[] { 
+                    DbExpression.DbColumnAggregate(DbExpression.DbAggregate(typeof(int), AggregateType.Count, null), nameof(RecordCount)) });
             }
                         
             SelectPaged = select;
@@ -37,28 +37,44 @@ namespace SubSonic.Infrastructure
 
         public DbExpression SelectRecordCount { get; }
 
-        public DbExpression SelectPaged { get; }
+        public DbSelectPagedExpression SelectPaged { get; }
 
-        public int Count { get; private set; }
+        public int RecordCount { get; set; }
 
-        public int PageSize { get; }
+        public int PageSize => SelectPaged.PageSize;
 
-        public int PageNumber { get; set; }
+        public int PageNumber
+        {
+            get => SelectPaged.PageNumber;
+            set => SelectPaged.PageNumber = value;
+        }
 
-        public int PageCount => (int)Math.Ceiling((decimal)(Count / PageSize));
+        public int PageCount => (int)Math.Ceiling((decimal)(RecordCount / PageSize));
 
         public override string Sql => ToString();
 
-        public IEnumerable<TEntity> GetRecordsForPage<TEntity>(int number)
-        {
-            PageNumber = number;
+        public override IReadOnlyCollection<DbParameter> Parameters => GetParameters();
 
-            throw new NotImplementedException();
+        public IReadOnlyCollection<DbParameter> GetParameters()
+        {
+            IEnumerable<DbParameter> parameters = SelectPaged.Parameters;
+
+            if (SelectPaged.Select.Where is DbWhereExpression where)
+            {
+                parameters = parameters.Union(where.Parameters);    
+            }
+
+            return new ReadOnlyCollection<DbParameter>(parameters.ToList());
+        }
+
+        public IDbPagedCollection<TEntity> ToPagedCollection<TEntity>()
+        {
+            return new DbPagedCollection<TEntity>(this);
         }
 
         public override string ToString()
         {
-            return String.Join("", SelectRecordCount, "\r\n", SelectPaged);
+            return String.Join(";\r\n", SelectRecordCount, SelectPaged);
         }
     }
 }

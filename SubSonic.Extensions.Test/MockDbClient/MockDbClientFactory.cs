@@ -89,7 +89,28 @@ namespace SubSonic.Extensions.Test.MockDbClient
 
         MockDbDataReaderCollection IMockCommandExecution.ExecuteDataReader(MockDbCommand cmd)
         {
-            return new MockDbDataReaderCollection(GetReturnValue<DataTable>(cmd).CreateDataReader());
+            string[] commands = cmd.CommandText.Split(';');
+
+            if (commands.Length == 1)
+            {   // command contains one select command
+                return new MockDbDataReaderCollection(GetReturnValue<DataTable>(cmd).CreateDataReader());
+            }
+            else
+            {
+                using (DataSet data = new DataSet())
+                {
+                    foreach (string sql in commands)
+                    {
+#pragma warning disable CA2100 // Review SQL queries for security vulnerabilities
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                        data.Tables.Add(GetReturnValue<DataTable>(new MockDbCommand(this, cmd.Parameters) { CommandText = sql.Trim("\r\n".ToCharArray()) }));
+#pragma warning restore CA2000 // Dispose objects before losing scope
+#pragma warning restore CA2100 // Review SQL queries for security vulnerabilities
+                    }
+
+                    return new MockDbDataReaderCollection(data.CreateDataReader());
+                }
+            }
         }
 
         public TReturn GetReturnValue<TReturn>(MockDbCommand cmd)

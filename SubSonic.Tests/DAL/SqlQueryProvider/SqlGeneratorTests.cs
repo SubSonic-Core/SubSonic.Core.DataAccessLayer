@@ -780,7 +780,7 @@ FROM [dbo].[Renter] AS [{0}]".Format("T1");
         public void CanGenerateSelectQueryWithPagination()
         {
             string expected =
-@";WITH page AS
+@"WITH page AS
 (
 	SELECT [{0}].[PersonID], [{0}].[UnitID]
 	FROM [dbo].[Renter] AS [{0}]
@@ -791,11 +791,11 @@ SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].
 FROM [dbo].[Renter] AS [{0}]
 	INNER JOIN page
 		ON (([page].[PersonID] = [{0}].[PersonID]) AND ([page].[UnitID] = [{0}].[UnitID]))
-OPTION (RECOMPILE);".Format("T1");
+OPTION (RECOMPILE)".Format("T1");
 
             Expression select = DbContext
                 .Renters
-                .Page(1, 20)
+                .Page(default(int), 20)
                 .Expression;
 
             IDbQuery query = null;
@@ -823,9 +823,9 @@ OPTION (RECOMPILE);".Format("T1");
         public void CanGenerateSqlForRealEstatePropertyPageQuery()
         {
             string expected =
-@"SELECT COUNT([{0}].[ID])
-FROM [dbo].[RealEstateProperty] AS [{0}]
-;WITH page AS
+@"SELECT COUNT([{0}].[ID]) [RECORDCOUNT]
+FROM [dbo].[RealEstateProperty] AS [{0}];
+WITH page AS
 (
 	SELECT [{0}].[ID]
 	FROM [dbo].[RealEstateProperty] AS [{0}]
@@ -836,11 +836,11 @@ SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
 FROM [dbo].[RealEstateProperty] AS [{0}]
 	INNER JOIN page
 		ON ([page].[ID] = [{0}].[ID])
-OPTION (RECOMPILE);".Format("T1");
+OPTION (RECOMPILE)".Format("T1");
 
             Expression select = DbContext
                 .RealEstateProperties
-                .Page(1, 5)
+                .Page(default(int), 5)
                 .Expression;
 
             IDbQuery query = null;

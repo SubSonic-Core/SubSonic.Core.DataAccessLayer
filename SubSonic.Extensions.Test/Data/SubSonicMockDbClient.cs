@@ -30,6 +30,15 @@ namespace SubSonic.Extensions.Test
 
         public void AddBehavior(MockCommandBehavior behavior) => Provider.AddBehavior(behavior);
 
+        public override DbDataAdapter CreateDataAdapter(DbCommand select)
+        {
+            DbDataAdapter adapter = CreateDataAdapter();
+
+            adapter.SelectCommand = select;
+
+            return adapter;
+        }
+
         public override DbParameter CreateParameter(SubSonicParameter parameter)
         {
             DbParameter db = CreateParameter();

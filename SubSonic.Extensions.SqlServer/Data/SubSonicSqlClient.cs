@@ -25,6 +25,15 @@ namespace SubSonic.Extensions.SqlServer
 
         public override ISqlQueryProvider QueryProvider { get; }
 
+        public override DbDataAdapter CreateDataAdapter(DbCommand select)
+        {
+            DbDataAdapter adapter = CreateDataAdapter();
+
+            adapter.SelectCommand = select;
+
+            return adapter;
+        }
+
         public override DbParameter CreateParameter(SubSonicParameter parameter)
         {
             SqlParameter db = (SqlParameter)CreateParameter();

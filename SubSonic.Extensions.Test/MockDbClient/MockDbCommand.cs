@@ -21,6 +21,20 @@ namespace SubSonic.Extensions.Test.MockDbClient
             CommandType = CommandType.Text;
         }
 
+        internal MockDbCommand(IMockCommandExecution exec, DbParameterCollection collection)
+            : this(exec)
+        {
+            if (collection is null)
+            {
+                throw new ArgumentNullException(nameof(collection));
+            }
+
+            if (collection is MockDbParameterCollection parameters)
+            {
+                this.parameters = parameters;
+            }
+        }
+
         protected static Regex ParameterRegex => new Regex(@"\@([^=<>\s]+)(?:[a-z]|[0-9]|_|\b)", RegexOptions.Multiline | RegexOptions.Compiled);
 
         public override void Cancel()

@@ -9,6 +9,8 @@ using System;
 
 namespace SubSonic.Tests.DAL
 {
+    using SubSonic.Extensions.Test.Data.Builders;
+    using SubSonic.Linq;
     using SUT;
     using Models = Extensions.Test.Models;
 
@@ -213,7 +215,7 @@ WHERE ([{0}].[ID] = {1})";
             {
                 DataTable correlation = null;
 
-                foreach(DbParameter parameter in cmd.Parameters)
+                foreach (DbParameter parameter in cmd.Parameters)
                 {
                     if (parameter.Direction == ParameterDirection.ReturnValue)
                     {
@@ -250,6 +252,66 @@ WHERE ([{0}].[ID] = {1})";
             property.ID.Should().Be(0);
             // bad data removed from change tracking.
             DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(0);
+        }
+
+        [Test]
+        public void ShouldBeAbleToPageData()
+        {
+            string
+                count =
+@"SELECT COUNT([T1].[ID]) [RECORDCOUNT]
+FROM [dbo].[RealEstateProperty] AS [T1]",
+                paged =
+@"WITH page AS
+(
+    SELECT [T1].[ID]
+    FROM [dbo].[RealEstateProperty] AS [T1]
+    OFFSET {0} * ({1} - 1) ROWS
+    FETCH NEXT {0} ROWS ONLY
+)
+SELECT [T1].[ID], [T1].[StatusID], [T1].[HasParallelPowerGeneration]
+FROM [dbo].[RealEstateProperty] AS [T1]
+    INNER JOIN page
+    	ON ([page].[ID] = [T1].[ID])
+OPTION (RECOMPILE)".Format(3, 1);
+
+            DbContext.Database.Instance.AddCommandBehavior(count, (cmd) =>
+            {
+                using (DataTableBuilder table = new DataTableBuilder())
+                {
+                    table
+                    .AddColumn("RECORDCOUNT", typeof(int))
+                    .AddRow(RealEstateProperties.Count());
+
+                    return table.DataTable;
+                }
+            });
+
+            DbContext.Database.Instance.AddCommandBehavior(paged, (cmd) =>
+            {
+                using (DataTableBuilder table = new DataTableBuilder())
+                {
+                    table
+                    .AddColumn("RECORDCOUNT", typeof(int))
+                    .AddRow(RealEstateProperties.Count());
+
+                    return table.DataTable;
+                }
+            });
+
+            ISubSonicQueryProvider<Models.RealEstateProperty> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Models.RealEstateProperty>>();
+
+            IDbPagedQuery query = builder.ToPagedQuery(DbContext
+                .RealEstateProperties
+                .Page(0, 3).Expression);
+
+            query.PageSize.Should().Be(3);
+            query.PageNumber.Should().Be(0);
+
+            foreach(var entity in query.ToPagedCollection<Models.RealEstateProperty>())
+            {
+
+            }
         }
     }
 }

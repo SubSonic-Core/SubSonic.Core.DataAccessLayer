@@ -47,7 +47,7 @@ namespace SubSonic.Linq.Expressions
                     true
                 ));
 
-        public int PageNumber { get; }
+        public int PageNumber { get; set; }
 
         public int PageSize { get; }
 
@@ -61,8 +61,8 @@ namespace SubSonic.Linq.Expressions
                 {
                     return new[]
                     {
-                        subsonic.CreateParameter(nameof(PageNumber), PageNumber),
-                        subsonic.CreateParameter(nameof(PageSize), PageSize)
+                        subsonic.CreateParameter($"@{nameof(PageNumber)}", PageNumber),
+                        subsonic.CreateParameter($"@{nameof(PageSize)}", PageSize)
                     };
                 }
 

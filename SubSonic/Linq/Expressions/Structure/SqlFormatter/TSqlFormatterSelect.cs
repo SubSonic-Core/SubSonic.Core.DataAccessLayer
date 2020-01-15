@@ -44,7 +44,16 @@ namespace SubSonic.Linq.Expressions.Structure
                             Write($"{Fragments.COMMA} ");
                         }
 
-                        VisitValue(aggregate.Columns[i]);
+                        if (aggregate.Columns[i] is DbColumnAggregateExpression column)
+                        {
+                            VisitValue(column.Argument);
+
+                            Write($" [{column.Name}]");
+                        }
+                        else
+                        {
+                            VisitValue(aggregate.Columns[i]);
+                        }
                     }
                 }
                 else
@@ -89,7 +98,7 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             if (paged.IsNotNull())
             {
-                WriteNewLine($";{Fragments.WITH} {paged.PageCte.QualifiedName} {Fragments.AS}");
+                WriteNewLine($"{Fragments.WITH} {paged.PageCte.QualifiedName} {Fragments.AS}");
                 WriteNewLine(Fragments.LEFT_PARENTHESIS);
                 WriteNewLine(Indentation.Inner);
                 this.VisitSelect(paged.PrimaryKeySelect);
@@ -173,7 +182,7 @@ namespace SubSonic.Linq.Expressions.Structure
                     }
                 }
                 WriteNewLine(Indentation.Outer);
-                Write($"{Fragments.OPTION} {Fragments.LEFT_PARENTHESIS}{Fragments.RECOMPILE}{Fragments.RIGHT_PARENTHESIS};");
+                Write($"{Fragments.OPTION} {Fragments.LEFT_PARENTHESIS}{Fragments.RECOMPILE}{Fragments.RIGHT_PARENTHESIS}");
             }
 
             return paged;
@@ -190,7 +199,6 @@ namespace SubSonic.Linq.Expressions.Structure
                 }
                 if (select.Take != null)
                 {
-
                     Write($"{Fragments.TOP} {Fragments.LEFT_PARENTHESIS}");
                     this.Visit(select.Take);
                     Write($"{Fragments.RIGHT_PARENTHESIS} ");

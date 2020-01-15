@@ -63,6 +63,8 @@ namespace SubSonic.Infrastructure.Factory
 
         public override DbDataAdapter CreateDataAdapter() => Provider.CreateDataAdapter();
 
+        public abstract DbDataAdapter CreateDataAdapter(DbCommand select);
+
         public override DbParameter CreateParameter() => Provider.CreateParameter();
 
         public abstract DbParameter CreateParameter(string name, object value);

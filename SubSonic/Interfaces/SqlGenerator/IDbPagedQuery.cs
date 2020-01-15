@@ -8,11 +8,12 @@ namespace SubSonic
         /// <summary>
         /// Get record count of records matching the query criteria
         /// </summary>
-        int Count { get; }
+        int RecordCount { get; }
         /// <summary>
         /// Get the page size of the returned dataset
         /// </summary>
         int PageSize { get; }
+        int PageNumber { get; set; }
         /// <summary>
         /// get the number of pages that make up the dataset
         /// </summary>
@@ -20,12 +21,7 @@ namespace SubSonic
         /// PageCount = Ceiling(Count / PageSize)
         /// </remarks>
         int PageCount { get; }
-        /// <summary>
-        /// Get the data for the specified page number
-        /// </summary>
-        /// <typeparam name="TEntity"></typeparam>
-        /// <param name="number"></param>
-        /// <returns></returns>
-        IEnumerable<TEntity> GetRecordsForPage<TEntity>(int number);
+
+        IDbPagedCollection<TEntity> ToPagedCollection<TEntity>();
     }
 }

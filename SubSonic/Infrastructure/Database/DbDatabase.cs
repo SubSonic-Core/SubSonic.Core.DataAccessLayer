@@ -8,6 +8,8 @@ namespace SubSonic.Infrastructure
     using System.Collections.Generic;
     using System.Data;
     using System.Diagnostics;
+    using Factory;
+
 #if DB_PROVIDER_NOT_DEFINED
     using Factories;
 #endif
@@ -139,6 +141,25 @@ namespace SubSonic.Infrastructure
             }
         }
 
+        public bool ExecuteAdapter(IDbQuery query, DataSet data)
+        {
+            using (AutomaticConnectionScope Scope = GetConnectionScope())
+            using (DbCommand cmd = GetCommand(Scope, query))
+            using (var perf = logger.Start(GetType(), $"{nameof(ExecuteAdapter)}"))
+            {
+                if (dbContext.Instance.GetService<DbProviderFactory>() is SubSonicDbProvider provider)
+                {
+                    Scope.Connection.Open();
+
+                    DbDataAdapter adapter = provider.CreateDataAdapter(cmd);
+
+                    return adapter.Fill(data) > 0;
+                }
+
+                throw new NotSupportedException();
+            }
+        }
+
         public DbDataReader ExecuteReader(string sql, IEnumerable<SubSonicParameter> parameters)
         {
             using (AutomaticConnectionScope Scope = GetConnectionScope())
@@ -148,7 +169,7 @@ namespace SubSonic.Infrastructure
                 return cmd.ExecuteReader();
             }
         }
-
+        
         public DbDataReader ExecuteReader(IDbQuery queryObject)
         {
             if (queryObject is null)
