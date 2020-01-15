@@ -6,22 +6,22 @@ using System.Data.Common;
 
 namespace SubSonic.Infrastructure
 {
-    internal class DbQueryObject
+    internal class DbQuery
         : IDbQuery
     {
-        public DbQueryObject(string sql)
+        public DbQuery(string sql)
             : this(sql, Array.Empty<DbParameter>())
         {
 
         }
 
-        public DbQueryObject(string sql, params DbParameter[] parameters)
+        public DbQuery(string sql, params DbParameter[] parameters)
             : this(sql, CommandBehavior.Default, parameters)
         {
             
         }
 
-        public DbQueryObject(string sql, CommandBehavior behavior, params DbParameter[] parameters)
+        public DbQuery(string sql, CommandBehavior behavior, params DbParameter[] parameters)
         {
             if (string.IsNullOrEmpty(sql))
             {
@@ -35,8 +35,13 @@ namespace SubSonic.Infrastructure
             Parameters = new ReadOnlyCollection<DbParameter>(_parameters);
         }
 
+        protected DbQuery(CommandBehavior behavior)
+        {
+            Behavior = behavior;
+        }
+
         public CommandBehavior Behavior { get; }
-        public string Sql { get; }
-        public IReadOnlyCollection<DbParameter> Parameters { get; }
+        public virtual string Sql { get; }
+        public virtual IReadOnlyCollection<DbParameter> Parameters { get; }
     }
 }

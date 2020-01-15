@@ -159,7 +159,7 @@ namespace SubSonic.Linq.Expressions.Structure
             if (aggregate.IsNotNull())
             {
                 Write(GetAggregateName(aggregate.AggregateType));
-                Write(context.Fragments.RIGHT_PARENTHESIS);
+                Write(context.Fragments.LEFT_PARENTHESIS);
                 if (aggregate.IsDistinct)
                 {
                     Write(context.Fragments.DISTINCT);
@@ -172,7 +172,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 {
                     Write(context.Fragments.ASTRIX);
                 }
-                Write(context.Fragments.LEFT_PARENTHESIS);
+                Write(context.Fragments.RIGHT_PARENTHESIS);
             }
             return aggregate;
         }

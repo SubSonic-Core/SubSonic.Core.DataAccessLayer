@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SubSonic.Interfaces
+namespace SubSonic
 {
     public interface IDbPagedQueryCollection<TEntity>
         : IDbPagedQuery

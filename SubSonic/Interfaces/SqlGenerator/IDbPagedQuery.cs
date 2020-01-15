@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace SubSonic.Interfaces
+namespace SubSonic
 {
     public interface IDbPagedQuery
         : IDbQuery
@@ -12,7 +12,7 @@ namespace SubSonic.Interfaces
         /// <summary>
         /// Get the page size of the returned dataset
         /// </summary>
-        int PageSize { get; set; }
+        int PageSize { get; }
         /// <summary>
         /// get the number of pages that make up the dataset
         /// </summary>

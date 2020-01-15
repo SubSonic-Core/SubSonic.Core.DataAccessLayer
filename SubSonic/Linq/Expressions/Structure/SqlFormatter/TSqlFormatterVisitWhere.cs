@@ -40,7 +40,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 if (((DbExpressionType)where.NodeType).In(DbExpressionType.Exists, DbExpressionType.NotExists))
                 {
                     Write($"{Fragments.RIGHT_PARENTHESIS}");
-                    WriteNewLine(Indentation.Outer);
+                    Indent(Indentation.Outer);
                 }
             }
             return where;

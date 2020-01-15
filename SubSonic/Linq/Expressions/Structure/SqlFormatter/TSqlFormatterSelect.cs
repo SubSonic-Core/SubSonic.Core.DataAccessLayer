@@ -18,15 +18,74 @@ namespace SubSonic.Linq.Expressions.Structure
             {
                 return VisitSelect(select);
             }
-            else if (expression is DbPagedSelectExpression pagedSelect)
+            else if (expression is DbSelectPagedExpression pagedSelect)
             {
                 return VisitSelect(pagedSelect);
+            }
+            else if (expression is DbSelectAggregateExpression aggregateSelect)
+            {
+                return VisitSelect(aggregateSelect);
             }
 
             return expression;
         }
 
-        protected DbExpression VisitSelect(DbPagedSelectExpression paged)
+        protected DbExpression VisitSelect(DbSelectAggregateExpression aggregate)
+        {
+            if(aggregate.IsNotNull())
+            {
+                Write($"{Fragments.SELECT} ");
+                if (aggregate.Columns.Count > 0)
+                {
+                    for (int i = 0, n = aggregate.Columns.Count; i < n; i++)
+                    {
+                        if (i > 0)
+                        {
+                            Write($"{Fragments.COMMA} ");
+                        }
+
+                        VisitValue(aggregate.Columns[i]);
+                    }
+                }
+                else
+                {
+                    throw new InvalidOperationException();
+                }
+                if (aggregate.From != null)
+                {
+                    WriteNewLine();
+                    Write($"{Fragments.FROM} ");
+
+                    VisitSource(aggregate.From);
+
+                    foreach (DbExpression expression in aggregate.From.Joins)
+                    {
+                        VisitSource(expression, aggregate.IsCte);
+                    }
+                }
+                if (aggregate.Where != null)
+                {
+                    Visit(aggregate.Where);
+                }
+                if (aggregate.GroupBy != null && aggregate.GroupBy.Count > 0)
+                {
+                    WriteNewLine();
+                    Write($"{Fragments.GROUP_BY} ");
+                    for (int i = 0, n = aggregate.GroupBy.Count; i < n; i++)
+                    {
+                        if (i > 0)
+                        {
+                            Write($"{Fragments.COMMA} ");
+                        }
+                        this.VisitValue(aggregate.GroupBy[i]);
+                    }
+                }
+            }
+
+            return aggregate;
+        }
+
+        protected DbExpression VisitSelect(DbSelectPagedExpression paged)
         {
             if (paged.IsNotNull())
             {

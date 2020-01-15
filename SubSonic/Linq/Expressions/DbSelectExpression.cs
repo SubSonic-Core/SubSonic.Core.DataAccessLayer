@@ -105,6 +105,11 @@ namespace SubSonic.Linq.Expressions
 
             return base.Accept(visitor);
         }
+
+        public override string ToString()
+        {
+            return QueryText;
+        }
     }
 
     public partial class DbExpression

@@ -49,7 +49,7 @@ WHERE [{0}].[StatusID] IN (@el_1, @el_2, @el_3)".Format("T1");
                 {
                     ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
-                    query = builder.ToQueryObject(select);
+                    query = builder.ToQuery(select);
                 }).Should().NotThrow();
             }
 
@@ -97,7 +97,7 @@ WHERE [T1].[StatusID] IN (
                 {
                     ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
-                    query = builder.ToQueryObject(select);
+                    query = builder.ToQuery(select);
                 }).Should().NotThrow();
             }
 
@@ -143,7 +143,7 @@ WHERE [{0}].[StatusID] NOT IN (
                 {
                     ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
-                    query = builder.ToQueryObject(select);
+                    query = builder.ToQuery(select);
                 }).Should().NotThrow();
             }
 
@@ -182,7 +182,7 @@ WHERE [{0}].[StatusID] NOT IN (@el_1, @el_2, @el_3)".Format("T1");
                 {
                     ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
-                    query = builder.ToQueryObject(select);
+                    query = builder.ToQuery(select);
                 }).Should().NotThrow();
             }
 
@@ -364,7 +364,7 @@ WHERE ([{0}].[IsAvailableStatus] = @isavailablestatus_1)".Format("T1");
                 {
                     ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
-                    query = builder.ToQueryObject(select);
+                    query = builder.ToQuery(select);
                 }).Should().NotThrow();
             }
 
@@ -412,7 +412,7 @@ WHERE EXISTS (
                 {
                     ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
-                    query = builder.ToQueryObject(select);
+                    query = builder.ToQuery(select);
                 }).Should().NotThrow();
             }
 
@@ -457,7 +457,7 @@ WHERE NOT EXISTS (
                 {
                     ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
-                    query = builder.ToQueryObject(select);
+                    query = builder.ToQuery(select);
                 }).Should().NotThrow();
             }
 
@@ -516,7 +516,7 @@ WHERE (([{0}].[RealEstatePropertyID] = @realestatepropertyid_1) AND ([{0}].[Stat
                 {
                     ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
-                    query = builder.ToQueryObject(select);
+                    query = builder.ToQuery(select);
                 }).Should().NotThrow();
             }
 
@@ -559,7 +559,7 @@ WHERE [{0}].[StartDate] BETWEEN @dt_start_1 AND @dt_end_2".Format("T1");
                 {
                     ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
-                    query = builder.ToQueryObject(select);
+                    query = builder.ToQuery(select);
                 }).Should().NotThrow();
             }
 
@@ -603,7 +603,7 @@ WHERE [{0}].[StartDate] NOT BETWEEN @dt_start_1 AND @dt_end_2".Format("T1");
                 {
                     ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
-                    query = builder.ToQueryObject(select);
+                    query = builder.ToQuery(select);
                 }).Should().NotThrow();
             }
 
@@ -647,7 +647,7 @@ WHERE @dt_now_1 BETWEEN [{0}].[StartDate] AND ISNULL([{0}].[EndDate], @dt_defaul
                 {
                     ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
-                    query = builder.ToQueryObject(select);
+                    query = builder.ToQuery(select);
                 }).Should().NotThrow();
             }
 
@@ -691,7 +691,7 @@ WHERE @dt_now_1 NOT BETWEEN [{0}].[StartDate] AND ISNULL([{0}].[EndDate], @dt_de
                 {
                     ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
-                    query = builder.ToQueryObject(select);
+                    query = builder.ToQuery(select);
                 }).Should().NotThrow();
             }
 
@@ -730,7 +730,7 @@ FROM [dbo].[Renter] AS [{0}]".Format("T1");
                 {
                     ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
-                    query = builder.ToQueryObject(select);
+                    query = builder.ToQuery(select);
                 }).Should().NotThrow();
             }
 
@@ -764,7 +764,7 @@ FROM [dbo].[Renter] AS [{0}]".Format("T1");
                 {
                     ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
-                    query = builder.ToQueryObject(select);
+                    query = builder.ToQuery(select);
                 }).Should().NotThrow();
             }
 
@@ -782,15 +782,15 @@ FROM [dbo].[Renter] AS [{0}]".Format("T1");
             string expected =
 @";WITH page AS
 (
-	SELECT [T1].[PersonID], [T1].[UnitID]
-	FROM [dbo].[Renter] AS [T1]
+	SELECT [{0}].[PersonID], [{0}].[UnitID]
+	FROM [dbo].[Renter] AS [{0}]
 	OFFSET @PageSize * (@PageNumber - 1) ROWS
 	FETCH NEXT @PageSize ROWS ONLY
 )
-SELECT [T1].[PersonID], [T1].[UnitID], [T1].[Rent], [T1].[StartDate], [T1].[EndDate]
-FROM [dbo].[Renter] AS [T1]
+SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
+FROM [dbo].[Renter] AS [{0}]
 	INNER JOIN page
-		ON (([page].[PersonID] = [T1].[PersonID]) AND ([page].[UnitID] = [T1].[UnitID]))
+		ON (([page].[PersonID] = [{0}].[PersonID]) AND ([page].[UnitID] = [{0}].[UnitID]))
 OPTION (RECOMPILE);".Format("T1");
 
             Expression select = DbContext
@@ -800,7 +800,7 @@ OPTION (RECOMPILE);".Format("T1");
 
             IDbQuery query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbPagedSelectExpression>>();
+            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectPagedExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
@@ -808,7 +808,52 @@ OPTION (RECOMPILE);".Format("T1");
                 {
                     ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
-                    query = builder.ToQueryObject(select);
+                    query = builder.ToQuery(select);
+                }).Should().NotThrow();
+            }
+
+            query.Sql.Should().NotBeNullOrEmpty();
+
+            logging.LogInformation("\n" + query.Sql + "\n");
+
+            query.Sql.Should().Be(expected);
+        }
+
+        [Test]
+        public void CanGenerateSqlForRealEstatePropertyPageQuery()
+        {
+            string expected =
+@"SELECT COUNT([{0}].[ID])
+FROM [dbo].[RealEstateProperty] AS [{0}]
+;WITH page AS
+(
+	SELECT [{0}].[ID]
+	FROM [dbo].[RealEstateProperty] AS [{0}]
+	OFFSET @PageSize * (@PageNumber - 1) ROWS
+	FETCH NEXT @PageSize ROWS ONLY
+)
+SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
+FROM [dbo].[RealEstateProperty] AS [{0}]
+	INNER JOIN page
+		ON ([page].[ID] = [{0}].[ID])
+OPTION (RECOMPILE);".Format("T1");
+
+            Expression select = DbContext
+                .RealEstateProperties
+                .Page(1, 5)
+                .Expression;
+
+            IDbQuery query = null;
+
+            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectPagedExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+
+                    query = builder.ToPagedQuery(select);
                 }).Should().NotThrow();
             }
 

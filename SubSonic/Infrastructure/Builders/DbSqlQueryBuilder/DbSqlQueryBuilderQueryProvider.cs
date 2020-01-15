@@ -51,7 +51,7 @@ namespace SubSonic.Infrastructure.Builders
                         {
                             Scope.Connection.Open();
 
-                            DbDataReader reader = Scope.Database.ExecuteReader(ToQueryObject(select));
+                            DbDataReader reader = Scope.Database.ExecuteReader(ToQuery(select));
 
                             while (reader.Read())
                             {
@@ -100,7 +100,7 @@ namespace SubSonic.Infrastructure.Builders
 
             using (SharedDbConnectionScope Scope = DbContext.ServiceProvider.GetService<SharedDbConnectionScope>())
             {
-                return Scope.Database.ExecuteReader(ToQueryObject(expression));
+                return Scope.Database.ExecuteReader(ToQuery(expression));
             }
         }
     }

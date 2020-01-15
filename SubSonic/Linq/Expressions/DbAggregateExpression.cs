@@ -32,7 +32,7 @@ namespace SubSonic.Linq.Expressions
 
     public partial class DbExpression
     {
-        public static DbExpression DbAggregate(Type type, AggregateType aggType, Expression argument, bool isDistinct)
+        public static DbExpression DbAggregate(Type type, AggregateType aggType, Expression argument, bool isDistinct = false)
         {
             return new DbAggregateExpression(type, aggType, argument, isDistinct);
         }
