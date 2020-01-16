@@ -819,6 +819,7 @@ OPTION (RECOMPILE)".Format("T1");
             query.Sql.Should().Be(expected);
         }
 
+
         [Test]
         public void CanGenerateSqlForRealEstatePropertyPageQuery()
         {
