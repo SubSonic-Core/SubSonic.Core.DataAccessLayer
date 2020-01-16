@@ -49,7 +49,7 @@ namespace SubSonic.Infrastructure
             set => SelectPaged.PageNumber = value;
         }
 
-        public int PageCount => (int)Math.Ceiling((decimal)(RecordCount / PageSize));
+        public int PageCount => (int)Math.Ceiling((decimal)RecordCount / PageSize);
 
         public override string Sql => ToString();
 
@@ -67,9 +67,9 @@ namespace SubSonic.Infrastructure
             return new ReadOnlyCollection<DbParameter>(parameters.ToList());
         }
 
-        public IDbPagedCollection<TEntity> ToPagedCollection<TEntity>()
+        public IDbPageCollection<TEntity> ToPagedCollection<TEntity>()
         {
-            return new DbPagedCollection<TEntity>(this);
+            return new DbPageCollection<TEntity>(this);
         }
 
         public override string ToString()

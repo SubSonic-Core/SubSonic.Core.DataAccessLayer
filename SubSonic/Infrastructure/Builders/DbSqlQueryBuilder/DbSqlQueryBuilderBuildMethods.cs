@@ -62,8 +62,6 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (expression is DbSelectExpression select)
             {
-                //DbTableExpression dbTable = (DbTableExpression)DbExpression.DbTable(select.From.Model, select.From.Alias);
-
                 return DbExpression.DbPagedSelect(select, pageNumber, pageSize);
             }
             else if (expression is DbSelectPagedExpression paged)

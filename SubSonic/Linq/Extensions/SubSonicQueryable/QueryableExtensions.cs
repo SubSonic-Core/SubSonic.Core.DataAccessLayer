@@ -15,6 +15,24 @@ namespace SubSonic.Linq
             return source is ISubSonicCollection<TSource>;
         }
 
+        public static IDbPageCollection<TEntity> ToPagedCollection<TEntity>(this IQueryable<TEntity> source, int pageSize)
+        {
+            if (source.IsNotNull() && source.IsSubSonicQuerable())
+            {
+                IQueryable<TEntity> query = source
+                    .Page(default(int), pageSize)
+                    .AsQueryable();
+
+                IDbSqlQueryBuilderProvider builder = (IDbSqlQueryBuilderProvider)query.Provider;
+
+                return builder
+                    .ToPagedQuery(query.Expression, pageSize)
+                    .ToPagedCollection<TEntity>();
+            }
+
+            throw new NotSupportedException();
+        }
+
         public static IQueryable<TEntity> Load<TEntity>(this IQueryable<TEntity> query)
         {
             if (query is null)

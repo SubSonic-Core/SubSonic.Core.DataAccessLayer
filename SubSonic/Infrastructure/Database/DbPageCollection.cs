@@ -4,16 +4,17 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Globalization;
 using System.Text;
 
 namespace SubSonic.Infrastructure
 {
-    internal class DbPagedCollection<TEntity>
-        : IDbPagedCollection<TEntity>
+    internal class DbPageCollection<TEntity>
+        : IDbPageCollection<TEntity>
     {
         private readonly DbPagedQuery pagedQuery;
 
-        public DbPagedCollection(DbPagedQuery query)
+        public DbPageCollection(DbPagedQuery query)
         {
             this.pagedQuery = query;
         }
@@ -28,7 +29,16 @@ namespace SubSonic.Infrastructure
 
         public int PageCount => pagedQuery.PageCount;
 
-        public int PageNumber => pagedQuery.PageNumber;
+        public int PageNumber
+        {
+            get => pagedQuery.PageNumber;
+            set => pagedQuery.PageNumber = value;
+        }
+
+        public IDbPagesCollection<TEntity> GetPages()
+        {
+            return new DbPagesCollection<TEntity>(this);
+        }
 
         public IEnumerable<TEntity> GetRecordsForPage(int page)
         {
@@ -45,7 +55,7 @@ namespace SubSonic.Infrastructure
                 {
                     foreach(DataTable table in data.Tables)
                     {
-                        if (table.Columns.Count == 1 && table.Columns[0].ColumnName == "Count")
+                        if (table.Columns.Count == 1 && table.Columns[0].ColumnName == nameof(RecordCount).ToUpper(CultureInfo.CurrentCulture))
                         {
                             RecordCount = (int)table.Rows[0][0];
 

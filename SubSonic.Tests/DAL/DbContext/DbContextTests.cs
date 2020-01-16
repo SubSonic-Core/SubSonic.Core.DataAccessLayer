@@ -257,6 +257,11 @@ WHERE ([{0}].[ID] = {1})";
         [Test]
         public void ShouldBeAbleToPageData()
         {
+            int 
+                recordCount = RealEstateProperties.Count(),
+                size = 3,
+                pageCount = (int)Math.Ceiling((decimal)recordCount / size);
+
             string
                 count =
 @"SELECT COUNT([T1].[ID]) [RECORDCOUNT]
@@ -264,16 +269,16 @@ FROM [dbo].[RealEstateProperty] AS [T1]",
                 paged =
 @"WITH page AS
 (
-    SELECT [T1].[ID]
-    FROM [dbo].[RealEstateProperty] AS [T1]
-    OFFSET {0} * ({1} - 1) ROWS
-    FETCH NEXT {0} ROWS ONLY
+	SELECT [T1].[ID]
+	FROM [dbo].[RealEstateProperty] AS [T1]
+	OFFSET {0} * ({1} - 1) ROWS
+	FETCH NEXT {0} ROWS ONLY
 )
 SELECT [T1].[ID], [T1].[StatusID], [T1].[HasParallelPowerGeneration]
 FROM [dbo].[RealEstateProperty] AS [T1]
-    INNER JOIN page
-    	ON ([page].[ID] = [T1].[ID])
-OPTION (RECOMPILE)".Format(3, 1);
+	INNER JOIN page
+		ON ([page].[ID] = [T1].[ID])
+OPTION (RECOMPILE)";
 
             DbContext.Database.Instance.AddCommandBehavior(count, (cmd) =>
             {
@@ -287,7 +292,76 @@ OPTION (RECOMPILE)".Format(3, 1);
                 }
             });
 
-            DbContext.Database.Instance.AddCommandBehavior(paged, (cmd) =>
+            Func<DbCommand, DataTable> command = (cmd) =>
+            {
+                int size = 0, page = 0;
+
+                foreach (DbParameter parameter in cmd.Parameters)
+                {
+                    if (parameter.ParameterName.Contains("PageSize"))
+                    {
+                        size = (int)parameter.Value;
+                    }
+                    else if (parameter.ParameterName.Contains("PageNumber"))
+                    {
+                        page = (int)parameter.Value;
+                    }
+                }
+
+                return RealEstateProperties
+                    .Skip(size * (page - 1))
+                    .Take(size)
+                    .ToDataTable();
+            };
+
+            DbContext.Database.Instance.AddCommandBehavior(paged.Format(size, 1), command);
+            DbContext.Database.Instance.AddCommandBehavior(paged.Format(size, 2), command);
+
+            IDbPageCollection<Models.RealEstateProperty> collection = DbContext.RealEstateProperties.ToPagedCollection(size);
+
+            collection.PageSize.Should().Be(size);
+
+            collection.GetRecordsForPage(1).Count().Should()
+                .BeGreaterOrEqualTo(size)
+                .And
+                .BeLessThan(collection.RecordCount);
+
+            collection.PageNumber.Should().Be(1);
+
+            collection.GetRecordsForPage(2).Count().Should().Be(1);
+            collection.PageNumber.Should().Be(2);
+
+            collection.RecordCount.Should().Be(recordCount);
+            collection.PageCount.Should().Be(pageCount);
+        }
+
+        [Test]
+        public void ShouldBeAbleToEnumeratePagedData()
+        {
+            int
+                recordCount = RealEstateProperties.Count(),
+                size = 3,
+                pageCount = (int)Math.Ceiling((decimal)recordCount / size);
+
+            string
+                count =
+@"SELECT COUNT([T1].[ID]) [RECORDCOUNT]
+FROM [dbo].[RealEstateProperty] AS [T1]",
+                paged =
+@"WITH page AS
+(
+	SELECT [T1].[ID]
+	FROM [dbo].[RealEstateProperty] AS [T1]
+	OFFSET {0} * ({1} - 1) ROWS
+	FETCH NEXT {0} ROWS ONLY
+)
+SELECT [T1].[ID], [T1].[StatusID], [T1].[HasParallelPowerGeneration]
+FROM [dbo].[RealEstateProperty] AS [T1]
+	INNER JOIN page
+		ON ([page].[ID] = [T1].[ID])
+OPTION (RECOMPILE)";
+
+            DbContext.Database.Instance.AddCommandBehavior(count, (cmd) =>
             {
                 using (DataTableBuilder table = new DataTableBuilder())
                 {
@@ -299,19 +373,56 @@ OPTION (RECOMPILE)".Format(3, 1);
                 }
             });
 
-            ISubSonicQueryProvider<Models.RealEstateProperty> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Models.RealEstateProperty>>();
-
-            IDbPagedQuery query = builder.ToPagedQuery(DbContext
-                .RealEstateProperties
-                .Page(0, 3).Expression);
-
-            query.PageSize.Should().Be(3);
-            query.PageNumber.Should().Be(0);
-
-            foreach(var entity in query.ToPagedCollection<Models.RealEstateProperty>())
+            Func<DbCommand, DataTable> command = (cmd) =>
             {
+                int size = 0, page = 0;
 
+                foreach (DbParameter parameter in cmd.Parameters)
+                {
+                    if (parameter.ParameterName.Contains("PageSize"))
+                    {
+                        size = (int)parameter.Value;
+                    }
+                    else if (parameter.ParameterName.Contains("PageNumber"))
+                    {
+                        page = (int)parameter.Value;
+                    }
+                }
+
+                return RealEstateProperties
+                    .Skip(size * (page - 1))
+                    .Take(size)
+                    .ToDataTable();
+            };
+
+            DbContext.Database.Instance.AddCommandBehavior(paged.Format(size, 1), command);
+            DbContext.Database.Instance.AddCommandBehavior(paged.Format(size, 2), command);
+
+            IDbPageCollection<Models.RealEstateProperty> collection = DbContext.RealEstateProperties.ToPagedCollection(size);
+
+            bool enumerated = false;
+
+            foreach(IDbPageCollection<Models.RealEstateProperty> page in collection.GetPages())
+            {
+                enumerated |= true;
+
+                if (page.PageNumber == 1)
+                {
+                    page.Count().Should()
+                        .Be(size)
+                        .And
+                        .BeLessThan(page.RecordCount);
+                }
+                else if (page.PageNumber == 2)
+                {
+                    page.Count().Should()
+                        .Be(1)
+                        .And
+                        .BeLessThan(page.RecordCount);
+                }
             }
+
+            enumerated.Should().BeTrue();
         }
     }
 }

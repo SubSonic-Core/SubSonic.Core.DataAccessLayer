@@ -51,6 +51,8 @@ namespace SubSonic.Tests.DAL.SUT
             {
                 new RealEstateProperty() { ID = 1, StatusID = 1, HasParallelPowerGeneration = true },
                 new RealEstateProperty() { ID = 2, StatusID = 3, HasParallelPowerGeneration = false },
+                new RealEstateProperty() { ID = 3, StatusID = 2, HasParallelPowerGeneration = true },
+                new RealEstateProperty() { ID = 4, StatusID = 2, HasParallelPowerGeneration = false },
             };
         }
 

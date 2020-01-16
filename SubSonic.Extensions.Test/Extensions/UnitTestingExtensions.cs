@@ -84,6 +84,46 @@ namespace SubSonic.Extensions.Test
             }
         }
 
+        public static DataTable ToDataTable<TEntity>(this IEnumerable<TEntity> source)
+        {
+            if (source is null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            IDbEntityModel model = DbContext.DbModel.GetEntityModel<TEntity>();
+
+            using (DataTableBuilder builder = new DataTableBuilder(model.Name))
+            {
+                foreach (IDbEntityProperty property in model.Properties)
+                {
+                    if (property.EntityPropertyType == DbEntityPropertyType.Value)
+                    {
+                        builder.AddColumn(property.Name, property.PropertyType);
+                    }
+                }
+
+                foreach (TEntity entity in source)
+                {
+                    DataRow row = builder.CreateRow();
+
+                    foreach (IDbEntityProperty property in model.Properties)
+                    {
+                        if (property.EntityPropertyType == DbEntityPropertyType.Value)
+                        {
+                            row[property.Name] = model.EntityModelType
+                                .GetProperty(property.PropertyName)
+                                .GetValue(entity) ?? DBNull.Value;
+                        }
+                    }
+
+                    builder.AddRow(row);
+                }
+
+                return builder.DataTable;
+            }
+        }
+
         public static void AddCommandBehavior<TEntity>(this DbProviderFactory factory, string command, IEnumerable<TEntity> entities)
         {
             if (factory is null)
@@ -101,43 +141,14 @@ namespace SubSonic.Extensions.Test
                 throw new ArgumentNullException(nameof(entities));
             }
 
-            IDbEntityModel model = DbContext.DbModel.GetEntityModel<TEntity>();
-
-            using (DataTableBuilder table = new DataTableBuilder(model.Name))
+            if (factory is SubSonicMockDbClient db)
             {
-                foreach (IDbEntityProperty property in model.Properties)
-                {
-                    if (property.EntityPropertyType == DbEntityPropertyType.Value)
-                    {
-                        table.AddColumn(property.Name, property.PropertyType);
-                    }
-                }
-
-                foreach(TEntity entity in entities)
-                {
-                    DataRow row = table.CreateRow();
-
-                    foreach (IDbEntityProperty property in model.Properties)
-                    {
-                        if (property.EntityPropertyType == DbEntityPropertyType.Value)
-                        {
-                            row[property.Name] = model.EntityModelType
-                                .GetProperty(property.PropertyName)
-                                .GetValue(entity) ?? DBNull.Value;
-                        }
-                    }
-
-                    table.AddRow(row);
-                }
-
-                if (factory is SubSonicMockDbClient db)
-                {
-                    db.AddBehavior(new MockCommandBehavior()
-                        .When((cmd) => cmd.CommandText == command)
-                        .ReturnsData(table.DataTable));
-                }
+                db.AddBehavior(new MockCommandBehavior()
+                    .When((cmd) => cmd.CommandText == command)
+                    .ReturnsData(entities.ToDataTable()));
             }
         }
+
         public static void UpdateProviders(this DbContext dbContext, string dbProviderInvariantName, string sqlQueryProviderInvariantName = null)
         {
             if (dbContext is null)

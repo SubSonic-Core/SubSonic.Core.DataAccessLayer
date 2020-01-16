@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 
 namespace SubSonic
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1010:Collections should implement generic interface", Justification = "Not a true collection")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "Not a true collection")]
     public interface IDbPagedQuery
         : IDbQuery
     {
@@ -22,6 +25,6 @@ namespace SubSonic
         /// </remarks>
         int PageCount { get; }
 
-        IDbPagedCollection<TEntity> ToPagedCollection<TEntity>();
+        IDbPageCollection<TEntity> ToPagedCollection<TEntity>();
     }
 }
