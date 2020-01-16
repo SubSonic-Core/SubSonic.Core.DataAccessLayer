@@ -74,7 +74,7 @@ namespace SubSonic.Infrastructure
 
         public override string ToString()
         {
-            return String.Join(";\r\n", SelectRecordCount, SelectPaged);
+            return String.Join($";{Environment.NewLine}", SelectRecordCount, SelectPaged);
         }
     }
 }
