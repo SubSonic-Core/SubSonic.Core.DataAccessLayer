@@ -12,12 +12,12 @@ namespace SubSonic.Linq.Expressions
     /// <summary>
     /// a custom expression used to generate a SELECT statement with CTE using OFFSET and FETCH
     /// </summary>
-    public class DbSelectPagedExpression
+    public class DbSelectPageExpression
         : DbConstantExpression
     {
         private DbSelectExpression _primaryKeySelect;
 
-        protected internal DbSelectPagedExpression(DbSelectExpression select, int pageNumber, int pageSize)
+        protected internal DbSelectPageExpression(DbSelectExpression select, int pageNumber, int pageSize)
             : base(
                   select.IsNullThrowArgumentNull(nameof(select)).QueryObject,
                   select.IsNullThrowArgumentNull(nameof(select)).Alias)
@@ -87,7 +87,16 @@ namespace SubSonic.Linq.Expressions
         {
             if (expression is DbSelectExpression select)
             {
-                return new DbSelectPagedExpression(select, pageNumber, pageSize);
+                if (select.OrderBy is null || select.OrderBy.Count == 0)
+                {
+                    select = (DbSelectExpression)DbSelect(select.QueryObject, select.From, select.Columns, select.Where,
+                        select.From.Columns
+                            .Where((column) =>
+                                column.Property.IsPrimaryKey)
+                            .Select((column) => new DbOrderByDeclaration(OrderByType.Ascending, column.Expression)));
+                }
+
+                return new DbSelectPageExpression(select, pageNumber, pageSize);
             }
 
             throw new NotSupportedException();

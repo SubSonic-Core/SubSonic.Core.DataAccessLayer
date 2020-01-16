@@ -13,12 +13,12 @@ namespace SubSonic.Infrastructure
         , IDbPagedQuery
     {
         public DbPagedQuery(DbSelectExpression select, int size)
-            : this((DbSelectPagedExpression)DbExpression.DbPagedSelect(select, 1, size))
+            : this((DbSelectPageExpression)DbExpression.DbPagedSelect(select, 1, size))
         {
 
         }
 
-        public DbPagedQuery(DbSelectPagedExpression select)
+        public DbPagedQuery(DbSelectPageExpression select)
             : base(CommandBehavior.Default)
         {
             if (select.Select.From.Columns.Count(x => x.Property.IsPrimaryKey) == 1)
@@ -37,7 +37,7 @@ namespace SubSonic.Infrastructure
 
         public DbExpression SelectRecordCount { get; }
 
-        public DbSelectPagedExpression SelectPaged { get; }
+        public DbSelectPageExpression SelectPaged { get; }
 
         public int RecordCount { get; set; }
 

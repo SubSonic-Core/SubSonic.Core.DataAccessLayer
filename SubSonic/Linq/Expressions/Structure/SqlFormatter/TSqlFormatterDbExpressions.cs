@@ -111,6 +111,7 @@ namespace SubSonic.Linq.Expressions.Structure
                         VisitPredicate(join.Condition);
                         Indent(Indentation.Outer);
                     }
+                    Indent(Indentation.Outer);
                 }
             }
             return join;

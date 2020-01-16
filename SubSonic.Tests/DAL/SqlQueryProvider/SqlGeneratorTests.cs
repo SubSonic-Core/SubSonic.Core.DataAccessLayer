@@ -784,6 +784,7 @@ FROM [dbo].[Renter] AS [{0}]".Format("T1");
 (
 	SELECT [{0}].[PersonID], [{0}].[UnitID]
 	FROM [dbo].[Renter] AS [{0}]
+	ORDER BY [{0}].[PersonID], [{0}].[UnitID]
 	OFFSET @PageSize * (@PageNumber - 1) ROWS
 	FETCH NEXT @PageSize ROWS ONLY
 )
@@ -791,6 +792,7 @@ SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].
 FROM [dbo].[Renter] AS [{0}]
 	INNER JOIN page
 		ON (([page].[PersonID] = [{0}].[PersonID]) AND ([page].[UnitID] = [{0}].[UnitID]))
+ORDER BY [{0}].[PersonID], [{0}].[UnitID]
 OPTION (RECOMPILE)".Format("T1");
 
             Expression select = DbContext
@@ -800,7 +802,7 @@ OPTION (RECOMPILE)".Format("T1");
 
             IDbQuery query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectPagedExpression>>();
+            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectPageExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
@@ -830,6 +832,7 @@ WITH page AS
 (
 	SELECT [{0}].[ID]
 	FROM [dbo].[RealEstateProperty] AS [{0}]
+	ORDER BY [{0}].[ID]
 	OFFSET @PageSize * (@PageNumber - 1) ROWS
 	FETCH NEXT @PageSize ROWS ONLY
 )
@@ -837,6 +840,7 @@ SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
 FROM [dbo].[RealEstateProperty] AS [{0}]
 	INNER JOIN page
 		ON ([page].[ID] = [{0}].[ID])
+ORDER BY [{0}].[ID]
 OPTION (RECOMPILE)".Format("T1");
 
             Expression select = DbContext
@@ -846,7 +850,7 @@ OPTION (RECOMPILE)".Format("T1");
 
             IDbQuery query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectPagedExpression>>();
+            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectPageExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {

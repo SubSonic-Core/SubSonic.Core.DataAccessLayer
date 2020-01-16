@@ -271,6 +271,7 @@ FROM [dbo].[RealEstateProperty] AS [T1]",
 (
 	SELECT [T1].[ID]
 	FROM [dbo].[RealEstateProperty] AS [T1]
+	ORDER BY [T1].[ID]
 	OFFSET {0} * ({1} - 1) ROWS
 	FETCH NEXT {0} ROWS ONLY
 )
@@ -278,6 +279,7 @@ SELECT [T1].[ID], [T1].[StatusID], [T1].[HasParallelPowerGeneration]
 FROM [dbo].[RealEstateProperty] AS [T1]
 	INNER JOIN page
 		ON ([page].[ID] = [T1].[ID])
+ORDER BY [T1].[ID]
 OPTION (RECOMPILE)";
 
             DbContext.Database.Instance.AddCommandBehavior(count, (cmd) =>
@@ -352,6 +354,7 @@ FROM [dbo].[RealEstateProperty] AS [T1]",
 (
 	SELECT [T1].[ID]
 	FROM [dbo].[RealEstateProperty] AS [T1]
+	ORDER BY [T1].[ID]
 	OFFSET {0} * ({1} - 1) ROWS
 	FETCH NEXT {0} ROWS ONLY
 )
@@ -359,6 +362,7 @@ SELECT [T1].[ID], [T1].[StatusID], [T1].[HasParallelPowerGeneration]
 FROM [dbo].[RealEstateProperty] AS [T1]
 	INNER JOIN page
 		ON ([page].[ID] = [T1].[ID])
+ORDER BY [T1].[ID]
 OPTION (RECOMPILE)";
 
             DbContext.Database.Instance.AddCommandBehavior(count, (cmd) =>

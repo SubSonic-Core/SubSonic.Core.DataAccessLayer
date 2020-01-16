@@ -18,7 +18,7 @@ namespace SubSonic.Linq.Expressions.Structure
             {
                 return VisitSelect(select);
             }
-            else if (expression is DbSelectPagedExpression pagedSelect)
+            else if (expression is DbSelectPageExpression pagedSelect)
             {
                 return VisitSelect(pagedSelect);
             }
@@ -94,7 +94,7 @@ namespace SubSonic.Linq.Expressions.Structure
             return aggregate;
         }
 
-        protected DbExpression VisitSelect(DbSelectPagedExpression paged)
+        protected DbExpression VisitSelect(DbSelectPageExpression paged)
         {
             if (paged.IsNotNull())
             {
@@ -181,7 +181,7 @@ namespace SubSonic.Linq.Expressions.Structure
                         }
                     }
                 }
-                WriteNewLine(Indentation.Outer);
+                WriteNewLine();
                 Write($"{Fragments.OPTION} {Fragments.LEFT_PARENTHESIS}{Fragments.RECOMPILE}{Fragments.RIGHT_PARENTHESIS}");
             }
 

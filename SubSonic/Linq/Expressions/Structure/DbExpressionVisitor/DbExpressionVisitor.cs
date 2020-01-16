@@ -269,7 +269,7 @@ namespace SubSonic.Linq.Expressions.Structure
                     return new DbSelectExpression(select.QueryObject, from, columns, where, orderBy, groupBy, select.IsDistinct, take);
                 }
             }
-            else if (expression is DbSelectPagedExpression paged)
+            else if (expression is DbSelectPageExpression paged)
             {
                 DbSelectExpression pagedSelect = VisitSelect(paged.Select) as DbSelectExpression;
 

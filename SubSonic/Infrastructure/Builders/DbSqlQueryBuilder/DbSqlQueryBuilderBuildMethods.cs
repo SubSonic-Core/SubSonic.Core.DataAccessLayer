@@ -64,7 +64,7 @@ namespace SubSonic.Infrastructure.Builders
             {
                 return DbExpression.DbPagedSelect(select, pageNumber, pageSize);
             }
-            else if (expression is DbSelectPagedExpression paged)
+            else if (expression is DbSelectPageExpression paged)
             {
                 return DbExpression.DbPagedSelect(paged.Select, pageNumber, pageSize);
             }
@@ -251,7 +251,7 @@ namespace SubSonic.Infrastructure.Builders
                     CmdBehavior,
                     GetSubSonicParameters(select.Where));
             }
-            else if (expression is DbSelectPagedExpression paged)
+            else if (expression is DbSelectPageExpression paged)
             {
                 return new DbQuery(
                     paged.ToString(),
@@ -270,7 +270,7 @@ namespace SubSonic.Infrastructure.Builders
             {
                 return new DbPagedQuery(select, size);
             }
-            else if (expression is DbSelectPagedExpression paged)
+            else if (expression is DbSelectPageExpression paged)
             {
                 return new DbPagedQuery(paged);
             }
