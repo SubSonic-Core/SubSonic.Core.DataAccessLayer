@@ -108,7 +108,8 @@ namespace SubSonic
 
             foreach (DbParameter parameter in parameters)
             {
-                if (parameter.Direction.In(ParameterDirection.Input))
+                if (parameter.Direction.In(ParameterDirection.Input) ||
+                    parameter.Value == DBNull.Value)
                 {
                     continue;
                 }
