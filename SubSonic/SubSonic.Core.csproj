@@ -6,7 +6,7 @@
     <Authors>Kenneth Carter</Authors>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>DAL;</PackageTags>
-    <Version>1.0.0.12-alpha</Version>
+    <Version>1.0.0.13-alpha</Version>
     <PackageId>SubSonic.Core</PackageId>
     <Company />
     <PackageProjectUrl>https://github.com/kccarter76/SubSonic-Core/wiki</PackageProjectUrl>

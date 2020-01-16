@@ -20,7 +20,5 @@ namespace SubSonic
         /// <param name="number">page number to retrieve</param>
         /// <returns></returns>
         IEnumerable<TEntity> GetRecordsForPage(int number);
-
-        
     }
 }

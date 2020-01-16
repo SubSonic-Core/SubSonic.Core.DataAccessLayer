@@ -14,6 +14,8 @@ namespace SubSonic.Infrastructure
     {
         private readonly DbPagedQuery pagedQuery;
 
+        private IEnumerable<TEntity> entities;
+
         public DbPageCollection(DbPagedQuery query)
         {
             this.pagedQuery = query;
@@ -72,7 +74,12 @@ namespace SubSonic.Infrastructure
 
         public IEnumerator<TEntity> GetEnumerator()
         {
-            return GetRecordsForPage(PageNumber == 0 ? 1 : PageNumber).GetEnumerator();
+            return (entities ?? GetRecordsForPage(PageNumber == 0 ? 1 : PageNumber)).GetEnumerator();
+        }
+
+        public void PreFetch()
+        {
+            entities = GetRecordsForPage(PageNumber == 0 ? 1 : PageNumber);
         }
 
         IEnumerator IEnumerable.GetEnumerator()

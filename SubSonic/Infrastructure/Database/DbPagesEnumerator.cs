@@ -8,14 +8,23 @@ namespace SubSonic.Infrastructure
     internal class DbPagesEnumerator<TEntity>
         : IEnumerator<IDbPageCollection<TEntity>>
     {
-        private readonly IDbPageCollection<TEntity> page;
+        private readonly DbPageCollection<TEntity> page;
 
-        public DbPagesEnumerator(IDbPageCollection<TEntity> page)
+        public DbPagesEnumerator(DbPageCollection<TEntity> page)
         {
             this.page = page;
         }
 
-        public IDbPageCollection<TEntity> Current => page;
+        public IDbPageCollection<TEntity> Current
+        {
+            get
+            {
+                page.PreFetch();
+
+                return page;
+            }
+        }
+        
 
         object IEnumerator.Current => this;
 

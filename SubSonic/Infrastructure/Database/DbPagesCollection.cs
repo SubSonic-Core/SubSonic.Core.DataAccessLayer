@@ -8,8 +8,8 @@ namespace SubSonic.Infrastructure
     internal class DbPagesCollection<TEntity>
         : IDbPagesCollection<TEntity>
     {
-        private readonly IDbPageCollection<TEntity> page;
-        public DbPagesCollection(IDbPageCollection<TEntity> page)
+        private readonly DbPageCollection<TEntity> page;
+        public DbPagesCollection(DbPageCollection<TEntity> page)
         {
             this.page = page ?? throw new ArgumentNullException(nameof(page));
         }

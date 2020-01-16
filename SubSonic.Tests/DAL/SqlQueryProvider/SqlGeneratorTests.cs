@@ -792,7 +792,6 @@ SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].
 FROM [dbo].[Renter] AS [{0}]
 	INNER JOIN page
 		ON (([page].[PersonID] = [{0}].[PersonID]) AND ([page].[UnitID] = [{0}].[UnitID]))
-ORDER BY [{0}].[PersonID], [{0}].[UnitID]
 OPTION (RECOMPILE)".Format("T1");
 
             Expression select = DbContext
@@ -840,7 +839,6 @@ SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
 FROM [dbo].[RealEstateProperty] AS [{0}]
 	INNER JOIN page
 		ON ([page].[ID] = [{0}].[ID])
-ORDER BY [{0}].[ID]
 OPTION (RECOMPILE)".Format("T1");
 
             Expression select = DbContext

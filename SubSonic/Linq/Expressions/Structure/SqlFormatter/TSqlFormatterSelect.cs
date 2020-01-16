@@ -163,24 +163,25 @@ namespace SubSonic.Linq.Expressions.Structure
                         this.VisitValue(paged.Select.GroupBy[i]);
                     }
                 }
-                if (paged.Select.OrderBy != null && paged.Select.OrderBy.Count > 0)
-                {
-                    WriteNewLine();
-                    Write($"{Fragments.ORDER_BY} ");
-                    for (int i = 0, n = paged.Select.OrderBy.Count; i < n; i++)
-                    {
-                        DbOrderByDeclaration exp = paged.Select.OrderBy[i];
-                        if (i > 0)
-                        {
-                            Write($"{Fragments.COMMA} ");
-                        }
-                        VisitValue(exp.Expression);
-                        if (exp.OrderByType != OrderByType.Ascending)
-                        {
-                            Write($" {Fragments.DESC}");
-                        }
-                    }
-                }
+                // the join on the CTE will force the order used inside the cte
+                //if (paged.Select.OrderBy != null && paged.Select.OrderBy.Count > 0)
+                //{
+                //    WriteNewLine();
+                //    Write($"{Fragments.ORDER_BY} ");
+                //    for (int i = 0, n = paged.Select.OrderBy.Count; i < n; i++)
+                //    {
+                //        DbOrderByDeclaration exp = paged.Select.OrderBy[i];
+                //        if (i > 0)
+                //        {
+                //            Write($"{Fragments.COMMA} ");
+                //        }
+                //        VisitValue(exp.Expression);
+                //        if (exp.OrderByType != OrderByType.Ascending)
+                //        {
+                //            Write($" {Fragments.DESC}");
+                //        }
+                //    }
+                //}
                 WriteNewLine();
                 Write($"{Fragments.OPTION} {Fragments.LEFT_PARENTHESIS}{Fragments.RECOMPILE}{Fragments.RIGHT_PARENTHESIS}");
             }

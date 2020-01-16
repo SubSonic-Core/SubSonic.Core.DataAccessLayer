@@ -279,7 +279,6 @@ SELECT [T1].[ID], [T1].[StatusID], [T1].[HasParallelPowerGeneration]
 FROM [dbo].[RealEstateProperty] AS [T1]
 	INNER JOIN page
 		ON ([page].[ID] = [T1].[ID])
-ORDER BY [T1].[ID]
 OPTION (RECOMPILE)";
 
             DbContext.Database.Instance.AddCommandBehavior(count, (cmd) =>
@@ -362,7 +361,6 @@ SELECT [T1].[ID], [T1].[StatusID], [T1].[HasParallelPowerGeneration]
 FROM [dbo].[RealEstateProperty] AS [T1]
 	INNER JOIN page
 		ON ([page].[ID] = [T1].[ID])
-ORDER BY [T1].[ID]
 OPTION (RECOMPILE)";
 
             DbContext.Database.Instance.AddCommandBehavior(count, (cmd) =>
@@ -409,6 +407,8 @@ OPTION (RECOMPILE)";
             foreach(IDbPageCollection<Models.RealEstateProperty> page in collection.GetPages())
             {
                 enumerated |= true;
+
+                page.RecordCount.Should().Be(recordCount);
 
                 if (page.PageNumber == 1)
                 {
