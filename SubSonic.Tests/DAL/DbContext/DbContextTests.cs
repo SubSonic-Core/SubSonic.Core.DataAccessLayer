@@ -259,8 +259,8 @@ WHERE ([{0}].[ID] = {1})";
         {
             int 
                 recordCount = RealEstateProperties.Count(),
-                size = 3,
-                pageCount = (int)Math.Ceiling((decimal)recordCount / size);
+                pageSize = 3,
+                pageCount = (int)Math.Ceiling((decimal)recordCount / pageSize);
 
             string
                 count =
@@ -314,15 +314,15 @@ OPTION (RECOMPILE)";
                     .ToDataTable();
             };
 
-            DbContext.Database.Instance.AddCommandBehavior(paged.Format(size, 1), command);
-            DbContext.Database.Instance.AddCommandBehavior(paged.Format(size, 2), command);
+            DbContext.Database.Instance.AddCommandBehavior(paged.Format(pageSize, 1), command);
+            DbContext.Database.Instance.AddCommandBehavior(paged.Format(pageSize, 2), command);
 
-            IDbPageCollection<Models.RealEstateProperty> collection = DbContext.RealEstateProperties.ToPagedCollection(size);
+            IDbPageCollection<Models.RealEstateProperty> collection = DbContext.RealEstateProperties.ToPagedCollection(pageSize);
 
-            collection.PageSize.Should().Be(size);
+            collection.PageSize.Should().Be(pageSize);
 
             collection.GetRecordsForPage(1).Count().Should()
-                .BeGreaterOrEqualTo(size)
+                .BeGreaterOrEqualTo(pageSize)
                 .And
                 .BeLessThan(collection.RecordCount);
 
@@ -340,8 +340,8 @@ OPTION (RECOMPILE)";
         {
             int
                 recordCount = RealEstateProperties.Count(),
-                size = 3,
-                pageCount = (int)Math.Ceiling((decimal)recordCount / size);
+                pageSize = 3,
+                pageCount = (int)Math.Ceiling((decimal)recordCount / pageSize);
 
             string
                 count =
@@ -395,10 +395,10 @@ OPTION (RECOMPILE)";
                     .ToDataTable();
             };
 
-            DbContext.Database.Instance.AddCommandBehavior(paged.Format(size, 1), command);
-            DbContext.Database.Instance.AddCommandBehavior(paged.Format(size, 2), command);
+            DbContext.Database.Instance.AddCommandBehavior(paged.Format(pageSize, 1), command);
+            DbContext.Database.Instance.AddCommandBehavior(paged.Format(pageSize, 2), command);
 
-            IDbPageCollection<Models.RealEstateProperty> collection = DbContext.RealEstateProperties.ToPagedCollection(size);
+            IDbPageCollection<Models.RealEstateProperty> collection = DbContext.RealEstateProperties.ToPagedCollection(pageSize);
 
             bool enumerated = false;
 
@@ -409,7 +409,7 @@ OPTION (RECOMPILE)";
                 if (page.PageNumber == 1)
                 {
                     page.Count().Should()
-                        .Be(size)
+                        .Be(pageSize)
                         .And
                         .BeLessThan(page.RecordCount);
                 }
