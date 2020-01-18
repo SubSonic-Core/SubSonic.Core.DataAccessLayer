@@ -258,7 +258,7 @@ namespace SubSonic.Infrastructure.Builders
             }
 
             return DbExpression.DbNamedValue(name,
-                    Expression.Constant(Convert.ChangeType(value, info.PropertyType, CultureInfo.CurrentCulture), info.PropertyType));
+                    Expression.Constant(Convert.ChangeType(value, info.PropertyType.GetUnderlyingType(), CultureInfo.CurrentCulture), info.PropertyType.GetUnderlyingType()));
         }
 
         private Expression GetNamedExpression(FieldInfo info, object value)

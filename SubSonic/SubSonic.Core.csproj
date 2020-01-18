@@ -6,7 +6,7 @@
     <Authors>Kenneth Carter</Authors>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>DAL;</PackageTags>
-    <Version>1.0.0.14-alpha</Version>
+    <Version>1.0.0.15-alpha</Version>
     <PackageId>SubSonic.Core</PackageId>
     <Company />
     <PackageProjectUrl>https://github.com/kccarter76/SubSonic-Core/wiki</PackageProjectUrl>
@@ -23,6 +23,8 @@ Not Ready For Production Use.
     Supports Select [...] From [...] Where [Not]  EXISTS(Select [...] From [...] [Where [...]])
     Supports Select [...] From [...] Where [COLUMN] [NOT] IN (@val_1, @val_2, @val_3, ...)
     Supports Select [...] From [...] Where [COLUMN] [NOT] IN (Select [...] From [...] [Where [...]])
+    Supports OrderBy, OrderByDescending, ThenBy, ThenByDescending
+    Supports Paging
 
 2. Supports Data Reader Execution Against a Datasource
 3. Supports Data Caching

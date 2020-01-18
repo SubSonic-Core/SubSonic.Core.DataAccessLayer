@@ -15,6 +15,8 @@ namespace SubSonic.Linq
             return source is ISubSonicCollection<TSource>;
         }
 
+        
+
         public static IDbPageCollection<TEntity> ToPagedCollection<TEntity>(this IQueryable<TEntity> source, int pageSize)
         {
             if (source.IsNotNull() && source.IsSubSonicQuerable())

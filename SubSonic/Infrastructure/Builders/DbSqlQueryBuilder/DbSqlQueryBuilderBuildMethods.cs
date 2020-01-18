@@ -295,6 +295,17 @@ namespace SubSonic.Infrastructure.Builders
                 SqlQueryType = GetQueryType(expression);
             }
 
+            if (SqlQueryType == DbSqlQueryType.Unknown)
+            {   /// most likely expression is from the DbExpression base implementation
+                if (expression is MethodCallExpression call)
+                {
+                    if (call.Method.IsOrderBy(out OrderByType orderByType))
+                    {
+                        return BuildSelectWithOrderByDeclaration(call, orderByType);
+                    }
+                }
+            }
+
             return expression ?? DbEntity.Table;
         }
 
@@ -317,6 +328,41 @@ namespace SubSonic.Infrastructure.Builders
                 return types.ToArray();
             }
             return Array.Empty<Type>();
+        }
+
+        private Expression BuildSelectWithOrderByDeclaration(MethodCallExpression expression, OrderByType orderByType)
+        {
+            DbSelectExpression select = null;
+            UnaryExpression unary = null;
+            List<DbOrderByDeclaration> orderBy = new List<DbOrderByDeclaration>();
+
+            bool clearOrderBy = expression.Method.Name.In(nameof(SubSonicQueryable.OrderBy), nameof(SubSonicQueryable.OrderByDescending));
+
+            foreach (var argument in expression.Arguments)
+            {
+                if (argument is DbSelectExpression _select)
+                {
+                    select = _select;
+                }
+                else if (argument is UnaryExpression _unary)
+                {
+                    unary = _unary;
+                }
+            }
+
+            if (!clearOrderBy)
+            {
+                orderBy.AddRange(select.OrderBy);
+            }
+
+            if (unary.Operand is LambdaExpression lamda)
+            {
+                if (lamda.Body is MemberExpression member)
+                {
+                    orderBy.Add(new DbOrderByDeclaration(orderByType, select.From.Columns.Single(column => column.PropertyName == member.Member.Name).Expression));
+                }
+            }
+            return DbExpression.DbSelect(select.QueryObject, select.From, select.Columns, select.Where, orderBy);
         }
     }
 }

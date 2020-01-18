@@ -821,6 +821,7 @@ OPTION (RECOMPILE)".Format("T1");
         }
 
 
+
         [Test]
         public void CanGenerateSqlForRealEstatePropertyPageQuery()
         {
@@ -843,6 +844,160 @@ OPTION (RECOMPILE)".Format("T1");
 
             Expression select = DbContext
                 .RealEstateProperties
+                .Page(default(int), 5)
+                .Expression;
+
+            IDbQuery query = null;
+
+            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectPageExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+
+                    query = builder.ToPagedQuery(select);
+                }).Should().NotThrow();
+            }
+
+            query.Sql.Should().NotBeNullOrEmpty();
+
+            logging.LogInformation("\n" + query.Sql + "\n");
+
+            query.Sql.Should().Be(expected);
+        }
+
+        [Test]
+        public void CanGenerateSqlForRealEstatePropertyPageQueryWithWhereClause()
+        {
+            string expected =
+@"SELECT COUNT([{0}].[ID]) [RECORDCOUNT]
+FROM [dbo].[RealEstateProperty] AS [{0}]
+WHERE ([{0}].[HasParallelPowerGeneration] = @hasparallelpowergeneration_1);
+WITH page AS
+(
+	SELECT [{0}].[ID]
+	FROM [dbo].[RealEstateProperty] AS [{0}]
+	WHERE ([{0}].[HasParallelPowerGeneration] = @hasparallelpowergeneration_1)
+	ORDER BY [{0}].[ID]
+	OFFSET @PageSize * (@PageNumber - 1) ROWS
+	FETCH NEXT @PageSize ROWS ONLY
+)
+SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
+FROM [dbo].[RealEstateProperty] AS [{0}]
+	INNER JOIN page
+		ON ([page].[ID] = [{0}].[ID])
+OPTION (RECOMPILE)".Format("T1");
+
+            Expression select = DbContext
+                .RealEstateProperties
+                .Where((property) =>
+                    property.HasParallelPowerGeneration == true)
+                .Page(default(int), 5)
+                .Expression;
+
+            IDbQuery query = null;
+
+            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectPageExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+
+                    query = builder.ToPagedQuery(select);
+                }).Should().NotThrow();
+            }
+
+            query.Sql.Should().NotBeNullOrEmpty();
+
+            logging.LogInformation("\n" + query.Sql + "\n");
+
+            query.Sql.Should().Be(expected);
+        }
+
+        [Test]
+        public void CanGenerateSqlForRealEstatePropertyPageQueryWithWhereAndOrderByClause()
+        {
+            string expected =
+@"SELECT COUNT([{0}].[ID]) [RECORDCOUNT]
+FROM [dbo].[RealEstateProperty] AS [{0}]
+WHERE ([{0}].[HasParallelPowerGeneration] = @hasparallelpowergeneration_1);
+WITH page AS
+(
+	SELECT [{0}].[ID]
+	FROM [dbo].[RealEstateProperty] AS [{0}]
+	WHERE ([{0}].[HasParallelPowerGeneration] = @hasparallelpowergeneration_1)
+	ORDER BY [{0}].[ID], [{0}].[StatusID]
+	OFFSET @PageSize * (@PageNumber - 1) ROWS
+	FETCH NEXT @PageSize ROWS ONLY
+)
+SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
+FROM [dbo].[RealEstateProperty] AS [{0}]
+	INNER JOIN page
+		ON ([page].[ID] = [{0}].[ID])
+OPTION (RECOMPILE)".Format("T1");
+
+            Expression select = DbContext
+                .RealEstateProperties
+                .Where((property) =>
+                    property.HasParallelPowerGeneration == true)
+                .OrderBy((property) => property.ID)
+                .ThenOrderBy((property) => property.StatusID)
+                .Page(default(int), 5)
+                .Expression;
+
+            IDbQuery query = null;
+
+            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectPageExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+
+                    query = builder.ToPagedQuery(select);
+                }).Should().NotThrow();
+            }
+
+            query.Sql.Should().NotBeNullOrEmpty();
+
+            logging.LogInformation("\n" + query.Sql + "\n");
+
+            query.Sql.Should().Be(expected);
+        }
+
+        [Test]
+        public void CanGenerateSqlForRealEstatePropertyPageQueryWithWhereAndOrderByDescendingClause()
+        {
+            string expected =
+@"SELECT COUNT([{0}].[ID]) [RECORDCOUNT]
+FROM [dbo].[RealEstateProperty] AS [{0}]
+WHERE ([{0}].[HasParallelPowerGeneration] = @hasparallelpowergeneration_1);
+WITH page AS
+(
+	SELECT [{0}].[ID]
+	FROM [dbo].[RealEstateProperty] AS [{0}]
+	WHERE ([{0}].[HasParallelPowerGeneration] = @hasparallelpowergeneration_1)
+	ORDER BY [{0}].[ID] DESC, [{0}].[StatusID] DESC
+	OFFSET @PageSize * (@PageNumber - 1) ROWS
+	FETCH NEXT @PageSize ROWS ONLY
+)
+SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
+FROM [dbo].[RealEstateProperty] AS [{0}]
+	INNER JOIN page
+		ON ([page].[ID] = [{0}].[ID])
+OPTION (RECOMPILE)".Format("T1");
+
+            Expression select = DbContext
+                .RealEstateProperties
+                .Where((property) =>
+                    property.HasParallelPowerGeneration == true)
+                .OrderByDescending((property) => property.ID)
+                .ThenOrderByDescending((property) => property.StatusID)
                 .Page(default(int), 5)
                 .Expression;
 
