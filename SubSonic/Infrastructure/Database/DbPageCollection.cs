@@ -64,7 +64,17 @@ namespace SubSonic.Infrastructure
                             continue;
                         }
 
-                        return table.CreateDataReader().Map<TEntity>();
+                        return table.CreateDataReader().Map<TEntity>((entity) =>
+                        {
+                            if (entity is IEntityProxy proxy)
+                            {
+                                proxy.IsNew = false;
+                                proxy.IsDirty = false;
+                                proxy.IsDeleted = false;
+                            }
+
+                            DbContext.Current.ChangeTracking.Add(typeof(TEntity), entity);
+                        });
                     }
                 }
 

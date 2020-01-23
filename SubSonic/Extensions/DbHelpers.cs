@@ -179,7 +179,7 @@ namespace SubSonic
             }
         }
 
-        public static IEnumerable<TEntity> Map<TEntity>(this DbDataReader reader)
+        public static IEnumerable<TEntity> Map<TEntity>(this DbDataReader reader, Action<TEntity> callback = null)
         {
             if (reader is null)
             {
@@ -205,6 +205,11 @@ namespace SubSonic
                     {
                         model.EntityModelType.GetProperty(property.PropertyName).SetValue(item, reader[property.Name]);
                     }
+                }
+
+                if (callback.IsNotNull())
+                {
+                    callback(item);
                 }
 
                 result.Add(item);
