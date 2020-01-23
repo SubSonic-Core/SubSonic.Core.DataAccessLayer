@@ -129,7 +129,7 @@ FROM [dbo].[RealEstateProperty] AS [{0}]";
             {
                 if (cmd.Parameters[0].Value is DataTable data)
                 {
-                    data.Rows[0]["ID"].Should().Be(1);
+                    data.Rows.Count.Should().BeGreaterThan(1);
 
                     return data;
                 }
