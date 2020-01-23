@@ -130,7 +130,7 @@ namespace SubSonic.Data.Caching
                     }
                 }
 
-                for(int i = (data.Count() - 1), n = -1; i > n; i--)
+                for(int i = 0, n = data.Count(); i < n; i++)
                 {
                     if (data.ElementAt(i) is IEntityProxy<TEntity> entity)
                     {

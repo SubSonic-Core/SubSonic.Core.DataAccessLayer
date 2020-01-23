@@ -94,9 +94,9 @@ namespace SubSonic.Data.Caching
 
             foreach (var dataset in this)
             {
-                var insert = dataset.Value.Where(x => x.IsNew);
-                var update = dataset.Value.Where(x => !x.IsNew && x.IsDirty);
-                var delete = dataset.Value.Where(x => !x.IsNew && x.IsDeleted);
+                var insert = dataset.Value.Where(x => x.IsNew).ToArray();
+                var update = dataset.Value.Where(x => !x.IsNew && x.IsDirty).ToArray();
+                var delete = dataset.Value.Where(x => !x.IsNew && x.IsDeleted).ToArray();
 
                 string error_feedback = "";
 

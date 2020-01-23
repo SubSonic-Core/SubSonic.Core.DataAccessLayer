@@ -37,12 +37,16 @@ FROM [dbo].[Status] AS [{0}]",
                 property =
 @"SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
 FROM [dbo].[RealEstateProperty] AS [{0}]
-WHERE ([{0}].[ID] = {1})";
+WHERE ([{0}].[ID] = {1})",
+                property_all =
+@"SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
+FROM [dbo].[RealEstateProperty] AS [{0}]";
 
             DbContext.Database.Instance.AddCommandBehavior(units.Format("T1", 0), Units.Where(x => x.ID == 0));
             DbContext.Database.Instance.AddCommandBehavior(status.Format("T1", 1), Statuses.Where(x => x.ID == 1));
             DbContext.Database.Instance.AddCommandBehavior(statuses.Format("T1"), Statuses);
             DbContext.Database.Instance.AddCommandBehavior(property.Format("T1", 1), RealEstateProperties.Where(x => x.ID == 1));
+            DbContext.Database.Instance.AddCommandBehavior(property_all.Format("T1"), RealEstateProperties);
         }
 
         [Test]
@@ -111,6 +115,38 @@ WHERE ([{0}].[ID] = {1})";
                 .Single();
 
             ((IEntityProxy)property).IsDirty.Should().BeFalse();
+
+            DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsDirty).Should().Be(0);
+        }
+
+        [Test]
+        public void ShouldBeAbleToUpdateMultipleRecordsUsingCQRS()
+        {
+            string
+                update = "[dbo].[UpdateRealEstateProperty]";
+
+            DbContext.Database.Instance.AddCommandBehavior(update, (cmd) =>
+            {
+                if (cmd.Parameters[0].Value is DataTable data)
+                {
+                    data.Rows[0]["ID"].Should().Be(1);
+
+                    return data;
+                }
+
+                throw new NotSupportedException();
+            });
+
+            foreach (Models.RealEstateProperty property in DbContext.RealEstateProperties)
+            {
+                property.HasParallelPowerGeneration = !(property.HasParallelPowerGeneration ?? false);
+
+                ((IEntityProxy)property).IsDirty.Should().BeTrue();
+            }
+
+            DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsDirty).Should().Be(DbContext.RealEstateProperties.Count());
+
+            DbContext.SaveChanges().Should().BeTrue();
 
             DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsDirty).Should().Be(0);
         }
