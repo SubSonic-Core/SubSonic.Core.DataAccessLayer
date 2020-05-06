@@ -241,133 +241,144 @@ namespace SubSonic.Data.DynamicProxies
                 iLGetGenerator = getMethod.GetILGenerator(),
                 iLSetGenerator = setMethod.GetILGenerator();
 
+            MethodInfo
+                getter = baseType.GetProperty(propertyName).GetGetMethod(),
+                setter = baseType.GetProperty(propertyName).GetSetMethod();
+
+            #region getter
+            GenerateILForGetter(iLGetGenerator, getter, setter, propertyType, propertyName, isCollection);
+
+            typeBuilder.DefineMethodOverride(getMethod, getter);
+            #endregion
+            #region setter
+            GenerateILForSetter(iLSetGenerator, setter, propertyType, propertyName, isCollection);
+
+            typeBuilder.DefineMethodOverride(setMethod, setter);
+            #endregion
+        }
+
+        private void GenerateILForGetter(ILGenerator generator, MethodInfo getter, MethodInfo setter, Type propertyType, string propertyName, bool isCollection)
+        {
             Type internalExt = typeof(InternalExtensions);
 
             MethodInfo
                 load = fieldDbContextAccessor.FieldType
                     .GetMethod(!isCollection ? "LoadProperty" : "LoadCollection", BindingFlags.Public | BindingFlags.Instance)
                     .MakeGenericMethod(new[] { baseType }.Union(propertyType.BuildGenericArgumentTypes()).ToArray()),
-                set = fieldDbContextAccessor.FieldType
-                    .GetMethod("SetForeignKeyProperty", BindingFlags.Public | BindingFlags.Instance)
-                    .MakeGenericMethod(new[] { baseType }.Union(propertyType.BuildGenericArgumentTypes()).ToArray()),
                 isForeignKeyDefaultValue = fieldDbContextAccessor.FieldType
                     .GetMethod("IsForeignKeyPropertySetToDefaultValue", BindingFlags.Public | BindingFlags.Instance)
                     .MakeGenericMethod(baseType),
-                isNull = internalExt.GetMethod("IsNull", BindingFlags.Public | BindingFlags.Static , null, new[] { typeof(object) }, null),
                 isDefaultValue = internalExt.GetMethods()
                     .Where(info =>
                         info.Name.Equals("IsDefaultValue", StringComparison.OrdinalIgnoreCase) && info.IsGenericMethod)
                     .Single(),
-                getter = baseType.GetProperty(propertyName).GetGetMethod(),
-                setter = baseType.GetProperty(propertyName).GetSetMethod();
-
-            Label 
-                fieldIsNotNullOrForeignKeyIsDefault = iLGetGenerator.DefineLabel(),
-                fieldIsNull = iLGetGenerator.DefineLabel(),
-                fieldCountIsNotZero = iLGetGenerator.DefineLabel();
+                isNull = internalExt.GetMethod("IsNull", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(object) }, null);
 
             LocalBuilder
-                propertyInfo = iLGetGenerator.DeclareLocal(typeof(PropertyInfo)),
+                propertyInfo = generator.DeclareLocal(typeof(PropertyInfo)),
                 count = null;
-            #region getter
-            if (isCollection)
-            {
-                count = iLGetGenerator.DeclareLocal(typeof(int));
-            }
 
-            iLGetGenerator.Emit(OpCodes.Ldarg_0);                                                                               // this
-            iLGetGenerator.EmitCall(OpCodes.Call, typeof(object).GetMethod("GetType"), null);                                   // call GetType method
-            iLGetGenerator.Emit(OpCodes.Ldstr, propertyName);                                                                   // push new string of propertyName
-            iLGetGenerator.EmitCall(OpCodes.Call, typeof(Type).GetMethod("GetProperty", new[] { typeof(string) }), null);       // call GetProperty with the propertyName as the parameter
-            iLGetGenerator.Emit(OpCodes.Stloc, propertyInfo);                                                                   // store PropertyInfo object in the local variable propertyInfo
-
-            iLGetGenerator.Emit(OpCodes.Ldarg_0);                                                       // this
-            iLGetGenerator.Emit(OpCodes.Call, getter);                                                  // propertyField
-            iLGetGenerator.EmitCall(OpCodes.Call, isNull, null);                                        // use the static extension method IsNull
-            if (!isCollection)
-            {
-                iLGetGenerator.Emit(OpCodes.Brfalse_S, fieldIsNotNullOrForeignKeyIsDefault);                 // value is not null
-
-                iLGetGenerator.Emit(OpCodes.Ldarg_0);                                   // this
-                iLGetGenerator.Emit(OpCodes.Ldfld, fieldDbContextAccessor);             // field variable _dbContextAccessor
-                iLGetGenerator.Emit(OpCodes.Ldarg_0);                                   // this ptr as the first parameter
-                iLGetGenerator.Emit(OpCodes.Ldloc, propertyInfo);                       // local variable propertyInfo as the second parameter
-                iLGetGenerator.EmitCall(OpCodes.Call, isForeignKeyDefaultValue, null);  // call the IsForeignKeyPropertySetToDefaultValue on the DBContextAccessor object
-                iLGetGenerator.Emit(OpCodes.Brtrue_S, fieldIsNotNullOrForeignKeyIsDefault);
-            }
-            else
-            {
-                iLGetGenerator.Emit(OpCodes.Brtrue_S, fieldIsNull); // value is null
-            }
+            Label
+                fieldIsNotNullOrForeignKeyIsDefault = generator.DefineLabel(),
+                fieldIsNull = generator.DefineLabel(),
+                fieldCountIsNotZero = generator.DefineLabel();
 
             if (isCollection)
             {
-                iLGetGenerator.Emit(OpCodes.Ldarg_0);
-                iLGetGenerator.Emit(OpCodes.Call, getter);
-                iLGetGenerator.EmitCall(OpCodes.Call, propertyType.GetProperty("Count").GetMethod, null);
-                iLGetGenerator.Emit(OpCodes.Stloc, count);
+                count = generator.DeclareLocal(typeof(int));
+            }
 
-                iLGetGenerator.Emit(OpCodes.Ldloc, count);
-                iLGetGenerator.EmitCall(OpCodes.Call, isDefaultValue.MakeGenericMethod(typeof(int)), null);
-                iLGetGenerator.Emit(OpCodes.Brfalse_S, fieldCountIsNotZero);
-                iLGetGenerator.MarkLabel(fieldIsNull);
-                iLGetGenerator.BeginScope();
+            generator.Emit(OpCodes.Ldarg_0);                                                                               // this
+            generator.EmitCall(OpCodes.Callvirt, typeof(object).GetMethod("GetType"), null);                                   // call GetType method
+            generator.Emit(OpCodes.Ldstr, propertyName);                                                                   // push new string of propertyName
+            generator.EmitCall(OpCodes.Callvirt, typeof(Type).GetMethod("GetProperty", new[] { typeof(string) }), null);       // call GetProperty with the propertyName as the parameter
+            generator.Emit(OpCodes.Stloc, propertyInfo);                                                                   // store PropertyInfo object in the local variable propertyInfo
+
+            generator.Emit(OpCodes.Ldarg_0);                                                       // this
+            generator.Emit(OpCodes.Call, getter);                                                  // propertyField
+            generator.EmitCall(OpCodes.Call, isNull, null);                                        // use the static extension method IsNull
+
+            if (!isCollection)
+            {
+                generator.Emit(OpCodes.Brfalse_S, fieldIsNotNullOrForeignKeyIsDefault);                 // value is not null
+
+                generator.Emit(OpCodes.Ldarg_0);                                   // this
+                generator.Emit(OpCodes.Ldfld, fieldDbContextAccessor);             // field variable _dbContextAccessor
+                generator.Emit(OpCodes.Ldarg_0);                                   // this ptr as the first parameter
+                generator.Emit(OpCodes.Ldloc, propertyInfo);                       // local variable propertyInfo as the second parameter
+                generator.EmitCall(OpCodes.Call, isForeignKeyDefaultValue, null);  // call the IsForeignKeyPropertySetToDefaultValue on the DBContextAccessor object
+                generator.Emit(OpCodes.Brtrue_S, fieldIsNotNullOrForeignKeyIsDefault);
             }
             else
             {
-                iLGetGenerator.BeginScope();
+                generator.Emit(OpCodes.Brtrue_S, fieldIsNull); // value is null
             }
 
-            {  
-                iLGetGenerator.Emit(OpCodes.Ldarg_0);                           // this
-                iLGetGenerator.Emit(OpCodes.Dup);                               // Duplicate the top of the stack -> this
-                iLGetGenerator.Emit(OpCodes.Ldfld, fieldDbContextAccessor);     // field variable _dbContextAccessor
-                iLGetGenerator.Emit(OpCodes.Ldarg_0);                           // this ptr as the first parameter
-                iLGetGenerator.Emit(OpCodes.Ldloc, propertyInfo);               // local variable propertyInfo as the second parameter
-                iLGetGenerator.EmitCall(OpCodes.Call, load, null);              // call the LoadProperty or LoadCollection on the DBContextAccessor object
-                iLGetGenerator.Emit(OpCodes.Call, setter);              // store the return in the propertyField
-                if (isCollection)
-                {
-                    iLGetGenerator.MarkLabel(fieldCountIsNotZero);
-                }
+            if (isCollection)
+            {
+                generator.Emit(OpCodes.Ldarg_0);
+                generator.Emit(OpCodes.Call, getter);
+                generator.EmitCall(OpCodes.Callvirt, propertyType.GetProperty("Count").GetMethod, null);
+                generator.Emit(OpCodes.Stloc, count);
+
+                generator.Emit(OpCodes.Ldloc, count);
+                generator.EmitCall(OpCodes.Call, isDefaultValue.MakeGenericMethod(typeof(int)), null);
+                generator.Emit(OpCodes.Brfalse_S, fieldCountIsNotZero);
+                generator.MarkLabel(fieldIsNull);
             }
-            iLGetGenerator.EndScope();
+
+            generator.Emit(OpCodes.Ldarg_0);                        // this
+            generator.Emit(OpCodes.Dup);                            // Duplicate the top of the stack -> this
+            generator.Emit(OpCodes.Ldfld, fieldDbContextAccessor);  // field variable _dbContextAccessor
+            generator.Emit(OpCodes.Ldarg_0);                        // this ptr as the first parameter
+            generator.Emit(OpCodes.Ldloc, propertyInfo);            // local variable propertyInfo as the second parameter
+            generator.EmitCall(OpCodes.Call, load, null);           // call the LoadProperty or LoadCollection on the DBContextAccessor object
+            generator.Emit(OpCodes.Call, setter);                   // store the return in the propertyField
+
+            if (isCollection)
+            {
+                generator.MarkLabel(fieldCountIsNotZero);
+            }
+            else
+            {
+                generator.MarkLabel(fieldIsNotNullOrForeignKeyIsDefault);           // jump here when propertyField is not null
+            }
+
+            generator.Emit(OpCodes.Ldarg_0);                                        // this
+            generator.Emit(OpCodes.Call, getter);                                   // propertyField
+            generator.Emit(OpCodes.Ret);
+        }
+
+        private void GenerateILForSetter(ILGenerator generator, MethodInfo method, Type propertyType, string propertyName, bool isCollection)
+        {
+            MethodInfo
+                set = fieldDbContextAccessor.FieldType
+                    .GetMethod("SetForeignKeyProperty", BindingFlags.Public | BindingFlags.Instance)
+                    .MakeGenericMethod(new[] { baseType }.Union(propertyType.BuildGenericArgumentTypes()).ToArray());
+
+            LocalBuilder
+                propertyInfo = generator.DeclareLocal(typeof(PropertyInfo));
+
+            generator.Emit(OpCodes.Ldarg_0);
+            generator.Emit(OpCodes.Ldarg_1);
+            generator.Emit(OpCodes.Call, method);
+
             if (!isCollection)
             {
-                iLGetGenerator.MarkLabel(fieldIsNotNullOrForeignKeyIsDefault);               // jump here when propertyField is not null
-            }
-            iLGetGenerator.Emit(OpCodes.Ldarg_0);                                       // this
-            iLGetGenerator.Emit(OpCodes.Call, getter);                                  // propertyField
-            iLGetGenerator.Emit(OpCodes.Ret);
+                generator.Emit(OpCodes.Ldarg_0);                                                                               // this
+                generator.EmitCall(OpCodes.Call, typeof(object).GetMethod("GetType"), null);                                   // call GetType method
+                generator.Emit(OpCodes.Ldstr, propertyName);                                                                   // push new string of propertyName
+                generator.EmitCall(OpCodes.Call, typeof(Type).GetMethod("GetProperty", new[] { typeof(string) }), null);       // call GetProperty with the propertyName as the parameter
+                generator.Emit(OpCodes.Stloc, propertyInfo);                                                                   // store PropertyInfo object in the local variable propertyInfo
 
-            typeBuilder.DefineMethodOverride(getMethod, getter);
-            #endregion
-            #region setter
-            propertyInfo = iLSetGenerator.DeclareLocal(typeof(PropertyInfo));
-
-            iLSetGenerator.Emit(OpCodes.Ldarg_0);
-            iLSetGenerator.Emit(OpCodes.Ldarg_1);
-            iLSetGenerator.Emit(OpCodes.Call, setter);
-
-            if (!isCollection)
-            {
-                iLSetGenerator.Emit(OpCodes.Ldarg_0);                                                                               // this
-                iLSetGenerator.EmitCall(OpCodes.Call, typeof(object).GetMethod("GetType"), null);                                   // call GetType method
-                iLSetGenerator.Emit(OpCodes.Ldstr, propertyName);                                                                   // push new string of propertyName
-                iLSetGenerator.EmitCall(OpCodes.Call, typeof(Type).GetMethod("GetProperty", new[] { typeof(string) }), null);       // call GetProperty with the propertyName as the parameter
-                iLSetGenerator.Emit(OpCodes.Stloc, propertyInfo);                                                                   // store PropertyInfo object in the local variable propertyInfo
-
-                iLSetGenerator.Emit(OpCodes.Ldarg_0);                           // this
-                iLSetGenerator.Emit(OpCodes.Ldfld, fieldDbContextAccessor);     // field variable _dbContextAccessor
-                iLSetGenerator.Emit(OpCodes.Ldarg_0);                           // this ptr as the first parameter
-                iLSetGenerator.Emit(OpCodes.Ldloc, propertyInfo);               // local variable propertyInfo as the second parameter
-                iLSetGenerator.EmitCall(OpCodes.Call, set, null);               // call the SetForeignKeyProperty on the DBContextAccessor object
+                generator.Emit(OpCodes.Ldarg_0);                           // this
+                generator.Emit(OpCodes.Ldfld, fieldDbContextAccessor);     // field variable _dbContextAccessor
+                generator.Emit(OpCodes.Ldarg_0);                           // this ptr as the first parameter
+                generator.Emit(OpCodes.Ldloc, propertyInfo);               // local variable propertyInfo as the second parameter
+                generator.EmitCall(OpCodes.Call, set, null);               // call the SetForeignKeyProperty on the DBContextAccessor object
             }
 
-            iLSetGenerator.Emit(OpCodes.Ret);
-
-            typeBuilder.DefineMethodOverride(setMethod, setter);
-            #endregion
+            generator.Emit(OpCodes.Ret);
         }
 
         public PropertyInfo BuildProperty<TProperty>(Expression<Func<IEntityProxy<TEntity>, TProperty>> selector, FieldBuilder field = null, Expression<Func<object>> getter = null, Expression<Func<object>> setter = null)
