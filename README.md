@@ -9,6 +9,8 @@ This way I know the DAL from the ground up and speak for its performance and imp
    <li>.NETCoreApp,Version=v3.1</li>
 </ul>
 
+note: <em>framework references multi targeting not supported by the nuget manager. maintain nuget references by hand.</em>
+
 # Features
 <ul>
    <li>Database Context</li>
