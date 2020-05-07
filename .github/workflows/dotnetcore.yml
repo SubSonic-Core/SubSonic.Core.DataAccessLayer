@@ -31,5 +31,5 @@ jobs:
         framework: ['netcoreapp2.2', 'netcoreapp3.1']
     steps:
       - name: Unit Testing
-        run: dotnet test --configuration Release --framework ${{ matrix.framework }} --list-tests
+        run: dotnet test SubSonic-Core --configuration Release --framework ${{ matrix.framework }} --list-tests
         
