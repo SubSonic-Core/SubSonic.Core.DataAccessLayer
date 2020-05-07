@@ -22,14 +22,6 @@ jobs:
         dotnet-version: 3.1.100
     - name: Build with netcoreapp
       run: dotnet build --configuration Release
-  test:
-    needs: [build]
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        framework: ['netcoreapp2.2', 'netcoreapp3.1']
-    steps:
-      - name: Unit Testing
-        run: dotnet test SubSonic.sln --configuration Release --framework ${{ matrix.framework }} --list-tests
+    - name: Unit Testing
+      uses: dotnet test
         
