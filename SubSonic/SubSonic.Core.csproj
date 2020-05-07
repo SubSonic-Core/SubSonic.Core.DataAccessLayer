@@ -42,7 +42,7 @@ Not Ready For Production Use.
 
     Proxy Metadata: IsNew, IsDirty, etc...
 </PackageReleaseNotes>
-    <NeutralLanguage>English</NeutralLanguage>
+    <NeutralLanguage>en</NeutralLanguage>
     <RootNamespace>SubSonic</RootNamespace>
     <PackageLicenseFile>LICENSE.MD</PackageLicenseFile>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -61,7 +61,7 @@ Not Ready For Production Use.
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
