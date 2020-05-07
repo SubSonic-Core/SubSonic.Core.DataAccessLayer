@@ -23,6 +23,13 @@ This way I know the DAL from the ground up and speak for its performance and imp
       <li>WHERE [DATE VALUE | COLUMN] (NOT) BETWEEN [DATE VALUE] AND [DATE VALUE]</li>
    </ul>
    <li>Support for paging large datasets</li>
+   <li>Supports OrderBy, OrderByDescending, ThenBy, ThenByDescending</li>
+   <li>Data Caching</li>
+   <li>Proxy Support</li>
+   <ul>
+      <li>overrides virtual navigation and collection properties.</li>
+      <li>when navigation property value changes proxy changes the foreign key property to match.</li>
+      <li>proxy implments IEntityProxy<TEntity> which implements Data, KeyData, ModelType, IsDirty, IsNew, IsDeleted</li>
 </ul> 
 
 # Project Goals
