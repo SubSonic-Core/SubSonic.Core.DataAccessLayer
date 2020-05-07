@@ -1,4 +1,4 @@
-name: DotNET Core
+name: DotNET
 
 on:
   push:
