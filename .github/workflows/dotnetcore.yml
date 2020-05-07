@@ -27,7 +27,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest]
+        os: [ubuntu-latest]
         framework: ['netcoreapp2.2', 'netcoreapp3.1']
     steps:
       - name: Unit Testing
