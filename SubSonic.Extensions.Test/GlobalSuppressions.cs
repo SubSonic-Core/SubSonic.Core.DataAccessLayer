@@ -3,4 +3,7 @@
 // Project-level suppressions either have no target or are given
 // a specific target and scoped to a namespace, type, member, etc.
 
-[assembly: System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2227:Collection properties should be read only", Justification = "<Pending>", Scope = "member", Target = "~P:SubSonic.Test.Rigging.Models.RealEstateProperty.Units")]
+using System.Diagnostics.CodeAnalysis;
+
+[assembly: SuppressMessage("Usage", "CA2227:Collection properties should be read only", Justification = "<Pending>", Scope = "member", Target = "~P:SubSonic.Test.Rigging.Models.RealEstateProperty.Units")]
+[assembly: SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "<Pending>", Scope = "member", Target = "~M:SubSonic.Extensions.Test.NUnit.NUnitExtensions.AddNUnitLogger``1(Microsoft.Extensions.Logging.ILoggingBuilder,Microsoft.Extensions.Logging.LogLevel)~Microsoft.Extensions.Logging.ILoggingBuilder")]

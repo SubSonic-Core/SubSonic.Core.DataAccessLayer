@@ -42,9 +42,10 @@ Not Ready For Production Use.
 
     Proxy Metadata: IsNew, IsDirty, etc...
 </PackageReleaseNotes>
-    <NeutralLanguage></NeutralLanguage>
+    <NeutralLanguage>English</NeutralLanguage>
     <RootNamespace>SubSonic</RootNamespace>
     <PackageLicenseFile>LICENSE.MD</PackageLicenseFile>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Platform)'=='AnyCPU'">

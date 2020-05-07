@@ -220,7 +220,15 @@ namespace SubSonic.Linq.Expressions.Structure
             }
         }
 
-        protected string GetAliasName(TableAlias alias) => aliases.GetAliasName(alias);
+        protected string GetAliasName(TableAlias alias)
+        {
+            if (alias is null)
+            {
+                throw new ArgumentNullException(nameof(alias));
+            }
+
+            return aliases.GetAliasName(alias);
+        }
 
         private string GetAggregateName(AggregateType aggregateType)
         {

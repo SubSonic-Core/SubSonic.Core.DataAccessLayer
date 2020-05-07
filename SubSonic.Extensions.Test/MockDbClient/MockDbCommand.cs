@@ -98,7 +98,7 @@ namespace SubSonic.Extensions.Test.MockDbClient
             }
             else
             {
-                throw new InvalidOperationException("Connection State Not Open");
+                throw new InvalidOperationException(MockDBErrors.ConnectionStateNotOpen);
             }
         }
 
@@ -117,7 +117,7 @@ namespace SubSonic.Extensions.Test.MockDbClient
             }
             else
             {
-                throw new InvalidOperationException("Connection State Not Open");
+                throw new InvalidOperationException(MockDBErrors.ConnectionStateNotOpen);
             }
         }
 

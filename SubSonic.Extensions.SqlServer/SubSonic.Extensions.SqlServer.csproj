@@ -14,6 +14,7 @@
     <PackageProjectUrl>https://github.com/kccarter76/SubSonic-Core/projects/1</PackageProjectUrl>
     <RepositoryUrl>https://github.com/kccarter76/SubSonic-Core/tree/master/SubSonic.Extensions.Test</RepositoryUrl>
     <Version>1.0.0.4-beta</Version>
+    <NeutralLanguage>English</NeutralLanguage>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

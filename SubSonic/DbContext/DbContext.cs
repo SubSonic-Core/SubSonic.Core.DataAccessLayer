@@ -8,7 +8,6 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("SubSonic.Extensions.Test", AllInternalsVisible = true)]
 [assembly: InternalsVisibleTo("SubSonic.Extensions.SqlServer", AllInternalsVisible = true)]
 [assembly: InternalsVisibleTo("SubSonic.Tests", AllInternalsVisible = true)]
-[assembly: NeutralResourcesLanguage("en")]
 
 namespace SubSonic
 {
