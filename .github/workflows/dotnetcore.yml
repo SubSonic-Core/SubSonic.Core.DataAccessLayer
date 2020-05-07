@@ -26,7 +26,7 @@ jobs:
     - name: Setup side by side .NET SDKs on Windows
       if: matrix.os == 'windows-latest'
       run: |
-        SET DOTNET_21_ROOT=%DOTNET_ROOT:3.1.101=2.1.803%
+        SET DOTNET_22_ROOT=%DOTNET_ROOT:3.1.101=2.2.108%
         xcopy /s /y /d %DOTNET_31_ROOT% %DOTNET_ROOT%
       shell: cmd
     - name: Setup side by side .NET SDKs on ${{ matrix.os }}
