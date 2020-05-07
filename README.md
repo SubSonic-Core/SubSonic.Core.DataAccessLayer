@@ -3,6 +3,10 @@ The driving force behind this project is the various issues with the current EF 
 various issues in which prevented minimal manipulation of the data to release projects.
 This way I know the DAL from the ground up and speak for its performance and implemenation. 
 
+# Supported Frameworks
+* .NETCoreApp,Version=v2.2
+* .NETCoreApp,Version=v3.1
+
 # Project Goals
 1. minimize the references to 3rd party projects which use namespaces that can come into conflict with the .net core library.
    1. that being said extensions are easy to override, just remember to forward the call if it does not apply.
