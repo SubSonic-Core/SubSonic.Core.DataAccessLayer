@@ -32,7 +32,7 @@ jobs:
     - name: Setup side by side .NET SDKs on ${{ matrix.os }}
       if: matrix.os != 'windows-latest'
       run: |
-        rsync -a ${DOTNET_ROOT/3.1.101/2.1.803}/* $DOTNET_ROOT/
+        rsync -a ${DOTNET_ROOT/3.1.101/2.2.108}/* $DOTNET_ROOT/
     - name: Build with netcoreapp
       run: dotnet build --configuration Release
     - name: Unit Testing
