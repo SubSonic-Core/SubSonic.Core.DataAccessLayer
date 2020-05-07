@@ -23,5 +23,5 @@ jobs:
     - name: Build with netcoreapp
       run: dotnet build --configuration Release
     - name: Unit Testing
-      uses: dotnet test
+      run: dotnet test
         
