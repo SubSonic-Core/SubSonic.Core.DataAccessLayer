@@ -12,7 +12,7 @@
     <RepositoryUrl>https://github.com/kccarter76/SubSonic-Core/tree/master/SubSonic.Extensions.Test</RepositoryUrl>
     <PackageLicenseFile>LICENSE.MD</PackageLicenseFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.0.6-beta</Version>
+    <Version>1.0.0.7-beta</Version>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
     <NeutralLanguage>en</NeutralLanguage>
