@@ -75,7 +75,7 @@ FROM [dbo].[RealEstateProperty] AS [T1]
 WHERE [T1].[StatusID] IN (
 	SELECT [T2].[ID]
 	FROM [dbo].[Status] AS [T2]
-	WHERE ([T2].[IsAvailableStatus] = @isavailablestatus_1))".Format("T1", "T2");
+	WHERE ([T2].[IsAvailableStatus] = @b_isavailablestatus_1))".Format("T1", "T2");
 
             Expression select = DbContext
                 .RealEstateProperties
@@ -109,7 +109,7 @@ WHERE [T1].[StatusID] IN (
             query.Sql.Should().Be(expected);
 
             query.Parameters.Should().NotBeEmpty();
-            ((bool)query.Parameters.Get("@isavailablestatus_1").Value).Should().BeTrue();
+            ((bool)query.Parameters.Get("@b_isavailablestatus_1").Value).Should().BeTrue();
         }
 
         [Test]
@@ -121,7 +121,7 @@ FROM [dbo].[RealEstateProperty] AS [{0}]
 WHERE [{0}].[StatusID] NOT IN (
 	SELECT [{1}].[ID]
 	FROM [dbo].[Status] AS [{1}]
-	WHERE ([{1}].[IsAvailableStatus] = @isavailablestatus_1))".Format("T1", "T2");
+	WHERE ([{1}].[IsAvailableStatus] = @b_isavailablestatus_1))".Format("T1", "T2");
 
             Expression select = DbContext
                 .RealEstateProperties
@@ -155,7 +155,7 @@ WHERE [{0}].[StatusID] NOT IN (
             query.Sql.Should().Be(expected);
 
             query.Parameters.Should().NotBeEmpty();
-            ((bool)query.Parameters.Get("@isavailablestatus_1").Value).Should().BeTrue();
+            ((bool)query.Parameters.Get("@b_isavailablestatus_1").Value).Should().BeTrue();
         }
 
         [Test]
@@ -344,7 +344,7 @@ WHERE ([{0}].[ID] = @id_1)".Format("T1");
             string expected =
 @"SELECT [{0}].[ID]
 FROM [dbo].[Status] AS [{0}]
-WHERE ([{0}].[IsAvailableStatus] = @isavailablestatus_1)".Format("T1");
+WHERE ([{0}].[IsAvailableStatus] = @b_isavailablestatus_1)".Format("T1");
 
             Expression select = DbContext
                 .Statuses
@@ -378,7 +378,7 @@ WHERE ([{0}].[IsAvailableStatus] = @isavailablestatus_1)".Format("T1");
             query.Sql.Should().Be(expected);
 
             query.Parameters.Should().NotBeEmpty();
-            query.Parameters.ElementAt(0).ParameterName.Should().Be("@isavailablestatus_1");
+            query.Parameters.ElementAt(0).ParameterName.Should().Be("@b_isavailablestatus_1");
             TypeConvertor.ToSqlDbType(query.Parameters.ElementAt(0).DbType).Should().Be(SqlDbType.Bit);
         }
 

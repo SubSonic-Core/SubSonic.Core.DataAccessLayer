@@ -16,7 +16,7 @@ namespace SubSonic.Infrastructure
             CommandType = CommandType.StoredProcedure;
         }
 
-        [DefaultValue(CommandType.Text)]
+        [DefaultValue(CommandType.StoredProcedure)]
         public CommandType CommandType { get; set; }
     }
 }

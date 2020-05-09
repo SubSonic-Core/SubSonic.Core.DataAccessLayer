@@ -11,6 +11,7 @@ using System.Reflection;
 
 namespace SubSonic.Linq.Expressions.Structure
 {
+    using Infrastructure;
     using Infrastructure.SqlGenerator;
     using System.Globalization;
 
@@ -88,6 +89,13 @@ namespace SubSonic.Linq.Expressions.Structure
                             Write(context.Fragments.EQUAL_TO);
                             this.Visit(method.Arguments[1]);
                             Write(Fragments.RIGHT_PARENTHESIS);
+                        }
+                    }
+                    else if (info.GetCustomAttribute(typeof(DbProgrammabilityAttribute)).IsNotNull())
+                    {
+                        if (info.GetCustomAttribute(typeof(DbProgrammabilityAttribute)) is DbScalarFunctionAttribute scalar)
+                        {
+                            Write(scalar.QualifiedName);
                         }
                     }
                     else

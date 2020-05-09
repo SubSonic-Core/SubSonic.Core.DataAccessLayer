@@ -123,11 +123,11 @@ namespace SubSonic.Linq.Expressions.Structure
                 return scalar;
             }
 
-            DbExpression select = (DbExpression)Visit(scalar.Select);
+            DbExpression select = (DbExpression)Visit(scalar.Expression);
 
-            if (select != scalar.Select)
+            if (select != scalar.Expression)
             {
-                return DbExpression.DbScalar(scalar.Type, select);
+                return DbExpression.DbScalar(scalar.Type, select, scalar.Arguments.ToArray());
             }
 
             return scalar;

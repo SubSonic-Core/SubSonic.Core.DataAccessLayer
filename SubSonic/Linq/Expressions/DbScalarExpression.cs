@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using System.Collections.Generic;
 
 namespace SubSonic.Linq.Expressions
 {
@@ -7,10 +8,13 @@ namespace SubSonic.Linq.Expressions
 
     public class DbScalarExpression : DbSubQueryExpression
     {
-        protected internal DbScalarExpression(Type type, DbExpression expression)
-            : base(DbExpressionType.Scalar, type, expression)
+        protected internal DbScalarExpression(Type returnType, Expression expression, Expression[] arguments)
+            : base(DbExpressionType.Scalar, returnType, expression)
         {
+            Arguments = arguments;
         }
+
+        public IEnumerable<Expression> Arguments { get; }
 
         protected override Expression Accept(ExpressionVisitor visitor)
         {
@@ -25,9 +29,9 @@ namespace SubSonic.Linq.Expressions
 
     public partial class DbExpression
     {
-        public static DbExpression DbScalar(Type type, DbExpression expression)
+        public static DbExpression DbScalar(Type returnType, Expression expression, Expression[] arguments)
         {
-            return new DbScalarExpression(type, expression);
+            return new DbScalarExpression(returnType, expression, arguments);
         }
     }
 }

@@ -230,19 +230,29 @@ namespace SubSonic.Linq.Expressions.Structure
             return rowNumber;
         }
 
-        protected internal override Expression VisitScalar(DbScalarExpression subquery)
+        protected internal override Expression VisitScalar(DbScalarExpression scalar)
         {
-            if (subquery.IsNotNull())
+            if (scalar.IsNotNull())
             {
-                this.Write(Fragments.RIGHT_PARENTHESIS);
-                WriteNewLine(Indentation.Inner);
-                this.Visit(subquery.Select);
-                WriteNewLine();
+                Visit(scalar.Expression);
                 Write(Fragments.LEFT_PARENTHESIS);
-                this.Indent(Indentation.Outer);
+
+                var arguments = scalar.Arguments.ToArray();
+
+                for(int i = 0; i < arguments.Length; i++)
+                {
+                    Visit(arguments[i]);
+
+                    if (i < (arguments.Length - 1))
+                    {
+                        Write($"{Fragments.COMMA} ");
+                    }
+                }
+
+                Write(Fragments.RIGHT_PARENTHESIS);
             }
 
-            return subquery;
+            return scalar;
         }
 
         protected internal override Expression VisitIn(DbInExpression @in)

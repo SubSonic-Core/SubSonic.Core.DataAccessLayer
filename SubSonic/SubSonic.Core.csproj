@@ -7,41 +7,17 @@
     <Authors>Kenneth Carter</Authors>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageTags>DAL;</PackageTags>
-    <Version>1.0.0.22-beta</Version>
+    <Version>1.0.0.23-beta</Version>
     <PackageId>SubSonic.Core</PackageId>
     <Company />
     <PackageProjectUrl>https://github.com/kccarter76/SubSonic-Core/wiki</PackageProjectUrl>
     <RepositoryType>Git</RepositoryType>
     <RepositoryUrl>https://github.com/kccarter76/SubSonic-Core</RepositoryUrl>
-    <Description>Inspired by previous iterations of SubSonic and the need for a reliable feature rich data layer.</Description>
+    <Description></Description>
     <Copyright>Kenneth Carter © 2020</Copyright>
     <PackageReleaseNotes>Preview
 
-Not Ready For Production Use.
-
-1. Query Engine
-    Supports Select [...] From [...] [Where [...]]
-    Supports Select [...] From [...] Where [Not]  EXISTS(Select [...] From [...] [Where [...]])
-    Supports Select [...] From [...] Where [COLUMN] [NOT] IN (@val_1, @val_2, @val_3, ...)
-    Supports Select [...] From [...] Where [COLUMN] [NOT] IN (Select [...] From [...] [Where [...]])
-    Supports OrderBy, OrderByDescending, ThenBy, ThenByDescending
-    Supports Paging
-
-2. Supports Data Reader Execution Against a Datasource
-3. Supports Data Caching
-4. Supports Wrapping of Data Clients
-    Mock DB - Supported
-    SqlClient - Supported
-    Oracle - Will Support Down the Road
-    MySql - Will Support Down the Road
-5. Support Stored Procedures
-6. Support User Defined Table Types
-7. Proxy Generation
-    Supports overloading of navigation properties and collections.
-    Navigation Properties will support key assignment when changed.
-
-    Proxy Metadata: IsNew, IsDirty, etc...
-</PackageReleaseNotes>
+Not Ready For Production Use.</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <RootNamespace>SubSonic</RootNamespace>
     <PackageLicenseFile>LICENSE.MD</PackageLicenseFile>

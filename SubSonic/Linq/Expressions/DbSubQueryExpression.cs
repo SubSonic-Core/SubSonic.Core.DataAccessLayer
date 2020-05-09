@@ -8,7 +8,7 @@ namespace SubSonic.Linq.Expressions
     public abstract class DbSubQueryExpression 
         : DbExpression
     {
-        protected DbSubQueryExpression(DbExpressionType eType, Type type, DbExpression select)
+        protected DbSubQueryExpression(DbExpressionType eType, Type type, Expression expression)
             : base(eType, type)
         {
             if (!(eType == DbExpressionType.Scalar || eType == DbExpressionType.In || eType == DbExpressionType.NotIn))
@@ -16,10 +16,10 @@ namespace SubSonic.Linq.Expressions
                 throw new InvalidOperationException();
             }
 
-            Select = select;
+            Expression = expression;
         }
 
-        public DbExpression Select { get; }
+        public Expression Expression { get; }
 
         protected override Expression Accept(ExpressionVisitor visitor)
         {

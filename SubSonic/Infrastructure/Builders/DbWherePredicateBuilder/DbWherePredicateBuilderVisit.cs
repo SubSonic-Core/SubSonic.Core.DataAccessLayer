@@ -8,6 +8,7 @@ namespace SubSonic.Infrastructure.Builders
 {
     using Linq;
     using Linq.Expressions;
+    using System.Net.Http.Headers;
 
     partial class DbWherePredicateBuilder
     {
@@ -51,63 +52,66 @@ namespace SubSonic.Infrastructure.Builders
             {
                 if (node is MethodCallExpression call)
                 {
-
                     if (Enum.TryParse(typeof(DbComparisonOperator), call.Method.Name, out object name))
                     {
                         comparison = (DbComparisonOperator)name;
-                    }
 
-                    if (comparison.In(DbComparisonOperator.In, DbComparisonOperator.NotIn))
-                    {
-                        foreach (Expression argument in call.Arguments)
+                        if (comparison.In(DbComparisonOperator.In, DbComparisonOperator.NotIn))
                         {
-                            if (argument is MethodCallExpression method)
+                            foreach (Expression argument in call.Arguments)
                             {
-                                object set = Expression.Lambda(method).Compile().DynamicInvoke();
-
-                                Arguments.Push(PullUpParameters(((MLinq.IQueryable)set).Expression));
-                            }
-                            else
-                            {
-                                Arguments.Push(Visit(argument));
-                            }
-                        }
-                    }
-                    else if (comparison.In(DbComparisonOperator.Between, DbComparisonOperator.NotBetween))
-                    {
-                        if (call.Method.Name.Contains("Between", StringComparison.CurrentCulture))
-                        {
-                            using (var args = Arguments.FocusOn(call.Method.Name))
-                            {
-                                foreach (Expression argument in call.Arguments)
+                                if (argument is MethodCallExpression method)
                                 {
-                                    Arguments.Push(Visit(argument));
-                                }
+                                    object set = Expression.Lambda(method).Compile().DynamicInvoke();
 
-                                if (body.IsNull())
-                                {
-                                    body = DbExpression.DbBetween(comparison, Arguments.Pop(), Arguments.Pop(), Arguments.Pop());
+                                    Arguments.Push(PullUpParameters(((MLinq.IQueryable)set).Expression));
                                 }
                                 else
                                 {
-                                    body = GetBodyExpression(body, DbExpression.DbBetween(comparison, Arguments.Pop(), Arguments.Pop(), Arguments.Pop()), group);
-                                }
-                            }
-                        }
-                        else if (call.Method.Name.Contains("IsNull", StringComparison.CurrentCulture))
-                        {
-                            using (var args = Arguments.FocusOn(call.Method.Name))
-                            {
-                                foreach (Expression argument in call.Arguments)
-                                {
                                     Arguments.Push(Visit(argument));
                                 }
-
-                                return DbExpression.DbIsNull(args.Pop(), args.Pop());
                             }
                         }
+                        else if (comparison.In(DbComparisonOperator.Between, DbComparisonOperator.NotBetween))
+                        {
+                            if (call.Method.Name.Contains("Between", StringComparison.CurrentCulture))
+                            {
+                                using (var args = Arguments.FocusOn(call.Method.Name))
+                                {
+                                    foreach (Expression argument in call.Arguments)
+                                    {
+                                        Arguments.Push(Visit(argument));
+                                    }
 
-                        return node;
+                                    if (body.IsNull())
+                                    {
+                                        body = DbExpression.DbBetween(comparison, Arguments.Pop(), Arguments.Pop(), Arguments.Pop());
+                                    }
+                                    else
+                                    {
+                                        body = GetBodyExpression(body, DbExpression.DbBetween(comparison, Arguments.Pop(), Arguments.Pop(), Arguments.Pop()), group);
+                                    }
+                                }
+                            }
+
+                            return node;
+                        }
+                    }
+                    else if (call.Method.Name.Contains("IsNull", StringComparison.CurrentCulture))
+                    {
+                        using (var args = Arguments.FocusOn(call.Method.Name))
+                        {
+                            foreach (Expression argument in call.Arguments)
+                            {
+                                Arguments.Push(Visit(argument));
+                            }
+
+                            return DbExpression.DbIsNull(args.Pop(), args.Pop());
+                        }
+                    }
+                    else if (call.Method.GetCustomAttribute(typeof(DbProgrammabilityAttribute)) is DbScalarFunctionAttribute)
+                    {
+                        return DbExpression.DbScalar(call.Method.ReturnType, call, GetParameterExpressions(call));
                     }
                     else
                     {
@@ -120,6 +124,26 @@ namespace SubSonic.Infrastructure.Builders
                 }
             }
             return base.VisitMethodCall(node);
+        }
+
+        protected Expression[] GetParameterExpressions(MethodCallExpression call)
+        {
+            if (call.IsNotNull())
+            {
+                List<Expression> parameters = new List<Expression>();
+
+                foreach(Expression argument in call.Arguments)
+                {
+                    parameters.Add(Visit(argument));
+                }
+
+                // scrub property info this is an arguments list not a right side value
+                propertyInfo = null;
+
+                return parameters.ToArray();
+            }
+
+            return Array.Empty<DbExpression>();
         }
 
         protected override Expression VisitLambda<T>(Expression<T> node)
@@ -224,7 +248,7 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (node.IsNotNull())
             {
-                return GetNamedExpression(propertyInfo, node.Value);
+                return GetNamedExpression(node.Value, propertyInfo);
             }
             return base.VisitConstant(node);
         }
