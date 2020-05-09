@@ -13,5 +13,11 @@ namespace SubSonic.Extensions.Test.Data.Functions
         {
             throw new NotImplementedException(SubSonicErrorMessages.SqlMethodOnlyForSql.Format(nameof(IsPropertyAvailable)));
         }
+
+        [DbScalarFunction(nameof(SupportsMultipleArguments))]
+        public static bool SupportsMultipleArguments(int statusId, bool isUnderDevelopment)
+        {
+            throw new NotImplementedException(SubSonicErrorMessages.SqlMethodOnlyForSql.Format(nameof(SupportsMultipleArguments)));
+        }
     }
 }

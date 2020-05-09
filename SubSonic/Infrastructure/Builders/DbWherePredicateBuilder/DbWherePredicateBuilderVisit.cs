@@ -135,10 +135,10 @@ namespace SubSonic.Infrastructure.Builders
                 foreach(Expression argument in call.Arguments)
                 {
                     parameters.Add(Visit(argument));
-                }
 
-                // scrub property info this is an arguments list not a right side value
-                propertyInfo = null;
+                    // scrub property info this is an arguments list not a right side value
+                    propertyInfo = null;
+                }
 
                 return parameters.ToArray();
             }

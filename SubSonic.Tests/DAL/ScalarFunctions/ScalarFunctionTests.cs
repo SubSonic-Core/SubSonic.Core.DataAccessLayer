@@ -63,5 +63,45 @@ WHERE ([dbo].[IsPropertyAvailable]([{0}].[StatusID]) = @b_value_1)".Format("T1")
             query.Parameters.Should().NotBeEmpty();
             query.Parameters.Get("@b_value_1").Value.Should().Be(true);
         }
+
+        [Test]
+        public void ShouldBeAbleToRenderMultipleArguments()
+        {
+            string expected =
+@"SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
+FROM [dbo].[RealEstateProperty] AS [{0}]
+WHERE ([dbo].[SupportsMultipleArguments]([{0}].[StatusID], @b_value_1) = @b_value_2)".Format("T1");
+
+            Expression select = DbContext
+                .RealEstateProperties
+                .Where(rep =>
+                    Scalar.SupportsMultipleArguments(rep.StatusID, false) == true)
+                .Expression;
+
+            IDbQuery query = null;
+
+            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<RealEstateProperty> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<RealEstateProperty>>();
+
+                    query = builder.ToQuery(select);
+                }).Should().NotThrow();
+            }
+
+            query.Should().NotBeNull();
+            query.Sql.Should().NotBeNullOrEmpty();
+
+            logging.LogInformation("\n" + query.Sql + "\n");
+
+            query.Sql.Should().Be(expected);
+
+            query.Parameters.Should().NotBeEmpty();
+            query.Parameters.Get("@b_value_1").Value.Should().Be(false);
+            query.Parameters.Get("@b_value_2").Value.Should().Be(true);
+        }
     }
 }
