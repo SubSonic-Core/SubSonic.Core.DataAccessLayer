@@ -15,6 +15,7 @@ note: <em>framework references multi targeting not supported by the nuget manage
 <ul>
    <li>Database Context</li>
    <li>Stored Procedure Support</li>
+   <li>Scalar Function Mapping</li>
    <li>Db Model mapping of Table and User Defined Data Type</li>
    <li>Command Query Responsibility Segregation (CQRS) approach to database operations against a DB Model</li>
    <li>Linq Query mapping supports</li>
