@@ -6,10 +6,6 @@ using System.Text;
 
 namespace SubSonic.Infrastructure
 {
-#if DB_PROVIDER_NOT_DEFINED
-    using Factories;
-#endif
-
     public class DbContextOptionsBuilder
     {
         private readonly DbContext dbContext;

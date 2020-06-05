@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <description></description>
+    <owners>Kenneth Carter</owners>
+    <authors>Kenneth Carter</authors>
+    <license type="file">LICENSE.MD</license>
+    <dependencies>
+      <group targetFramework="netstandard2.0">
+
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="LICENSE.MD" target="" />
+  </files>
+</package>

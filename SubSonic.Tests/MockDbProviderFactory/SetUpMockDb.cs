@@ -15,13 +15,21 @@ namespace SubSonic.Tests.MockDbProviderFactory
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
+#if NETFRAMEWORK
+            Infrastructure.DbProviderFactories.RegisterFactory(ProviderInvariantName, MockDbProviderFactoryType);
+#else
             DbProviderFactories.RegisterFactory(ProviderInvariantName, MockDbProviderFactoryType);
+#endif
         }
 
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
+#if NETFRAMEWORK
+            Infrastructure.DbProviderFactories.UnregisterFactory(ProviderInvariantName);
+#else
             DbProviderFactories.UnregisterFactory(ProviderInvariantName);
+#endif
         }
     }
 }

@@ -153,20 +153,11 @@ namespace SubSonic
                     }
                     else
                     {
-                        if (!(value is string))
-                        {
-                            value = Enum.GetName(property.PropertyType, value);
-                        }
-
                         if (value != null)
                         {
-                            if (Enum.TryParse(property.PropertyType, (string)value, out object @enum))
+                            if (Enum.IsDefined(property.PropertyType, value))
                             {
-                                property.SetValue(destination, @enum);
-                            }
-                            else
-                            {
-                                throw new InvalidOperationException($"'{value}' is not found on {property.PropertyType.FullName}");
+                                property.SetValue(destination, value);
                             }
                         }
                         else

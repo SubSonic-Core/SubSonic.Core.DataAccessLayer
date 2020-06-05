@@ -53,7 +53,13 @@ namespace SubSonic.Tests.MockDbProviderFactory
         [Test]
         public void CreatesProviderFromFactory()
         {
-            var factory = DbProviderFactories.GetFactory(SetUpMockDb.ProviderInvariantName);
+            DbProviderFactory factory = null;
+
+#if NETFRAMEWORK
+            factory = Infrastructure.DbProviderFactories.GetFactory(SetUpMockDb.ProviderInvariantName);
+#else
+            factory = DbProviderFactories.GetFactory(SetUpMockDb.ProviderInvariantName);
+#endif
 
             factory.Should().BeOfType<MockDbClientFactory>();
         }
@@ -150,7 +156,13 @@ namespace SubSonic.Tests.MockDbProviderFactory
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE0063:Use simple 'using' statement", Justification = "<Pending>")]
         public void CanCreateTransaction()
         {
-            var factory = DbProviderFactories.GetFactory(SetUpMockDb.ProviderInvariantName) as MockDbClientFactory;
+            DbProviderFactory factory = null;
+
+#if NETFRAMEWORK
+            factory = Infrastructure.DbProviderFactories.GetFactory(SetUpMockDb.ProviderInvariantName) as MockDbClientFactory;
+#else
+            factory = DbProviderFactories.GetFactory(SetUpMockDb.ProviderInvariantName) as MockDbClientFactory;
+#endif
 
             using (var conn = factory.CreateConnection())
             using (var trn = conn.BeginTransaction())

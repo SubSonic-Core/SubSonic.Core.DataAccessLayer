@@ -52,9 +52,9 @@ namespace SubSonic.Infrastructure.Builders
             {
                 if (node is MethodCallExpression call)
                 {
-                    if (Enum.TryParse(typeof(DbComparisonOperator), call.Method.Name, out object name))
+                    if (Enum.TryParse(call.Method.Name, out DbComparisonOperator name))
                     {
-                        comparison = (DbComparisonOperator)name;
+                        comparison = name;
 
                         if (comparison.In(DbComparisonOperator.In, DbComparisonOperator.NotIn))
                         {
@@ -74,7 +74,7 @@ namespace SubSonic.Infrastructure.Builders
                         }
                         else if (comparison.In(DbComparisonOperator.Between, DbComparisonOperator.NotBetween))
                         {
-                            if (call.Method.Name.Contains("Between", StringComparison.CurrentCulture))
+                            if (call.Method.Name.Contains("Between"))
                             {
                                 using (var args = Arguments.FocusOn(call.Method.Name))
                                 {
@@ -97,7 +97,7 @@ namespace SubSonic.Infrastructure.Builders
                             return node;
                         }
                     }
-                    else if (call.Method.Name.Contains("IsNull", StringComparison.CurrentCulture))
+                    else if (call.Method.Name.Contains("IsNull"))
                     {
                         using (var args = Arguments.FocusOn(call.Method.Name))
                         {

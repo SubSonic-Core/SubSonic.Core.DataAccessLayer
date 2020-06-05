@@ -61,6 +61,33 @@ namespace SubSonic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Assembly qualified name is missing..
+        /// </summary>
+        internal static string DbProviderFactoryNoAssemblyQualifiedName {
+            get {
+                return ResourceManager.GetString("DbProviderFactoryNoAssemblyQualifiedName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} does not declare a declared public static Instance field..
+        /// </summary>
+        internal static string DbProviderFactoryNoInstance {
+            get {
+                return ResourceManager.GetString("DbProviderFactoryNoInstance", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} does not inherit from {1}..
+        /// </summary>
+        internal static string DbProviderFactorySubClassError {
+            get {
+                return ResourceManager.GetString("DbProviderFactorySubClassError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type {0}is not registed with the db model..
         /// </summary>
         internal static string EntityTypeIsNotRegisteredException {

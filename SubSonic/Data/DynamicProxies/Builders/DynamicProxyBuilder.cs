@@ -105,8 +105,11 @@ namespace SubSonic.Data.DynamicProxies
                     BuildValueOverriddenProperty(property.PropertyName, property.PropertyType);
                 }
             }
-
+#if NETSTANDARD2_1
             return typeBuilder.CreateType();
+#elif NETSTANDARD2_0
+            return typeBuilder.CreateTypeInfo().AsType();
+#endif
         }
 
         private void BuildDataProperty()
@@ -200,14 +203,14 @@ namespace SubSonic.Data.DynamicProxies
                 iLGetGenerator = getMethod.GetILGenerator(),
                 iLSetGenerator = setMethod.GetILGenerator();
 
-            #region getter
+#region getter
             iLGetGenerator.Emit(OpCodes.Ldarg_0);                                                       // this
             iLGetGenerator.Emit(OpCodes.Call, getter);                                                  // propertyField
             iLGetGenerator.Emit(OpCodes.Ret);
 
             typeBuilder.DefineMethodOverride(getMethod, getter);
-            #endregion
-            #region setter
+#endregion
+#region setter
             iLSetGenerator.Emit(OpCodes.Ldarg_0);
             iLSetGenerator.Emit(OpCodes.Ldarg_1);
             iLSetGenerator.Emit(OpCodes.Call, setter);
@@ -220,7 +223,7 @@ namespace SubSonic.Data.DynamicProxies
             iLSetGenerator.Emit(OpCodes.Ret);
 
             typeBuilder.DefineMethodOverride(setMethod, setter);
-            #endregion
+#endregion
         }
 
         private void BuildOverriddenProperty(string propertyName, Type propertyType, bool isCollection)
@@ -245,16 +248,16 @@ namespace SubSonic.Data.DynamicProxies
                 getter = baseType.GetProperty(propertyName).GetGetMethod(),
                 setter = baseType.GetProperty(propertyName).GetSetMethod();
 
-            #region getter
+#region getter
             GenerateILForGetter(iLGetGenerator, getter, setter, propertyType, propertyName, isCollection);
 
             typeBuilder.DefineMethodOverride(getMethod, getter);
-            #endregion
-            #region setter
+#endregion
+#region setter
             GenerateILForSetter(iLSetGenerator, setter, propertyType, propertyName, isCollection);
 
             typeBuilder.DefineMethodOverride(setMethod, setter);
-            #endregion
+#endregion
         }
 
         private void GenerateILForGetter(ILGenerator generator, MethodInfo getter, MethodInfo setter, Type propertyType, string propertyName, bool isCollection)
@@ -485,7 +488,7 @@ namespace SubSonic.Data.DynamicProxies
 
                 if (property.CanRead)
                 {
-                    #region getter
+#region getter
                     if (getter.IsNull())
                     {
                         iLGetGenerator.Emit(OpCodes.Ldarg_0);
@@ -519,7 +522,7 @@ namespace SubSonic.Data.DynamicProxies
                         iLGetGenerator.Emit(OpCodes.Callvirt, getInvoke);
                     }
                     iLGetGenerator.Emit(OpCodes.Ret);
-                    #endregion
+#endregion
 
                     if (isInterface)
                     {
@@ -529,7 +532,7 @@ namespace SubSonic.Data.DynamicProxies
 
                 if (property.CanWrite)
                 {
-                    #region setter
+#region setter
                     iLSetGenerator.Emit(OpCodes.Ldarg_0);
                     iLSetGenerator.Emit(OpCodes.Ldarg_1);
                     iLSetGenerator.Emit(OpCodes.Stfld, _field);
@@ -563,7 +566,7 @@ namespace SubSonic.Data.DynamicProxies
                     }
 
                     iLSetGenerator.Emit(OpCodes.Ret);
-                    #endregion
+#endregion
 
                     if (isInterface)
                     {
