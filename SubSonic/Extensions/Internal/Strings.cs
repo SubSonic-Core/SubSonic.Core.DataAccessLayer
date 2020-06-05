@@ -25,9 +25,9 @@ namespace SubSonic
 
         public static string EncapsulateQualifiedName(this string source)
         {
-            return string.Join('.', source
-                .Replace("[", "", StringComparison.CurrentCulture)
-                .Replace("]", "", StringComparison.CurrentCulture)
+            return string.Join(".", source
+                .Replace("[", "")
+                .Replace("]", "")
                 .Split('.')
                 .Select(name => $"[{name}]")
                 .ToArray());            

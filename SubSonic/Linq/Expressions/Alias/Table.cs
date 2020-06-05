@@ -75,11 +75,21 @@ namespace SubSonic.Linq.Expressions.Alias
             return !(left == right);
         }
 
+        private static int last = 0;
+
         private void ComputeHash()
         {
             Random rand = new Random();
 
-            int s = rand.Next(0, 314), t = 159;
+            int s = rand.Next(0, 1024), t = 159;
+
+            while (s == last)
+            {
+                s = rand.Next(0, 1024);
+            }
+
+            last = s;
+
             byte[] bytes = Encoding.UTF8.GetBytes(Name);
             hash = 0;
 

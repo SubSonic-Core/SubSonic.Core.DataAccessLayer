@@ -5,6 +5,7 @@ using SubSonic.Infrastructure;
 using SubSonic.Infrastructure.Factory;
 using SubSonic.Infrastructure.Schema;
 using System;
+using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
@@ -12,6 +13,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace SubSonic.Extensions.Test
 {
+    [Description("Mock provider for unit testing")]
     public class SubSonicMockDbClient
         : SubSonicDbProvider<MockDbClientFactory>
     {
