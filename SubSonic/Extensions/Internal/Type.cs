@@ -155,7 +155,12 @@ namespace SubSonic
 
             string name = type.Name;
             name = name.Replace('+', '.');
+#if NETSTANDARD2_0
             int iGeneneric = name.IndexOf('`');
+#elif NETSTANDARD2_1
+            int iGeneneric = name.IndexOf('`', StringComparison.CurrentCulture);
+#endif
+
             if (iGeneneric > 0)
             {
                 name = name.Substring(0, iGeneneric);

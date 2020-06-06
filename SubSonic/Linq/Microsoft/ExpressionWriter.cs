@@ -63,7 +63,11 @@ namespace SubSonic.Linq.Microsoft
                 throw new ArgumentNullException(nameof(text));
             }
 
+#if NETSTANDARD2_0
             if (text.IndexOf('\n') >= 0)
+#elif NETSTANDARD2_1
+            if (text.IndexOf('\n', StringComparison.CurrentCulture) >= 0)
+#endif
             {
                 string[] lines = text.Split(splitters, StringSplitOptions.RemoveEmptyEntries);
                 for (int i = 0, n = lines.Length; i < n; i++)

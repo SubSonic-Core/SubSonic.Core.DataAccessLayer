@@ -122,7 +122,11 @@ namespace SubSonic.Linq.Expressions.Structure
                 throw new ArgumentNullException(nameof(text));
             }
 
+#if NETSTANDARD2_0
             if (text.IndexOf(special[0]) >= 0)
+#elif NETSTANDARD2_1
+            if (text.IndexOf(special[0], StringComparison.CurrentCulture) >= 0)
+#endif
             {
                 string[] lines = text.Split(splitters, StringSplitOptions.RemoveEmptyEntries);
                 for (int i = 0, n = lines.Length; i < n; i++)
@@ -153,7 +157,11 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             if (value.IsNotNullOrEmpty())
             {
+#if NETSTANDARD2_0
                 return value.Replace(context.Fragments.QOUTE, $"{context.Fragments.QOUTE}{context.Fragments.QOUTE}");
+#elif NETSTANDARD2_1
+                return value.Replace(context.Fragments.QOUTE, $"{context.Fragments.QOUTE}{context.Fragments.QOUTE}", StringComparison.CurrentCulture);
+#endif
             }
             return string.Empty;
         }

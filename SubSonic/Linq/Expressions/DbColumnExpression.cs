@@ -43,7 +43,12 @@ namespace SubSonic.Linq.Expressions
 
         public override int GetHashCode()
         {
+#if NETSTANDARD2_0
             return Alias.GetHashCode() + Name.GetHashCode();
+#elif NETSTANDARD2_1
+            return Alias.GetHashCode() + Name.GetHashCode(StringComparison.CurrentCulture);
+#endif
+
         }
 
         public override bool Equals(object obj)

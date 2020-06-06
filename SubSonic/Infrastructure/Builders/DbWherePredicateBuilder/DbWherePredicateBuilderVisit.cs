@@ -74,7 +74,11 @@ namespace SubSonic.Infrastructure.Builders
                         }
                         else if (comparison.In(DbComparisonOperator.Between, DbComparisonOperator.NotBetween))
                         {
+#if NETSTANDARD2_0
                             if (call.Method.Name.Contains("Between"))
+#elif NETSTANDARD2_1
+                            if (call.Method.Name.Contains("Between", StringComparison.CurrentCulture))
+#endif
                             {
                                 using (var args = Arguments.FocusOn(call.Method.Name))
                                 {
@@ -97,7 +101,11 @@ namespace SubSonic.Infrastructure.Builders
                             return node;
                         }
                     }
+#if NETSTANDARD2_0
                     else if (call.Method.Name.Contains("IsNull"))
+#elif NETSTANDARD2_1
+                    else if (call.Method.Name.Contains("IsNull", StringComparison.CurrentCulture))
+#endif
                     {
                         using (var args = Arguments.FocusOn(call.Method.Name))
                         {
