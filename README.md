@@ -6,6 +6,7 @@ This way I know the DAL from the ground up and speak for its performance and imp
 # Supported Frameworks
 <ul>
    <li>.NETStandard,Version=v2.0</li>
+   <li>.NETStandard,Version=v2.1</li>
 </ul>
 
 # Features
