@@ -19,6 +19,7 @@ namespace SubSonic.Tests.DAL.SqlQueryProvider
     [TestFixture]
     public partial class SqlQueryProviderTests
     {
+#if NETCOREAPP
         [Test]
         public void CanCompileDbSetQuery()
         {
@@ -26,6 +27,7 @@ namespace SubSonic.Tests.DAL.SqlQueryProvider
 
             set.Should().BeSameAs(DbContext.RealEstateProperties);
         }
+#endif
 
         [Test]
         public void CanGetDbQueryObjectWithNoParametersFromExpression()
