@@ -5,11 +5,8 @@ This way I know the DAL from the ground up and speak for its performance and imp
 
 # Supported Frameworks
 <ul>
-   <li>.NETCoreApp,Version=v2.2</li>
-   <li>.NETCoreApp,Version=v3.1</li>
+   <li>.NETStandard,Version=v2.0</li>
 </ul>
-
-note: <em>framework references multi targeting not supported by the nuget manager. maintain nuget references by hand.</em>
 
 # Features
 <ul>
