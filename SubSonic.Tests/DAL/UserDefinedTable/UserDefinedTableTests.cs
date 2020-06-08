@@ -81,7 +81,7 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
 
             string expected =
 @"DECLARE @Result [Int];
-EXEC @Result = [dbo].[InsertRealEstateProperty] @Entities = @Entities";
+EXEC @Result = [dbo].[InsertRealEstateProperty] @Entities = @Entities, @Error = @Error out";
 
             if (modelType == typeof(Models.RealEstateProperty))
             {
@@ -106,7 +106,7 @@ EXEC @Result = [dbo].[InsertRealEstateProperty] @Entities = @Entities";
             
             proc.Name.Should().Be("[dbo].[InsertRealEstateProperty]");
 
-            proc.Parameters.Count().Should().Be(2);
+            proc.Parameters.Count().Should().Be(3);
 
             IDbDataParameter parameter = proc.Parameters.First();
 
