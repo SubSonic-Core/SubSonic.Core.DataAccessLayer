@@ -152,10 +152,17 @@ namespace SubSonic.Extensions.Test.MockDbClient
                     foreach (Match match in ParameterRegex.Matches(this.CommandText))
                     {
                         object value = Parameters[match.Value].Value;
-
+#if NETSTANDARD2_0
                         if (!CommandText.Contains("EXEC"))
+#elif NETSTANDARD2_1
+                        if (!CommandText.Contains("EXEC", StringComparison.CurrentCulture))
+#endif
                         {
+#if NETSTANDARD2_0
                             CommandText = CommandText.Replace(match.Value, (value is string || value is Guid) ? $"'{value}'" : value.ToString());
+#elif NETSTANDARD2_1
+                            CommandText = CommandText.Replace(match.Value, (value is string || value is Guid) ? $"'{value}'" : value.ToString(), StringComparison.CurrentCulture);
+#endif
                         }
                     }
                 }

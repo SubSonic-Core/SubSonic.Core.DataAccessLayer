@@ -7,13 +7,15 @@
     <Authors>Kenneth Carter</Authors>
     <Description>Sql Client Wrapper for the SubSonic Data Layer</Description>
     <Copyright>Kenneth Carter © 2020</Copyright>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>DAL; SQLClient;</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseFile>LICENSE.MD</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/kccarter76/SubSonic-Core/projects/1</PackageProjectUrl>
     <RepositoryUrl>https://github.com/kccarter76/SubSonic-Core/tree/master/SubSonic.Extensions.Test</RepositoryUrl>
-    <Version>1.0.0.10-beta</Version>
+    <Version>1.0.0.11-beta</Version>
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
 
