@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace SubSonic.Extensions.Test.Models
 {
     [Table(nameof(RealEstateProperty))]
+    [DbUserDefinedTableType(nameof(RealEstateProperty))]
     [DbCommandQuery(DbQueryType.Delete, typeof(DeleteRealEstateProperty))]
     [DbCommandQuery(DbQueryType.Update, typeof(UpdateRealEstateProperty))]
     [DbCommandQuery(DbQueryType.Insert, typeof(InsertRealEstateProperty))]

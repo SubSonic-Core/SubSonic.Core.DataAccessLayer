@@ -228,7 +228,7 @@ namespace SubSonic.Data.DynamicProxies
 
         private void BuildOverriddenProperty(string propertyName, Type propertyType, bool isCollection)
         {
-            PropertyBuilder propertyBuilder = typeBuilder.DefineProperty(
+            _ = typeBuilder.DefineProperty(
                     propertyName,
                     PropertyAttributes.None,
                     propertyType,
@@ -498,13 +498,13 @@ namespace SubSonic.Data.DynamicProxies
                     {
                         arguments = getInvokeType.GetGenericArguments();
 
-                        if (_getter.Member is PropertyInfo)
+                        if (_getter.Member is PropertyInfo propertyInfo)
                         {
-                            iLGetGenerator.Emit(OpCodes.Call, ((PropertyInfo)_getter.Member).GetGetMethod());
+                            iLGetGenerator.Emit(OpCodes.Call, propertyInfo.GetGetMethod());
                         }
-                        else if (_getter.Member is FieldInfo)
+                        else if (_getter.Member is FieldInfo fieldInfo)
                         {
-                            iLGetGenerator.Emit(OpCodes.Ldsfld, (FieldInfo)_getter.Member);
+                            iLGetGenerator.Emit(OpCodes.Ldsfld, fieldInfo);
                         }
 
                         for(int i = 0; i < arguments.Length - 1; i++)
@@ -541,13 +541,13 @@ namespace SubSonic.Data.DynamicProxies
                     {
                         arguments = setInvokeType.GetGenericArguments();
 
-                        if (_setter.Member is PropertyInfo)
+                        if (_setter.Member is PropertyInfo propertyInfo)
                         {
-                            iLSetGenerator.Emit(OpCodes.Call, ((PropertyInfo)_setter.Member).GetGetMethod());
+                            iLSetGenerator.Emit(OpCodes.Call, propertyInfo.GetGetMethod());
                         }
-                        else if (_setter.Member is FieldInfo)
+                        else if (_setter.Member is FieldInfo fieldInfo)
                         {
-                            iLSetGenerator.Emit(OpCodes.Ldsfld, (FieldInfo)_setter.Member);
+                            iLSetGenerator.Emit(OpCodes.Ldsfld, fieldInfo);
                         }
 
                         for (int i = 0; i < arguments.Length; i++)
@@ -620,13 +620,13 @@ namespace SubSonic.Data.DynamicProxies
 
                         MethodInfo invoke = type.GetMethod("Invoke");
 
-                        if (body.Member is PropertyInfo)
+                        if (body.Member is PropertyInfo propertyInfo)
                         {
-                            iL.Emit(OpCodes.Call, ((PropertyInfo)body.Member).GetGetMethod());
+                            iL.Emit(OpCodes.Call, propertyInfo.GetGetMethod());
                         }
-                        else if (body.Member is FieldInfo)
+                        else if (body.Member is FieldInfo fieldInfo)
                         {
-                            iL.Emit(OpCodes.Ldsfld, ((FieldInfo)body.Member));
+                            iL.Emit(OpCodes.Ldsfld, fieldInfo);
                         }
 
                         iL.Emit(OpCodes.Ldarg_0);

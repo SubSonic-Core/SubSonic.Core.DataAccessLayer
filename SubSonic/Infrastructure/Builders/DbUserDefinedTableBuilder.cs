@@ -56,6 +56,11 @@ END;";
         {
             _model = model ?? throw new ArgumentNullException(nameof(model));
             _type = model.EntityModelType;
+
+            if(!_model.DefinedTableTypeExists)
+            {
+                throw new InvalidOperationException(SubSonicErrorMessages.UserDefinedTableNotDefined.Format(_type.Name));
+            }
         }
 
         public DbUserDefinedTableBuilder(Type type, IEnumerable data)
@@ -73,7 +78,7 @@ END;";
             _type = type;
         }
 
-        IDbObject Table => _model ?? (IDbObject)_type.GetCustomAttribute<DbUserDefinedTableTypeAttribute>();
+        IDbObject Table => _model?.DefinedTableType ?? (IDbObject)_type.GetCustomAttribute<DbUserDefinedTableTypeAttribute>();
 
         public string GenerateSql()
         {

@@ -46,6 +46,10 @@ namespace SubSonic.Infrastructure.Schema
 
         public DbTableExpression Table => (DbTableExpression)DbExpression.DbTable(this);
 
+        public bool DefinedTableTypeExists => DefinedTableType.IsNotNull();
+
+        public IDbObject DefinedTableType { get; set; }
+
         public IDbRelationshipMap GetRelationshipWith(IDbEntityModel model)
         {
             if (model.IsNotNull())

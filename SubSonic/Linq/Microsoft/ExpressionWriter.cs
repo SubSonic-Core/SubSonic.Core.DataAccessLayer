@@ -23,7 +23,7 @@ namespace SubSonic.Linq.Microsoft
         private static readonly char[] splitters = new char[] { '\n', '\r' };
         private static readonly char[] special = new char[] { '\n', '\t', '\\' };
 
-        private TextWriter writer;
+        private readonly TextWriter writer;
         private int depth;
 
         protected ExpressionWriter(TextWriter writer)

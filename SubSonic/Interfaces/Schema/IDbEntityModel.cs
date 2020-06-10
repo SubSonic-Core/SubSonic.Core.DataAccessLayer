@@ -17,6 +17,9 @@ namespace SubSonic.Infrastructure.Schema
         Type EntityModelType { get; }
         DbTableExpression Table { get; }
 
+        bool DefinedTableTypeExists { get; }
+        IDbObject DefinedTableType { get; }
+
         object CreateObject();
         IEnumerable<string> GetPrimaryKey();
         IDbRelationshipMap GetRelationshipWith(IDbEntityModel model);

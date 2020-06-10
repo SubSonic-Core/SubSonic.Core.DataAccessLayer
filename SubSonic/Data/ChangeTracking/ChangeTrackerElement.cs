@@ -114,7 +114,12 @@ namespace SubSonic.Data.Caching
                     }
                 }
                 else if (command.CommandType == CommandType.StoredProcedure)
-                {
+                { 
+                    if (!model.DefinedTableTypeExists)
+                    {
+                        throw new InvalidOperationException(SubSonicErrorMessages.UserDefinedTableNotDefined.Format(model.EntityModelType.Name));
+                    }
+
                     DbSubSonicStoredProcedure procedure = (DbSubSonicStoredProcedure)Activator.CreateInstance(command.StoredProcedureType, data);
 
                     result = Database.ExecuteStoredProcedure<TEntity>(procedure).Select(x => x as IEntityProxy<TEntity>).ToArray();

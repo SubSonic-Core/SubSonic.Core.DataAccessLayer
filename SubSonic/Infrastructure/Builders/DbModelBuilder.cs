@@ -35,12 +35,14 @@ namespace SubSonic.Infrastructure
             Type entityModelType = typeof(TEntity);
 
             var TableAttr = entityModelType.GetCustomAttribute<TableAttribute>();
+            var TableTypeAttr = entityModelType.GetCustomAttribute<DbUserDefinedTableTypeAttribute>();
 
             DbEntityModel entity = new DbEntityModel()
             {
                 EntityModelType = entityModelType,
                 Name = TableAttr.IsNotNull(Table => Table.Name, entityModelType.Name),
-                SchemaName = TableAttr.IsNotNull(Table => Table.Schema).IsNull(SubSonicDefaults.SchemaName)
+                SchemaName = TableAttr.IsNotNull(Table => Table.Schema).IsNull(SubSonicDefaults.SchemaName),
+                DefinedTableType = TableTypeAttr
             };
 
             foreach(DbCommandQueryAttribute command in entityModelType.GetCustomAttributes<DbCommandQueryAttribute>())

@@ -28,7 +28,7 @@ namespace SubSonic.Linq.Expressions
 
         public override string ToString()
         {
-            return $"{Alias.ToString()}.C({Name})";
+            return $"{Alias}.C({Name})";
         }
 
         protected override Expression Accept(ExpressionVisitor visitor)
