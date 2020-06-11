@@ -109,6 +109,11 @@ namespace SubSonic.Data.Caching
                         case DbQueryType.Insert:
                         case DbQueryType.Update:
                         case DbQueryType.Delete:
+                            result = Database
+                                .ExecuteDbQuery<TEntity>(queryType, model, data, out error)
+                                .Select(x => x as IEntityProxy<TEntity>)
+                                .ToArray();
+                            break;
                         default:
                             throw new NotImplementedException();
                     }
@@ -122,7 +127,10 @@ namespace SubSonic.Data.Caching
 
                     DbSubSonicStoredProcedure procedure = (DbSubSonicStoredProcedure)Activator.CreateInstance(command.StoredProcedureType, data);
 
-                    result = Database.ExecuteStoredProcedure<TEntity>(procedure).Select(x => x as IEntityProxy<TEntity>).ToArray();
+                    result = Database
+                        .ExecuteStoredProcedure<TEntity>(procedure)
+                        .Select(x => x as IEntityProxy<TEntity>)
+                        .ToArray();
 
                     if (procedure.Result != 0)
                     {

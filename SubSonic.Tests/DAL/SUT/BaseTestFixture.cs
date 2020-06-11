@@ -14,7 +14,7 @@ namespace SubSonic.Tests.DAL.SUT
     {
         protected TestDbContext DbContext { get => SetUpSubSonic.DbContext; }
 
-        protected ISubSonicLogger logger { get; set; }
+        protected ISubSonicLogger Logger { get; set; }
 
         [SetUp]
         public virtual void SetupTestFixture()
@@ -54,11 +54,14 @@ namespace SubSonic.Tests.DAL.SUT
                 new RealEstateProperty() { ID = 3, StatusID = 2, HasParallelPowerGeneration = true },
                 new RealEstateProperty() { ID = 4, StatusID = 2, HasParallelPowerGeneration = false },
             };
+
+            People = new List<Person>();
         }
 
         protected IEnumerable<Status> Statuses { get; set; }
         protected IEnumerable<Unit> Units { get; set; }
         protected IEnumerable<Renter> Renters { get; set; }
         protected IEnumerable<RealEstateProperty> RealEstateProperties { get; set; }
+        protected ICollection<Person> People { get; set; }
     }
 }

@@ -26,7 +26,7 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
         {
             base.SetupTestFixture();
 
-            logger = DbContext.Instance.GetService<ISubSonicLogger<DbUserDefinedTableBuilder>>();
+            Logger = DbContext.Instance.GetService<ISubSonicLogger<DbUserDefinedTableBuilder>>();
         }
         [Test]
         [TestCase(typeof(Models.RealEstateProperty))]
@@ -56,21 +56,21 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
 
             string sql = null;
 
-            using (var perf = logger.Start("Generate SQL"))
+            using (var perf = Logger.Start("Generate SQL"))
             {
                  sql = builder.GenerateSql();
             }
 
             DataTable table = null;
 
-            using (var perf = logger.Start("Generate Data"))
+            using (var perf = Logger.Start("Generate Data"))
             {
                 table = builder.GenerateTable();
             }
 
             table.Dispose();
 
-            logger.LogInformation($"\n{sql}");
+            Logger.LogInformation($"\n{sql}");
         }
 
         [Test]

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using System.Collections.Generic;
 
 namespace SubSonic.Infrastructure.Builders
 {
@@ -36,7 +37,46 @@ namespace SubSonic.Infrastructure.Builders
         public DbTableExpression DbTable { get; }
         #endregion
 
-        
+        public IDbQuery BuildDbQuery<TEntity>(DbQueryType queryType, IEnumerable<IEntityProxy> proxies)
+        {
+            IEnumerable<TEntity> entities = proxies.Select(x =>
+            {
+                if (x is IEntityProxy<TEntity> property)
+                {
+                    return property.Data;
+                }
+                return default;
+            })
+                .Where(x => x.IsNotNull())
+                .ToArray();
+
+            switch (queryType)
+            {
+                case DbQueryType.Insert:
+                    return ToQuery(BuildInsertQuery(entities));
+                case DbQueryType.Update:
+                    return ToQuery(BuildUpdateQuery(entities));
+                case DbQueryType.Delete:
+                    return ToQuery(BuildDeleteQuery(entities));
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+
+        private Expression BuildInsertQuery<TEntity>(IEnumerable<TEntity> entities)
+        {
+            return DbExpression.DbInsert(DbTable, entities.Select(x => (object)x));
+        }
+
+        private Expression BuildUpdateQuery<TEntity>(IEnumerable<TEntity> entities)
+        {
+            throw new NotImplementedException();
+        }
+
+        private Expression BuildDeleteQuery<TEntity>(IEnumerable<TEntity> entities)
+        {
+            throw new NotImplementedException();
+        }
 
         protected virtual DbSqlQueryType GetQueryType(Expression expression)
         {
@@ -49,18 +89,20 @@ namespace SubSonic.Infrastructure.Builders
 
                 switch((DbExpressionType)expression.NodeType)
                 {
-                    case DbExpressionType.Table:
-                        return DbSqlQueryType.Unknown;
                     case DbExpressionType.Select:
                         return DbSqlQueryType.Read;
+                    case DbExpressionType.Insert:
+                        return DbSqlQueryType.Create;
+                    case DbExpressionType.Update:
+                        return DbSqlQueryType.Update;
+                    case DbExpressionType.Delete:
+                        return DbSqlQueryType.Delete;
                     default:
-                        throw new NotSupportedException();
+                        return DbSqlQueryType.Unknown;
                 }
             }
 
-            throw new ArgumentNullException(nameof(expression));
+            return DbSqlQueryType.Unknown;
         }
-        
-        
     }
 }

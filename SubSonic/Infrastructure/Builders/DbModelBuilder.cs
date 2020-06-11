@@ -56,6 +56,8 @@ namespace SubSonic.Infrastructure
             {
                 var ColumnAttr = info.GetCustomAttribute<ColumnAttribute>();
 
+                bool isComputedField = info.GetCustomAttribute<DatabaseGeneratedAttribute>().IsNotNull(x => x.DatabaseGeneratedOption == DatabaseGeneratedOption.Computed);
+
                 DbEntityProperty property = new DbEntityProperty(entity, ColumnAttr.IsNotNull(Column => Column.Name, info.Name))
                 {
                     PropertyName = info.Name,
@@ -68,7 +70,8 @@ namespace SubSonic.Infrastructure
                     Precision = info.PropertyType.IsOfType<decimal>() ? 2 : 0,
                     IsNullable = info.PropertyType.IsNullableType(),
                     IsAutoIncrement = info.GetCustomAttribute<DatabaseGeneratedAttribute>().IsNotNull(x => x.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity),
-                    IsComputed = info.GetCustomAttribute<DatabaseGeneratedAttribute>().IsNotNull(x => x.DatabaseGeneratedOption == DatabaseGeneratedOption.Computed),
+                    IsComputed = isComputedField,
+                    IsReadOnly = info.CanRead && (isComputedField || !info.CanWrite),
                     DbType = info.PropertyType.GetDbType()
                 };
 

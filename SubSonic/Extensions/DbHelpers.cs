@@ -118,6 +118,28 @@ namespace SubSonic
             }
         }
 
+        public static TResult GetOutputParameter<TResult>(this DbParameterCollection parameters, string name)
+        {
+            if (parameters is null)
+            {
+                throw new ArgumentNullException(nameof(parameters));
+            }
+
+            if (name.IsNullOrEmpty())
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            if (parameters[$"@{name}"].IsNotNull())
+            {
+                object value = parameters[$"@{name}"].Value;
+
+                return value is DBNull ? default(TResult) : (TResult)parameters[$"@{name}"].Value;
+            }
+
+            return default(TResult);
+        }
+
         public static void Map<TDestination, TSource>(this TDestination destination, TSource source, Func<string, string> nameOf = null)
         {
             if(nameOf is null)

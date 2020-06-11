@@ -7,3 +7,4 @@ using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Usage", "CA2227:Collection properties should be read only", Justification = "<Pending>", Scope = "member", Target = "~P:SubSonic.Test.Rigging.Models.RealEstateProperty.Units")]
 [assembly: SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "<Pending>", Scope = "member", Target = "~M:SubSonic.Extensions.Test.NUnit.NUnitExtensions.AddNUnitLogger``1(Microsoft.Extensions.Logging.ILoggingBuilder,Microsoft.Extensions.Logging.LogLevel)~Microsoft.Extensions.Logging.ILoggingBuilder")]
+[assembly: SuppressMessage("Style", "IDE0054:Use compound assignment", Justification = "<Pending>", Scope = "member", Target = "~M:SubSonic.Extensions.Test.SubSonicTestExtensions.UpdateProviders(SubSonic.DbContext,System.String,System.String)")]

@@ -21,7 +21,7 @@ namespace SubSonic.Tests.DAL.ScalarFunctions
         {
             base.SetupTestFixture();
 
-            logger = DbContext.Instance.GetService<ISubSonicLogger<ScalarFunctionTests>>();
+            Logger = DbContext.Instance.GetService<ISubSonicLogger<ScalarFunctionTests>>();
         }
 
         [Test]

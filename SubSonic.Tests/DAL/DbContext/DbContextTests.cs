@@ -189,7 +189,7 @@ FROM [dbo].[RealEstateProperty] AS [{0}]";
         }
 
         [Test]
-        public void ShouldBeAbleToInsertRecordsUsingCQRS()
+        public void ShouldBeAbleToInsertOneRealEstatePropertyRecordUsingCQRS()
         {
             string
                 insert = "[dbo].[InsertRealEstateProperty]";

@@ -244,21 +244,36 @@ namespace SubSonic.Infrastructure.Builders
 
         public IDbQuery ToQuery(Expression expression)
         {
-            if (expression is DbSelectExpression select)
+            if (expression.IsNotNull())
             {
-                return new DbQuery(
-                    select.ToString(),
-                    CmdBehavior,
-                    GetSubSonicParameters(select.Where));
-            }
-            else if (expression is DbSelectPageExpression paged)
-            {
-                return new DbQuery(
-                    paged.ToString(),
-                    CmdBehavior,
-                    GetSubSonicParameters(paged.Select.Where)
-                        .Union(paged.Parameters)
-                        .ToArray());
+                if (expression is DbSelectExpression select)
+                {
+                    return new DbQuery(
+                        select.ToString(),
+                        CmdBehavior,
+                        GetSubSonicParameters(select.Where));
+                }
+                else if (expression is DbSelectPageExpression paged)
+                {
+                    return new DbQuery(
+                        paged.ToString(),
+                        CmdBehavior,
+                        GetSubSonicParameters(paged.Select.Where)
+                            .Union(paged.Parameters)
+                            .ToArray());
+                }
+                else if (expression is DbInsertExpression insert)
+                {
+                    return new DbQuery(
+                            insert.ToString(),
+                            CmdBehavior,
+                            GetSubSonicParameters(insert)
+                        );
+                }
+                else
+                {
+                    throw new NotSupportedException(expression.GetType().Name);
+                }
             }
 
             return null;
@@ -283,6 +298,10 @@ namespace SubSonic.Infrastructure.Builders
             if (expression is DbWhereExpression where)
             {
                 return where.Parameters.ToArray();
+            }
+            else if (expression is DbInsertExpression insert)
+            {
+                return insert.DbParameters.ToArray();
             }
 
             return Array.Empty<SubSonicParameter>();

@@ -1,18 +1,18 @@
-﻿using SubSonic.Infrastructure.Logging;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 
 namespace SubSonic.Infrastructure
 {
-    using Linq;
-    using System.Collections.Generic;
-    using System.Data;
-    using System.Diagnostics;
+    using Builders;
     using Factory;
+    using Linq;
+    using Logging;
+    using Microsoft.Extensions.Logging;
+    using Schema;
 
-#if DB_PROVIDER_NOT_DEFINED
-    using Factories;
-#endif
     public class DbDatabase
         : IInfrastructure<DbProviderFactory>
     {
@@ -106,6 +106,41 @@ namespace SubSonic.Infrastructure
                     cmd.Parameters.ApplyOutputParameters(procedure);
 
                     return result;
+                }
+                finally
+                {
+                    cmd.Connection.Close();
+                }
+            }
+        }
+
+        internal IEnumerable<TEntity> ExecuteDbQuery<TEntity>(DbQueryType queryType, IDbEntityModel model, IEnumerable<IEntityProxy> data, out string error)
+        {
+            IDbQuery query = new DbSqlQueryBuilder(model.EntityModelType, logger)
+                                .BuildDbQuery<TEntity>(queryType, data);
+
+            using (AutomaticConnectionScope Scope = GetConnectionScope())
+            using (DbCommand cmd = GetCommand(Scope, query.Sql, query.Parameters))
+            using (var perf = logger.Start(GetType(), $"{nameof(ExecuteDbQuery)}"))
+            {
+                try
+                {
+                    cmd.Connection.Open();
+
+                    IEnumerable<TEntity> results = cmd.ExecuteReader().Map<TEntity>();
+
+                    error = cmd.Parameters.GetOutputParameter<string>(nameof(error));
+
+                    return results;
+
+                }
+                catch(Exception ex)
+                {
+                    logger.LogError(ex, ex.Message);
+
+                    error = ex.Message;
+
+                    throw;
                 }
                 finally
                 {

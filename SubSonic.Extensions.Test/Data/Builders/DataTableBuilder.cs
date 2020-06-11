@@ -14,6 +14,11 @@ namespace SubSonic.Extensions.Test.Data.Builders
             _table = new DataTable(tableName);
         }
 
+        public DataTableBuilder(DataTable table)
+        {
+            _table = table ?? throw new ArgumentNullException(nameof(table));
+        }
+
         public DataTable DataTable
         {
             get

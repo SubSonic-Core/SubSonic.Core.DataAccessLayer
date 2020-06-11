@@ -84,14 +84,12 @@ namespace SubSonic.Extensions.Test
             }
         }
 
-        public static DataTable ToDataTable<TEntity>(this IEnumerable<TEntity> source)
+        public static DataTable ToDataTable(this IDbEntityModel model)
         {
-            if (source is null)
+            if (model is null)
             {
-                throw new ArgumentNullException(nameof(source));
+                throw new ArgumentNullException(nameof(model));
             }
-
-            IDbEntityModel model = DbContext.DbModel.GetEntityModel<TEntity>();
 
             using (DataTableBuilder builder = new DataTableBuilder(model.Name))
             {
@@ -103,6 +101,21 @@ namespace SubSonic.Extensions.Test
                     }
                 }
 
+                return builder.DataTable;
+            }
+        }
+
+        public static DataTable ToDataTable<TEntity>(this IEnumerable<TEntity> source)
+        {
+            if (source is null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            IDbEntityModel model = DbContext.DbModel.GetEntityModel<TEntity>();
+
+            using (DataTableBuilder builder = new DataTableBuilder(model.ToDataTable()))
+            {
                 foreach (TEntity entity in source)
                 {
                     DataRow row = builder.CreateRow();

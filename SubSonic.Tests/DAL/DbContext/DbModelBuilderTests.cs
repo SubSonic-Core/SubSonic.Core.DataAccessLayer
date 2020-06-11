@@ -21,5 +21,13 @@ namespace SubSonic.Tests.DAL
 
             model.HasRelationships.Should().BeTrue();
         }
+
+        [Test]
+        public void PersonPropertyFullNameShouldBeReadOnly()
+        {
+            IDbEntityModel model = DbContext.Model.GetEntityModel<Person>();
+
+            model.Properties.First(x => x.Name == nameof(Person.FullName)).IsReadOnly.Should().BeTrue();
+        }
     }
 }

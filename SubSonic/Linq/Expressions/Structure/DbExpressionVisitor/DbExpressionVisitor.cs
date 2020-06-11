@@ -175,6 +175,11 @@ namespace SubSonic.Linq.Expressions.Structure
             return inExp;
         }
 
+        protected internal virtual Expression VisitInsert(DbInsertExpression insert)
+        {
+            throw new NotImplementedException();
+        }
+
         protected internal virtual Expression VisitNull(DbIsNullExpression isnull)
         {
             if(isnull is null)
