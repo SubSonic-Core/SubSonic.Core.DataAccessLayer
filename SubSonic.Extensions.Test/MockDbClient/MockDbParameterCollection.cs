@@ -66,7 +66,7 @@ namespace SubSonic.Extensions.Test.MockDbClient
 
         protected override DbParameter GetParameter(string parameterName)
         {
-            return inner.Single(x => x.ParameterName == parameterName);
+            return inner.SingleOrDefault(x => x.ParameterName == parameterName);
         }
 
         protected override DbParameter GetParameter(int index)

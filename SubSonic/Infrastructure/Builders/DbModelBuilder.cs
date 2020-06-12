@@ -56,7 +56,11 @@ namespace SubSonic.Infrastructure
             {
                 var ColumnAttr = info.GetCustomAttribute<ColumnAttribute>();
 
-                bool isComputedField = info.GetCustomAttribute<DatabaseGeneratedAttribute>().IsNotNull(x => x.DatabaseGeneratedOption == DatabaseGeneratedOption.Computed);
+                DatabaseGeneratedAttribute databaseGenerated = info.GetCustomAttribute<DatabaseGeneratedAttribute>();
+
+                bool
+                    isComputedField = databaseGenerated.IsNotNull(x => x.DatabaseGeneratedOption == DatabaseGeneratedOption.Computed),
+                    isAutoIncrement = databaseGenerated.IsNotNull(x => x.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity);
 
                 DbEntityProperty property = new DbEntityProperty(entity, ColumnAttr.IsNotNull(Column => Column.Name, info.Name))
                 {
@@ -69,9 +73,9 @@ namespace SubSonic.Infrastructure
                     Scale = info.PropertyType.IsOfType<decimal>() ? 18 : 0,
                     Precision = info.PropertyType.IsOfType<decimal>() ? 2 : 0,
                     IsNullable = info.PropertyType.IsNullableType(),
-                    IsAutoIncrement = info.GetCustomAttribute<DatabaseGeneratedAttribute>().IsNotNull(x => x.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity),
+                    IsAutoIncrement = isAutoIncrement,
                     IsComputed = isComputedField,
-                    IsReadOnly = info.CanRead && (isComputedField || !info.CanWrite),
+                    IsReadOnly = info.CanRead && (isComputedField || isAutoIncrement || !info.CanWrite),
                     DbType = info.PropertyType.GetDbType()
                 };
 

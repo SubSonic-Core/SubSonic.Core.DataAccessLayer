@@ -13,6 +13,7 @@ namespace SubSonic.Infrastructure
     using Schema;
 
     public class DbUserDefinedTableBuilder
+        : DbProviderBuilder
     {
         private class SQL
         {
@@ -43,12 +44,11 @@ END;";
         private readonly Type _type;
         private readonly IEnumerable _data;
         private readonly IDbEntityModel _model;
-        private readonly ISqlQueryProvider _provider;
 
         public DbUserDefinedTableBuilder(IEnumerable data)
+            : base(DbContext.ServiceProvider.GetService<ISqlQueryProvider>())
         {
             _data = data ?? throw new ArgumentNullException(nameof(data));
-            _provider = DbContext.ServiceProvider.GetService<ISqlQueryProvider>();
         }
 
         public DbUserDefinedTableBuilder(IDbEntityModel model, IEnumerable data)
@@ -112,11 +112,11 @@ END;";
 
                 Type propertyType = column.PropertyType;
 
-                oUserDefinedTableBody.Append(String.Format(CultureInfo.CurrentCulture, "\t\t[{0}] {1} {2} {3}"
+                oUserDefinedTableBody.Append(string.Format(CultureInfo.CurrentCulture, "\t\t[{0}] {1} {2} {3}"
                     , column.Name
                     , GenerateDataType(column.DbType, column.Property)
                     , column.IsNullable ? "NULL" : "NOT NULL"
-                    , GenerateDefault(column)).TrimEnd());
+                    , GenerateDefault(column.Property, column.DbType)).TrimEnd());
 
                 if (x < (cnt - 1))
                 {
@@ -136,30 +136,6 @@ END;";
             }
 
             return oUserDefinedTableBody.ToString();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="dbType"></param>
-        /// <param name="propertyType"></param>
-        /// <returns></returns>
-        /// TODO: Re-Visit when this can be done based on configured db factory
-        private string GenerateDataType(DbType dbType, PropertyInfo info)
-        {
-            return _provider.GenerateColumnDataDefinition(dbType, info);
-        }
-
-        private string GenerateDefault(DbUserDefinedTableColumn column)
-        {
-            string result = "";
-
-            if (column.Property is null)
-            {
-                result = $" {_provider.GenerateDefaultConstraint(column.DbType)}";
-            }
-
-            return result;
         }
 
         public DataTable GenerateTable()

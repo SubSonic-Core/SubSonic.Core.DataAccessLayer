@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Reflection;
+using System.Collections.Generic;
 using Ext = SubSonic.SubSonicExtensions;
 
 namespace SubSonic.Data.DynamicProxies
 {
     using Linq;
-    using SubSonic.Infrastructure;
+    using Infrastructure;
+    using SubSonic.Infrastructure.Schema;
 
     /// <summary>
     /// 

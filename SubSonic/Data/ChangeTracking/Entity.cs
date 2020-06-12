@@ -1,8 +1,10 @@
-﻿using SubSonic.Infrastructure;
+﻿using SubSonic.Data.DynamicProxies;
+using SubSonic.Infrastructure;
 using SubSonic.Infrastructure.Schema;
 using SubSonic.Linq;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 
 namespace SubSonic.Data.Caching
@@ -17,6 +19,11 @@ namespace SubSonic.Data.Caching
         }
 
         public new TEntity Data => (TEntity)base.Data;
+
+        public void SetDbComputedProperties(IEntityProxy<TEntity> fromDb)
+        {
+            DynamicProxyBuilder<TEntity>.ProxyStub.SetDbComputedProperties(this, fromDb);
+        }
     }
 
     public class Entity

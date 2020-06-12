@@ -7,7 +7,15 @@ namespace SubSonic.Infrastructure
     public interface IEntityProxy<TEntity>
         : IEntityProxy
     {
+        /// <summary>
+        /// Get the actual data for the entity
+        /// </summary>
         TEntity Data { get; }
+        /// <summary>
+        /// Iterate the properties of a model and update db computed properties
+        /// </summary>
+        /// <param name="entity"></param>
+        void SetDbComputedProperties(IEntityProxy<TEntity> fromDb);
     }
 
     public interface IEntityProxy

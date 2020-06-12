@@ -14,29 +14,10 @@ namespace SubSonic.Tests.DAL
         [Order(0)]
         public void ShouldBeAbleToInsertOnePersonRecordWithNoUDTT()
         {
-            string expected_cmd = @"CREATE TABLE #Person(
-
-    ID INT,
-    FirstName varchar(50) NOT NULL,
-    MiddleInitial varchar(1) NULL,
-	FamilyName varchar(50) NOT NULL,
-    FullName varchar(104) NOT NULL
-);
-
-INSERT INTO [dbo].[Person]
-OUTPUT inserted.*INTO #Person
+            string expected_cmd = @"INSERT INTO [dbo].[Person]
+OUTPUT INSERTED.* INTO #Person
 VALUES
-    (@FirstName_1, @MiddleInitial_1, @FamilyName_1);
-
-SELECT
-    ID,
-    FirstName,
-    MiddleInitial,
-    FamilyName,
-    FullName
-FROM #Person;
-
-DROP TABLE #Person;";
+	('First_1', 'M', 'Last_1')";
 
             Models.Person person = new Models.Person(){ FirstName = "First_1", FamilyName = "Last_1", MiddleInitial = "M" };
 
@@ -74,31 +55,12 @@ DROP TABLE #Person;";
         [Order(1)]
         public void ShouldBeAbleToInsertThreePeopleRecordsWithNoUDTT()
         {
-            string expected_cmd = @"CREATE TABLE #Person(
-
-    ID INT,
-    FirstName varchar(50) NOT NULL,
-    MiddleInitial varchar(1) NULL,
-	FamilyName varchar(50) NOT NULL,
-    FullName varchar(104) NOT NULL
-);
-
-INSERT INTO [dbo].[Person]
-OUTPUT inserted.*INTO #Person
+            string expected_cmd = @"INSERT INTO [dbo].[Person]
+OUTPUT INSERTED.* INTO #Person
 VALUES
-    (@FirstName_1, @MiddleInitial_1, @FamilyName_1),
-    (@FirstName_2, @MiddleInitial_2, @FamilyName_2),
-    (@FirstName_3, @MiddleInitial_3, @FamilyName_3);
-
-SELECT
-    ID,
-    FirstName,
-    MiddleInitial,
-    FamilyName,
-    FullName
-FROM #Person;
-
-DROP TABLE #Person;";
+	('First_2', 'M', 'Last_2'),
+	('First_3', '', 'Last_3'),
+	('First_4', , 'Last_4')";
 
             Models.Person[] people = new[]
             {
@@ -150,11 +112,11 @@ DROP TABLE #Person;";
 
             DbContext.SaveChanges().Should().BeTrue();
 
-            people[0].ID.Should().Be(2);
+            people[0].ID.Should().Be(1);
             people[0].FullName.Should().Be("Last_2, First_2 M.");
-            people[1].ID.Should().Be(3);
+            people[1].ID.Should().Be(2);
             people[1].FullName.Should().Be("Last_3, First_3");
-            people[2].ID.Should().Be(4);
+            people[2].ID.Should().Be(3);
             people[2].FullName.Should().Be("Last_4, First_4");
         }
     }

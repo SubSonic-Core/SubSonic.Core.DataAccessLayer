@@ -119,6 +119,8 @@ namespace SubSonic.Infrastructure
             IDbQuery query = new DbSqlQueryBuilder(model.EntityModelType, logger)
                                 .BuildDbQuery<TEntity>(queryType, data);
 
+            logger.LogTrace(query.Sql);
+
             using (AutomaticConnectionScope Scope = GetConnectionScope())
             using (DbCommand cmd = GetCommand(Scope, query.Sql, query.Parameters))
             using (var perf = logger.Start(GetType(), $"{nameof(ExecuteDbQuery)}"))

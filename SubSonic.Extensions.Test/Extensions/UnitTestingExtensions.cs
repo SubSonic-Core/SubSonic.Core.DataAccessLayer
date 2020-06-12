@@ -79,7 +79,8 @@ namespace SubSonic.Extensions.Test
             if (factory is SubSonicMockDbClient db)
             {
                 db.AddBehavior(new MockCommandBehavior()
-                    .When((cmd) => cmd.CommandText == command)
+                    .When((cmd) => 
+                        cmd.CommandText == command)
                     .ReturnsData(result));
             }
         }
@@ -157,7 +158,8 @@ namespace SubSonic.Extensions.Test
             if (factory is SubSonicMockDbClient db)
             {
                 db.AddBehavior(new MockCommandBehavior()
-                    .When((cmd) => cmd.CommandText == command)
+                    .When((cmd) => 
+                        cmd.CommandText == command)
                     .ReturnsData(entities.ToDataTable()));
             }
         }

@@ -53,6 +53,23 @@ namespace SubSonic.Data.DynamicProxies
                         typeof(TEntity).GetProperty(keys[i]).SetValue(entity, keyData.ElementAt(i));
                     }
                 };
+            public static Action<IEntityProxy<TEntity>, IEntityProxy<TEntity>> SetDbComputedProperties { get; } =
+                (entity, fromDb) =>
+                {
+                    foreach (IDbEntityProperty property in DbContext.DbModel
+                        .GetEntityModel<TEntity>()
+                        .Properties)
+                    {
+                        if (!property.IsComputed)
+                        {
+                            continue;
+                        }
+
+                        PropertyInfo info = typeof(TEntity).GetProperty(property.PropertyName);
+
+                        info.SetValue(entity.Data, info.GetValue(fromDb.Data));
+                    }
+                };
         }
 
         public DynamicProxyBuilder(TypeBuilder typeBuilder, Type baseType, DbContext dbContext)
@@ -80,6 +97,7 @@ namespace SubSonic.Data.DynamicProxies
 
             #region implement Data per the IEntityProxy<TEntity> interface
             BuildDataProperty();
+            BuildSetDbComputedPropertiesMethod();
             #endregion
 
             foreach (IDbEntityProperty property in model.Properties)
@@ -140,6 +158,13 @@ namespace SubSonic.Data.DynamicProxies
         private void BuildModelTypeProperty()
         {
             BuildProperty((Proxy) => Proxy.ModelType, getter: () => ProxyStub.ModelType);
+        }
+
+        private void BuildSetDbComputedPropertiesMethod()
+        {
+            MethodInfo info = BuildMethod<Action<IEntityProxy<TEntity>>>((proxy) => proxy.SetDbComputedProperties, () => ProxyStub.SetDbComputedProperties);
+
+            typeBuilder.DefineMethodOverride(info, typeof(IEntityProxy<TEntity>).GetMethod(info.Name));
         }
 
         private void BuildSetKeyDataMethod()

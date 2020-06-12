@@ -75,7 +75,7 @@ namespace SubSonic.Extensions.Test.MockDbClient
                 }
             }
 
-            throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Could not find behavior for command '{0}'", cmd.CommandText));
+            return null;
         }
         int IMockCommandExecution.ExecuteNonQuery(MockDbCommand cmd)
         {
@@ -103,9 +103,18 @@ namespace SubSonic.Extensions.Test.MockDbClient
                     {
 #pragma warning disable CA2100 // Review SQL queries for security vulnerabilities
 #pragma warning disable CA2000 // Dispose objects before losing scope
-                        data.Tables.Add(GetReturnValue<DataTable>(new MockDbCommand(this, cmd.Parameters) { CommandText = sql.Trim("\r\n".ToCharArray()) }));
+                        DataTable result = GetReturnValue<DataTable>(new MockDbCommand(this, cmd.Parameters) { CommandText = sql.Trim("\r\n".ToCharArray()) });
+                        if (!(result is null))
+                        {
+                            data.Tables.Add(result);
+                        }
 #pragma warning restore CA2000 // Dispose objects before losing scope
 #pragma warning restore CA2100 // Review SQL queries for security vulnerabilities
+                    }
+
+                    if (data.Tables.Count == 0)
+                    {
+                        throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Could not find behavior for command '{0}'", cmd.CommandText));
                     }
 
                     return new MockDbDataReaderCollection(data.CreateDataReader());
@@ -120,7 +129,14 @@ namespace SubSonic.Extensions.Test.MockDbClient
                 throw new ArgumentNullException(nameof(cmd));
             }
 
-            object value = FindBehavior(cmd).ReturnValue;
+            MockCommandBehavior behavior = FindBehavior(cmd);
+
+            if (behavior is null)
+            {
+                return default(TReturn);
+            }
+
+            object value = behavior.ReturnValue;
 
             if (value is Func<DbCommand, TReturn> func)
             {

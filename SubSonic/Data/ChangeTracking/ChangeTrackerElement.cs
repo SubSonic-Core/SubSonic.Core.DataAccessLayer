@@ -161,6 +161,7 @@ namespace SubSonic.Data.Caching
 
                         if(queryType.In(DbQueryType.Insert, DbQueryType.Update))
                         {
+                            entity.SetDbComputedProperties(result[i]);
                             entity.IsNew = false;
                             entity.IsDirty = false;
                             entity.IsDeleted = false;

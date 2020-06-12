@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using SubSonic.Linq.Expressions.Structure;
 
 namespace SubSonic.Infrastructure.SqlGenerator
 {
@@ -72,5 +70,8 @@ namespace SubSonic.Infrastructure.SqlGenerator
         string FETCH { get; }
         string NEXT { get; }
         string ONLY { get; }
+        string OUTPUT_INSERTED_INTO { get; }
+        string VALUES { get; }
+        string STATEMENT_END { get; }
     }
 }
