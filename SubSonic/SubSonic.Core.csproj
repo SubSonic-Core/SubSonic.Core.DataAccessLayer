@@ -9,7 +9,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageTags>DAL;</PackageTags>
-    <Version>1.0.0.28-beta</Version>
+    <Version>1.0.0.29-beta</Version>
     <PackageId>SubSonic.Core</PackageId>
     <Company />
     <PackageProjectUrl>https://github.com/kccarter76/SubSonic-Core/wiki</PackageProjectUrl>
