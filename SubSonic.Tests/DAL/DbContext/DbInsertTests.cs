@@ -6,6 +6,7 @@ using System.Linq;
 namespace SubSonic.Tests.DAL
 {
     using Extensions.Test;
+    using System.Data;
     using Models = Extensions.Test.Models;
 
     public partial class DbContextTests
@@ -49,6 +50,50 @@ VALUES
 
             person.ID.Should().Be(1);
             person.FullName.Should().Be("Last_1, First_1 M.");
+        }
+
+        [Test()]
+        [Order(0)]
+        public void ShouldBeAbleToInsertOneUnitRecordWithUDTT()
+        {
+            string expected_cmd = @"INSERT INTO [dbo].[Unit]
+OUTPUT INSERTED.* INTO @output
+SELECT
+	[Bedrooms],
+	[StatusID],
+	[RealEstatePropertyID]
+FROM @input";
+
+            Models.Unit unit = new Models.Unit() { NumberOfBedrooms = 2, RealEstatePropertyID = 1, StatusID = 1 };
+
+            DbContext.Database.Instance.AddCommandBehavior(expected_cmd, cmd =>
+            {
+                if (cmd.Parameters["@input"].Value is DataTable table)
+                {
+                    Models.Unit data = new Models.Unit()
+                    {
+                        NumberOfBedrooms = (int)table.Rows[0]["Bedrooms"],
+                        StatusID = (int)table.Rows[0]["StatusID"],
+                        RealEstatePropertyID = (int)table.Rows[0]["RealEstatePropertyID"]
+                    };
+
+                    Units.Add(data);
+
+                    data.ID = Units.Count;
+
+                    return new[] { data }.ToDataTable();
+                }
+
+                throw new InvalidOperationException();
+            });
+
+            DbContext.Units.Add(unit);
+
+            DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
+
+            DbContext.SaveChanges().Should().BeTrue();
+
+            unit.ID.Should().Be(5);
         }
 
         [Test()]
@@ -118,6 +163,67 @@ VALUES
             people[1].FullName.Should().Be("Last_3, First_3");
             people[2].ID.Should().Be(3);
             people[2].FullName.Should().Be("Last_4, First_4");
+        }
+
+        [Test()]
+        [Order(0)]
+        public void ShouldBeAbleToInsertTwoUnitRecordWithUDTT()
+        {
+            string expected_cmd = @"INSERT INTO [dbo].[Unit]
+OUTPUT INSERTED.* INTO @output
+SELECT
+	[Bedrooms],
+	[StatusID],
+	[RealEstatePropertyID]
+FROM @input";
+
+            DbContext.Database.Instance.AddCommandBehavior(expected_cmd, cmd =>
+            {
+                if (cmd.Parameters["@input"].Value is DataTable table)
+                {
+                    Models.Unit[] data = new[]
+                    {
+                        new Models.Unit()
+                        {
+                            NumberOfBedrooms = (int)table.Rows[0]["Bedrooms"],
+                            StatusID = (int)table.Rows[0]["StatusID"],
+                            RealEstatePropertyID = (int)table.Rows[0]["RealEstatePropertyID"]
+                        },
+                        new Models.Unit()
+                        {
+                            NumberOfBedrooms = (int)table.Rows[1]["Bedrooms"],
+                            StatusID = (int)table.Rows[1]["StatusID"],
+                            RealEstatePropertyID = (int)table.Rows[1]["RealEstatePropertyID"]
+                        }
+                    };
+
+                    foreach (var _data in data)
+                    {
+                        Units.Add(_data);
+
+                        _data.ID = Units.Count;
+                    }
+
+                    return data.ToDataTable();
+                }
+
+                throw new InvalidOperationException();
+            });
+
+            Models.Unit[] units;
+
+            DbContext.Units.AddRange(units = new[]
+            {
+                new Models.Unit() { NumberOfBedrooms = 2, RealEstatePropertyID = 1, StatusID = 1 },
+                new Models.Unit() { NumberOfBedrooms = 3, RealEstatePropertyID = 1, StatusID = 1 }
+            });
+
+            DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(2);
+
+            DbContext.SaveChanges().Should().BeTrue();
+
+            units[0].ID.Should().Be(5);
+            units[1].ID.Should().Be(6);
         }
     }
 }

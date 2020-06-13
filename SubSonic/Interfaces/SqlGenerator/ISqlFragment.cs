@@ -73,5 +73,6 @@ namespace SubSonic.Infrastructure.SqlGenerator
         string OUTPUT_INSERTED_INTO { get; }
         string VALUES { get; }
         string STATEMENT_END { get; }
+        string DECLARE { get; }
     }
 }

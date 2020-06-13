@@ -72,6 +72,7 @@ namespace SubSonic.Infrastructure.SqlGenerator
         public virtual string OUTPUT_INSERTED_INTO => $"OUTPUT INSERTED.{ASTRIX} INTO";
         public virtual string VALUES => "VALUES";
         public virtual string STATEMENT_END => ";";
+        public virtual string DECLARE => "DECLARE";
     }
 }
 

@@ -106,7 +106,7 @@ EXEC @{0} = {2} {3}",
         {
             if (DbContext.ServiceProvider.GetService<DbProviderFactory>() is SubSonicDbProvider client)
             {
-                return client.CreateStoredProcedureParameter(name, value, mandatory, size, isUserDefinedTableParameter, udtType, direction);
+                return client.CreateParameter(name, value, mandatory, size, isUserDefinedTableParameter, udtType, direction);
             }
 
             throw new NotSupportedException();

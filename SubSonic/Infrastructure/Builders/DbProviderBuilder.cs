@@ -8,7 +8,9 @@ using System.Text;
 
 namespace SubSonic.Infrastructure
 {
-    public class DbProviderBuilder
+    using Factory;
+
+    public abstract class DbProviderBuilder<TColumn>
     {
         protected ISqlQueryProvider Provider { get; }
 
@@ -50,5 +52,22 @@ namespace SubSonic.Infrastructure
 
             return result;
         }
+
+        protected SubSonicDbProvider DbProvider
+        {
+            get
+            {
+                if (DbContext.ServiceProvider.GetService<DbProviderFactory>() is SubSonicDbProvider client)
+                {
+                    return client;
+                }
+
+                throw new NotSupportedException();
+            }
+        }
+
+        public abstract string GenerateSelectSql(string name, IEnumerable<TColumn> columns);
+
+        public abstract IEnumerable<TColumn> GetColumnInformation();
     }
 }

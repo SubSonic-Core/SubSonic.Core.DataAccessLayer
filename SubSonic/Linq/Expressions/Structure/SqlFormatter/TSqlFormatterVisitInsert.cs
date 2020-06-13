@@ -64,11 +64,10 @@ namespace SubSonic.Linq.Expressions.Structure
 
                     object value = propertyInfo.GetValue(element);
 
-                    insert.DbParameters.Add(
-                        new SubSonicParameter(
-                            parameterName,
-                            value ?? DBNull.Value,
-                            property));
+                    insert.DbParameters.Add(builder.CreateParameter(
+                        parameterName,
+                        value ?? DBNull.Value,
+                        property));
 
                     Write(parameterName);
 
@@ -95,9 +94,26 @@ namespace SubSonic.Linq.Expressions.Structure
             Write(builder.GenerateDropSql());
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "<Pending>")]
         private void FormatInsertWithUserDefinedTableType(DbInsertExpression insert)
         {
-            throw new NotImplementedException();
+            DbUserDefinedTableBuilder builder = new DbUserDefinedTableBuilder(insert.Table.Model, insert.Values);
+
+            string 
+                input_parameter_name = "input",
+                output_parameter_name = "@output";
+
+            WriteNewLine($"{Fragments.DECLARE} {output_parameter_name} {insert.Table.Model.DefinedTableType.QualifiedName};");
+            WriteNewLine($"{Fragments.INSERT_INTO} {insert.Table.QualifiedName}");
+            WriteNewLine($"{Fragments.OUTPUT_INSERTED_INTO} {output_parameter_name}");
+            WriteNewLine(builder.GenerateSelectSql(
+                $"@{input_parameter_name}", 
+                builder.GetColumnInformation()
+                    .Where(column =>
+                        column.IsPrimaryKey == false)));
+            WriteNewLine(builder.GenerateSelectSql(output_parameter_name));
+
+            insert.DbParameters.Add(builder.CreateParameter(input_parameter_name, builder.GenerateTable()));
         }
     }
 }

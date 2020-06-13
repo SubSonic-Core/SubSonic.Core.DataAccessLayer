@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Globalization;
+using System.Reflection;
 using System.Text;
 
 namespace SubSonic.Infrastructure
 {
+    using Linq;
     using Schema;
-    using SubSonic.Linq;
-    using System.Reflection;
 
     public class DbTempTableBuilder
-        : DbProviderBuilder
+        : DbProviderBuilder<IDbEntityProperty>
     {
         private readonly IDbEntityModel _model;
         
@@ -31,9 +32,20 @@ namespace SubSonic.Infrastructure
                 GetTableName(name));
         }
 
+        public override IEnumerable<IDbEntityProperty> GetColumnInformation()
+        {
+            return _model.Properties.Where(property =>
+                property.EntityPropertyType == DbEntityPropertyType.Value);
+        }
+
         public string GenerateSelectSql(string name = null)
         {
-            return $"SELECT{GenerateSqlBody(false)}\nFROM {GetTableName(name)};";
+            return GenerateSelectSql(name, GetColumnInformation());
+        }
+
+        public override string GenerateSelectSql(string name, IEnumerable<IDbEntityProperty> columns)
+        {
+            return $"SELECT{GenerateSqlBody(false, GetColumnInformation())}\nFROM {GetTableName(name)};";
         }
 
         public string GenerateSql(string name = null)
@@ -44,7 +56,7 @@ namespace SubSonic.Infrastructure
                 CultureInfo.CurrentCulture,
                 create_template,
                 GetTableName(name),
-                GenerateSqlBody(true));
+                GenerateSqlBody(true, GetColumnInformation()));
 
             return oTempTable.ToString();
         }
@@ -59,15 +71,15 @@ namespace SubSonic.Infrastructure
             return $"#{name}";
         }
 
-        private string GenerateSqlBody(bool definition)
+        private string GenerateSqlBody(bool definition, IEnumerable<IDbEntityProperty> columns)
         {
             StringBuilder oTempTableBody = new StringBuilder().AppendLine();
 
-            IEnumerable<IDbEntityProperty> keys = _model.Properties.Where(property => property.IsPrimaryKey);
+            IEnumerable<IDbEntityProperty> keys = columns.Where(property => property.IsPrimaryKey);
 
-            for (int i = 0, cnt = _model.Properties.Count; i < cnt; i++)
+            for (int i = 0, cnt = columns.Count(); i < cnt; i++)
             {
-                IDbEntityProperty property = _model.Properties.ElementAt(i);
+                IDbEntityProperty property = columns.ElementAt(i);
 
                 if (property.EntityPropertyType.NotIn(DbEntityPropertyType.Value))
                 {
@@ -92,7 +104,7 @@ namespace SubSonic.Infrastructure
                 }
 
                 if (i < (cnt - 1) && 
-                    _model.Properties.ElementAt(i + 1).EntityPropertyType.In(DbEntityPropertyType.Value))
+                    columns.ElementAt(i + 1).EntityPropertyType.In(DbEntityPropertyType.Value))
                 {
                     oTempTableBody
                         .AppendLine(",");
@@ -112,5 +124,9 @@ namespace SubSonic.Infrastructure
             return oTempTableBody.ToString();
         }
 
+        public DbParameter CreateParameter(string name, object value, IDbEntityProperty property)
+        {
+            return DbProvider.CreateParameter(name, value, property);
+        }
     }
 }

@@ -43,7 +43,7 @@ namespace SubSonic.Extensions.SqlServer
             return db;
         }
 
-        public override DbParameter CreateSubSonicParameter(string name, object value, IDbEntityProperty property)
+        public override DbParameter CreateParameter(string name, object value, IDbEntityProperty property)
         {
             if (property is null)
             {
@@ -57,10 +57,10 @@ namespace SubSonic.Extensions.SqlServer
 
         public override DbParameter CreateParameter(string name, object value)
         {
-            return CreateSubSonicParameter(name, value, null);
+            return CreateParameter(name, value, null);
         }
 
-        public override DbParameter CreateStoredProcedureParameter(string name, object value, bool mandatory, int size, bool isUserDefinedTableParameter, string udtType, ParameterDirection direction)
+        public override DbParameter CreateParameter(string name, object value, bool mandatory, int size, bool isUserDefinedTableParameter, string udtType, ParameterDirection direction)
         {
             var sqlParameter = new SqlParameter("@" + name, value ?? DBNull.Value)
             {

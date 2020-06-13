@@ -11,9 +11,10 @@ namespace SubSonic.Infrastructure
 {
     using Linq;
     using Schema;
+    using System.Data.Common;
 
     public class DbUserDefinedTableBuilder
-        : DbProviderBuilder
+        : DbProviderBuilder<DbUserDefinedTableColumn>
     {
         private class SQL
         {
@@ -89,18 +90,18 @@ END;";
                 oUserDefinedTable
                     .AppendFormat(CultureInfo.CurrentCulture, SQL.DropUserDefinedTable, Table.SchemaName, Table.Name)
                     .AppendLine()
-                    .AppendFormat(CultureInfo.CurrentCulture, SQL.CreateDefinedTable, Table.SchemaName, Table.Name, GenerateSqlBody(GetColumnInformation()));
+                    .AppendFormat(CultureInfo.CurrentCulture, SQL.CreateDefinedTable, Table.SchemaName, Table.Name, GenerateSqlBody(true, GetColumnInformation()));
             }
             else
             {
                 oUserDefinedTable
-                    .AppendFormat(CultureInfo.CurrentCulture, SQL.CreateDefinedTableIfNotExist, Table.SchemaName, Table.Name, GenerateSqlBody(GetColumnInformation()));
+                    .AppendFormat(CultureInfo.CurrentCulture, SQL.CreateDefinedTableIfNotExist, Table.SchemaName, Table.Name, GenerateSqlBody(true, GetColumnInformation()));
             }
 
             return oUserDefinedTable.ToString();
         }
 
-        private string GenerateSqlBody(IEnumerable<DbUserDefinedTableColumn> columns)
+        private string GenerateSqlBody(bool definition, IEnumerable<DbUserDefinedTableColumn> columns)
         {
             StringBuilder oUserDefinedTableBody = new StringBuilder().AppendLine();
 
@@ -110,13 +111,18 @@ END;";
             {
                 DbUserDefinedTableColumn column = columns.ElementAt(x);
 
-                Type propertyType = column.PropertyType;
-
-                oUserDefinedTableBody.Append(string.Format(CultureInfo.CurrentCulture, "\t\t[{0}] {1} {2} {3}"
-                    , column.Name
-                    , GenerateDataType(column.DbType, column.Property)
-                    , column.IsNullable ? "NULL" : "NOT NULL"
-                    , GenerateDefault(column.Property, column.DbType)).TrimEnd());
+                if (definition)
+                {
+                    oUserDefinedTableBody.Append(string.Format(CultureInfo.CurrentCulture, "\t\t[{0}] {1} {2} {3}"
+                        , column.Name
+                        , GenerateDataType(column.DbType, column.Property)
+                        , column.IsNullable ? "NULL" : "NOT NULL"
+                        , GenerateDefault(column.Property, column.DbType)).TrimEnd());
+                }
+                else
+                {
+                    oUserDefinedTableBody.Append($"\t[{column.Name}]");
+                }
 
                 if (x < (cnt - 1))
                 {
@@ -125,7 +131,7 @@ END;";
                 }
             }
 
-            if (keys.Count() > 0)
+            if (definition && keys.Count() > 0)
             {
                 oUserDefinedTableBody
                     .AppendLine(",")
@@ -136,6 +142,26 @@ END;";
             }
 
             return oUserDefinedTableBody.ToString();
+        }
+
+        public string GenerateSelectSql(string name)
+        {
+            if (name.IsNullOrEmpty())
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            return GenerateSelectSql(name, GetColumnInformation());
+        }
+
+        public override string GenerateSelectSql(string name, IEnumerable<DbUserDefinedTableColumn> columns)
+        {
+            if (name.IsNullOrEmpty())
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            return $"SELECT{GenerateSqlBody(false, columns)}\nFROM {name};";
         }
 
         public DataTable GenerateTable()
@@ -192,7 +218,7 @@ END;";
             }
         }
 
-        private IEnumerable<DbUserDefinedTableColumn> GetColumnInformation()
+        public override IEnumerable<DbUserDefinedTableColumn> GetColumnInformation()
         {
             if(_model.IsNotNull())
             {
@@ -245,6 +271,11 @@ END;";
             }
 
             return columns.ToArray();
+        }
+
+        public DbParameter CreateParameter(string name, object value)
+        {
+            return DbProvider.CreateParameter(name, value, false, 0, true, Table.QualifiedName, ParameterDirection.Input);
         }
     }
 }
