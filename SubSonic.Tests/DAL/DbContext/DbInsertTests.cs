@@ -116,6 +116,10 @@ VALUES
 
             DbContext.Database.Instance.AddCommandBehavior(expected_cmd, cmd =>
             {
+                cmd.Parameters["@MiddleInitial_1"].DbType.Should().Be(DbType.AnsiString);
+                cmd.Parameters["@MiddleInitial_2"].DbType.Should().Be(DbType.AnsiString);
+                cmd.Parameters["@MiddleInitial_3"].DbType.Should().Be(DbType.AnsiString);
+
                 Models.Person[] _persons = new[]
                 {
                     new Models.Person()

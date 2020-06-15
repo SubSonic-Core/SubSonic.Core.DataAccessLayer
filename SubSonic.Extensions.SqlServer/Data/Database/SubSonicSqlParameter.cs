@@ -16,7 +16,7 @@ namespace SubSonic.Extensions.SqlServer
         public SubSonicSqlParameter(string name, object value, IDbEntityProperty property)
             : base(name, value, property)
         {
-            SqlDbType = TypeConvertor.ToSqlDbType(value.GetType(), DbContext.DbOptions.SupportUnicode);
+            SqlDbType = TypeConvertor.ToSqlDbType(property.DbType, DbContext.DbOptions.SupportUnicode);
         }
 
         private SqlDbType sqlDbType;
