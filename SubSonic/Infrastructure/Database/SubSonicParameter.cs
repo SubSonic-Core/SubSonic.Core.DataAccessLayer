@@ -22,21 +22,21 @@ namespace SubSonic.Infrastructure
                 throw new ArgumentException("", nameof(name));
             }
 
-            if (value is null)
-            {
-                throw new ArgumentNullException(nameof(value));
-            }
-
             ParameterName = name;
-            Value = value;
-            Direction = ParameterDirection.Input;
+            Value = value ?? throw new ArgumentNullException(nameof(value));
 
             Initialize();
         }
 
         public SubSonicParameter(string name, object value, IDbEntityProperty property)
-            : this(name, value)
         {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentException("", nameof(name));
+            }
+
+            ParameterName = name;
+            Value = value ?? throw new ArgumentNullException(nameof(value));
             this.property = property ?? throw new ArgumentNullException(nameof(property));
 
             Initialize();
@@ -67,6 +67,7 @@ namespace SubSonic.Infrastructure
 
         protected void Initialize()
         {
+            Direction = ParameterDirection.Input;
             SourceColumnNullMapping = IsNullable;
 
             OnInitialize();
