@@ -60,7 +60,10 @@ namespace SubSonic.Infrastructure
 
                 bool
                     isComputedField = databaseGenerated.IsNotNull(x => x.DatabaseGeneratedOption == DatabaseGeneratedOption.Computed),
-                    isAutoIncrement = databaseGenerated.IsNotNull(x => x.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity);
+                    isAutoIncrement = databaseGenerated.IsNotNull(x => x.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity),
+                    isRequired      = info.GetCustomAttribute<RequiredAttribute>().IsNotNull(),
+                    isReadOnly      = info.CanRead && (isComputedField || isAutoIncrement || !info.CanWrite),
+                    isNullableType  = !isReadOnly && (info.PropertyType.IsNullableType() || info.PropertyType == typeof(string));
 
                 DbEntityProperty property = new DbEntityProperty(entity, ColumnAttr.IsNotNull(Column => Column.Name, info.Name))
                 {
@@ -68,14 +71,14 @@ namespace SubSonic.Infrastructure
                     SchemaName = entity.QualifiedName,
                     PropertyType = info.PropertyType,
                     IsPrimaryKey = info.GetCustomAttribute<KeyAttribute>().IsNotNull(),
-                    IsRequired = info.GetCustomAttribute<RequiredAttribute>().IsNotNull() || !info.PropertyType.IsNullableType(),
+                    IsRequired = isRequired || !(isNullableType),
                     Size = info.GetCustomAttribute<MaxLengthAttribute>().IsNotNull(Max => Max.Length),
                     Scale = info.PropertyType.IsOfType<decimal>() ? 18 : 0,
                     Precision = info.PropertyType.IsOfType<decimal>() ? 2 : 0,
-                    IsNullable = info.PropertyType.IsNullableType(),
+                    IsNullable = !isRequired && isNullableType,
                     IsAutoIncrement = isAutoIncrement,
                     IsComputed = isComputedField,
-                    IsReadOnly = info.CanRead && (isComputedField || isAutoIncrement || !info.CanWrite),
+                    IsReadOnly = isReadOnly,
                     DbType = info.PropertyType.GetDbType()
                 };
 

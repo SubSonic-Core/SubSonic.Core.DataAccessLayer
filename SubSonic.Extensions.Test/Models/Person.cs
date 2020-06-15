@@ -12,10 +12,12 @@ namespace SubSonic.Extensions.Test.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
 
+        [Required]
         public string FirstName { get; set; }
 
         public string MiddleInitial { get; set; }
 
+        [Required]
         public string FamilyName { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]

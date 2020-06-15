@@ -26,11 +26,22 @@ namespace SubSonic.Tests.DAL.TempTable
             Logger = DbContext.Instance.GetService<ISubSonicLogger<DbTempTableBuilder>>();
         }
 
+        const string expected_person = @"CREATE TABLE #Person(
+	[ID] [Int] NOT NULL,
+	[FirstName] [VarChar](MAX) NOT NULL,
+	[MiddleInitial] [VarChar](MAX) NULL,
+	[FamilyName] [VarChar](MAX) NOT NULL,
+	[FullName] [VarChar](MAX) NOT NULL,
+	PRIMARY KEY CLUSTERED
+		(
+			[ID] ASC
+		) WITH (IGNORE_DUP_KEY = OFF)
+);";
+
         [Test]
-        [TestCase(typeof(Models.Person))]
-        public void CanGenerateCreateTempTableForModel(Type modelType)
+        [TestCase(typeof(Models.Person), expected_person)]
+        public void CanGenerateCreateTempTableForModel(Type modelType, string expected)
         {
-            // TODO: Add your test code here
             DbTempTableBuilder builder = new DbTempTableBuilder(
                 DbContext.Model.GetEntityModel(modelType));
 
@@ -41,7 +52,7 @@ namespace SubSonic.Tests.DAL.TempTable
                 sql = builder.GenerateSql();
             }
 
-            sql.Should().Contain($"#{modelType.Name}");
+            sql.Should().Be(expected);
 
             Logger.LogInformation($"\n{sql}");
         }

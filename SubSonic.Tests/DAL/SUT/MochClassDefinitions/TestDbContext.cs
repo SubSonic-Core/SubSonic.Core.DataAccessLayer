@@ -42,12 +42,11 @@ namespace SubSonic.Tests.DAL.SUT
 
         protected override void OnDbModeling(DbModelBuilder builder)
         {
-            builder
-                .AddEntityModel<Models.RealEstateProperty>()
-                .AddEntityModel<Models.Status>()
-                .AddEntityModel<Models.Unit>()
-                .AddEntityModel<Models.Renter>()
-                .AddEntityModel<Models.Person>();
+            builder.AddEntityModel<Models.RealEstateProperty>();
+            builder.AddEntityModel<Models.Status>();
+            builder.AddEntityModel<Models.Unit>();
+            builder.AddEntityModel<Models.Renter>();
+            builder.AddEntityModel<Models.Person>();
 
             builder.AddRelationshipFor<Models.RealEstateProperty>(() =>
                 builder.GetRelationshipFor<Models.RealEstateProperty>()
