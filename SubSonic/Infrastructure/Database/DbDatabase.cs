@@ -131,7 +131,14 @@ namespace SubSonic.Infrastructure
 
                     IEnumerable<TEntity> results = cmd.ExecuteReader().Map<TEntity>();
 
-                    error = cmd.Parameters.GetOutputParameter<string>(nameof(error));
+                    if (cmd.Parameters.Contains(nameof(error)))
+                    {
+                        error = cmd.Parameters.GetOutputParameter<string>(nameof(error));
+                    }
+                    else
+                    {
+                        error = null;
+                    }
 
                     return results;
 
