@@ -30,11 +30,11 @@ namespace SubSonic.Infrastructure.Schema
             Properties = new DbEntityPropertyCollection(this);
         }
 
-        public DbCommandQueryCollection Commands { get; }
+        public DbCommandQueryCollection Commands { get; internal set; }
 
-        public ICollection<IDbRelationshipMap> RelationshipMaps { get; }
+        public ICollection<IDbRelationshipMap> RelationshipMaps { get; internal set; }
 
-        public ICollection<IDbEntityProperty> Properties { get; }
+        public ICollection<IDbEntityProperty> Properties { get; internal set; }
 
         public IDbEntityProperty this[string name] => Properties.SingleOrDefault(property => property.PropertyName == name);
 
@@ -48,7 +48,7 @@ namespace SubSonic.Infrastructure.Schema
 
         public bool DefinedTableTypeExists => DefinedTableType.IsNotNull();
 
-        public IDbObject DefinedTableType { get; set; }
+        public IDbObject DefinedTableType { get; internal set; }
 
         public IDbRelationshipMap GetRelationshipWith(IDbEntityModel model)
         {

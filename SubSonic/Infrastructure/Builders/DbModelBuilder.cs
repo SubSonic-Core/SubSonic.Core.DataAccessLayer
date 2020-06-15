@@ -63,7 +63,7 @@ namespace SubSonic.Infrastructure
                     isAutoIncrement = databaseGenerated.IsNotNull(x => x.DatabaseGeneratedOption == DatabaseGeneratedOption.Identity),
                     isRequired      = info.GetCustomAttribute<RequiredAttribute>().IsNotNull(),
                     isReadOnly      = info.CanRead && (isComputedField || isAutoIncrement || !info.CanWrite),
-                    isNullableType  = !isReadOnly && (info.PropertyType.IsNullableType() || info.PropertyType == typeof(string));
+                    isNullableType  = info.PropertyType.IsNullableType() || info.PropertyType == typeof(string);
 
                 DbEntityProperty property = new DbEntityProperty(entity, ColumnAttr.IsNotNull(Column => Column.Name, info.Name))
                 {

@@ -59,32 +59,6 @@ namespace SubSonic.Extensions.Test
             return "";
         }
 
-        public static void AddCommandBehavior<TResult>(this DbProviderFactory factory, string command, Func<DbCommand, TResult> result)
-        {
-            if (factory is null)
-            {
-                throw new ArgumentNullException(nameof(factory));
-            }
-
-            if (string.IsNullOrEmpty(command))
-            {
-                throw new ArgumentException("", nameof(command));
-            }
-
-            if (result is null)
-            {
-                throw new ArgumentNullException(nameof(result));
-            }
-
-            if (factory is SubSonicMockDbClient db)
-            {
-                db.AddBehavior(new MockCommandBehavior()
-                    .When((cmd) => 
-                        cmd.CommandText == command)
-                    .ReturnsData(result));
-            }
-        }
-
         public static DataTable ToDataTable(this IDbEntityModel model)
         {
             if (model is null)
@@ -138,6 +112,32 @@ namespace SubSonic.Extensions.Test
             }
         }
 
+        public static void AddCommandBehavior<TResult>(this DbProviderFactory factory, string command, Func<DbCommand, TResult> result)
+        {
+            if (factory is null)
+            {
+                throw new ArgumentNullException(nameof(factory));
+            }
+
+            if (string.IsNullOrEmpty(command))
+            {
+                throw new ArgumentException("", nameof(command));
+            }
+
+            if (result is null)
+            {
+                throw new ArgumentNullException(nameof(result));
+            }
+
+            if (factory is SubSonicMockDbClient db)
+            {
+                db.AddBehavior(new MockCommandBehavior()
+                    .When((cmd) =>
+                        cmd.CommandText == command)
+                    .ReturnsData(result));
+            }
+        }
+
         public static void AddCommandBehavior<TEntity>(this DbProviderFactory factory, string command, IEnumerable<TEntity> entities)
         {
             if (factory is null)
@@ -162,6 +162,13 @@ namespace SubSonic.Extensions.Test
                         cmd.CommandText == command)
                     .ReturnsData(entities.ToDataTable()));
             }
+        }
+
+        public static AlteredState<TSource, TActual> AlteredState<TSource, TActual>(this TSource source, object state)
+            where TSource : class
+            where TActual : class, TSource, new()
+        {
+            return new AlteredState<TSource, TActual>(source, state);
         }
 
         public static void UpdateProviders(this DbContext dbContext, string dbProviderInvariantName, string sqlQueryProviderInvariantName = null)

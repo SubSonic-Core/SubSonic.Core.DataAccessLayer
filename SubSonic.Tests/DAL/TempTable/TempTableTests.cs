@@ -31,7 +31,7 @@ namespace SubSonic.Tests.DAL.TempTable
 	[FirstName] [VarChar](MAX) NOT NULL,
 	[MiddleInitial] [VarChar](MAX) NULL,
 	[FamilyName] [VarChar](MAX) NOT NULL,
-	[FullName] [VarChar](MAX) NOT NULL,
+	[FullName] [VarChar](MAX) NULL,
 	PRIMARY KEY CLUSTERED
 		(
 			[ID] ASC

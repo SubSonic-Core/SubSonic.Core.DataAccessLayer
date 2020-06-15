@@ -6,6 +6,8 @@ using System.Linq;
 namespace SubSonic.Tests.DAL
 {
     using Extensions.Test;
+    using SubSonic.Infrastructure;
+    using SubSonic.Infrastructure.Schema;
     using System.Data;
     using Models = Extensions.Test.Models;
 
@@ -50,6 +52,67 @@ VALUES
 
             person.ID.Should().Be(1);
             person.FullName.Should().Be("Last_1, First_1 M.");
+        }
+
+        [Test()]
+        [Order(0)]
+        public void ShouldBeAbleToInsertOnePersonRecordWithUDTT()
+        {
+            string expected_cmd = @"INSERT INTO [dbo].[Person]
+OUTPUT INSERTED.* INTO @output
+SELECT
+	[FirstName],
+	[MiddleInitial],
+	[FamilyName]
+FROM @input";
+
+            DbContext.Model.GetEntityModel<Models.Person>().DefinedTableTypeExists.Should().BeFalse();
+
+            using (DbContext.Model.GetEntityModel<Models.Person>().AlteredState<IDbEntityModel, DbEntityModel>(new
+            {
+                DefinedTableType = new DbUserDefinedTableTypeAttribute(nameof(Models.Person))
+            }).Apply())
+            {
+                DbContext.Model.GetEntityModel<Models.Person>().DefinedTableTypeExists.Should().BeTrue();
+
+                Models.Person person = new Models.Person() { FirstName = "First_1", FamilyName = "Last_1", MiddleInitial = "M" };
+
+                DbContext.Database.Instance.AddCommandBehavior(expected_cmd, cmd =>
+                {
+                    if (cmd.Parameters["@input"].Value is DataTable table)
+                    {
+                        Models.Person data = new Models.Person()
+                        {
+                            FirstName = (string)table.Rows[0]["FirstName"],
+                            MiddleInitial = (string)table.Rows[0]["MiddleInitial"],
+                            FamilyName = (string)table.Rows[0]["FamilyName"]
+                        };
+
+                        People.Add(data);
+
+                        data.ID = People.Count;
+
+                        data.FullName = String.Format("{0}, {1}{2}",
+                            data.FamilyName, data.FirstName,
+                            data.MiddleInitial.IsNotNullOrEmpty() ? $" {data.MiddleInitial}." : "");
+
+                        return new[] { data }.ToDataTable();
+                    }
+
+                    throw new NotSupportedException();
+                });
+
+                DbContext.People.Add(person);
+
+                DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
+
+                DbContext.SaveChanges().Should().BeTrue();
+
+                person.ID.Should().Be(1);
+                person.FullName.Should().Be("Last_1, First_1 M.");
+            }
+
+            DbContext.Model.GetEntityModel<Models.Person>().DefinedTableTypeExists.Should().BeFalse();
         }
 
         [Test()]
