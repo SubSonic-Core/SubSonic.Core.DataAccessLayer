@@ -9,6 +9,11 @@ This way I know the DAL from the ground up and speak for its performance and imp
    <li>.NETStandard,Version=v2.1</li>
 </ul>
 
+# Supported Database Servers
+<ul>
+   <li>Sql Server >= 2012</li>
+</ul>
+
 # Features
 <ul>
    <li>Database Context</li>
