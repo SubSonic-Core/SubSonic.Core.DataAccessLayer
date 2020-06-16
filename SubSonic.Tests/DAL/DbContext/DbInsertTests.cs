@@ -298,10 +298,10 @@ FROM @input";
         const string renter_expected_temp = @"INSERT INTO [dbo].[Renter]
 OUTPUT INSERTED.* INTO #Renter
 VALUES
-	(1, 1, 450, 1/1/2019 12:00:00 AM, 12/31/2019 12:00:00 AM),
-	(1, 1, 500, 1/1/2020 12:00:00 AM, 12/31/2020 12:00:00 AM),
-	(2, 1, 450, 1/1/2018 12:00:00 AM, 12/31/2018 12:00:00 AM),
-	(2, 2, 600, 1/1/2019 12:00:00 AM, 12/31/2020 12:00:00 AM)";
+	(1, 1, 450, [StartDate_0], [EndDate_0]),
+	(1, 1, 500, [StartDate_1], [EndDate_1]),
+	(2, 1, 450, [StartDate_2], [EndDate_2]),
+	(2, 2, 600, [StartDate_3], [EndDate_3])";
 
         const string renter_expected_udtt = @"INSERT INTO [dbo].[Renter]
 OUTPUT INSERTED.* INTO @output
@@ -330,6 +330,17 @@ FROM @input";
                 original = new Models.Renter[renters.Length];
 
             renters.CopyTo(original, 0);
+
+            if (!withUDTT)
+            {
+                // ubunto and windows format dates very differently
+                for (int i = 0; i < renters.Length; i++)
+                {
+                    expected = expected
+                        .Replace($"[StartDate_{i}]", renters[i].StartDate.ToString())
+                        .Replace($"[EndDate_{i}]", renters[i].EndDate.ToString());
+                }
+            }
 
             DbContext.Database.Instance.AddCommandBehavior(expected, cmd =>
             {
