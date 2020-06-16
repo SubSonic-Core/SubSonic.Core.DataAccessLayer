@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Infrastructure
 {
-    public interface IDbSqlQueryBuilderProvider
+    public interface IDbSubSonicQueryProvider
         : IQueryProvider
     {
         DbTableExpression DbTable { get; }

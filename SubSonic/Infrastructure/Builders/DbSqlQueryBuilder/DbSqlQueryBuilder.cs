@@ -11,7 +11,7 @@ namespace SubSonic.Infrastructure.Builders
 
     public partial class DbSqlQueryBuilder
         : DbExpressionAccessor
-        , IDbSqlQueryBuilderProvider
+        , IDbSubSonicQueryProvider
     {
         private readonly ISubSonicLogger logger;
         private readonly SubSonicParameterDictionary parameters;

@@ -22,6 +22,7 @@ namespace SubSonic.Infrastructure.Schema
             Name = TableTypeColumn.IsNotNull(x => x.Name) ?? Property.Name;
             Order = TableTypeColumn.IsNotNull(x => x.Order, -1);
             IsComputed = TableTypeColumn.IsNotNull(x => x.IsComputed, false);
+            IsIdentity = TableTypeColumn.IsNotNull(x => x.IsIdentity, false);
             IsNullable = TableTypeColumn.IsNotNull(x => x.IsNullable, Property.PropertyType.IsNullableType());
             DbType = TableTypeColumn.IsNotNull(x => x.DbType, Property.PropertyType.GetDbType());
             IsPrimaryKey = !(info.GetCustomAttribute<KeyAttribute>() is null);
@@ -46,6 +47,7 @@ namespace SubSonic.Infrastructure.Schema
             Name = property.Name;
             Order = property.Order;
             IsComputed = property.IsComputed;
+            IsIdentity = property.IsAutoIncrement;
             IsNullable = property.IsNullable;
             DbType = property.DbType;
 
@@ -67,9 +69,10 @@ namespace SubSonic.Infrastructure.Schema
 
         public string Name { get; }
         public int Order { get; set; }
-        public bool IsComputed { get; set; }
+        public bool IsComputed { get; }
         public bool IsNullable { get; }
         public DbType DbType { get; }
         public bool IsPrimaryKey { get; }
+        public bool IsIdentity { get; }
     }
 }

@@ -16,6 +16,8 @@ namespace SubSonic.Infrastructure
 
         public bool IsComputed { get; set; }
 
+        public bool IsIdentity { get; set; }
+
         public bool IsNullable { get; set; }
 
         public DbType DbType { get; set; }

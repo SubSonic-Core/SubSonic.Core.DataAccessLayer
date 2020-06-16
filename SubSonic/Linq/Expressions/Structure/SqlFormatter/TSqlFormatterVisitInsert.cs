@@ -110,7 +110,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 $"@{input_parameter_name}", 
                 builder.GetColumnInformation()
                     .Where(column =>
-                        column.IsPrimaryKey == false && column.IsComputed == false)));
+                        column.IsIdentity == false && column.IsComputed == false)));
             WriteNewLine(builder.GenerateSelectSql(output_parameter_name));
 
             insert.DbParameters.Add(builder.CreateParameter(input_parameter_name, builder.GenerateTable()));

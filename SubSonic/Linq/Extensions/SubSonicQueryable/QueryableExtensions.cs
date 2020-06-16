@@ -25,7 +25,7 @@ namespace SubSonic.Linq
                     .Page(default(int), pageSize)
                     .AsQueryable();
 
-                IDbSqlQueryBuilderProvider builder = (IDbSqlQueryBuilderProvider)query.Provider;
+                IDbSubSonicQueryProvider builder = (IDbSubSonicQueryProvider)query.Provider;
 
                 return builder
                     .ToPagedQuery(query.Expression, pageSize)
@@ -51,7 +51,7 @@ namespace SubSonic.Linq
             {
                 IQueryable<TSource> query = source.AsQueryable();
 
-                IDbSqlQueryBuilderProvider builder = (IDbSqlQueryBuilderProvider)query.Provider;
+                IDbSubSonicQueryProvider builder = (IDbSubSonicQueryProvider)query.Provider;
 
                 if (query.Expression is DbSelectExpression select)
                 {
@@ -68,7 +68,7 @@ namespace SubSonic.Linq
             {
                 IQueryable<TSource> query = source.AsQueryable();
 
-                IDbSqlQueryBuilderProvider builder = (IDbSqlQueryBuilderProvider)query.Provider;
+                IDbSubSonicQueryProvider builder = (IDbSubSonicQueryProvider)query.Provider;
 
                 if (query.Expression is DbSelectExpression select)
                 {
@@ -85,7 +85,7 @@ namespace SubSonic.Linq
             {
                 IQueryable<TSource> query = source.AsQueryable();
 
-                IDbSqlQueryBuilderProvider builder = (IDbSqlQueryBuilderProvider)query.Provider;
+                IDbSubSonicQueryProvider builder = (IDbSubSonicQueryProvider)query.Provider;
 
                 if (query.Expression is DbSelectExpression select)
                 {
@@ -108,7 +108,7 @@ namespace SubSonic.Linq
             {
                 IQueryable<TSource> query = source.AsQueryable();
 
-                IDbSqlQueryBuilderProvider builder = (IDbSqlQueryBuilderProvider)query.Provider;
+                IDbSubSonicQueryProvider builder = (IDbSubSonicQueryProvider)query.Provider;
 
                 Expression where = null;
 
@@ -127,7 +127,7 @@ namespace SubSonic.Linq
         {
             if (source.IsNotNull() && source.IsSubSonicQuerable())
             {
-                IDbSqlQueryBuilderProvider provider = (IDbSqlQueryBuilderProvider)source.Provider;
+                IDbSubSonicQueryProvider provider = (IDbSubSonicQueryProvider)source.Provider;
 
                 return provider.CreateQuery<TResult>(provider.BuildSelect(source.Expression, selector));
             }
@@ -140,7 +140,7 @@ namespace SubSonic.Linq
             {
                 if (source.Expression is DbSelectExpression)
                 {
-                    IDbSqlQueryBuilderProvider provider = (IDbSqlQueryBuilderProvider)source.Provider;
+                    IDbSubSonicQueryProvider provider = (IDbSubSonicQueryProvider)source.Provider;
 
                     Expression where = null;
 
