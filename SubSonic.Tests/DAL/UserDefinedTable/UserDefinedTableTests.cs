@@ -31,7 +31,6 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
         [Test]
         [TestCase(typeof(Models.RealEstateProperty))]
         [TestCase(typeof(Models.Unit))]
-        [TestCase(typeof(Models.Renter))]
         public void CanGenerateUserDefinedTableForModel(Type modelType)
         {
             IEnumerable data = null;
@@ -43,10 +42,6 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
             else if (modelType == typeof(Models.Unit))
             {
                 data = Units;
-            }
-            else if (modelType == typeof(Models.Renter))
-            {
-                data = Renters;
             }
 
 

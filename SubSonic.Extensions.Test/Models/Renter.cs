@@ -4,9 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SubSonic.Extensions.Test.Models
 {
-    using Infrastructure;
-
-    [DbUserDefinedTableType(nameof(Renter))]
     public class Renter
     {
         [Key]

@@ -117,7 +117,8 @@ namespace SubSonic.Infrastructure
                     .AppendLine(",")
                     .AppendLine("\tPRIMARY KEY CLUSTERED")
                     .AppendLine("\t\t(")
-                    .AppendLine(string.Join(",", keys.Select(key => string.Format(CultureInfo.CurrentCulture, "\t\t\t[{0}] ASC", key.Name))))
+                    .Append("\t\t\t")
+                    .AppendLine(string.Join(", ", keys.Select(key => string.Format(CultureInfo.CurrentCulture, "[{0}] ASC", key.Name))).Trim())
                     .AppendLine("\t\t) WITH (IGNORE_DUP_KEY = OFF)");
             }
 
