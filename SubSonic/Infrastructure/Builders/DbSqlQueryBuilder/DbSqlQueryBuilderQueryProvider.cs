@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Data.Common;
+using System.Globalization;
+using Microsoft.Extensions.Logging;
 
 namespace SubSonic.Infrastructure.Builders
 {
     using Logging;
-    using SubSonic.Linq.Expressions;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Data;
-    using System.Data.Common;
-    using System.Globalization;
+    using Linq.Expressions;
+    
 
     public partial class DbSqlQueryBuilder
     {

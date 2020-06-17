@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -10,7 +11,6 @@ namespace SubSonic.Infrastructure
     using Factory;
     using Linq;
     using Logging;
-    using Microsoft.Extensions.Logging;
     using Schema;
 
     public class DbDatabase
@@ -119,14 +119,14 @@ namespace SubSonic.Infrastructure
             IDbQuery query = new DbSqlQueryBuilder(model.EntityModelType, logger)
                                 .BuildDbQuery<TEntity>(queryType, data);
 
-            logger.LogTrace(query.Sql);
-
             using (AutomaticConnectionScope Scope = GetConnectionScope())
             using (DbCommand cmd = GetCommand(Scope, query.Sql, query.Parameters))
             using (var perf = logger.Start(GetType(), $"{nameof(ExecuteDbQuery)}"))
             {
                 try
                 {
+                    logger.LogTrace(query.Sql);
+
                     cmd.Connection.Open();
 
                     IEnumerable<TEntity> results = cmd.ExecuteReader().Map<TEntity>();
@@ -225,6 +225,8 @@ namespace SubSonic.Infrastructure
             using (DbCommand cmd = GetCommand(Scope, queryObject))
             using (var perf = logger.Start(GetType(), $"{nameof(ExecuteReader)}"))
             {
+                logger.LogTrace(queryObject.Sql);
+
                 return cmd.ExecuteReader(queryObject.Behavior);
             }
         }

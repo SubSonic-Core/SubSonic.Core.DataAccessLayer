@@ -34,6 +34,8 @@ WHERE [ID] IN (1)");
                 expected = dbTest.FetchAll().Select(x =>
                     x as IEntityProxy);
 
+            dbTest.Count().Should().Be(expected.Count());
+
             DbContext.Database.Instance.AddCommandBehavior(dbTest.Expectation, cmd =>
             {
                 if (dbTest.UseDefinedTableType)
