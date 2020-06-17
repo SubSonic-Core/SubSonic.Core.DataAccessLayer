@@ -93,7 +93,7 @@ namespace SubSonic.Extensions.Test.MockDbClient
 
             if (commands.Length == 1)
             {   // command contains one select command
-                return new MockDbDataReaderCollection(GetReturnValue<DataTable>(cmd).CreateDataReader());
+                return new MockDbDataReaderCollection(GetReturnValue<DataTable>(cmd).IsNotNull(x => x.CreateDataReader()));
             }
             else
             {

@@ -6,11 +6,13 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Infrastructure
 {
-    public interface IDbSubSonicQueryProvider
+    public interface ISubSonicQueryProvider
         : IQueryProvider
     {
         DbTableExpression DbTable { get; }
-        Expression BuildLogicalBinary(Expression eBody, DbExpressionType type, string name, object value, DbComparisonOperator op, DbGroupOperator group);
+
+        Expression BuildLogicalIn(Expression body, string property, IEnumerable<Expression> values, DbGroupOperator @group);
+        Expression BuildLogicalBinary(Expression eBody, string name, object value, DbComparisonOperator op, DbGroupOperator group);
         Expression BuildWherePredicate(Expression collection, Expression logical);
         Expression BuildSelect(IQueryable queryable);
         Expression BuildSelect(IQueryable queryable, Expression eWhere);

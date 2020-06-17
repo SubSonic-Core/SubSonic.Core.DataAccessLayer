@@ -16,6 +16,7 @@ using System.Linq.Expressions;
 namespace SubSonic.Linq.Microsoft
 {
     using Expressions.Structure;
+    using SubSonic.Linq.Expressions;
 
     public class ExpressionWriter
         : DbExpressionVisitor
@@ -627,6 +628,16 @@ namespace SubSonic.Linq.Microsoft
 
             Write(expression.ToString());
             return expression;
+        }
+
+        protected internal override Expression VisitInsert(DbInsertExpression insert)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected internal override Expression VisitDelete(DbDeleteExpression delete)
+        {
+            throw new NotImplementedException();
         }
     }
 }

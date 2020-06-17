@@ -24,7 +24,7 @@ namespace SubSonic.Extensions.Test.MockDbClient
 
         public override void Close()
         {
-            inner.Close();
+            inner.IsNotNull(x => x.Close());
         }
 
         public override int Depth
@@ -169,7 +169,7 @@ namespace SubSonic.Extensions.Test.MockDbClient
 
         public override bool Read()
         {
-            return inner.Read();
+            return inner.IsNotNull(x => x.Read());
         }
 
         public override int RecordsAffected

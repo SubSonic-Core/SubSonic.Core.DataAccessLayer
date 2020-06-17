@@ -20,7 +20,7 @@ namespace SubSonic.Linq.Expressions
         private readonly string _alias;
 
         protected internal DbTableExpression(IDbEntityModel model, TableAlias alias)
-            : this(model.IsNullThrowArgumentNull(nameof(model)).CreateObject(), alias ?? model.ToAlias())
+            : this(model.IsNullThrowArgumentNull(nameof(model)).CreateObject(), alias)
         {
             Model = model;
             Joins = new List<DbExpression>();
@@ -73,7 +73,7 @@ namespace SubSonic.Linq.Expressions
 
     public partial class DbExpression
     {
-        public static DbExpression DbTable(IDbEntityModel model, TableAlias alias = null)
+        public static DbExpression DbTable(IDbEntityModel model, TableAlias alias)
         {
             return new DbTableExpression(model, alias);
         }

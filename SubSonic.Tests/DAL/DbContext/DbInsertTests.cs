@@ -52,7 +52,7 @@ VALUES
 
             DbContext.SaveChanges().Should().BeTrue();
 
-            person.ID.Should().Be(1);
+            person.ID.Should().Be(2);
             person.FullName.Should().Be("Last_1, First_1 M.");
         }
 
@@ -110,7 +110,7 @@ FROM @input";
 
                 DbContext.SaveChanges().Should().BeTrue();
 
-                person.ID.Should().Be(1);
+                person.ID.Should().Be(2);
                 person.FullName.Should().Be("Last_1, First_1 M.");
             }
 
@@ -226,11 +226,11 @@ VALUES
 
             DbContext.SaveChanges().Should().BeTrue();
 
-            people[0].ID.Should().Be(1);
+            people[0].ID.Should().Be(2);
             people[0].FullName.Should().Be("Last_2, First_2 M.");
-            people[1].ID.Should().Be(2);
+            people[1].ID.Should().Be(3);
             people[1].FullName.Should().Be("Last_3, First_3");
-            people[2].ID.Should().Be(3);
+            people[2].ID.Should().Be(4);
             people[2].FullName.Should().Be("Last_4, First_4");
         }
 

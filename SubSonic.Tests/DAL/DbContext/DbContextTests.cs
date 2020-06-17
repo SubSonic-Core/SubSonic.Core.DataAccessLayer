@@ -40,13 +40,24 @@ FROM [dbo].[RealEstateProperty] AS [{0}]
 WHERE ([{0}].[ID] = {1})",
                 property_all =
 @"SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
-FROM [dbo].[RealEstateProperty] AS [{0}]";
+FROM [dbo].[RealEstateProperty] AS [{0}]",
+                people_all = @"SELECT [{0}].[ID], [{0}].[FirstName], [{0}].[MiddleInitial], [{0}].[FamilyName], [{0}].[FullName]
+FROM [dbo].[Person] AS [{0}]",
+                people_count = @"SELECT COUNT([{0}].[ID])
+FROM [dbo].[Person] AS [{0}]",
+                kara =
+@"SELECT [{0}].[ID], [{0}].[FirstName], [{0}].[MiddleInitial], [{0}].[FamilyName], [{0}].[FullName]
+FROM [dbo].[Person] AS [{0}]
+WHERE ([{0}].[ID] = {1})";
 
             DbContext.Database.Instance.AddCommandBehavior(units.Format("T1", 0), Units.Where(x => x.ID == 0));
             DbContext.Database.Instance.AddCommandBehavior(status.Format("T1", 1), Statuses.Where(x => x.ID == 1));
             DbContext.Database.Instance.AddCommandBehavior(statuses.Format("T1"), Statuses);
             DbContext.Database.Instance.AddCommandBehavior(property.Format("T1", 1), RealEstateProperties.Where(x => x.ID == 1));
             DbContext.Database.Instance.AddCommandBehavior(property_all.Format("T1"), RealEstateProperties);
+            DbContext.Database.Instance.AddCommandBehavior(people_all.Format("T1"), People);
+            DbContext.Database.Instance.AddCommandBehavior(people_count.Format("T1"), cmd => new[] { People.Count }.ToDataTable());
+            DbContext.Database.Instance.AddCommandBehavior(kara.Format("T1", 1), People.Where(x => x.ID == 1));
         }
 
         [Test]

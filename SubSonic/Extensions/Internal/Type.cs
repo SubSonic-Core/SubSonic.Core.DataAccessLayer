@@ -28,7 +28,7 @@ namespace SubSonic
 
             if (type.IsInterface)
             {
-                foreach(Type @interface in new[] { type }.Union(type.GetInterfaces()))
+                foreach (Type @interface in new[] { type }.Union(type.GetInterfaces()))
                 {
                     if ((info = @interface.GetProperty(name)).IsNotNull())
                     {
@@ -186,6 +186,39 @@ namespace SubSonic
                 name = sb.ToString();
             }
             return name;
+        }
+
+        public static MethodInfo GetGenericMethod(this Type type, string name, Type[] types)
+        {
+            MethodInfo result = null;
+
+            foreach (MethodInfo info in type
+                        .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                        .Where(x =>
+                            x.Name.Equals(name, StringComparison.CurrentCulture)))
+            {
+                if (info.IsGenericMethod)
+                {
+                    MethodInfo test = info.MakeGenericMethod(types[0]);
+
+                    bool match = true;
+
+                    ParameterInfo[] parameters = test.GetParameters();
+
+                    for (int i = 0, cnt = types.Length; i < cnt; i++)
+                    {
+                        match &= parameters[i].ParameterType == types[i];
+                    }
+
+                    if (match)
+                    {
+                        result = test;
+                        break;
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }

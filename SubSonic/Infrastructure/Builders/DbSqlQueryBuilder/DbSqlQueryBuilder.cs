@@ -11,7 +11,7 @@ namespace SubSonic.Infrastructure.Builders
 
     public partial class DbSqlQueryBuilder
         : DbExpressionAccessor
-        , IDbSubSonicQueryProvider
+        , ISubSonicQueryProvider
     {
         private readonly ISubSonicLogger logger;
         private readonly SubSonicParameterDictionary parameters;
@@ -34,7 +34,7 @@ namespace SubSonic.Infrastructure.Builders
         public DbSqlQueryType SqlQueryType { get; private set; }
 
         public IDbEntityModel DbEntity { get; }
-        public DbTableExpression DbTable { get; }
+        public DbTableExpression DbTable { get; private set; }
         #endregion
 
         public IDbQuery BuildDbQuery<TEntity>(DbQueryType queryType, IEnumerable<IEntityProxy> proxies)
@@ -57,6 +57,9 @@ namespace SubSonic.Infrastructure.Builders
                 case DbQueryType.Update:
                     return ToQuery(BuildUpdateQuery(entities));
                 case DbQueryType.Delete:
+                    // delete queries can not be alaised.
+                    DbTable = (DbTableExpression)DbExpression.DbTable(DbEntity, null);
+
                     return ToQuery(BuildDeleteQuery(entities));
                 default:
                     throw new NotSupportedException();
@@ -75,7 +78,34 @@ namespace SubSonic.Infrastructure.Builders
 
         private Expression BuildDeleteQuery<TEntity>(IEnumerable<TEntity> entities)
         {
-            throw new NotImplementedException();
+            Expression
+                logical = null;
+
+            LambdaExpression
+                predicate = null;
+
+            if (DbTable.Model.DefinedTableTypeExists)
+            {
+                throw new NotImplementedException();
+            }
+            else
+            {
+                foreach(string key in DbTable.Model.GetPrimaryKey())
+                {
+                    IEnumerable<Expression> values = entities
+                        .Select(entity =>
+                            Expression.Constant(DbEntity.EntityModelType.GetProperty(key).GetValue(entity)));
+
+                    logical = BuildLogicalIn(logical, key, values, DbGroupOperator.AndAlso);
+                }
+
+                predicate = (LambdaExpression)BuildLambda(logical, LambdaType.Predicate);
+            }
+
+            return DbExpression.DbDelete(
+                    entities,
+                    DbTable,
+                    DbExpression.Where(DbTable, DbEntity.EntityModelType, predicate));
         }
 
         protected virtual DbSqlQueryType GetQueryType(Expression expression)

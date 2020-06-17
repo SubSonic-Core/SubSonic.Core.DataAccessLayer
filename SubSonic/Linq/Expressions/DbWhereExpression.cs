@@ -8,6 +8,7 @@ namespace SubSonic.Linq.Expressions
     using Infrastructure;
     using Infrastructure.Builders;
     using Structure;
+    using SubSonic.Infrastructure.Schema;
 
     public class DbWhereExpression
         : DbExpression

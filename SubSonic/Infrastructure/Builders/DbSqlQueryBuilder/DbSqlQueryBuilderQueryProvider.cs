@@ -11,6 +11,7 @@ namespace SubSonic.Infrastructure.Builders
     using System.ComponentModel;
     using System.Data;
     using System.Data.Common;
+    using System.Globalization;
 
     public partial class DbSqlQueryBuilder
     {
@@ -37,7 +38,7 @@ namespace SubSonic.Infrastructure.Builders
                 throw new ArgumentNullException(nameof(expression));
             }
 
-            if (expression is DbSelectExpression select)
+            if (expression is DbExpression select)
             {
                 using (SharedDbConnectionScope Scope = DbContext.ServiceProvider.GetService<SharedDbConnectionScope>())
                 {
@@ -45,7 +46,10 @@ namespace SubSonic.Infrastructure.Builders
 
                     Type elementType = typeof(TResult).GetQualifiedType();
 
-                    if (DbContext.Current.ChangeTracking.Count(elementType, select) == 0)
+                    bool isEntityModel = DbContext.DbModel.IsEntityModelRegistered(elementType);
+
+                    if (!isEntityModel ||
+                        DbContext.Current.ChangeTracking.Count(elementType, select) == 0)
                     {
                         try
                         {
@@ -55,7 +59,17 @@ namespace SubSonic.Infrastructure.Builders
 
                             while (reader.Read())
                             {
-                                DbContext.Current.ChangeTracking.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
+                                if (isEntityModel)
+                                {
+                                    DbContext.Current.ChangeTracking.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
+                                }
+                                else
+                                {
+                                    if (CmdBehavior == CommandBehavior.SingleRow)
+                                    {
+                                        return Scalar<TResult>(reader);
+                                    }
+                                }
                             }
                         }
                         finally
@@ -75,6 +89,8 @@ namespace SubSonic.Infrastructure.Builders
                     method = _method;
                 }
 
+                
+
                 if (method.Arguments[0] is DbSelectExpression _select)
                 {
                     Expression where = null;
@@ -84,11 +100,38 @@ namespace SubSonic.Infrastructure.Builders
                         where = BuildWhere(_select.From, where, _select.Type, method.Arguments[i]);
                     }
 
-                    return Execute<TResult>(BuildSelect(_select, where));
+                    if (method.Method.Name.Equals(nameof(Queryable.Count), StringComparison.CurrentCulture))
+                    {   // the method count has been called on the collection
+                        return Execute<TResult>(DbExpression.DbSelectAggregate(_select, new[]
+                        {
+                            DbExpression.DbAggregate(typeof(TResult), AggregateType.Count, _select.Columns.Single(x => x.Property.IsPrimaryKey).Expression)
+                        }));
+                    }
+                    else
+                    {
+                        if (method.Arguments.Count > 1)
+                        {
+                            return Execute<TResult>(BuildSelect(_select, where));
+                        }
+                        else
+                        {
+                            return Execute<TResult>(_select);
+                        }
+                    }
                 }
             }
 
             throw new NotSupportedException(expression.ToString());
+        }
+
+        private TResult Scalar<TResult>(IDataRecord reader)
+        {
+            if (reader.FieldCount > 1)
+            {
+                throw new InvalidOperationException();
+            }
+
+            return (TResult)Convert.ChangeType(reader[0], typeof(TResult), CultureInfo.CurrentCulture);
         }
 
         public object Execute(Expression expression)

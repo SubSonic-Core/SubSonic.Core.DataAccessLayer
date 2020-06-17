@@ -6,6 +6,7 @@ namespace SubSonic.Infrastructure.Builders
 {
     using Linq;
     using Linq.Expressions;
+    using SubSonic.Infrastructure.Schema;
     using System.Data;
     using System.Data.Common;
     using System.Reflection;
@@ -221,7 +222,35 @@ namespace SubSonic.Infrastructure.Builders
             return result;
         }
 
-        public Expression BuildLogicalBinary(Expression body, DbExpressionType type, string property, object value, DbComparisonOperator @operator, DbGroupOperator @group)
+        public Expression BuildLogicalIn(Expression body, string column, IEnumerable<Expression> values, DbGroupOperator @group)
+        {
+            PropertyInfo property = DbEntity.EntityModelType.GetProperty(column);
+
+            Type constantType = property.PropertyType.GetUnderlyingType();
+
+            MethodInfo method = typeof(SubSonicQueryable).GetGenericMethod(
+                nameof(SubSonicQueryable.In),
+                new[] { constantType, constantType.MakeArrayType() });
+
+            Expression
+                left = Expression.Property(Parameter, property),
+                inside = Expression.NewArrayBounds(constantType, values),
+                right = Expression.Call(null, method, left, inside);
+
+            if (body.IsNull())
+            {
+                return right;
+            }
+            else
+            {
+                return DbWherePredicateBuilder.GetBodyExpression(
+                    body,
+                    right,
+                    @group);
+            }
+        }
+
+        public Expression BuildLogicalBinary(Expression body, string property, object value, DbComparisonOperator @operator, DbGroupOperator @group)
         {
             PropertyInfo propertyInfo = DbEntity.EntityModelType.GetProperty(property);
 
@@ -262,12 +291,28 @@ namespace SubSonic.Infrastructure.Builders
                             .Union(paged.Parameters)
                             .ToArray());
                 }
+                else if (expression is DbSelectAggregateExpression aggregate)
+                {
+                    return new DbQuery(
+                            aggregate.ToString(),
+                            CmdBehavior,
+                            GetSubSonicParameters(aggregate.Where)
+                        );
+                }
                 else if (expression is DbInsertExpression insert)
                 {
                     return new DbQuery(
                             insert.ToString(),
                             CmdBehavior,
                             GetSubSonicParameters(insert)
+                        );
+                }
+                else if (expression is DbDeleteExpression delete)
+                {
+                    return new DbQuery(
+                            delete.ToString(),
+                            CmdBehavior,
+                            GetSubSonicParameters(delete.Where)
                         );
                 }
                 else

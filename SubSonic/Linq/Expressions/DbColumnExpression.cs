@@ -8,9 +8,10 @@ namespace SubSonic.Linq.Expressions
     /// <summary>
     /// A custom expression node that represents a reference to a column in a SQL query
     /// </summary>
-    public class DbColumnExpression : DbExpression, IEquatable<DbColumnExpression>
+    public class DbColumnExpression 
+        : DbExpression, IEquatable<DbColumnExpression>
     {
-        public DbColumnExpression(Type type, TableAlias alias, string columnName)
+        protected internal DbColumnExpression(Type type, TableAlias alias, string columnName)
             : base(DbExpressionType.Column, type)
         {
             if (string.IsNullOrEmpty(columnName))
@@ -18,7 +19,7 @@ namespace SubSonic.Linq.Expressions
                 throw new ArgumentException("", nameof(columnName));
             }
 
-            this.Alias = alias ?? throw new ArgumentNullException(nameof(alias));
+            this.Alias = alias;
             this.Name = columnName;
         }
 
@@ -79,6 +80,14 @@ namespace SubSonic.Linq.Expressions
         public static bool operator !=(DbColumnExpression left, DbColumnExpression right)
         {
             return !(left == right);
+        }
+    }
+
+    public partial class DbExpression
+    {
+        public static DbExpression DbColumn(Type type, TableAlias alias, string name)
+        {
+            return new DbColumnExpression(type, alias, name);
         }
     }
 }

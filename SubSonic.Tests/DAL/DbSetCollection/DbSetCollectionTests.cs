@@ -32,11 +32,16 @@ FROM [dbo].[Status] AS [{0}]
 WHERE ([{0}].[ID] = {1})",
                 statuses =
 @"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
-FROM [dbo].[Status] AS [{0}]";
+FROM [dbo].[Status] AS [{0}]",
+                kara =
+@"SELECT [{0}].[ID], [{0}].[FirstName], [{0}].[MiddleInitial], [{0}].[FamilyName], [{0}].[FullName]
+FROM [dbo].[Person] AS [{0}]
+WHERE ([{0}].[ID] = {1})";
 
             DbContext.Database.Instance.AddCommandBehavior(units.Format("T1", 0), Units.Where(x => x.ID == 0));
             DbContext.Database.Instance.AddCommandBehavior(status.Format("T1", 1), Statuses.Where(x => x.ID == 1));
             DbContext.Database.Instance.AddCommandBehavior(statuses.Format("T1"), Statuses);
+            DbContext.Database.Instance.AddCommandBehavior(kara.Format("T1", 1), People.Where(x => x.ID == 1));
         }
 
         [Test]

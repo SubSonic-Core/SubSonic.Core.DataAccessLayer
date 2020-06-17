@@ -32,6 +32,11 @@ namespace SubSonic.Linq.Expressions.Structure
             return join;
         }
 
+        protected internal virtual Expression VisitDelete(DbDeleteExpression delete)
+        {
+            throw new NotImplementedException();
+        }
+
         protected internal virtual Expression VisitProjection(DbProjectionExpression projection)
         {
             if(projection is null)

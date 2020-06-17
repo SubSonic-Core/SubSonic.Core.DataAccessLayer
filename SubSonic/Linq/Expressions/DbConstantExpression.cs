@@ -15,7 +15,7 @@ namespace SubSonic.Linq.Expressions
         private readonly TableAlias _alias;
 
         protected internal DbConstantExpression(object value, TableAlias alias)
-            : base((DbExpressionType)ExpressionType.Constant, null)
+            : base((DbExpressionType)ExpressionType.Constant, value.IsNullThrowArgumentNull(nameof(value)).GetType())
         {
             _constant = Constant(value);
             _alias = alias;

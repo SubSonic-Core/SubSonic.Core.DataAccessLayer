@@ -61,6 +61,15 @@ namespace SubSonic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to DbExpression must be of {0}..
+        /// </summary>
+        internal static string DbExpressionMustBeOfType {
+            get {
+                return ResourceManager.GetString("DbExpressionMustBeOfType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Assembly qualified name is missing..
         /// </summary>
         internal static string DbProviderFactoryNoAssemblyQualifiedName {

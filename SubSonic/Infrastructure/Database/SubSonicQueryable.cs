@@ -87,7 +87,7 @@ namespace SubSonic.Infrastructure
 
                 for (int i = 0; i < keyNames.Length; i++)
                 {
-                    logical = builder.BuildLogicalBinary(logical, DbExpressionType.Where, keyNames[i], keyData[i], DbComparisonOperator.Equal, DbGroupOperator.AndAlso);
+                    logical = builder.BuildLogicalBinary(logical, keyNames[i], keyData[i], DbComparisonOperator.Equal, DbGroupOperator.AndAlso);
                 }
 
                 LambdaExpression predicate = (LambdaExpression)builder.BuildLambda(logical, LambdaType.Predicate);
@@ -98,6 +98,13 @@ namespace SubSonic.Infrastructure
             }
 
             throw new NotSupportedException();
+        }
+
+        public IQueryable<TElement> Load()
+        {
+            Linq.SubSonicQueryable.Load(this);
+
+            return this;
         }
     }
 

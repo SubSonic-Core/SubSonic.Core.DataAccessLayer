@@ -28,6 +28,16 @@ namespace SubSonic.Infrastructure
             }
         }
 
+        public bool IsEntityModelRegistered<TEntity>()
+        {
+            return TryGetEntityModel<TEntity>(out _);
+        }
+
+        public bool IsEntityModelRegistered(Type entityType)
+        {
+            return TryGetEntityModel(entityType, out _);
+        }
+
         public bool TryGetEntityModel<TEntity>(out IDbEntityModel model)
         {
             return TryGetEntityModel(typeof(TEntity), out model);

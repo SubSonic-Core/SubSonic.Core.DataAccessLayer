@@ -41,7 +41,7 @@ namespace SubSonic.Linq
             {
                 IQueryable<TSource> query = source.AsQueryable();
 
-                IDbSubSonicQueryProvider builder = (IDbSubSonicQueryProvider)query.Provider;
+                ISubSonicQueryProvider builder = (ISubSonicQueryProvider)query.Provider;
 
                 return builder.CreateQuery<TSource>(builder.BuildJoin(type, query.Expression, right));
             }

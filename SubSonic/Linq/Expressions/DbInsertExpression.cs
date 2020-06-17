@@ -21,6 +21,8 @@ namespace SubSonic.Linq.Expressions
             DbParameters = new List<DbParameter>();
         }
 
+        public override ExpressionType NodeType => (ExpressionType)DbExpressionType.Insert;
+
         public DbTableExpression Table { get; }
         public IEnumerable<object> Values { get; }
         public ICollection<DbParameter> DbParameters { get; }

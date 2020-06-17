@@ -79,14 +79,7 @@ namespace SubSonic.Infrastructure
 
         public bool Remove(TEntity item)
         {
-            if (item is IEntityProxy<TEntity> entity)
-            {
-               return dataset.Remove(entity);
-            }
-            else
-            {
-                return dataset.Remove(new Entity<TEntity>(item));
-            }
+            return Delete(item);
         }
 
         public bool Contains(TEntity item)
@@ -131,9 +124,9 @@ namespace SubSonic.Infrastructure
             return dataset.Select(x => DynamicProxy.MapInstanceOf(DbContext, x)).GetEnumerator();
         }
 
-        private IQueryable<TEntity> Load()
+        public IQueryable<TEntity> Load()
         {
-            AddRange(SubSonicQueryable.Load(this.Select()));
+            SubSonicQueryable.Load(this);
 
             return this;
         }
@@ -177,7 +170,7 @@ namespace SubSonic.Infrastructure
 
                 for (int i = 0; i < keyNames.Length; i++)
                 {
-                    logical = builder.BuildLogicalBinary(logical, DbExpressionType.Where, keyNames[i], keyData[i], DbComparisonOperator.Equal, DbGroupOperator.AndAlso);
+                    logical = builder.BuildLogicalBinary(logical, keyNames[i], keyData[i], DbComparisonOperator.Equal, DbGroupOperator.AndAlso);
                 }
 
                 LambdaExpression predicate = (LambdaExpression)builder.BuildLambda(logical, LambdaType.Predicate);

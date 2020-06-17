@@ -66,7 +66,14 @@ namespace SubSonic.Data.Caching
 
         public int Count(Type elementKey, Expression expression)
         {
-            return collection[elementKey].Count(expression);
+            if (collection.ContainsKey(elementKey))
+            {
+                return collection[elementKey].Count(expression);
+            }
+            else
+            {
+                return default(int);
+            }
         }
 
         public bool SaveChanges()

@@ -8,7 +8,7 @@ using System.Text;
 namespace SubSonic.Infrastructure
 {
     public interface ISubSonicQueryProvider<out TEntity>
-        : IDbSubSonicQueryProvider
+        : ISubSonicQueryProvider
     {
         
     }

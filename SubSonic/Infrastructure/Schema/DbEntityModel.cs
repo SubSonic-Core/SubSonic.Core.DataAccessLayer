@@ -44,7 +44,7 @@ namespace SubSonic.Infrastructure.Schema
 
         public Type EntityModelType { get; internal set; }
 
-        public DbTableExpression Table => (DbTableExpression)DbExpression.DbTable(this);
+        public DbTableExpression Table => (DbTableExpression)DbExpression.DbTable(this, this.ToAlias());
 
         public bool DefinedTableTypeExists => DefinedTableType.IsNotNull();
 

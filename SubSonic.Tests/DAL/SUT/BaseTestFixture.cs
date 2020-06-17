@@ -55,7 +55,10 @@ namespace SubSonic.Tests.DAL.SUT
                 new RealEstateProperty() { ID = 4, StatusID = 2, HasParallelPowerGeneration = false },
             };
 
-            People = new List<Person>();
+            People = new List<Person>()
+            { 
+                new Person() { ID = 1, FirstName = "Kara", FamilyName = "Danvers", FullName = "Danvers, Kara" }
+            };
         }
 
         protected IEnumerable<Status> Statuses { get; set; }

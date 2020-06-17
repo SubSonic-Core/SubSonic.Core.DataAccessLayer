@@ -87,28 +87,47 @@ namespace SubSonic.Extensions.Test
                 throw new ArgumentNullException(nameof(source));
             }
 
-            IDbEntityModel model = DbContext.DbModel.GetEntityModel<TEntity>();
-
-            using (DataTableBuilder builder = new DataTableBuilder(model.ToDataTable()))
+            if (DbContext.DbModel.TryGetEntityModel<TEntity>(out IDbEntityModel model))
             {
-                foreach (TEntity entity in source)
+                using (DataTableBuilder builder = new DataTableBuilder(model.ToDataTable()))
                 {
-                    DataRow row = builder.CreateRow();
-
-                    foreach (IDbEntityProperty property in model.Properties)
+                    foreach (TEntity entity in source)
                     {
-                        if (property.EntityPropertyType == DbEntityPropertyType.Value)
+                        DataRow row = builder.CreateRow();
+
+                        foreach (IDbEntityProperty property in model.Properties)
                         {
-                            row[property.Name] = model.EntityModelType
-                                .GetProperty(property.PropertyName)
-                                .GetValue(entity) ?? DBNull.Value;
+                            if (property.EntityPropertyType == DbEntityPropertyType.Value)
+                            {
+                                row[property.Name] = model.EntityModelType
+                                    .GetProperty(property.PropertyName)
+                                    .GetValue(entity) ?? DBNull.Value;
+                            }
                         }
+
+                        builder.AddRow(row);
                     }
 
-                    builder.AddRow(row);
+                    return builder.DataTable;
                 }
+            }
+            else
+            {
+                using (DataTableBuilder builder = new DataTableBuilder())
+                {
+                    builder.AddColumn("", typeof(TEntity));
 
-                return builder.DataTable;
+                    foreach (TEntity entity in source)
+                    {
+                        DataRow row = builder.CreateRow();
+
+                        row[0] = entity;
+
+                        builder.AddRow(row);
+                    }
+
+                    return builder.DataTable;
+                }
             }
         }
 

@@ -11,6 +11,7 @@ namespace SubSonic
     {
         IQueryable<TEntity> FindByID(object[] keyData, params string[] keyNames);
         IQueryable<TEntity> FindByID(params object[] keyData);
+        IQueryable<TEntity> Load();
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1010:Collections should implement generic interface", Justification = "Implemented on generic sub interface")]
