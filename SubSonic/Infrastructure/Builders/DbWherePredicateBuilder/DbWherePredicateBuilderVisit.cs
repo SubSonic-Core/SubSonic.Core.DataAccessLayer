@@ -142,7 +142,12 @@ namespace SubSonic.Infrastructure.Builders
                 {
                     DbUserDefinedTableBuilder udtt = new DbUserDefinedTableBuilder(data.Model, data);
 
-                    parameters.Add(whereType, udtt.CreateParameter(select.From.QualifiedName, udtt.GenerateTable()));
+                    if (!parameters.ContainsKey(whereType) || 
+                        (parameters.ContainsKey(whereType) && 
+                        !(parameters[whereType].Any(x => x.ParameterName.Equals(select.From.QualifiedName, StringComparison.CurrentCulture)))))
+                    {
+                        parameters.Add(whereType, udtt.CreateParameter(select.From.QualifiedName, udtt.GenerateTable()));
+                    }
                 }
             }
 
