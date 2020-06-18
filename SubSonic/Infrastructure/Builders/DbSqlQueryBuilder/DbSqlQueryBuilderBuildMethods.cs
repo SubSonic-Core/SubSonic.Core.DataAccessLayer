@@ -304,7 +304,7 @@ namespace SubSonic.Infrastructure.Builders
 
             Expression
                 left = Expression.Property(Parameter, property),
-                inside = Expression.NewArrayBounds(constantType, values),
+                inside = Expression.NewArrayInit(constantType, values),
                 right = Expression.Call(null, method, left, inside);
 
             if (body.IsNull())
