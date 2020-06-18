@@ -101,17 +101,17 @@ namespace SubSonic.Linq.Expressions.Structure
 
             string 
                 input_parameter_name = "input",
-                output_parameter_name = "@output";
+                output_parameter_name = "output";
 
-            WriteNewLine($"{Fragments.DECLARE} {output_parameter_name} {insert.Table.Model.DefinedTableType.QualifiedName};");
+            WriteNewLine($"{Fragments.DECLARE} @{output_parameter_name} {insert.Table.Model.DefinedTableType.QualifiedName};");
             WriteNewLine($"{Fragments.INSERT_INTO} {insert.Table.QualifiedName}");
-            WriteNewLine($"{Fragments.OUTPUT_INSERTED_INTO} {output_parameter_name}");
+            WriteNewLine($"{Fragments.OUTPUT_INSERTED_INTO} @{output_parameter_name}");
             WriteNewLine(builder.GenerateSelectSql(
                 $"@{input_parameter_name}", 
                 builder.GetColumnInformation()
                     .Where(column =>
                         column.IsIdentity == false && column.IsComputed == false)));
-            WriteNewLine(builder.GenerateSelectSql(output_parameter_name));
+            WriteNewLine(builder.GenerateSelectSql($"@{output_parameter_name}"));
 
             insert.DbParameters.Add(builder.CreateParameter(input_parameter_name, builder.GenerateTable()));
         }

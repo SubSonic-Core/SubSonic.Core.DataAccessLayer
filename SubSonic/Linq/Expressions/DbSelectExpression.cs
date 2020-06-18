@@ -8,6 +8,7 @@ namespace SubSonic.Linq.Expressions
 {
     using Infrastructure;
     using Structure;
+    using System;
 
     /// <summary>
     /// A custom expression node used to represent a SQL SELECT expression
@@ -17,14 +18,16 @@ namespace SubSonic.Linq.Expressions
     {
         protected internal DbSelectExpression(
             object collection,
+            Type type,
             DbTableExpression table)
-            : this(collection, table, table.IsNullThrowArgumentNull(nameof(table)).Columns) { }
+            : this(collection, type, table, table.IsNullThrowArgumentNull(nameof(table)).Columns) { }
 
         protected internal DbSelectExpression(
             object collection,
+            Type type,
             DbTableExpression table,
             IEnumerable<DbColumnDeclaration> columns)
-            : base(collection, table.IsNullThrowArgumentNull(nameof(table)).Alias)
+            : base(collection, type, table.IsNullThrowArgumentNull(nameof(table)).Alias)
         {
             Columns = columns as ReadOnlyCollection<DbColumnDeclaration>;
             if (Columns == null)
@@ -37,23 +40,26 @@ namespace SubSonic.Linq.Expressions
 
         protected internal DbSelectExpression(
             object collection,
+            Type type,
             DbTableExpression table,
             IEnumerable<DbColumnDeclaration> columns,
             Expression where)
-            : this(collection, table, columns, where, null, null) { }
+            : this(collection, type, table, columns, where, null, null) { }
 
         protected internal DbSelectExpression(
             object collection,
+            Type type,
             DbTableExpression table,
             IEnumerable<DbColumnDeclaration> columns,
             Expression where,
             IEnumerable<DbOrderByDeclaration> orderBy,
             IEnumerable<Expression> groupBy
             )
-            : this(collection, table, columns, where, orderBy, groupBy, false, null) { }
+            : this(collection, type, table, columns, where, orderBy, groupBy, false, null) { }
 
         protected internal DbSelectExpression(
             object collection,
+            Type type,
             DbTableExpression table,
             IEnumerable<DbColumnDeclaration> columns,
             Expression where,
@@ -61,7 +67,7 @@ namespace SubSonic.Linq.Expressions
             IEnumerable<Expression> groupBy,
             bool isDistinct,
             Expression take)
-            : this(collection, table, columns)
+            : this(collection, type, table, columns)
         {
             IsDistinct = isDistinct;
             Where = where;
@@ -114,14 +120,14 @@ namespace SubSonic.Linq.Expressions
 
     public partial class DbExpression
     {
-        public static DbExpression DbSelect(object collection, DbTableExpression table)
+        public static DbExpression DbSelect(object collection, Type type, DbTableExpression table)
         {
-            return new DbSelectExpression(collection, table);
+            return new DbSelectExpression(collection, type, table);
         }
 
-        public static DbExpression DbSelect(object collection, DbTableExpression table, IEnumerable<DbColumnDeclaration> columns, Expression where, IEnumerable<DbOrderByDeclaration> orderBy, bool cte = false)
+        public static DbExpression DbSelect(object collection, Type type, DbTableExpression table, IEnumerable<DbColumnDeclaration> columns, Expression where, IEnumerable<DbOrderByDeclaration> orderBy, bool cte = false)
         {
-            return new DbSelectExpression(collection, table, columns, where, orderBy, null)
+            return new DbSelectExpression(collection, type, table, columns, where, orderBy, null)
             {
                 IsCte = cte
             };
@@ -148,7 +154,7 @@ namespace SubSonic.Linq.Expressions
 
             dbTable.Joins.Add(join);
 
-            return new DbSelectExpression(select.QueryObject, dbTable, select.Columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take);
+            return new DbSelectExpression(select.QueryObject, select.Type, dbTable, select.Columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take);
         }
     }
 }

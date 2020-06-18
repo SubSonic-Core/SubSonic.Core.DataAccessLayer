@@ -20,6 +20,7 @@ namespace SubSonic.Linq.Expressions
         protected internal DbSelectPageExpression(DbSelectExpression select, int pageNumber, int pageSize)
             : base(
                   select.IsNullThrowArgumentNull(nameof(select)).QueryObject,
+                  select.IsNullThrowArgumentNull(nameof(select)).Type,
                   select.IsNullThrowArgumentNull(nameof(select)).Alias)
         {
             if (select is null)
@@ -40,6 +41,7 @@ namespace SubSonic.Linq.Expressions
         public DbSelectExpression PrimaryKeySelect =>
             _primaryKeySelect ?? (_primaryKeySelect = (DbSelectExpression)DbSelect(
                     Select.QueryObject,
+                    Select.Type,
                     Select.From,
                     Select.From.Columns.Where(column => column.Property.IsPrimaryKey),
                     Select.Where,
@@ -89,7 +91,7 @@ namespace SubSonic.Linq.Expressions
             {
                 if (select.OrderBy is null || select.OrderBy.Count == 0)
                 {
-                    select = (DbSelectExpression)DbSelect(select.QueryObject, select.From, select.Columns, select.Where,
+                    select = (DbSelectExpression)DbSelect(select.QueryObject, select.Type, select.From, select.Columns, select.Where,
                         select.From.Columns
                             .Where((column) =>
                                 column.Property.IsPrimaryKey)

@@ -13,7 +13,10 @@ namespace SubSonic.Linq.Expressions
     {
         private readonly DbSelectExpression select;
         protected internal DbSelectAggregateExpression(DbSelectExpression select, IEnumerable<DbExpression> columns)
-            : base(select.IsNullThrowArgumentNull(nameof(select)).QueryObject, select.IsNullThrowArgumentNull(nameof(select)).Alias)
+            : base(
+                  select.IsNullThrowArgumentNull(nameof(select)).QueryObject,
+                  select.IsNullThrowArgumentNull(nameof(select)).Type,
+                  select.IsNullThrowArgumentNull(nameof(select)).Alias)
         {
             if (select is null)
             {

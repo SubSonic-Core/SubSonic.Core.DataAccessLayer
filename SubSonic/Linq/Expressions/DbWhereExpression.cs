@@ -1,25 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data.Common;
 using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
-    using Infrastructure;
     using Infrastructure.Builders;
     using Structure;
-    using SubSonic.Infrastructure.Schema;
 
     public class DbWhereExpression
         : DbExpression
     {
-        public DbWhereExpression(DbExpressionType eType, Type type, LambdaExpression lambda, Expression predicate, bool canReadFromCache, IReadOnlyCollection<SubSonicParameter> parameters = null) 
+        public DbWhereExpression(DbExpressionType eType, Type type, LambdaExpression lambda, Expression predicate, bool canReadFromCache, IReadOnlyCollection<DbParameter> parameters = null) 
             : base(eType, eType == DbExpressionType.Where ? type : typeof(bool))
         {
             LambdaPredicate = lambda ?? throw new ArgumentNullException(nameof(lambda));
             Expression = predicate ?? throw new ArgumentNullException(nameof(predicate));
             CanReadFromCache = canReadFromCache;
-            Parameters = parameters ?? new ReadOnlyCollection<SubSonicParameter>(Array.Empty<SubSonicParameter>());
+            Parameters = parameters ?? new ReadOnlyCollection<DbParameter>(Array.Empty<DbParameter>());
         }
 
         public bool CanReadFromCache { get; }
@@ -28,7 +27,7 @@ namespace SubSonic.Linq.Expressions
 
         public Expression Expression { get; }
 
-        public IReadOnlyCollection<SubSonicParameter> Parameters { get; }
+        public IReadOnlyCollection<DbParameter> Parameters { get; }
 
         protected override Expression Accept(ExpressionVisitor visitor)
         {

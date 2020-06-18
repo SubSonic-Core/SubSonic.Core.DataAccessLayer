@@ -7,6 +7,7 @@ namespace SubSonic.Linq
 {
     using Expressions;
     using Infrastructure;
+    using SubSonic.Infrastructure.Schema;
 
     public static partial class SubSonicQueryable
     {
@@ -14,9 +15,7 @@ namespace SubSonic.Linq
         {
             return source is ISubSonicCollection<TSource>;
         }
-
         
-
         public static IDbPageCollection<TEntity> ToPagedCollection<TEntity>(this IQueryable<TEntity> source, int pageSize)
         {
             if (source.IsNotNull() && source.IsSubSonicQuerable())
@@ -132,6 +131,18 @@ namespace SubSonic.Linq
                 return provider.CreateQuery<TResult>(provider.BuildSelect(source.Expression, selector));
             }
             return Queryable.Select(source, selector);
+        }
+
+        public static IQueryable Select<TSource>(this IQueryable<TSource> source, IDbEntityProperty property)
+        {
+            if (source.IsNotNull() && source.IsSubSonicQuerable())
+            {
+                ISubSonicQueryProvider provider = (ISubSonicQueryProvider)source.Provider;
+
+                return provider.CreateQuery(provider.BuildSelect(source.Expression, property));
+            }
+
+            throw new NotSupportedException();
         }
 
         public static IQueryable<TSource> Where<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)

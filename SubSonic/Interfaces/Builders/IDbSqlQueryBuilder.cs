@@ -1,8 +1,10 @@
-﻿using SubSonic.Linq.Expressions;
+﻿using SubSonic.Infrastructure.Schema;
+using SubSonic.Linq.Expressions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace SubSonic.Infrastructure
 {
@@ -11,7 +13,9 @@ namespace SubSonic.Infrastructure
     {
         DbTableExpression DbTable { get; }
 
-        Expression BuildLogicalIn(Expression body, string property, IEnumerable<Expression> values, DbGroupOperator @group);
+
+        Expression BuildLogicalIn(Expression body, PropertyInfo property, IQueryable queryable, DbGroupOperator @group);
+        Expression BuildLogicalIn(Expression body, PropertyInfo property, IEnumerable<Expression> values, DbGroupOperator @group);
         Expression BuildLogicalBinary(Expression eBody, string name, object value, DbComparisonOperator op, DbGroupOperator group);
         Expression BuildWherePredicate(Expression collection, Expression logical);
         Expression BuildSelect(IQueryable queryable);
@@ -20,6 +24,7 @@ namespace SubSonic.Infrastructure
         Expression BuildSelect(Expression eSelect, bool isDistinct);
         Expression BuildSelect(Expression eSelect, int count);
         Expression BuildSelect(Expression eSelect, int pageNumber, int pageSize);
+        Expression BuildSelect(Expression eSelect, IDbEntityProperty properties);
         Expression BuildSelect(Expression eSelect, IEnumerable<DbOrderByDeclaration> orderBy);
         Expression BuildSelect(Expression eSelect, IEnumerable<Expression> groupBy);
         Expression BuildSelect(Expression eSelect, DbExpressionType eType, IEnumerable<Expression> expressions);

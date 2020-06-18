@@ -276,7 +276,7 @@ namespace SubSonic.Linq.Expressions.Structure
                     || columns != select.Columns
                     )
                 {
-                    return new DbSelectExpression(select.QueryObject, from, columns, where, orderBy, groupBy, select.IsDistinct, take);
+                    return new DbSelectExpression(select.QueryObject, select.Type, from, columns, where, orderBy, groupBy, select.IsDistinct, take);
                 }
             }
             else if (expression is DbSelectPageExpression paged)

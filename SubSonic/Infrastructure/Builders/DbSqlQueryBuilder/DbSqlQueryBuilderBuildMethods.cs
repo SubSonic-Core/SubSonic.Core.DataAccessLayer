@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Data;
+using System.Data.Common;
+using System.Reflection;
 
 namespace SubSonic.Infrastructure.Builders
 {
     using Linq;
     using Linq.Expressions;
-    using SubSonic.Infrastructure.Schema;
-    using System.Data;
-    using System.Data.Common;
-    using System.Reflection;
+    using Infrastructure.Schema;
+    using SysLinq = System.Linq;
 
     public partial class DbSqlQueryBuilder
     {
@@ -22,19 +23,29 @@ namespace SubSonic.Infrastructure.Builders
         #region Build Select
         public Expression BuildSelect(System.Linq.IQueryable queryable)
         {
-            return DbExpression.DbSelect(queryable, DbTable);
+            if (queryable.IsNull())
+            {
+                throw new ArgumentNullException(nameof(queryable));
+            }
+
+            return DbExpression.DbSelect(queryable, queryable.Expression.Type, DbTable);
         }
 
         public Expression BuildSelect(System.Linq.IQueryable queryable, Expression where)
         {
-            return new DbSelectExpression(queryable, DbTable, DbTable.Columns, where);
+            if (queryable.IsNull())
+            {
+                throw new ArgumentNullException(nameof(queryable));
+            }
+
+            return new DbSelectExpression(queryable, queryable.Expression.Type, DbTable, DbTable.Columns, where);
         }
 
         public Expression BuildSelect(Expression select, Expression where)
         {
             if (select is DbSelectExpression _select)
             {
-                return new DbSelectExpression(_select.QueryObject, _select.From, _select.Columns, where, _select.OrderBy, _select.GroupBy, _select.IsDistinct, _select.Take);
+                return new DbSelectExpression(_select.QueryObject, _select.Type, _select.From, _select.Columns, where, _select.OrderBy, _select.GroupBy, _select.IsDistinct, _select.Take);
             }
 
             throw new NotSupportedException();
@@ -44,7 +55,7 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (expression is DbSelectExpression select)
             {
-                return new DbSelectExpression(select.QueryObject, select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, isDistinct, select.Take);
+                return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, isDistinct, select.Take);
             }
 
             throw new NotSupportedException();
@@ -54,7 +65,7 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (expression is DbSelectExpression select)
             {
-                return new DbSelectExpression(select.QueryObject, select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, Expression.Constant(count));
+                return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, Expression.Constant(count));
             }
 
             throw new NotSupportedException();
@@ -73,11 +84,31 @@ namespace SubSonic.Infrastructure.Builders
             throw new NotSupportedException();
         }
 
+        public Expression BuildSelect(Expression expression, IDbEntityProperty property)
+        {
+            if (property.IsNull())
+            {
+                throw new ArgumentNullException(nameof(property));
+            }
+
+            if (expression is DbSelectExpression select)
+            {
+                return new DbSelectExpression(
+                    select.QueryObject, 
+                    typeof(SysLinq.IQueryable<>).MakeGenericType(property.PropertyType),
+                    select.From,
+                    select.Columns.Where(x => x.PropertyName.Equals(property.PropertyName, StringComparison.CurrentCulture)), 
+                    select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take);
+            }
+
+            throw new NotSupportedException();
+        }
+
         public Expression BuildSelect(Expression expression, IEnumerable<DbOrderByDeclaration> orderBy)
         {
             if (expression is DbSelectExpression select)
             {
-                return new DbSelectExpression(select.QueryObject, select.From, select.Columns, select.Where, orderBy, select.GroupBy, select.IsDistinct, select.Take);
+                return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, select.Where, orderBy, select.GroupBy, select.IsDistinct, select.Take);
             }
 
             throw new NotSupportedException();
@@ -86,7 +117,7 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (expression is DbSelectExpression select)
             {
-                return new DbSelectExpression(select.QueryObject, select.From, select.Columns, select.Where, select.OrderBy, groupBy, select.IsDistinct, select.Take);
+                return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, select.Where, select.OrderBy, groupBy, select.IsDistinct, select.Take);
             }
 
             throw new NotSupportedException();
@@ -105,7 +136,7 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (expression is DbSelectExpression select)
             {
-                return new DbSelectExpression(select.QueryObject, select.From, select.Columns.Where(col => col.PropertyName == selector.GetPropertyName()), select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take);
+                return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns.Where(col => col.PropertyName == selector.GetPropertyName()), select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take);
             }
             return expression;
         }
@@ -190,7 +221,7 @@ namespace SubSonic.Infrastructure.Builders
                     typeof(System.Linq.Queryable),
                     nameofCallee,
                     GetTypeArguments((LambdaExpression)lambda),
-                    GetMethodCall(collection) ?? Expression.Parameter(GetTypeOf(typeof(ISubSonicCollection<>), DbEntity.EntityModelType)),
+                    GetMethodCall(collection) ?? Expression.Parameter(GetTypeOf(typeof(ISubSonicDbCollection<>), DbEntity.EntityModelType)),
                     lambda);
             }
             return lambda;
@@ -222,9 +253,48 @@ namespace SubSonic.Infrastructure.Builders
             return result;
         }
 
-        public Expression BuildLogicalIn(Expression body, string column, IEnumerable<Expression> values, DbGroupOperator @group)
+        public Expression BuildLogicalIn(Expression body, PropertyInfo property, SysLinq.IQueryable queryable, DbGroupOperator @group)
         {
-            PropertyInfo property = DbEntity.EntityModelType.GetProperty(column);
+            if (property.IsNull())
+            {
+                throw new ArgumentNullException(nameof(property));
+            }
+
+            if (queryable.IsNull())
+            {
+                throw new ArgumentNullException(nameof(queryable));
+            }
+
+            Type constantType = property.PropertyType.GetUnderlyingType();
+
+            MethodInfo method = typeof(SubSonicQueryable).GetGenericMethod(
+                nameof(SubSonicQueryable.In),
+                new[] { constantType, queryable.Expression.Type });
+
+            Expression
+                left = Expression.Property(Parameter, property),
+                inside = queryable.Expression,
+                right = Expression.Call(null, method, left, inside);
+
+            if (body.IsNull())
+            {
+                return right;
+            }
+            else
+            {
+                return DbWherePredicateBuilder.GetBodyExpression(
+                    body,
+                    right,
+                    @group);
+            }
+        }
+
+        public Expression BuildLogicalIn(Expression body, PropertyInfo property, IEnumerable<Expression> values, DbGroupOperator @group)
+        {
+            if (property.IsNull())
+            {
+                throw new ArgumentNullException(nameof(property));
+            }
 
             Type constantType = property.PropertyType.GetUnderlyingType();
 
@@ -426,7 +496,7 @@ namespace SubSonic.Infrastructure.Builders
                     orderBy.Add(new DbOrderByDeclaration(orderByType, select.From.Columns.Single(column => column.PropertyName == member.Member.Name).Expression));
                 }
             }
-            return DbExpression.DbSelect(select.QueryObject, select.From, select.Columns, select.Where, orderBy);
+            return DbExpression.DbSelect(select.QueryObject, select.Type, select.From, select.Columns, select.Where, orderBy);
         }
     }
 }

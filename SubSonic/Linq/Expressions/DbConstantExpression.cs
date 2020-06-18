@@ -14,19 +14,17 @@ namespace SubSonic.Linq.Expressions
         private readonly ConstantExpression _constant;
         private readonly TableAlias _alias;
 
-        protected internal DbConstantExpression(object value, TableAlias alias)
-            : base((DbExpressionType)ExpressionType.Constant, value.IsNullThrowArgumentNull(nameof(value)).GetType())
+        protected internal DbConstantExpression(object value, Type type)
+            : base((DbExpressionType)ExpressionType.Constant, type)
         {
             _constant = Constant(value);
+        }
+
+        protected internal DbConstantExpression(object value, Type type, TableAlias alias)
+            : this(value, type)
+        {
             _alias = alias;
         }
-
-        internal static DbConstantExpression Build(object value, TableAlias alias)
-        {
-            return new DbConstantExpression(value, alias);
-        }
-
-        public sealed override Type Type => _constant.Type;
 
         public object QueryObject => _constant.Value;
 
@@ -44,9 +42,14 @@ namespace SubSonic.Linq.Expressions
 
     public partial class DbExpression
     {
-        public static DbExpression DbConstant(object value, TableAlias table)
+        public static DbExpression DbConstant(object value, Type type, TableAlias table)
         {
-            return new DbConstantExpression(value, table);
+            return new DbConstantExpression(value, type, table);
+        }
+
+        public static DbExpression DbConstant(object value, Type type)
+        {
+            return new DbConstantExpression(value, type);
         }
     }
 }

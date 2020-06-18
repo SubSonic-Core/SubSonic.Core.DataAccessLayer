@@ -14,7 +14,7 @@ namespace SubSonic.Infrastructure
     using Schema;
 
     public class DbSetCollection<TEntity>
-        : ISubSonicCollection<TEntity>
+        : ISubSonicDbCollection<TEntity>
     {
         private readonly IQueryProvider provider;
         private readonly IDbEntityModel model;
@@ -31,7 +31,7 @@ namespace SubSonic.Infrastructure
             this.dataset = dataset;
 
             model = DbContext.Model.GetEntityModel<TEntity>();
-            Expression = DbExpression.DbSelect(this, model.Table);
+            Expression = DbExpression.DbSelect(this, GetType(), model.Table);
         }
 
         private void OnDbSetCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)

@@ -3,18 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Collections.ObjectModel;
 
 namespace SubSonic.Infrastructure
 {
-    using Schema;
     using Builders;
+    using Linq.Expressions;
     using Logging;
-    using SubSonic.Linq.Expressions;
+    using Schema;
 
     public sealed class SubSonicCollection<TElement>
         : SubSonicCollection
-        , ISubSonicCollection<TElement>
+        , ISubSonicDbCollection<TElement>
     {
         public SubSonicCollection()
             : base(typeof(TElement))
@@ -39,6 +38,17 @@ namespace SubSonic.Infrastructure
         public void Add(TElement element)
         {
             TableData.Add(element);
+        }
+
+        public void AddRange(IEnumerable<TElement> elements)
+        {
+            if (!(elements is null))
+            {
+                foreach (TElement element in elements)
+                {
+                    Add(element);
+                }
+            }
         }
 
         public bool Remove(TElement element)
@@ -120,7 +130,7 @@ namespace SubSonic.Infrastructure
             {
                 Model = model;
 
-                Expression = DbExpression.DbSelect(this, Model.Table);
+                Expression = DbExpression.DbSelect(this, GetType(), Model.Table);
             }
             else
             {

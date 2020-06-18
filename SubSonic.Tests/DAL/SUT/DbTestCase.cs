@@ -59,7 +59,7 @@ namespace SubSonic.Tests.DAL
 
         public IEntityProxy FindByID(params object[] keyData)
         {
-            if (DataSet is ISubSonicCollection<TModel> dataSet)
+            if (DataSet is ISubSonicDbCollection<TModel> dataSet)
             {
                 return (IEntityProxy)dataSet.FindByID(keyData).Single();
             }
@@ -71,7 +71,7 @@ namespace SubSonic.Tests.DAL
         {
             IQueryable<TModel> data = null;
 
-            if (DataSet is ISubSonicCollection<TModel> dataSet)
+            if (DataSet is ISubSonicDbCollection<TModel> dataSet)
             {
                 dataSet.Clear();
 

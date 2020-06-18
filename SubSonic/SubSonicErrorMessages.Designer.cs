@@ -277,6 +277,15 @@ namespace SubSonic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to User defined table types have not data to load from the database..
+        /// </summary>
+        internal static string UserDefinedTableHaveNoDataToLoad {
+            get {
+                return ResourceManager.GetString("UserDefinedTableHaveNoDataToLoad", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} has not been decorated with DbUserDefinedTableTypeAttribute..
         /// </summary>
         internal static string UserDefinedTableNotDefined {

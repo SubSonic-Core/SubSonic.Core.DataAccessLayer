@@ -124,14 +124,21 @@ namespace SubSonic.Linq.Expressions.Structure
                 bool saveIsNested = IsNested;
                 IsNested = true;
 
-                if(source is DbTableExpression DbTable)
+                if(source is DbTableExpression dbTable)
                 {
-                    Write(DbTable.QualifiedName);
+                    if (dbTable is DbTableTypeExpression dbTableType)
+                    {
+                        Write($"@{dbTableType.QualifiedName}");
+                    }
+                    else
+                    {
+                        Write(dbTable.QualifiedName);
+                    }
 
-                    if (!DbTable.IsNamedAlias)
+                    if (!dbTable.IsNamedAlias)
                     {
                         Write($" {context.Fragments.AS} ");
-                        Write($"[{GetAliasName(DbTable.Alias)}]");
+                        Write($"[{GetAliasName(dbTable.Alias)}]");
                     }
                 }
                 else if (source is DbSelectExpression select)

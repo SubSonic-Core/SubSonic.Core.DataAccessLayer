@@ -15,11 +15,14 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
     using FluentAssertions;
     using Infrastructure;
     using SubSonic.Data.Caching;
+    using SubSonic.Extensions.Test;
+    using SubSonic.Infrastructure.Schema;
+    using SubSonic.Linq.Expressions;
     using System.Data;
     using System.Reflection;
 
     [TestFixture]
-    public class UserDefinedTableTests
+    public partial class UserDefinedTableTests
         : BaseTestFixture
     {
         public override void SetupTestFixture()

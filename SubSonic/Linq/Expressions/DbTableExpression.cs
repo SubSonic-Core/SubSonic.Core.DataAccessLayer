@@ -35,7 +35,7 @@ namespace SubSonic.Linq.Expressions
         }
 
         public DbTableExpression(object value, TableAlias alias)
-            : base(value, alias)
+            : base(value, value.IsNullThrowArgumentNull(nameof(value)).GetType(), alias)
         {
             Alias.IsNotNull(Al => Al.SetTable(this));
         }
@@ -60,14 +60,14 @@ namespace SubSonic.Linq.Expressions
             return base.Accept(visitor);
         }
 
-        public string QualifiedName
+        public virtual string QualifiedName
         {
             get => _alias ?? Model?.QualifiedName;
         }
 
         public override string ToString()
         {
-            return "T(" + QualifiedName ?? Type.Name + ")";
+            return $"T({QualifiedName ?? Type.Name})";
         }
     }
 

@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace SubSonic.Infrastructure.Builders
 {
     using Linq;
     using Linq.Expressions;
     using Logging;
-    using Schema;
+    using Schema;    
 
     public partial class DbSqlQueryBuilder
         : DbExpressionAccessor
@@ -32,7 +33,6 @@ namespace SubSonic.Infrastructure.Builders
 
         #region properties
         public DbSqlQueryType SqlQueryType { get; private set; }
-
         public IDbEntityModel DbEntity { get; }
         public DbTableExpression DbTable { get; private set; }
         #endregion
@@ -84,23 +84,37 @@ namespace SubSonic.Infrastructure.Builders
             LambdaExpression
                 predicate = null;
 
-            if (DbTable.Model.DefinedTableTypeExists)
+            foreach (string key in DbEntity.GetPrimaryKey())
             {
-                throw new NotImplementedException();
-            }
-            else
-            {
-                foreach(string key in DbTable.Model.GetPrimaryKey())
+                PropertyInfo property = DbEntity.EntityModelType.GetProperty(key);
+                
+                if (DbTable.Model.DefinedTableTypeExists)
+                {
+                    ISubSonicCollection<TEntity> queryable = new SubSonicTableTypeCollection<TEntity>("input");
+
+                    queryable.AddRange(entities);
+
+                    logical = BuildLogicalIn(
+                        logical,
+                        property,
+                        queryable.Select(DbEntity[key]),
+                        DbGroupOperator.AndAlso);
+                }
+                else
                 {
                     IEnumerable<Expression> values = entities
                         .Select(entity =>
-                            Expression.Constant(DbEntity.EntityModelType.GetProperty(key).GetValue(entity)));
+                            Expression.Constant(property.GetValue(entity)));
 
-                    logical = BuildLogicalIn(logical, key, values, DbGroupOperator.AndAlso);
+                    logical = BuildLogicalIn(
+                        logical,
+                        property,
+                        values,
+                        DbGroupOperator.AndAlso);
                 }
-
-                predicate = (LambdaExpression)BuildLambda(logical, LambdaType.Predicate);
             }
+
+            predicate = (LambdaExpression)BuildLambda(logical, LambdaType.Predicate);
 
             return DbExpression.DbDelete(
                     entities,

@@ -16,6 +16,7 @@ namespace SubSonic.Infrastructure.Schema
         bool HasRelationships { get; }
         Type EntityModelType { get; }
         DbTableExpression Table { get; }
+        DbTableExpression GetTableType(string name);
 
         bool DefinedTableTypeExists { get; }
         IDbObject DefinedTableType { get; }

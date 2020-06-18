@@ -23,7 +23,10 @@ WHERE ([{1}].[ID] IN (SELECT [ID] FROM @input))";
         {
             yield return new DbTestCase<Models.Person>(false, @"DELETE FROM [dbo].[Person]
 WHERE [ID] IN (1)");
-            yield return new DbTestCase<Models.Person>(true, expected_delete_udtt);
+            yield return new DbTestCase<Models.Person>(true, @"DELETE FROM [dbo].[Person]
+WHERE [ID] IN (
+	SELECT [T1].[ID]
+	FROM @input AS [T1])");
         }
 
         [Test]
@@ -81,13 +84,25 @@ WHERE [ID] IN (1)");
 
         private DataTable DeleteCmdBehaviorForUDTT(DbCommand cmd, IEnumerable<IEntityProxy> expected)
         {
-            throw new NotImplementedException();
+            if (cmd.Parameters["@input"].Value is DataTable data)
+            {
+                using(data)
+                {
+                    foreach(DataRow row in data.Rows)
+                    {
+                        if (expected.Count() > 0 && expected.ElementAt(0) is Models.Person)
+                        {
+                            People.Remove(People.Single(x => x.ID == (int)row[nameof(Models.Person.ID)]));
+                        }
+                    }
+                }
+            }
+
+            return null;
         }
 
         private DataTable DeleteCmdBehaviorForInArray(DbCommand cmd, IEnumerable<IEntityProxy> expected)
         {
-            Type returnType = expected.ElementAt(0).GetType();
-
             foreach (DbParameter parameter in cmd.Parameters)
             {
                 if (parameter.Direction != ParameterDirection.Input)
@@ -104,14 +119,7 @@ WHERE [ID] IN (1)");
                 }
             }
 
-            if (returnType.IsSubclassOf(typeof(Models.Person)))
-            {
-                return expected.Select(x => x as Models.Person).ToDataTable();
-            }
-            else
-            {
-                throw new NotSupportedException();
-            }
+            return null;
         }
     }
 }

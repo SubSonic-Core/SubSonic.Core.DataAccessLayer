@@ -46,6 +46,21 @@ namespace SubSonic.Infrastructure.Schema
 
         public DbTableExpression Table => (DbTableExpression)DbExpression.DbTable(this, this.ToAlias());
 
+        public DbTableExpression GetTableType(string name)
+        {
+            if ((name ?? Name).IsNullOrEmpty())
+            {
+                throw new InvalidOperationException();
+            }
+
+            if (DbExpression.DbTableType(this, name ?? Name) is DbTableExpression expression)
+            {
+                return expression;
+            }
+
+            return null;
+        }
+
         public bool DefinedTableTypeExists => DefinedTableType.IsNotNull();
 
         public IDbObject DefinedTableType { get; internal set; }

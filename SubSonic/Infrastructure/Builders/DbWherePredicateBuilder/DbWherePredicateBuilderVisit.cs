@@ -134,6 +134,21 @@ namespace SubSonic.Infrastructure.Builders
             return base.VisitMethodCall(node);
         }
 
+        protected internal override Expression VisitSelect(DbExpression expression)
+        {
+            if (expression is DbSelectExpression select)
+            {
+                if (select.QueryObject is SubSonicTableTypeCollection data)
+                {
+                    DbUserDefinedTableBuilder udtt = new DbUserDefinedTableBuilder(data.Model, data);
+
+                    parameters.Add(whereType, udtt.CreateParameter(select.From.QualifiedName, udtt.GenerateTable()));
+                }
+            }
+
+            return expression;
+        }
+
         protected Expression[] GetParameterExpressions(MethodCallExpression call)
         {
             if (call.IsNotNull())

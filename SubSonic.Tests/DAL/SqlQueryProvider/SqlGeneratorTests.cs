@@ -13,6 +13,7 @@ namespace SubSonic.Tests.DAL.SqlQueryProvider
     using Extensions.Test.Models;
     using Infrastructure;
     using Infrastructure.Logging;
+    using Infrastructure.Schema;
     using Linq;
     using Linq.Expressions;
 

@@ -189,6 +189,9 @@
   <data name="UnSupportedUnaryOperator" xml:space="preserve">
     <value>The unary operator '{0}' is not supported.</value>
   </data>
+  <data name="UserDefinedTableHaveNoDataToLoad" xml:space="preserve">
+    <value>User defined table types have not data to load from the database.</value>
+  </data>
   <data name="UserDefinedTableNotDefined" xml:space="preserve">
     <value>{0} has not been decorated with DbUserDefinedTableTypeAttribute.</value>
   </data>
