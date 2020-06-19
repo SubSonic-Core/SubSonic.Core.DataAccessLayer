@@ -106,7 +106,7 @@ namespace SubSonic.Infrastructure.Builders
                     {   // the method count has been called on the collection
                         return Execute<TResult>(DbExpression.DbSelectAggregate(_select, new[]
                         {
-                            DbExpression.DbAggregate(typeof(TResult), AggregateType.Count, _select.Columns.Single(x => x.Property.IsPrimaryKey).Expression)
+                            DbExpression.DbAggregate(typeof(TResult), AggregateType.Count, _select.Columns.First(x => x.Property.IsPrimaryKey).Expression)
                         }));
                     }
                     else

@@ -157,6 +157,17 @@ namespace SubSonic.Extensions.Test
             }
         }
 
+        public static void RecievedCommand(this DbProviderFactory factory, string command)
+        {
+            if (factory is SubSonicMockDbClient db)
+            {
+                if (db.RecievedBehavior(command) == 0)
+                {
+                    throw new InvalidOperationException(SubSonicExtenstionTestErrors.DbCommandNotRecieved.Format(command));
+                }
+            }
+        }
+
         public static void AddCommandBehavior<TEntity>(this DbProviderFactory factory, string command, IEnumerable<TEntity> entities)
         {
             if (factory is null)

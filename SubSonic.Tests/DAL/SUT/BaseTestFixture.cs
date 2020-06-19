@@ -63,8 +63,8 @@ namespace SubSonic.Tests.DAL.SUT
 
         protected IEnumerable<Status> Statuses { get; set; }
         protected ICollection<Unit> Units { get; set; }
-        protected IEnumerable<Renter> Renters { get; set; }
-        protected IEnumerable<RealEstateProperty> RealEstateProperties { get; set; }
+        protected ICollection<Renter> Renters { get; set; }
+        protected ICollection<RealEstateProperty> RealEstateProperties { get; set; }
         protected ICollection<Person> People { get; set; }
     }
 }

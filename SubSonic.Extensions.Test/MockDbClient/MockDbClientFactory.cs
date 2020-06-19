@@ -27,6 +27,15 @@ namespace SubSonic.Extensions.Test.MockDbClient
             behaviors.Add(behavior);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "used for unit testing to verify the command was sent")]
+        public int RecievedBehavior(string command, CommandType type = CommandType.Text)
+        {
+            using (var cmd = new MockDbCommand(command, type))
+            {
+                return FindBehavior(cmd).IsNotNull(behavior => (behavior.Recieved - 1));
+            }
+        }
+
         public override DbConnection CreateConnection()
         {
             return new MockDbConnection(this);
@@ -77,6 +86,7 @@ namespace SubSonic.Extensions.Test.MockDbClient
 
             return null;
         }
+
         int IMockCommandExecution.ExecuteNonQuery(MockDbCommand cmd)
         {
             return GetReturnValue<int>(cmd);

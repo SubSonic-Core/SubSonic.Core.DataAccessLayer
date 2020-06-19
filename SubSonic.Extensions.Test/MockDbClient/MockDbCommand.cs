@@ -14,6 +14,16 @@ namespace SubSonic.Extensions.Test.MockDbClient
     {
         readonly IMockCommandExecution _exec;
         readonly MockDbParameterCollection parameters;
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "this is an internal call for unit test purpose to ensure command was recieved.")]
+        internal MockDbCommand(string command, CommandType type = CommandType.Text)
+        {
+            _exec = null;
+            parameters = new MockDbParameterCollection();
+            CommandText = command;
+            CommandType = type;
+        }
+
         internal MockDbCommand(IMockCommandExecution exec)
         {
             _exec = exec;

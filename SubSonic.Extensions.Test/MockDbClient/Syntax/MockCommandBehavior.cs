@@ -9,11 +9,20 @@ namespace SubSonic.Extensions.Test.MockDbClient.Syntax
     {
         Predicate<DbCommand> match;
 
+        public int Recieved { get; private set; }
+
         internal object ReturnValue { get; private set; }
 
         internal bool Matches(DbCommand cmd)
         {
-            return match(cmd);
+            bool result = match(cmd);
+
+            if (result)
+            {
+                ++Recieved;
+            }
+
+            return result;
         }
 
         public MockCommandBehavior When(Predicate<DbCommand> match)

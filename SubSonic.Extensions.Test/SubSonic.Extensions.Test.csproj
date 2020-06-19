@@ -59,12 +59,21 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>MockDBErrors.resx</DependentUpon>
     </Compile>
+    <Compile Update="SubSonicExtenstionTestErrors.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SubSonicExtenstionTestErrors.resx</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Update="MockDbClient\MockDBErrors.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>MockDBErrors.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="SubSonicExtenstionTestErrors.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>SubSonicExtenstionTestErrors.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
 

@@ -27,6 +27,14 @@ WHERE [ID] IN (1)");
 WHERE [ID] IN (
 	SELECT [T1].[ID]
 	FROM @input AS [T1])");
+            yield return new DbTestCase<Models.Renter>(false, @"DELETE FROM [dbo].[Renter]
+WHERE ([PersonID] IN (1, 2, 3, 1, 4) AND [UnitID] IN (1, 1, 2, 3, 10))");
+            yield return new DbTestCase<Models.Renter>(true, @"DELETE FROM [dbo].[Renter]
+WHERE ([PersonID] IN (
+	SELECT [T1].[PersonID]
+	FROM @input AS [T1]) AND [UnitID] IN (
+	SELECT [T2].[UnitID]
+	FROM @input AS [T2]))");
         }
 
         [Test]
@@ -78,6 +86,10 @@ WHERE [ID] IN (
                     state = null;
                 }
 
+                FluentActions.Invoking(() =>
+                    DbContext.Database.Instance.RecievedCommand(dbTest.Expectation))
+                    .Should().NotThrow();
+
                 dbTest.Count().Should().Be(0);
             }
         }
@@ -90,9 +102,19 @@ WHERE [ID] IN (
                 {
                     foreach(DataRow row in data.Rows)
                     {
-                        if (expected.Count() > 0 && expected.ElementAt(0) is Models.Person)
+                        if (expected.Count() > 0)
                         {
-                            People.Remove(People.Single(x => x.ID == (int)row[nameof(Models.Person.ID)]));
+                            if (expected.ElementAt(0) is Models.Person)
+                            {
+                                People.Remove(People.Single(x => x.ID == (int)row[nameof(Models.Person.ID)]));
+                            }
+                            else if (expected.ElementAt(0) is Models.Renter)
+                            {
+                                Renters.Remove(Renters.Single(x =>
+                                   x.PersonID == (int)row[nameof(Models.Renter.PersonID)] &&
+                                   x.UnitID == (int)row[nameof(Models.Renter.UnitID)] &&
+                                   x.StartDate == (DateTime)row[nameof(Models.Renter.StartDate)]));
+                            }
                         }
                     }
                 }
@@ -109,16 +131,23 @@ WHERE [ID] IN (
                 {
                     continue;
                 }
-
-                foreach (IEntityProxy proxy in expected)
-                {
-                    if (proxy is Models.Person person)
-                    {
-                        People.Remove(People.Single(x => x.ID == person.ID));
-                    }
-                }
             }
 
+            foreach (IEntityProxy proxy in expected)
+            {
+                if (proxy is Models.Person person)
+                {
+                    People.Remove(People.Single(x => x.ID == person.ID));
+                }
+                else if (proxy is Models.Renter renter)
+                {
+                    Renters.Remove(Renters.Single(x =>
+                        x.PersonID == renter.PersonID &&
+                        x.UnitID == renter.UnitID &&
+                        x.StartDate == renter.StartDate));
+                }
+            }
+            
             return null;
         }
     }

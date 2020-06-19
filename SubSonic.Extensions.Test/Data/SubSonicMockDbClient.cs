@@ -32,6 +32,8 @@ namespace SubSonic.Extensions.Test
 
         public void AddBehavior(MockCommandBehavior behavior) => Provider.AddBehavior(behavior);
 
+        public int RecievedBehavior(string command) => Provider.RecievedBehavior(command);
+
         public override DbDataAdapter CreateDataAdapter(DbCommand select)
         {
             DbDataAdapter adapter = CreateDataAdapter();

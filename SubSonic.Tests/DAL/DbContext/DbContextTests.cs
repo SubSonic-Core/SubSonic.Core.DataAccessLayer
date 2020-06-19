@@ -45,6 +45,10 @@ FROM [dbo].[RealEstateProperty] AS [{0}]",
 FROM [dbo].[Person] AS [{0}]",
                 people_count = @"SELECT COUNT([{0}].[ID])
 FROM [dbo].[Person] AS [{0}]",
+                renters = @"SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
+FROM [dbo].[Renter] AS [{0}]",
+                renters_count = @"SELECT COUNT([{0}].[PersonID])
+FROM [dbo].[Renter] AS [{0}]",
                 kara =
 @"SELECT [{0}].[ID], [{0}].[FirstName], [{0}].[MiddleInitial], [{0}].[FamilyName], [{0}].[FullName]
 FROM [dbo].[Person] AS [{0}]
@@ -58,6 +62,8 @@ WHERE ([{0}].[ID] = {1})";
             DbContext.Database.Instance.AddCommandBehavior(people_all.Format("T1"), People);
             DbContext.Database.Instance.AddCommandBehavior(people_count.Format("T1"), cmd => new[] { People.Count }.ToDataTable());
             DbContext.Database.Instance.AddCommandBehavior(kara.Format("T1", 1), People.Where(x => x.ID == 1));
+            DbContext.Database.Instance.AddCommandBehavior(renters.Format("T1"), Renters);
+            DbContext.Database.Instance.AddCommandBehavior(renters_count.Format("T1"), cmd => new[] { Renters.Count }.ToDataTable());
         }
 
         [Test]

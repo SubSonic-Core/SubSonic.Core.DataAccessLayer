@@ -144,7 +144,7 @@ namespace SubSonic.Infrastructure.Builders
 
                     if (!parameters.ContainsKey(whereType) || 
                         (parameters.ContainsKey(whereType) && 
-                        !(parameters[whereType].Any(x => x.ParameterName.Equals(select.From.QualifiedName, StringComparison.CurrentCulture)))))
+                        !(parameters[whereType].Any(x => x.ParameterName.Equals($"@{select.From.QualifiedName}", StringComparison.CurrentCulture)))))
                     {
                         parameters.Add(whereType, udtt.CreateParameter(select.From.QualifiedName, udtt.GenerateTable()));
                     }
