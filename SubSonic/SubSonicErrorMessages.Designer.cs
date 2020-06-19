@@ -133,6 +133,15 @@ namespace SubSonic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to No Data Available.
+        /// </summary>
+        internal static string NoDataAvailable {
+            get {
+                return ResourceManager.GetString("NoDataAvailable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Non-scalar projections cannot be translated to SQL..
         /// </summary>
         internal static string NonScalarProjection {

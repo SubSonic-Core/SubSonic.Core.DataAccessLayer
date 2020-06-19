@@ -45,11 +45,23 @@ FROM [dbo].[RealEstateProperty] AS [{0}]",
 FROM [dbo].[Person] AS [{0}]",
                 people_count = @"SELECT COUNT([{0}].[ID])
 FROM [dbo].[Person] AS [{0}]",
+                people_greater_than = @"SELECT [{0}].[ID], [{0}].[FirstName], [{0}].[MiddleInitial], [{0}].[FamilyName], [{0}].[FullName]
+FROM [dbo].[Person] AS [{0}]
+WHERE ([{0}].[ID] > {1})",
+                people_greater_than_cnt = @"SELECT COUNT([{0}].[ID])
+FROM [dbo].[Person] AS [{0}]
+WHERE ([{0}].[ID] > {1})",
+                people_equal = @"SELECT [{0}].[ID], [{0}].[FirstName], [{0}].[MiddleInitial], [{0}].[FamilyName], [{0}].[FullName]
+FROM [dbo].[Person] AS [{0}]
+WHERE ([{0}].[ID] = {1})",
+                people_equal_cnt = @"SELECT COUNT([{0}].[ID])
+FROM [dbo].[Person] AS [{0}]
+WHERE ([{0}].[ID] = {1})",
                 renters = @"SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
 FROM [dbo].[Renter] AS [{0}]",
                 renters_count = @"SELECT COUNT([{0}].[PersonID])
 FROM [dbo].[Renter] AS [{0}]",
-                kara =
+                person =
 @"SELECT [{0}].[ID], [{0}].[FirstName], [{0}].[MiddleInitial], [{0}].[FamilyName], [{0}].[FullName]
 FROM [dbo].[Person] AS [{0}]
 WHERE ([{0}].[ID] = {1})";
@@ -61,7 +73,12 @@ WHERE ([{0}].[ID] = {1})";
             DbContext.Database.Instance.AddCommandBehavior(property_all.Format("T1"), RealEstateProperties);
             DbContext.Database.Instance.AddCommandBehavior(people_all.Format("T1"), People);
             DbContext.Database.Instance.AddCommandBehavior(people_count.Format("T1"), cmd => new[] { People.Count }.ToDataTable());
-            DbContext.Database.Instance.AddCommandBehavior(kara.Format("T1", 1), People.Where(x => x.ID == 1));
+            DbContext.Database.Instance.AddCommandBehavior(person.Format("T1", 1), People.Where(x => x.ID == 1));
+            DbContext.Database.Instance.AddCommandBehavior(person.Format("T1", 2), People.Where(x => x.ID == 2));
+            DbContext.Database.Instance.AddCommandBehavior(people_greater_than.Format("T1", 2), People.Where(x => x.ID > 2));
+            DbContext.Database.Instance.AddCommandBehavior(people_greater_than_cnt.Format("T1", 2), cmd => new[] { People.Count(x => x.ID > 2) }.ToDataTable());
+            DbContext.Database.Instance.AddCommandBehavior(people_equal.Format("T1", 3), People.Where(x => x.ID == 3));
+            DbContext.Database.Instance.AddCommandBehavior(people_equal_cnt.Format("T1", 3), cmd => new[] { People.Count(x => x.ID == 3) }.ToDataTable());
             DbContext.Database.Instance.AddCommandBehavior(renters.Format("T1"), Renters);
             DbContext.Database.Instance.AddCommandBehavior(renters_count.Format("T1"), cmd => new[] { Renters.Count }.ToDataTable());
         }
@@ -161,7 +178,7 @@ WHERE ([{0}].[ID] = {1})";
                 ((IEntityProxy)property).IsDirty.Should().BeTrue();
             }
 
-            DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsDirty).Should().Be(DbContext.RealEstateProperties.Count());
+            DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsDirty).Should().Be(DbContext.RealEstateProperties.Count);
 
             DbContext.SaveChanges().Should().BeTrue();
 

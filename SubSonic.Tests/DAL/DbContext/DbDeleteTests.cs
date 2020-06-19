@@ -22,7 +22,7 @@ WHERE ([{1}].[ID] IN (SELECT [ID] FROM @input))";
         private static IEnumerable<IDbTestCase> DeleteTestCases()
         {
             yield return new DbTestCase<Models.Person>(false, @"DELETE FROM [dbo].[Person]
-WHERE [ID] IN (1)");
+WHERE [ID] IN (1, 2, 3, 4)");
             yield return new DbTestCase<Models.Person>(true, @"DELETE FROM [dbo].[Person]
 WHERE [ID] IN (
 	SELECT [T1].[ID]

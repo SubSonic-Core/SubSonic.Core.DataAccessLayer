@@ -1,19 +1,23 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace SubSonic.Tests.DAL
 {
     using Infrastructure.Schema;
     using Extensions.Test;
-    using SubSonic.Infrastructure;
-    using System.Linq;
+    using Infrastructure;
+    using Linq;
+    using SysLinq = System.Linq;
 
     public class DbTestCase<TModel>
         : IDbTestCase
         where TModel: class
-    {
+    { 
+        private readonly Expression<Func<TModel, bool>> selector;
+
         public DbTestCase(bool withUDTT, string expected)
         {
             if (expected.IsNullOrEmpty())
@@ -23,6 +27,12 @@ namespace SubSonic.Tests.DAL
 
             UseDefinedTableType = withUDTT;
             Expectation = expected;
+        }
+
+        public DbTestCase(bool withUDTT, string expected, Expression<Func<TModel, bool>> selector)
+            : this(withUDTT, expected)
+        {
+            this.selector = selector;
         }
 
         public IDbEntityModel EntityModel => DbContext.DbModel.GetEntityModel<TModel>();
@@ -69,11 +79,16 @@ namespace SubSonic.Tests.DAL
 
         public IEnumerable FetchAll()
         {
-            IQueryable<TModel> data = null;
+            SysLinq.IQueryable<TModel> data = null;
 
-            if (DataSet is ISubSonicDbCollection<TModel> dataSet)
+            if (DataSet is ISubSonicCollection<TModel> dataSet)
             {
                 dataSet.Clear();
+
+                if (!(selector is null))
+                {
+                    dataSet = (ISubSonicCollection<TModel>)dataSet.Where(selector);
+                }
 
                 data = dataSet.Load();
             }
@@ -85,7 +100,14 @@ namespace SubSonic.Tests.DAL
         {
             if (DataSet is ISubSonicCollection<TModel> dataSet)
             {
-                return dataSet.Count();
+                if (selector is null)
+                {
+                    return dataSet.Count();
+                }
+                else
+                {
+                    return dataSet.Count(selector);
+                }
             }
 
             return default(int);

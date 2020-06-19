@@ -141,6 +141,9 @@
   <data name="MissingServiceCollectionException" xml:space="preserve">
     <value>IServiceCollection is not found in the IOC container.</value>
   </data>
+  <data name="NoDataAvailable" xml:space="preserve">
+    <value>No Data Available</value>
+  </data>
   <data name="NonScalarProjection" xml:space="preserve">
     <value>Non-scalar projections cannot be translated to SQL.</value>
   </data>

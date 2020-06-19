@@ -20,11 +20,11 @@ namespace SubSonic.Infrastructure.Builders
         private readonly Type elementType;
         private readonly ISubSonicLogger logger;
 
-        public DbSqlTableTypeProvider(string tableTypeName, Type elementType, ISubSonicLogger logger)
+        public DbSqlTableTypeProvider(string tableTypeName, Type elementType, ISubSonicLogger logger = null)
         {
             this.tableTypeName = tableTypeName ?? throw new ArgumentNullException(nameof(tableTypeName));
             this.elementType = elementType ?? throw new ArgumentNullException(nameof(elementType));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.logger = logger ?? DbContext.ServiceProvider.GetService<ISubSonicLogger<DbSqlTableTypeProvider>>();
 
             if (DbContext.DbModel.TryGetEntityModel(elementType.GetQualifiedType(), out IDbEntityModel model))
             {

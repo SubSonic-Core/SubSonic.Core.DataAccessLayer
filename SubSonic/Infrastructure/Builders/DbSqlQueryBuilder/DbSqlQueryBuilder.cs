@@ -25,9 +25,14 @@ namespace SubSonic.Infrastructure.Builders
                 throw new ArgumentNullException(nameof(dbModelType));
             }
 
-            this.logger = logger ?? DbContext.ServiceProvider.GetService<ISubSonicLogger>();
-            DbEntity = DbContext.DbModel.GetEntityModel(dbModelType.GetQualifiedType());
-            DbTable = DbEntity.Table;
+            this.logger = logger ?? DbContext.ServiceProvider.GetService<ISubSonicLogger<DbSqlQueryBuilder>>();
+
+            if (DbContext.DbModel.TryGetEntityModel(dbModelType.GetQualifiedType(), out IDbEntityModel model))
+            {
+                DbEntity = model;
+                DbTable = DbEntity.Table;
+            }
+
             parameters = new SubSonicParameterDictionary();
         }
 

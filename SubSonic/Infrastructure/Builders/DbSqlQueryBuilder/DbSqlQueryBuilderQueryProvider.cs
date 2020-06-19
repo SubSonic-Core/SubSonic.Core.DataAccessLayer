@@ -80,7 +80,16 @@ namespace SubSonic.Infrastructure.Builders
                         }
                     }
 
-                    return DbContext.Current.ChangeTracking.Where<TResult>(elementType, this, expression);
+                    if (isEntityModel)
+                    {
+                        return DbContext.Current.ChangeTracking.Where<TResult>(elementType, this, expression);
+                    }
+                    else
+                    {
+                        logger.LogDebug(SubSonicErrorMessages.NoDataAvailable);
+
+                        return default(TResult);
+                    }
                 }
             }
             else if (expression is MethodCallExpression method)
@@ -104,10 +113,13 @@ namespace SubSonic.Infrastructure.Builders
 
                     if (method.Method.Name.Equals(nameof(Queryable.Count), StringComparison.CurrentCulture))
                     {   // the method count has been called on the collection
-                        return Execute<TResult>(DbExpression.DbSelectAggregate(_select, new[]
+                        if (BuildSelect(_select, where) is DbSelectExpression __select)
                         {
-                            DbExpression.DbAggregate(typeof(TResult), AggregateType.Count, _select.Columns.First(x => x.Property.IsPrimaryKey).Expression)
-                        }));
+                            return Execute<TResult>(DbExpression.DbSelectAggregate(__select, new[]
+                            {
+                                DbExpression.DbAggregate(typeof(TResult), AggregateType.Count, __select.Columns.First(x => x.Property.IsPrimaryKey).Expression)
+                            }));
+                        }
                     }
                     else
                     {

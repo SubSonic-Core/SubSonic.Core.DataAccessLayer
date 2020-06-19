@@ -221,7 +221,7 @@ namespace SubSonic.Infrastructure.Builders
                     typeof(System.Linq.Queryable),
                     nameofCallee,
                     GetTypeArguments((LambdaExpression)lambda),
-                    GetMethodCall(collection) ?? Expression.Parameter(GetTypeOf(typeof(ISubSonicDbCollection<>), DbEntity.EntityModelType)),
+                    GetMethodCall(collection) ?? Expression.Parameter(GetTypeOf(typeof(ISubSonicCollection<>), DbEntity.EntityModelType)),
                     lambda);
             }
             return lambda;

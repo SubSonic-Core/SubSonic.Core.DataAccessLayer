@@ -15,7 +15,17 @@ namespace SubSonic.Linq
         {
             return source is ISubSonicCollection<TSource>;
         }
-        
+
+        public static int Count<TSource>(this IQueryable<TSource> source)
+        {
+            return Queryable.Count(source);
+        }
+
+        public static int Count<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> selector)
+        {
+            return Queryable.Count(source, selector);
+        }
+
         public static IDbPageCollection<TEntity> ToPagedCollection<TEntity>(this IQueryable<TEntity> source, int pageSize)
         {
             if (source.IsNotNull() && source.IsSubSonicQuerable())
@@ -164,7 +174,7 @@ namespace SubSonic.Linq
                         where = provider.BuildWhere(select.From, select.Where, source.GetType(), predicate);
                     }
 
-                    return (ISubSonicCollection<TSource>)provider.CreateQuery<TSource>(provider.BuildSelect(source.Expression, where));
+                    return provider.CreateQuery<TSource>(provider.BuildSelect(source.Expression, where));
                 }
             }
             return Queryable.Where(source, predicate);

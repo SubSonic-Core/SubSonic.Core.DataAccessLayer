@@ -28,9 +28,14 @@ namespace SubSonic.Infrastructure
         }
 
         public SubSonicTableTypeCollection(string name, IQueryProvider provider, Expression expression, IEnumerable<TElement> enumerable)
-            : base(name, typeof(TElement), provider, expression, enumerable.Select(x => x as object))
+            : base(name, typeof(TElement), provider, expression, enumerable)
         {
 
+        }
+
+        public IQueryable<TElement> Load()
+        {
+            throw new NotSupportedException();
         }
 
         #region ICollection<> Implementation
@@ -50,7 +55,10 @@ namespace SubSonic.Infrastructure
         {
             if (TableData is ICollection<TElement> data)
             {
-                data.Add(element);
+                if (!IsReadOnly)
+                {
+                    data.Add(element);
+                }
             }
             else
             {
@@ -137,9 +145,8 @@ namespace SubSonic.Infrastructure
             {
                 Model = model;
                 Expression = DbExpression.DbSelect(this, GetType(), model.GetTableType(name));
+                Provider = new DbSqlTableTypeProvider(name, ElementType, DbContext.ServiceProvider.GetService<ISubSonicLogger>());
             }
-
-            Provider = new DbSqlTableTypeProvider(name, ElementType, DbContext.ServiceProvider.GetService<ISubSonicLogger>());
         }
 
         public SubSonicTableTypeCollection(string name, Type elementType, IQueryProvider provider, Expression expression)
@@ -153,7 +160,7 @@ namespace SubSonic.Infrastructure
         public SubSonicTableTypeCollection(string name, Type elementType, IQueryProvider provider, Expression expression, IEnumerable elements)
             : this(name, elementType, provider, expression)
         {
-            TableData = (ICollection)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(elementType), elements);
+            TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(elementType), elements);
         }
 
         public string Name { get; }

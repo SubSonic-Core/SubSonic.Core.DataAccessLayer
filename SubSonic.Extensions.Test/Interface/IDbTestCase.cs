@@ -24,6 +24,7 @@ namespace SubSonic.Extensions.Test
         void Delete(IEnumerable<IEntityProxy> entities);
 
         IEntityProxy FindByID(params object[] keyData);
+
         IEnumerable FetchAll();
 
         int Count();
