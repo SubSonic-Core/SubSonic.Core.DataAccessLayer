@@ -2,9 +2,7 @@
 using SubSonic.Infrastructure;
 using SubSonic.Infrastructure.Schema;
 using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Text;
 
 namespace SubSonic
 {

@@ -55,12 +55,12 @@ namespace SubSonic.Infrastructure
             }
             else
             {
-                IEntityProxy<TEntity> _new = new Entity<TEntity>(item)
+                IEntityProxy<TEntity> @new = new Entity<TEntity>(item)
                 {
                     IsNew = true
                 };
 
-                dataset.Add(_new);
+                dataset.Add(@new);
             }
         }
 

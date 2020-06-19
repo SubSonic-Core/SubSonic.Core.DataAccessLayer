@@ -9,6 +9,7 @@ namespace SubSonic
     public interface ISubSonicDbSetCollection<TEntity>
         : ISubSonicCollection<TEntity>
     {
+        bool Delete(TEntity entity);
         IQueryable<TEntity> FindByID(object[] keyData, params string[] keyNames);
         IQueryable<TEntity> FindByID(params object[] keyData);
     }
