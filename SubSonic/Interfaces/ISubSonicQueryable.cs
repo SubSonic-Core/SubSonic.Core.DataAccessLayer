@@ -6,7 +6,7 @@ using System.Text;
 
 namespace SubSonic
 {
-    public interface ISubSonicDbCollection<TEntity>
+    public interface ISubSonicDbSetCollection<TEntity>
         : ISubSonicCollection<TEntity>
     {
         IQueryable<TEntity> FindByID(object[] keyData, params string[] keyNames);

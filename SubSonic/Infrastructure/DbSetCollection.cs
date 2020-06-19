@@ -14,7 +14,7 @@ namespace SubSonic.Infrastructure
     using Schema;
 
     public class DbSetCollection<TEntity>
-        : ISubSonicDbCollection<TEntity>
+        : ISubSonicDbSetCollection<TEntity>
     {
         private readonly IQueryProvider provider;
         private readonly IDbEntityModel model;

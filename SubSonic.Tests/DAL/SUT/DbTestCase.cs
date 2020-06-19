@@ -69,7 +69,7 @@ namespace SubSonic.Tests.DAL
 
         public IEntityProxy FindByID(params object[] keyData)
         {
-            if (DataSet is ISubSonicDbCollection<TModel> dataSet)
+            if (DataSet is ISubSonicDbSetCollection<TModel> dataSet)
             {
                 return (IEntityProxy)dataSet.FindByID(keyData).Single();
             }
