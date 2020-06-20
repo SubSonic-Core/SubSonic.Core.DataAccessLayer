@@ -3,6 +3,11 @@ The driving force behind this project is the various issues with the current EF 
 various issues in which prevented minimal manipulation of the data to release projects.
 This way I know the DAL from the ground up and speak for its performance and implemenation. 
 
+# Why should you switch to SubSonic
+<ul>
+   <li>User-Defined table types are performant, using UDTT in stored procedures, insert, update and delete database calls reduces the number of parameters needed to pass to the database. This has reduced the time taken to generate an insert statement of three records with three columns of data by 75%. That is a significant savings in computer time.</li>
+</ul>
+
 # Supported Frameworks
 <ul>
    <li>.NETStandard,Version=v2.0</li>
