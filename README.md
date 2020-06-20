@@ -5,7 +5,8 @@ This way I know the DAL from the ground up and speak for its performance and imp
 
 # Why should you switch to SubSonic
 <ul>
-   <li>User-Defined table types are performant, using UDTT in stored procedures, insert, update and delete database calls reduces the number of parameters needed to pass to the database. This has reduced the time taken to generate an insert statement of three records with three columns of data by 75%. That is a significant savings in computer time.</li>
+   <li>User-Defined table types (UDTT) are performant, used in stored procedures, insert, update and delete database calls reduces the number of parameters needed to pass to the database. This has reduced the time taken to generate an insert statement of three records with three columns of data by 75%. That is a significant savings in computer time.</li>
+   <li>User-Defined table types, can define a data contract between the database and your application.</li>
 </ul>
 
 # Supported Frameworks
