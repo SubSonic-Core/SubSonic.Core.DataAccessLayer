@@ -31,6 +31,24 @@ namespace SubSonic.Tests.DAL
                     x as IEntityProxy);
 
             expected.Count().Should().Be(dbTest.Count());
+
+            foreach(IEntityProxy proxy in expected)
+            {
+                if (proxy is Models.Person person)
+                {   // we should really set this part up to set random data
+                    person.FirstName = "Bob";
+                    person.FamilyName = "Walters";
+                    person.MiddleInitial = "S";
+                }
+
+                proxy.IsDirty.Should().BeTrue();
+            }
+
+            DbContext.ChangeTracking
+                .SelectMany(x => x.Value)
+                .Count(x => x.IsDirty)
+                .Should()
+                .Be(expected.Count());
         }
     }
 }

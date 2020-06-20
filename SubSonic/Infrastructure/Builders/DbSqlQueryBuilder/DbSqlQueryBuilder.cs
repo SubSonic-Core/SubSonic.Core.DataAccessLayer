@@ -73,7 +73,7 @@ namespace SubSonic.Infrastructure.Builders
 
         private Expression BuildInsertQuery<TEntity>(IEnumerable<TEntity> entities)
         {
-            return DbExpression.DbInsert(DbTable, entities.Select(x => (object)x));
+            return DbExpression.DbInsert(DbTable, entities.Select(x => Expression.Constant(x)));
         }
 
         private Expression BuildUpdateQuery<TEntity>(IEnumerable<TEntity> entities)

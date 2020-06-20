@@ -13,7 +13,7 @@ namespace SubSonic.Linq.Expressions
     public class DbInsertExpression
         : DbExpression
     {
-        protected internal DbInsertExpression(DbTableExpression table, IEnumerable<object> values)
+        protected internal DbInsertExpression(DbTableExpression table, IEnumerable<Expression> values)
             : base(DbExpressionType.Insert, table.IsNullThrowArgumentNull(nameof(table)).Type)
         {
             Table = table ?? throw new ArgumentNullException(nameof(table));
@@ -24,7 +24,7 @@ namespace SubSonic.Linq.Expressions
         public override ExpressionType NodeType => (ExpressionType)DbExpressionType.Insert;
 
         public DbTableExpression Table { get; }
-        public IEnumerable<object> Values { get; }
+        public IEnumerable<Expression> Values { get; }
         public ICollection<DbParameter> DbParameters { get; }
 
         protected override Expression Accept(ExpressionVisitor visitor)
@@ -40,7 +40,7 @@ namespace SubSonic.Linq.Expressions
 
     public partial class DbExpression
     {
-        public static DbExpression DbInsert(DbTableExpression table, IEnumerable<object> entities)
+        public static DbExpression DbInsert(DbTableExpression table, IEnumerable<Expression> entities)
         {
             return new DbInsertExpression(table, entities);
         }

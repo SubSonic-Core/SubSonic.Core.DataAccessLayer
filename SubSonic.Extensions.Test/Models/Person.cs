@@ -13,12 +13,12 @@ namespace SubSonic.Extensions.Test.Models
         public int ID { get; set; }
 
         [Required]
-        public string FirstName { get; set; }
+        public virtual string FirstName { get; set; }
 
-        public string MiddleInitial { get; set; }
+        public virtual string MiddleInitial { get; set; }
 
         [Required]
-        public string FamilyName { get; set; }
+        public virtual string FamilyName { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public string FullName { get; set; }

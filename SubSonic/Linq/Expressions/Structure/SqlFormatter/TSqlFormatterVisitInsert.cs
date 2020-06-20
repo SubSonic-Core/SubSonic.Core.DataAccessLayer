@@ -56,18 +56,19 @@ namespace SubSonic.Linq.Expressions.Structure
                         continue;
                     }
 
-                    PropertyInfo propertyInfo = insert.Type.GetProperty(property.PropertyName);
-
-                    object element = insert.Values.ElementAt(i);
+                    PropertyInfo propertyInfo = insert.Type.BaseType.GetProperty(property.PropertyName);
 
                     string parameterName = $"@{property.Name}_{i + 1}";
 
-                    object value = propertyInfo.GetValue(element);
+                    if (insert.Values.ElementAt(i) is ConstantExpression element)
+                    {
+                        object value = propertyInfo.GetValue(element.Value);
 
-                    insert.DbParameters.Add(builder.CreateParameter(
-                        parameterName,
-                        value ?? DBNull.Value,
-                        property));
+                        insert.DbParameters.Add(builder.CreateParameter(
+                            parameterName,
+                            value ?? DBNull.Value,
+                            property));
+                    }
 
                     Write(parameterName);
 
@@ -97,7 +98,19 @@ namespace SubSonic.Linq.Expressions.Structure
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "<Pending>")]
         private void FormatInsertWithUserDefinedTableType(DbInsertExpression insert)
         {
-            DbUserDefinedTableBuilder builder = new DbUserDefinedTableBuilder(insert.Table.Model, insert.Values);
+
+            DbUserDefinedTableBuilder builder = new DbUserDefinedTableBuilder(insert.Table.Model,
+                insert.Values
+                .Select(value =>
+                {
+                    if (value is ConstantExpression constant)
+                    {
+                        return constant.Value;
+                    }
+
+                    return null;
+                })
+                .Where(value => value.IsNotNull()));
 
             string 
                 input_parameter_name = "input",
