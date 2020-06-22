@@ -120,4 +120,7 @@
   <data name="ConnectionStateNotOpen" xml:space="preserve">
     <value>Connection State Not Open</value>
   </data>
+  <data name="MissingDbParameter" xml:space="preserve">
+    <value>Missing expected db parameter.</value>
+  </data>
 </root>

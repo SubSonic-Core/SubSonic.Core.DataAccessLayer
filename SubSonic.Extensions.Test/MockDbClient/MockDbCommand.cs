@@ -7,6 +7,7 @@ using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using System.Data.SqlClient;
 
 namespace SubSonic.Extensions.Test.MockDbClient
 {
@@ -100,34 +101,49 @@ namespace SubSonic.Extensions.Test.MockDbClient
 
         protected override DbDataReader ExecuteDbDataReader(System.Data.CommandBehavior behavior)
         {
-            if (this.Connection.State == ConnectionState.Open)
+            try
             {
-                Prepare();
+                if (this.Connection.State == ConnectionState.Open)
+                {
+                    Prepare();
 
-                return _exec.ExecuteDataReader(this);
+                    return _exec.ExecuteDataReader(this);
+                }
+                else
+                {
+                    throw new InvalidOperationException(MockDBErrors.ConnectionStateNotOpen);
+                }
             }
-            else
+            catch(Exception ex)
             {
-                throw new InvalidOperationException(MockDBErrors.ConnectionStateNotOpen);
+                throw new MockDBException(ex.Message, ex);
             }
         }
 
         protected override Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
         {
+
             return Task.Run(() => ExecuteDbDataReader(behavior), cancellationToken);
         }
 
         public override int ExecuteNonQuery()
         {
-            if (this.Connection.State == ConnectionState.Open)
+            try
             {
-                Prepare();
+                if (this.Connection.State == ConnectionState.Open)
+                {
+                    Prepare();
 
-                return _exec.ExecuteNonQuery(this);
+                    return _exec.ExecuteNonQuery(this);
+                }
+                else
+                {
+                    throw new InvalidOperationException(MockDBErrors.ConnectionStateNotOpen);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                throw new InvalidOperationException(MockDBErrors.ConnectionStateNotOpen);
+                throw new MockDBException(ex.Message, ex);
             }
         }
 
@@ -138,9 +154,16 @@ namespace SubSonic.Extensions.Test.MockDbClient
 
         public override object ExecuteScalar()
         {
-            Prepare();
+            try
+            {
+                Prepare();
 
-            return _exec.ExecuteScalar(this);
+                return _exec.ExecuteScalar(this);
+            }
+            catch (Exception ex)
+            {
+                throw new MockDBException(ex.Message, ex);
+            }
         }
 
         public override Task<object> ExecuteScalarAsync(CancellationToken cancellationToken)
@@ -155,34 +178,20 @@ namespace SubSonic.Extensions.Test.MockDbClient
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA2100:Review SQL queries for security vulnerabilities", Justification = "prepare is looking for parameters and replacing with real values")]
         public override void Prepare()
         {
-            if (CommandType == CommandType.Text)
+            if (CommandType != CommandType.TableDirect)
             {
                 if (ParameterRegex.IsMatch(this.CommandText))
                 {
                     foreach (Match match in ParameterRegex.Matches(this.CommandText))
                     {
-                        if (!(Parameters[match.Value] is null))
+                        // enhance the regex compare to ignore parameter if preceded by a declare
+                        if (!match.Value.Equals("@output", StringComparison.CurrentCulture) && 
+                            Parameters[match.Value] is null)
                         {
-                            object value = Parameters[match.Value].Value;
-#if NETSTANDARD2_0
-                            if (!CommandText.Contains("EXEC") && !(value is DataTable))
-#elif NETSTANDARD2_1
-                            if (!CommandText.Contains("EXEC", StringComparison.CurrentCulture) && !(value is DataTable))
-#endif
-                            {
-#if NETSTANDARD2_0
-                                CommandText = CommandText.Replace(match.Value, (value is string || value is Guid) ? $"'{value}'" : value.ToString());
-#elif NETSTANDARD2_1
-                                CommandText = CommandText.Replace(match.Value, (value is string || value is Guid) ? $"'{value}'" : value.ToString(), StringComparison.CurrentCulture);
-#endif
-                            }
+                            throw new ArgumentException(MockDBErrors.MissingDbParameter, match.Value);
                         }
                     }
                 }
-            }
-            else if (CommandType == CommandType.StoredProcedure)
-            {
-
             }
             else if (CommandType == CommandType.TableDirect)
             {

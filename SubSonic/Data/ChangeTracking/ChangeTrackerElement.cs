@@ -100,7 +100,7 @@ namespace SubSonic.Data.Caching
 
                 DbCommandQuery command = model.Commands[queryType];
 
-                IEntityProxy<TEntity>[] result = null;
+                IEntityProxy<TEntity>[] result = Array.Empty<IEntityProxy<TEntity>>();
 
                 if (command is null || command.CommandType == CommandType.Text)
                 {
@@ -109,10 +109,23 @@ namespace SubSonic.Data.Caching
                         case DbQueryType.Insert:
                         case DbQueryType.Update:
                         case DbQueryType.Delete:
-                            result = Database
-                                .ExecuteDbQuery<TEntity>(queryType, model, data, out error)
-                                .Select(x => x as IEntityProxy<TEntity>)
-                                .ToArray();
+                            if (model.DefinedTableTypeExists)
+                            {
+                                result = Database
+                                    .ExecuteDbQuery<TEntity>(queryType, model, data, out error)
+                                    .Select(x => x as IEntityProxy<TEntity>)
+                                    .ToArray();
+                            }
+                            else
+                            {
+                                foreach (IEntityProxy proxy in data)
+                                {
+                                    result = result.Union(Database
+                                            .ExecuteDbQuery<TEntity>(queryType, model, new[] { proxy }, out error)
+                                            .Select(x => x as IEntityProxy<TEntity>))
+                                        .ToArray();
+                                }
+                            }
                             break;
                         default:
                             throw new NotImplementedException();

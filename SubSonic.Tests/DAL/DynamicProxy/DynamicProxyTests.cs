@@ -16,6 +16,49 @@ namespace SubSonic.Tests.DAL
     public partial class DynamicProxyTests
         : BaseTestFixture
     {
+        public override void SetupTestFixture()
+        {
+            base.SetupTestFixture();
+
+            string
+                units =
+@"SELECT [{0}].[ID], [{0}].[Bedrooms] AS [NumberOfBedrooms], [{0}].[StatusID], [{0}].[RealEstatePropertyID]
+FROM [dbo].[Unit] AS [{0}]",
+                units_by_property =
+@"SELECT [{0}].[ID], [{0}].[Bedrooms] AS [NumberOfBedrooms], [{0}].[StatusID], [{0}].[RealEstatePropertyID]
+FROM [dbo].[Unit] AS [{0}]
+WHERE ([{0}].[RealEstatePropertyID] = @realestatepropertyid_1)",
+                property =
+@"SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
+FROM [dbo].[RealEstateProperty] AS [{0}]
+WHERE ([{0}].[ID] = @id_1)",
+                renters =
+@"SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
+FROM [dbo].[Renter] AS [{0}]
+WHERE ([{0}].[UnitID] = @unitid_1)",
+                status =
+@"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
+FROM [dbo].[Status] AS [{0}]
+WHERE ([{0}].[ID] = @id_1)";
+
+            DbContext.Database.Instance.AddCommandBehavior(units.Format("T1"), Units);
+            DbContext.Database.Instance.AddCommandBehavior(units_by_property.Format("T1"), cmd => Units
+                .Where(x => x.RealEstatePropertyID == cmd.Parameters["@realestatepropertyid_1"].GetValue<int>())
+                .ToDataTable());
+            DbContext.Database.Instance.AddCommandBehavior(property.Format("T1"), cmd => RealEstateProperties
+                .Where(x =>
+                    x.ID == cmd.Parameters["@id_1"].GetValue<int>())
+                .ToDataTable());
+            DbContext.Database.Instance.AddCommandBehavior(renters.Format("T1"), cmd => Renters
+                .Where(x =>
+                    x.UnitID == cmd.Parameters["@unitid_1"].GetValue<int>())
+                .ToDataTable());
+            DbContext.Database.Instance.AddCommandBehavior(status.Format("T1"), cmd => Statuses
+                .Where(x =>
+                    x.ID == cmd.Parameters["@id_1"].GetValue<int>())
+                .ToDataTable());
+        }
+
         [Test]
         public void BuildProxyForElegibleType()
         {
@@ -93,33 +136,7 @@ WHERE ([{0}].[ID] = 1)".Format("T1");
         [Test]
         public void CanLazyLoadAnythingFromAnything()
         {
-            string
-                units =
-@"SELECT [{0}].[ID], [{0}].[Bedrooms] AS [NumberOfBedrooms], [{0}].[StatusID], [{0}].[RealEstatePropertyID]
-FROM [dbo].[Unit] AS [{0}]",
-                property =
-@"SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
-FROM [dbo].[RealEstateProperty] AS [{0}]
-WHERE ([{0}].[ID] = {1})",
-                renters =
-@"SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
-FROM [dbo].[Renter] AS [{0}]
-WHERE ([{0}].[UnitID] = {1})",
-                status =
-@"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
-FROM [dbo].[Status] AS [{0}]
-WHERE ([{0}].[ID] = {1})";
-
-            DbContext.Database.Instance.AddCommandBehavior(units.Format("T1"), Units);
-            DbContext.Database.Instance.AddCommandBehavior(property.Format("T1", 1), RealEstateProperties.Where(x => x.ID == 1));
-            DbContext.Database.Instance.AddCommandBehavior(property.Format("T1", 2), RealEstateProperties.Where(x => x.ID == 2));
-            DbContext.Database.Instance.AddCommandBehavior(renters.Format("T1", 1), Renters.Where(x => x.UnitID == 1));
-            DbContext.Database.Instance.AddCommandBehavior(renters.Format("T1", 2), Renters.Where(x => x.UnitID == 2));
-            DbContext.Database.Instance.AddCommandBehavior(renters.Format("T1", 3), Renters.Where(x => x.UnitID == 3));
-            DbContext.Database.Instance.AddCommandBehavior(renters.Format("T1", 4), Renters.Where(x => x.UnitID == 4));
-            DbContext.Database.Instance.AddCommandBehavior(status.Format("T1", 1), Statuses.Where(x => x.ID == 1));
-            DbContext.Database.Instance.AddCommandBehavior(status.Format("T1", 2), Statuses.Where(x => x.ID == 2));
-            DbContext.Database.Instance.AddCommandBehavior(status.Format("T1", 3), Statuses.Where(x => x.ID == 3));
+            
 
             foreach (Unit unit in DbContext.Units)
             {
@@ -147,17 +164,9 @@ WHERE ([{0}].[ID] = {1})";
         [Test]
         public void ProxyCollectionPropertyWillNotBeNullOnGet()
         {
-            string
-                units =
-@"SELECT [{0}].[ID], [{0}].[Bedrooms] AS [NumberOfBedrooms], [{0}].[StatusID], [{0}].[RealEstatePropertyID]
-FROM [dbo].[Unit] AS [{0}]
-WHERE ([{0}].[RealEstatePropertyID] = {1})";
-
             RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(DbContext);
 
             instance.Units = null;
-
-            DbContext.Database.Instance.AddCommandBehavior(units.Format("T1", 0), Units.Where(x => x.RealEstatePropertyID == 0));
 
             instance.Units.Should().NotBeNull();
             instance.Units.Should().BeEmpty();
@@ -166,21 +175,11 @@ WHERE ([{0}].[RealEstatePropertyID] = {1})";
         [Test]
         public void ProxyCollectionPropertyWillLoadWhenNotNullAndCountIsZeroOnGet()
         {
-            string
-                units =
-@"SELECT [{0}].[ID], [{0}].[Bedrooms] AS [NumberOfBedrooms], [{0}].[StatusID], [{0}].[RealEstatePropertyID]
-FROM [dbo].[Unit] AS [{0}]
-WHERE ([{0}].[RealEstatePropertyID] = {1})";
-
             RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(DbContext);
-
-            DbContext.Database.Instance.AddCommandBehavior(units.Format("T1", 0), Units.Where(x => x.RealEstatePropertyID == 0));
 
             instance.Units.Should().NotBeNull();
             // have yet to hit the db
             instance.Units.Should().BeEmpty();
-
-            DbContext.Database.Instance.AddCommandBehavior(units.Format("T1", 1), Units.Where(x => x.RealEstatePropertyID == 1));
 
             instance.ID = 1;
 

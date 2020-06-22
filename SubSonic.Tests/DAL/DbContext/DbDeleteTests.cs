@@ -22,13 +22,13 @@ WHERE ([{1}].[ID] IN (SELECT [ID] FROM @input))";
         private static IEnumerable<IDbTestCase> DeleteTestCases()
         {
             yield return new DbTestCase<Models.Person>(false, @"DELETE FROM [dbo].[Person]
-WHERE [ID] IN (1, 2, 3, 4)");
+WHERE [ID] IN (@el_1)");
             yield return new DbTestCase<Models.Person>(true, @"DELETE FROM [dbo].[Person]
 WHERE [ID] IN (
 	SELECT [T1].[ID]
 	FROM @input AS [T1])");
             yield return new DbTestCase<Models.Renter>(false, @"DELETE FROM [dbo].[Renter]
-WHERE ([PersonID] IN (1, 2, 3, 1, 4) AND [UnitID] IN (1, 1, 2, 3, 10))");
+WHERE ([PersonID] IN (@el_1) AND [UnitID] IN (@el_2))");
             yield return new DbTestCase<Models.Renter>(true, @"DELETE FROM [dbo].[Renter]
 WHERE ([PersonID] IN (
 	SELECT [T1].[PersonID]
@@ -68,33 +68,34 @@ WHERE ([PersonID] IN (
 
             if (expected.Count() > 0)
             {
-                AlteredState<IDbEntityModel, DbEntityModel> state = null;
-
                 if (dbTest.UseDefinedTableType)
                 {
-                    state = dbTest.EntityModel.AlteredState<IDbEntityModel, DbEntityModel>(new
+                    using (dbTest.EntityModel.AlteredState<IDbEntityModel, DbEntityModel>(new
                     {
                         DefinedTableType = new DbUserDefinedTableTypeAttribute(dbTest.EntityModel.Name)
-                    }).Apply();
+                    }).Apply())
+                    {
+                        DbContext.SaveChanges().Should().BeTrue();
+                    }
                 }
-
-                DbContext.SaveChanges().Should().BeTrue();
-
-                if (dbTest.UseDefinedTableType)
+                else
                 {
-                    state.Dispose();
-                    state = null;
+                    DbContext.SaveChanges().Should().BeTrue();
                 }
 
                 FluentActions.Invoking(() =>
                     DbContext.Database.Instance.RecievedCommand(dbTest.Expectation))
                     .Should().NotThrow();
 
+                DbContext.Database.Instance.RecievedCommandCount(dbTest.Expectation)
+                    .Should()
+                    .Be(dbTest.UseDefinedTableType ? 1 : expected.Count());
+
                 dbTest.Count().Should().Be(0);
             }
         }
 
-        private DataTable DeleteCmdBehaviorForUDTT(DbCommand cmd, IEnumerable<IEntityProxy> expected)
+        private int DeleteCmdBehaviorForUDTT(DbCommand cmd, IEnumerable<IEntityProxy> expected)
         {
             if (cmd.Parameters["@input"].Value is DataTable data)
             {
@@ -120,35 +121,37 @@ WHERE ([PersonID] IN (
                 }
             }
 
-            return null;
+            return expected.Count();
         }
 
-        private DataTable DeleteCmdBehaviorForInArray(DbCommand cmd, IEnumerable<IEntityProxy> expected)
+        private int DeleteCmdBehaviorForInArray(DbCommand cmd, IEnumerable<IEntityProxy> expected)
         {
-            foreach (DbParameter parameter in cmd.Parameters)
+            IEntityProxy proxy = expected.ElementAt(0);
+
+            int count = 0;
+
+            if (proxy is Models.Person)
             {
-                if (parameter.Direction != ParameterDirection.Input)
+                People.Remove(People.Single(x => x.ID == cmd.Parameters["@el_1"].GetValue<int>()));
+
+                count++;
+            }
+            else if (proxy is Models.Renter)
+            {
+                IEnumerable<Models.Renter> deleted = Renters.Where(x =>
+                        x.PersonID == cmd.Parameters["@el_1"].GetValue<int>() &&
+                        x.UnitID == cmd.Parameters["@el_2"].GetValue<int>())
+                    .ToArray();
+
+                foreach (Models.Renter renter in deleted)
                 {
-                    continue;
+                    Renters.Remove(renter);
+
+                    count++;
                 }
             }
 
-            foreach (IEntityProxy proxy in expected)
-            {
-                if (proxy is Models.Person person)
-                {
-                    People.Remove(People.Single(x => x.ID == person.ID));
-                }
-                else if (proxy is Models.Renter renter)
-                {
-                    Renters.Remove(Renters.Single(x =>
-                        x.PersonID == renter.PersonID &&
-                        x.UnitID == renter.UnitID &&
-                        x.StartDate == renter.StartDate));
-                }
-            }
-            
-            return null;
+            return count;
         }
     }
 }

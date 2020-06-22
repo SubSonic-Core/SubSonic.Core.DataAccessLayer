@@ -32,6 +32,18 @@ namespace SubSonic.Tests.DAL
 
             expected.Count().Should().Be(dbTest.Count());
 
+            DbContext.Database.Instance.AddCommandBehavior(dbTest.Expectation, cmd =>
+            {
+                if (dbTest.UseDefinedTableType)
+                {
+                    return UpdateCmdBehaviorForUDTT(cmd, expected);
+                }
+                else
+                {
+                    return UpdateCmdBehaviorForInArray(cmd, expected);
+                }
+            });
+
             foreach(IEntityProxy proxy in expected)
             {
                 if (proxy is Models.Person person)
@@ -49,6 +61,42 @@ namespace SubSonic.Tests.DAL
                 .Count(x => x.IsDirty)
                 .Should()
                 .Be(expected.Count());
+
+            //if (expected.Count() > 0)
+            //{
+            //    if (dbTest.UseDefinedTableType)
+            //    {
+            //        using (dbTest.EntityModel.AlteredState<IDbEntityModel, DbEntityModel>(new
+            //        {
+            //            DefinedTableType = new DbUserDefinedTableTypeAttribute(dbTest.EntityModel.Name)
+            //        }).Apply())
+            //        {
+            //            DbContext.SaveChanges().Should().BeTrue();
+            //        }
+            //    }
+            //    else
+            //    {
+            //        DbContext.SaveChanges().Should().BeTrue();
+            //    }
+
+            //    FluentActions.Invoking(() =>
+            //        DbContext.Database.Instance.RecievedCommand(dbTest.Expectation))
+            //        .Should().NotThrow();
+
+            //    DbContext.Database.Instance.RecievedCommandCount(dbTest.Expectation)
+            //        .Should()
+            //        .Be(dbTest.UseDefinedTableType ? 1 : expected.Count());
+            //}
+        }
+
+        private object UpdateCmdBehaviorForInArray(DbCommand cmd, IEnumerable<IEntityProxy> expected)
+        {
+            throw new NotImplementedException();
+        }
+
+        private object UpdateCmdBehaviorForUDTT(DbCommand cmd, IEnumerable<IEntityProxy> expected)
+        {
+            throw new NotImplementedException();
         }
     }
 }

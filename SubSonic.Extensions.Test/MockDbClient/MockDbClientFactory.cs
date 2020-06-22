@@ -32,7 +32,9 @@ namespace SubSonic.Extensions.Test.MockDbClient
         {
             using (var cmd = new MockDbCommand(command, type))
             {
-                return FindBehavior(cmd).IsNotNull(behavior => (behavior.Recieved - 1));
+                int count = FindBehavior(cmd).IsNotNull(behavior => behavior.GetRecievedCount());
+
+                return count;
             }
         }
 

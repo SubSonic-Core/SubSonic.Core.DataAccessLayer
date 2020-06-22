@@ -25,23 +25,23 @@ namespace SubSonic.Tests.DAL.DbSetCollection
                 units =
 @"SELECT [{0}].[ID], [{0}].[Bedrooms] AS [NumberOfBedrooms], [{0}].[StatusID], [{0}].[RealEstatePropertyID]
 FROM [dbo].[Unit] AS [{0}]
-WHERE ([{0}].[RealEstatePropertyID] = {1})",
+WHERE ([{0}].[RealEstatePropertyID] = @realestatepropertyid_1)",
                 status =
 @"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
 FROM [dbo].[Status] AS [{0}]
-WHERE ([{0}].[ID] = {1})",
+WHERE ([{0}].[ID] = @id_1)",
                 statuses =
 @"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
 FROM [dbo].[Status] AS [{0}]",
                 kara =
 @"SELECT [{0}].[ID], [{0}].[FirstName], [{0}].[MiddleInitial], [{0}].[FamilyName], [{0}].[FullName]
 FROM [dbo].[Person] AS [{0}]
-WHERE ([{0}].[ID] = {1})";
+WHERE ([{0}].[ID] = @id_1)";
 
-            DbContext.Database.Instance.AddCommandBehavior(units.Format("T1", 0), Units.Where(x => x.ID == 0));
-            DbContext.Database.Instance.AddCommandBehavior(status.Format("T1", 1), Statuses.Where(x => x.ID == 1));
+            DbContext.Database.Instance.AddCommandBehavior(units.Format("T1"), cmd => Units.Where(x => x.RealEstatePropertyID == cmd.Parameters["@realestatepropertyid_1"].GetValue<int>()).ToDataTable());
+            DbContext.Database.Instance.AddCommandBehavior(status.Format("T1"), cmd => Statuses.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
             DbContext.Database.Instance.AddCommandBehavior(statuses.Format("T1"), Statuses);
-            DbContext.Database.Instance.AddCommandBehavior(kara.Format("T1", 1), People.Where(x => x.ID == 1));
+            DbContext.Database.Instance.AddCommandBehavior(kara.Format("T1"), cmd => People.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
         }
 
         [Test]

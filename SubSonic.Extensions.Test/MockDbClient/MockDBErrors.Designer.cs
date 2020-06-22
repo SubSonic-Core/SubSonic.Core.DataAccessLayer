@@ -68,5 +68,14 @@ namespace SubSonic.Extensions.Test.MockDbClient {
                 return ResourceManager.GetString("ConnectionStateNotOpen", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Missing expected db parameter..
+        /// </summary>
+        internal static string MissingDbParameter {
+            get {
+                return ResourceManager.GetString("MissingDbParameter", resourceCulture);
+            }
+        }
     }
 }

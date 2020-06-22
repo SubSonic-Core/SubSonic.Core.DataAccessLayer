@@ -58,7 +58,7 @@ namespace SubSonic.Linq.Expressions.Structure
 
                     PropertyInfo propertyInfo = insert.Type.BaseType.GetProperty(property.PropertyName);
 
-                    string parameterName = $"@{property.Name}_{i + 1}";
+                    string parameterName = $"@{property.Name}";
 
                     if (insert.Values.ElementAt(i) is ConstantExpression element)
                     {

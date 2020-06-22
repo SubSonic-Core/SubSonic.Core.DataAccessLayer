@@ -129,7 +129,20 @@ namespace SubSonic.Infrastructure
 
                     cmd.Connection.Open();
 
-                    IEnumerable<TEntity> results = cmd.ExecuteReader().Map<TEntity>();
+                    IEnumerable<TEntity> results = Array.Empty<TEntity>();
+
+                    switch (queryType)
+                    {
+                        case DbQueryType.Delete:
+                            int count = cmd.ExecuteNonQuery();
+
+                            logger.LogTrace($"{count} records affected.");
+                            break;
+                        case DbQueryType.Insert:
+                        case DbQueryType.Update:
+                            results = cmd.ExecuteReader().Map<TEntity>();
+                            break;
+                    }
 
                     if (cmd.Parameters.Contains(nameof(error)))
                     {

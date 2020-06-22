@@ -11,6 +11,7 @@ namespace SubSonic.Extensions.Test
     using Infrastructure;
     using Infrastructure.Schema;
     using Linq;
+    using System.Globalization;
 
     public static partial class SubSonicTestExtensions
     {
@@ -57,6 +58,29 @@ namespace SubSonic.Extensions.Test
             }
 
             return "";
+        }
+
+        public static TType GetValue<TType>(this DbParameter parameter)
+        {
+            if (!(parameter is null))
+            {
+                if (parameter.Value != DBNull.Value)
+                {
+                    return (TType)Convert.ChangeType(parameter.Value, typeof(TType), CultureInfo.CurrentCulture);
+                }
+                else if (parameter.SourceColumnNullMapping)
+                {
+                    return (TType)Activator.CreateInstance(typeof(Nullable<>).MakeGenericType(typeof(TType)));
+                }
+                else
+                {
+                    throw new ArgumentNullException(parameter.ParameterName);
+                }
+            }
+            else
+            {
+                throw new ArgumentNullException(nameof(parameter));
+            }
         }
 
         public static DataTable ToDataTable(this IDbEntityModel model)
@@ -166,6 +190,16 @@ namespace SubSonic.Extensions.Test
                     throw new InvalidOperationException(SubSonicExtenstionTestErrors.DbCommandNotRecieved.Format(command));
                 }
             }
+        }
+
+        public static int RecievedCommandCount(this DbProviderFactory factory, string command)
+        {
+            if (factory is SubSonicMockDbClient db)
+            {
+                return db.RecievedBehavior(command);
+            }
+
+            return default(int);
         }
 
         public static void AddCommandBehavior<TEntity>(this DbProviderFactory factory, string command, IEnumerable<TEntity> entities)

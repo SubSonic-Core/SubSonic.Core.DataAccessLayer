@@ -22,7 +22,7 @@ namespace SubSonic.Tests.DAL
             string expected_cmd = @"INSERT INTO [dbo].[Person]
 OUTPUT INSERTED.* INTO #Person
 VALUES
-	('First_1', 'M', 'Last_1')";
+	(@FirstName, @MiddleInitial, @FamilyName)";
 
             Models.Person person = new Models.Person(){ FirstName = "First_1", FamilyName = "Last_1", MiddleInitial = "M" };
 
@@ -30,9 +30,9 @@ VALUES
             {
                 Models.Person data = new Models.Person()
                 {
-                    FamilyName = cmd.Parameters["@FamilyName_1"].Value.ToString(),
-                    FirstName = cmd.Parameters["@FirstName_1"].Value.ToString(),
-                    MiddleInitial = cmd.Parameters["@MiddleInitial_1"].Value.IsNotNull(x => x.ToString())
+                    FamilyName = cmd.Parameters["@FamilyName"].Value.ToString(),
+                    FirstName = cmd.Parameters["@FirstName"].Value.ToString(),
+                    MiddleInitial = cmd.Parameters["@MiddleInitial"].Value.IsNotNull(x => x.ToString())
                 };
 
                 People.Add(data);
@@ -114,6 +114,14 @@ FROM @input";
                 person.FullName.Should().Be("Last_1, First_1 M.");
             }
 
+            FluentActions.Invoking(() =>
+                    DbContext.Database.Instance.RecievedCommand(expected_cmd))
+                    .Should().NotThrow();
+
+            DbContext.Database.Instance.RecievedCommandCount(expected_cmd)
+                .Should()
+                .Be(1);
+
             DbContext.Model.GetEntityModel<Models.Person>().DefinedTableTypeExists.Should().BeFalse();
         }
 
@@ -168,9 +176,7 @@ FROM @input";
             string expected_cmd = @"INSERT INTO [dbo].[Person]
 OUTPUT INSERTED.* INTO #Person
 VALUES
-	('First_2', 'M', 'Last_2'),
-	('First_3', '', 'Last_3'),
-	('First_4', , 'Last_4')";
+	(@FirstName, @MiddleInitial, @FamilyName)";
 
             Models.Person[] people = new[]
             {
@@ -181,29 +187,15 @@ VALUES
 
             DbContext.Database.Instance.AddCommandBehavior(expected_cmd, cmd =>
             {
-                cmd.Parameters["@MiddleInitial_1"].DbType.Should().Be(DbType.AnsiString);
-                cmd.Parameters["@MiddleInitial_2"].DbType.Should().Be(DbType.AnsiString);
-                cmd.Parameters["@MiddleInitial_3"].DbType.Should().Be(DbType.AnsiString);
+                cmd.Parameters["@MiddleInitial"].DbType.Should().Be(DbType.AnsiString);
 
                 Models.Person[] _persons = new[]
                 {
                     new Models.Person()
                     {
-                        FamilyName = cmd.Parameters["@FamilyName_1"].Value.ToString(),
-                        FirstName = cmd.Parameters["@FirstName_1"].Value.ToString(),
-                        MiddleInitial = cmd.Parameters["@MiddleInitial_1"].Value.IsNotNull(x => x.ToString())
-                    },
-                    new Models.Person()
-                    {
-                        FamilyName = cmd.Parameters["@FamilyName_2"].Value.ToString(),
-                        FirstName = cmd.Parameters["@FirstName_2"].Value.ToString(),
-                        MiddleInitial = cmd.Parameters["@MiddleInitial_2"].Value.IsNotNull(x => x.ToString())
-                    },
-                    new Models.Person()
-                    {
-                        FamilyName = cmd.Parameters["@FamilyName_3"].Value.ToString(),
-                        FirstName = cmd.Parameters["@FirstName_3"].Value.ToString(),
-                        MiddleInitial = cmd.Parameters["@MiddleInitial_3"].Value.IsNotNull(x => x.ToString())
+                        FamilyName = cmd.Parameters["@FamilyName"].Value.ToString(),
+                        FirstName = cmd.Parameters["@FirstName"].Value.ToString(),
+                        MiddleInitial = cmd.Parameters["@MiddleInitial"].Value.IsNotNull(x => x.ToString())
                     }
                 };
 
@@ -225,6 +217,14 @@ VALUES
             DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(3);
 
             DbContext.SaveChanges().Should().BeTrue();
+
+            FluentActions.Invoking(() =>
+                    DbContext.Database.Instance.RecievedCommand(expected_cmd))
+                    .Should().NotThrow();
+
+            DbContext.Database.Instance.RecievedCommandCount(expected_cmd)
+                .Should()
+                .Be(people.Length);
 
             people[0].ID.Should().Be(5);
             people[0].FullName.Should().Be("Last_2, First_2 M.");
@@ -298,10 +298,7 @@ FROM @input";
         const string renter_expected_temp = @"INSERT INTO [dbo].[Renter]
 OUTPUT INSERTED.* INTO #Renter
 VALUES
-	(1, 1, 450, [StartDate_0], [EndDate_0]),
-	(1, 1, 500, [StartDate_1], [EndDate_1]),
-	(2, 1, 450, [StartDate_2], [EndDate_2]),
-	(2, 2, 600, [StartDate_3], [EndDate_3])";
+	(@PersonID, @UnitID, @Rent, @StartDate, @EndDate)";
 
         const string renter_expected_udtt = @"INSERT INTO [dbo].[Renter]
 OUTPUT INSERTED.* INTO @output
@@ -331,16 +328,16 @@ FROM @input";
 
             renters.CopyTo(original, 0);
 
-            if (!withUDTT)
-            {
-                // ubunto and windows format dates very differently
-                for (int i = 0; i < renters.Length; i++)
-                {
-                    expected = expected
-                        .Replace($"[StartDate_{i}]", renters[i].StartDate.ToString())
-                        .Replace($"[EndDate_{i}]", renters[i].EndDate.ToString());
-                }
-            }
+            //if (!withUDTT)
+            //{
+            //    // ubunto and windows format dates very differently
+            //    for (int i = 0; i < renters.Length; i++)
+            //    {
+            //        expected = expected
+            //            .Replace($"[StartDate_{i}]", renters[i].StartDate.ToString())
+            //            .Replace($"[EndDate_{i}]", renters[i].EndDate.ToString());
+            //    }
+            //}
 
             DbContext.Database.Instance.AddCommandBehavior(expected, cmd =>
             {
@@ -376,6 +373,14 @@ FROM @input";
                 state = null;
             }
 
+            FluentActions.Invoking(() =>
+                    DbContext.Database.Instance.RecievedCommand(expected))
+                    .Should().NotThrow();
+
+            DbContext.Database.Instance.RecievedCommandCount(expected)
+                .Should()
+                .Be(withUDTT ? 1 : original.Length);
+
             for (int i = 0; i < original.Length; i++)
             {
                 renters[i].PersonID.Should().Be(original[i].PersonID);
@@ -388,27 +393,18 @@ FROM @input";
 
         private DataTable RenterCmdBehaviorForTempTable(DbCommand cmd, int count)
         {
-            List<Models.Renter> renters = new List<Models.Renter>();
-
-            for(int i = 0; i < count; i++)
+            Models.Renter renter = new Models.Renter()
             {
-                int x = i + 1;
+                PersonID = (int)cmd.Parameters[$"@PersonID"].Value,
+                UnitID = (int)cmd.Parameters[$"@UnitID"].Value,
+                Rent = (decimal)cmd.Parameters[$"@Rent"].Value,
+                StartDate = (DateTime)cmd.Parameters[$"@StartDate"].Value,
+                EndDate = (DateTime)cmd.Parameters[$"@EndDate"].Value
+            };
 
-                Models.Renter renter = new Models.Renter()
-                {
-                    PersonID = (int)cmd.Parameters[$"@PersonID_{x}"].Value,
-                    UnitID = (int)cmd.Parameters[$"@UnitID_{x}"].Value,
-                    Rent = (decimal)cmd.Parameters[$"@Rent_{x}"].Value,
-                    StartDate = (DateTime)cmd.Parameters[$"@StartDate_{x}"].Value,
-                    EndDate = (DateTime)cmd.Parameters[$"@EndDate_{x}"].Value
-                };
+            DbContext.Renters.Add(renter);
 
-                renters.Add(renter);
-            }
-
-            DbContext.Renters.AddRange(renters);
-
-            return renters.ToDataTable();
+            return new[] { renter }.ToDataTable();
         }
 
         private DataTable RenterCmdBehaviorForUDTT(DbCommand cmd, int count)

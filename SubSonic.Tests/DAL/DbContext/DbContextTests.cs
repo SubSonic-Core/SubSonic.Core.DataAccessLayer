@@ -26,18 +26,18 @@ namespace SubSonic.Tests.DAL
                 units =
             @"SELECT [{0}].[ID], [{0}].[Bedrooms] AS [NumberOfBedrooms], [{0}].[StatusID], [{0}].[RealEstatePropertyID]
 FROM [dbo].[Unit] AS [{0}]
-WHERE ([{0}].[RealEstatePropertyID] = {1})",
+WHERE ([{0}].[RealEstatePropertyID] = @RealEstatePropertyID)",
                 status =
             @"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
 FROM [dbo].[Status] AS [{0}]
-WHERE ([{0}].[ID] = {1})",
+WHERE ([{0}].[ID] = @id_1)",
                 statuses =
             @"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
 FROM [dbo].[Status] AS [{0}]",
                 property =
 @"SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
 FROM [dbo].[RealEstateProperty] AS [{0}]
-WHERE ([{0}].[ID] = {1})",
+WHERE ([{0}].[ID] = @id_1)",
                 property_all =
 @"SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
 FROM [dbo].[RealEstateProperty] AS [{0}]",
@@ -47,16 +47,13 @@ FROM [dbo].[Person] AS [{0}]",
 FROM [dbo].[Person] AS [{0}]",
                 people_greater_than = @"SELECT [{0}].[ID], [{0}].[FirstName], [{0}].[MiddleInitial], [{0}].[FamilyName], [{0}].[FullName]
 FROM [dbo].[Person] AS [{0}]
-WHERE ([{0}].[ID] > {1})",
+WHERE ([{0}].[ID] > @id_1)",
                 people_greater_than_cnt = @"SELECT COUNT([{0}].[ID])
 FROM [dbo].[Person] AS [{0}]
-WHERE ([{0}].[ID] > {1})",
-                people_equal = @"SELECT [{0}].[ID], [{0}].[FirstName], [{0}].[MiddleInitial], [{0}].[FamilyName], [{0}].[FullName]
+WHERE ([{0}].[ID] > @id_1)",
+                person_count = @"SELECT COUNT([{0}].[ID])
 FROM [dbo].[Person] AS [{0}]
-WHERE ([{0}].[ID] = {1})",
-                people_equal_cnt = @"SELECT COUNT([{0}].[ID])
-FROM [dbo].[Person] AS [{0}]
-WHERE ([{0}].[ID] = {1})",
+WHERE ([{0}].[ID] = @id_1)",
                 renters = @"SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
 FROM [dbo].[Renter] AS [{0}]",
                 renters_count = @"SELECT COUNT([{0}].[PersonID])
@@ -64,21 +61,20 @@ FROM [dbo].[Renter] AS [{0}]",
                 person =
 @"SELECT [{0}].[ID], [{0}].[FirstName], [{0}].[MiddleInitial], [{0}].[FamilyName], [{0}].[FullName]
 FROM [dbo].[Person] AS [{0}]
-WHERE ([{0}].[ID] = {1})";
+WHERE ([{0}].[ID] = @id_1)";
 
-            DbContext.Database.Instance.AddCommandBehavior(units.Format("T1", 0), Units.Where(x => x.ID == 0));
-            DbContext.Database.Instance.AddCommandBehavior(status.Format("T1", 1), Statuses.Where(x => x.ID == 1));
+            DbContext.Database.Instance.AddCommandBehavior(units.Format("T1"), cmd => Units.Where(x => x.RealEstatePropertyID == cmd.Parameters["@RealEstatePropertyID"].GetValue<int>()).ToDataTable());
+            DbContext.Database.Instance.AddCommandBehavior(status.Format("T1"), cmd => 
+                Statuses.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
             DbContext.Database.Instance.AddCommandBehavior(statuses.Format("T1"), Statuses);
-            DbContext.Database.Instance.AddCommandBehavior(property.Format("T1", 1), RealEstateProperties.Where(x => x.ID == 1));
+            DbContext.Database.Instance.AddCommandBehavior(property.Format("T1"), cmd => RealEstateProperties.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
             DbContext.Database.Instance.AddCommandBehavior(property_all.Format("T1"), RealEstateProperties);
             DbContext.Database.Instance.AddCommandBehavior(people_all.Format("T1"), People);
             DbContext.Database.Instance.AddCommandBehavior(people_count.Format("T1"), cmd => new[] { People.Count }.ToDataTable());
-            DbContext.Database.Instance.AddCommandBehavior(person.Format("T1", 1), People.Where(x => x.ID == 1));
-            DbContext.Database.Instance.AddCommandBehavior(person.Format("T1", 2), People.Where(x => x.ID == 2));
-            DbContext.Database.Instance.AddCommandBehavior(people_greater_than.Format("T1", 2), People.Where(x => x.ID > 2));
-            DbContext.Database.Instance.AddCommandBehavior(people_greater_than_cnt.Format("T1", 2), cmd => new[] { People.Count(x => x.ID > 2) }.ToDataTable());
-            DbContext.Database.Instance.AddCommandBehavior(people_equal.Format("T1", 3), People.Where(x => x.ID == 3));
-            DbContext.Database.Instance.AddCommandBehavior(people_equal_cnt.Format("T1", 3), cmd => new[] { People.Count(x => x.ID == 3) }.ToDataTable());
+            DbContext.Database.Instance.AddCommandBehavior(person.Format("T1"), cmd => People.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
+            DbContext.Database.Instance.AddCommandBehavior(person_count.Format("T1"), cmd => new[] { People.Count(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()) }.ToDataTable());
+            DbContext.Database.Instance.AddCommandBehavior(people_greater_than.Format("T1"), cmd => People.Where(x => x.ID > cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
+            DbContext.Database.Instance.AddCommandBehavior(people_greater_than_cnt.Format("T1"), cmd => new[] { People.Count(x => x.ID > cmd.Parameters["@id_1"].GetValue<int>()) }.ToDataTable());
             DbContext.Database.Instance.AddCommandBehavior(renters.Format("T1"), Renters);
             DbContext.Database.Instance.AddCommandBehavior(renters_count.Format("T1"), cmd => new[] { Renters.Count }.ToDataTable());
         }
@@ -342,8 +338,8 @@ FROM [dbo].[RealEstateProperty] AS [T1]",
 	SELECT [T1].[ID]
 	FROM [dbo].[RealEstateProperty] AS [T1]
 	ORDER BY [T1].[ID]
-	OFFSET {0} * ({1} - 1) ROWS
-	FETCH NEXT {0} ROWS ONLY
+	OFFSET @PageSize * (@PageNumber - 1) ROWS
+	FETCH NEXT @PageSize ROWS ONLY
 )
 SELECT [T1].[ID], [T1].[StatusID], [T1].[HasParallelPowerGeneration]
 FROM [dbo].[RealEstateProperty] AS [T1]
@@ -385,8 +381,7 @@ OPTION (RECOMPILE)";
                     .ToDataTable();
             };
 
-            DbContext.Database.Instance.AddCommandBehavior(paged.Format(pageSize, 1), command);
-            DbContext.Database.Instance.AddCommandBehavior(paged.Format(pageSize, 2), command);
+            DbContext.Database.Instance.AddCommandBehavior(paged, command);
 
             IDbPageCollection<Models.RealEstateProperty> collection = DbContext.RealEstateProperties.ToPagedCollection(pageSize);
 
@@ -424,8 +419,8 @@ FROM [dbo].[RealEstateProperty] AS [T1]",
 	SELECT [T1].[ID]
 	FROM [dbo].[RealEstateProperty] AS [T1]
 	ORDER BY [T1].[ID]
-	OFFSET {0} * ({1} - 1) ROWS
-	FETCH NEXT {0} ROWS ONLY
+	OFFSET @PageSize * (@PageNumber - 1) ROWS
+	FETCH NEXT @PageSize ROWS ONLY
 )
 SELECT [T1].[ID], [T1].[StatusID], [T1].[HasParallelPowerGeneration]
 FROM [dbo].[RealEstateProperty] AS [T1]
@@ -467,8 +462,7 @@ OPTION (RECOMPILE)";
                     .ToDataTable();
             };
 
-            DbContext.Database.Instance.AddCommandBehavior(paged.Format(pageSize, 1), command);
-            DbContext.Database.Instance.AddCommandBehavior(paged.Format(pageSize, 2), command);
+            DbContext.Database.Instance.AddCommandBehavior(paged, command);
 
             IDbPageCollection<Models.RealEstateProperty> collection = DbContext.RealEstateProperties.ToPagedCollection(pageSize);
 
