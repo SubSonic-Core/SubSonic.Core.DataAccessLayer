@@ -54,7 +54,7 @@ namespace SubSonic.Linq.Expressions
                 throw new ArgumentNullException(nameof(inputTableName));
             }
 
-            DbUpdateExpression dbUpdate = new DbUpdateExpression(table, data);
+            DbUpdateExpression dbUpdate = (DbUpdateExpression)DbUpdate(table, data);
 
             dbUpdate.Table.Joins.Add(DbJoin(JoinType.InnerJoin, table, DbTableType(dbUpdate.Table.Model, inputTableName)));
 
