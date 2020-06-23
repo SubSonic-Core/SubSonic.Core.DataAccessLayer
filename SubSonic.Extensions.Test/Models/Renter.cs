@@ -7,9 +7,9 @@ namespace SubSonic.Extensions.Test.Models
     public class Renter
     {
         [Key]
-        public int PersonID { get; set; }
+        public virtual int PersonID { get; set; }
         [Key]
-        public int UnitID { get; set; }
+        public virtual int UnitID { get; set; }
 
         [ForeignKey(nameof(PersonID))]
         public virtual Person Person { get; set; }
@@ -17,11 +17,11 @@ namespace SubSonic.Extensions.Test.Models
         [ForeignKey(nameof(UnitID))]
         public virtual Unit Unit { get; set; }
 
-        public decimal Rent { get; set; }
+        public virtual decimal Rent { get; set; }
 
-        public DateTime StartDate { get; set; }
+        public virtual DateTime StartDate { get; set; }
 
-        public DateTime? EndDate { get; set; }
+        public virtual DateTime? EndDate { get; set; }
 
     }
 }

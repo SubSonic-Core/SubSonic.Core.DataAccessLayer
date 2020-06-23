@@ -34,6 +34,25 @@ FROM [dbo].[Person] AS [T1]
 OUTPUT INSERTED.* INTO @output
 FROM [dbo].[Person] AS [T1]
 WHERE ([T1].[ID] = @id_1)", person => person.ID == 3);
+            yield return new DbTestCase<Models.Renter>(true, @"UPDATE [T1] SET
+	[T1].[PersonID] = [T2].[PersonID],
+	[T1].[UnitID] = [T2].[UnitID],
+	[T1].[Rent] = [T2].[Rent],
+	[T1].[StartDate] = [T2].[StartDate],
+	[T1].[EndDate] = [T2].[EndDate]
+OUTPUT INSERTED.* INTO @output
+FROM [dbo].[Renter] AS [T1]
+	INNER JOIN @update AS [T2]
+		ON (([T2].[PersonID] = [T1].[PersonID]) AND ([T2].[UnitID] = [T1].[UnitID]))", renter => renter.PersonID == 2 && renter.UnitID == 1);
+            yield return new DbTestCase<Models.Renter>(false, @"UPDATE [T1] SET
+	[T1].[PersonID] = @PersonID,
+	[T1].[UnitID] = @UnitID,
+	[T1].[Rent] = @Rent,
+	[T1].[StartDate] = @StartDate,
+	[T1].[EndDate] = @EndDate
+OUTPUT INSERTED.* INTO @output
+FROM [dbo].[Renter] AS [T1]
+WHERE (([T1].[PersonID] = @personid_1) AND ([T1].[UnitID] = @unitid_2))", renter => renter.PersonID == 1 && renter.UnitID == 3);
         }
 
         [Test]
@@ -65,6 +84,12 @@ WHERE ([T1].[ID] = @id_1)", person => person.ID == 3);
                     person.FirstName = "Bob";
                     person.FamilyName = "Walters";
                     person.MiddleInitial = "S";
+                }
+                else if (proxy is Models.Renter renter)
+                {
+                    renter.EndDate.Should().NotBe(DateTime.Today);
+
+                    renter.EndDate = DateTime.Today;
                 }
 
                 proxy.IsDirty.Should().BeTrue();
@@ -107,6 +132,10 @@ WHERE ([T1].[ID] = @id_1)", person => person.ID == 3);
                     {
                         person.FullName.Should().Be("Walters, Bob S.");
                     }
+                    else if (proxy is Models.Renter renter)
+                    {
+                        renter.EndDate.Should().Be(DateTime.Today);
+                    }
 
                     proxy.IsDirty.Should().BeFalse();
                 }
@@ -130,6 +159,20 @@ WHERE ([T1].[ID] = @id_1)", person => person.ID == 3);
                     person.MiddleInitial.IsNotNullOrEmpty() ? $" {person.MiddleInitial}." : "");
 
                 return new[] { person }.ToDataTable();
+            }
+            else if (proxy is Models.Renter)
+            {
+                Models.Renter renter = Renters.Single(x =>
+                    x.PersonID == cmd.Parameters["@personid_1"].GetValue<int>() &&
+                    x.UnitID == cmd.Parameters["@unitid_2"].GetValue<int>());
+
+                renter.PersonID = cmd.Parameters[$"@{nameof(Models.Renter.PersonID)}"].GetValue<int>();
+                renter.UnitID = cmd.Parameters[$"@{nameof(Models.Renter.UnitID)}"].GetValue<int>();
+                renter.Rent = cmd.Parameters[$"@{nameof(Models.Renter.Rent)}"].GetValue<decimal>();
+                renter.StartDate = cmd.Parameters[$"@{nameof(Models.Renter.StartDate)}"].GetValue<DateTime>();
+                renter.EndDate = cmd.Parameters[$"@{nameof(Models.Renter.EndDate)}"].GetValue<DateTime>();
+
+                return new[] { renter }.ToDataTable();
             }
             else
             {
@@ -158,6 +201,27 @@ WHERE ([T1].[ID] = @id_1)", person => person.ID == 3);
                             person.MiddleInitial.IsNotNullOrEmpty() ? $" {person.MiddleInitial}." : "");
 
                         result.Add(person);
+                    }
+
+                    return result.ToDataTable();
+                }
+                else if (expected.ElementAt(0) is Models.Renter)
+                {
+                    List<Models.Renter> result = new List<Models.Renter>();
+
+                    foreach (DataRow entity in table.Rows)
+                    {
+                        Models.Renter renter = Renters.Single(x => 
+                            x.PersonID == (int)entity[nameof(Models.Renter.PersonID)] &&
+                            x.UnitID == (int)entity[nameof(Models.Renter.UnitID)]);
+
+                        renter.PersonID = (int)entity[nameof(Models.Renter.PersonID)];
+                        renter.UnitID = (int)entity[nameof(Models.Renter.UnitID)];
+                        renter.Rent = (decimal)entity[nameof(Models.Renter.Rent)];
+                        renter.StartDate = (DateTime)entity[nameof(Models.Renter.StartDate)];
+                        renter.EndDate = (DateTime?)entity[nameof(Models.Renter.EndDate)];
+
+                        result.Add(renter);
                     }
 
                     return result.ToDataTable();

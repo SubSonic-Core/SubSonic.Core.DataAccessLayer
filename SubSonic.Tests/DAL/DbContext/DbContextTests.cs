@@ -56,6 +56,12 @@ FROM [dbo].[Person] AS [{0}]
 WHERE ([{0}].[ID] = @id_1)",
                 renters = @"SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
 FROM [dbo].[Renter] AS [{0}]",
+                renters_filtered = @"SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
+FROM [dbo].[Renter] AS [{0}]
+WHERE (([{0}].[PersonID] = @personid_1) AND ([{0}].[UnitID] = @unitid_2))",
+                renters_filtered_count = @"SELECT COUNT([T1].[PersonID])
+FROM [dbo].[Renter] AS [T1]
+WHERE (([T1].[PersonID] = @personid_1) AND ([T1].[UnitID] = @unitid_2))",
                 renters_count = @"SELECT COUNT([{0}].[PersonID])
 FROM [dbo].[Renter] AS [{0}]",
                 person =
@@ -76,6 +82,17 @@ WHERE ([{0}].[ID] = @id_1)";
             DbContext.Database.Instance.AddCommandBehavior(people_greater_than.Format("T1"), cmd => People.Where(x => x.ID > cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
             DbContext.Database.Instance.AddCommandBehavior(people_greater_than_cnt.Format("T1"), cmd => new[] { People.Count(x => x.ID > cmd.Parameters["@id_1"].GetValue<int>()) }.ToDataTable());
             DbContext.Database.Instance.AddCommandBehavior(renters.Format("T1"), Renters);
+            DbContext.Database.Instance.AddCommandBehavior(renters_filtered.Format("T1"), cmd => Renters.Where(x =>
+                x.PersonID == cmd.Parameters["@personid_1"].GetValue<int>() &&
+                x.UnitID == cmd.Parameters["@unitid_2"].GetValue<int>())
+            .ToDataTable());
+            DbContext.Database.Instance.AddCommandBehavior(renters_filtered_count, cmd => new[]
+            {
+                Renters.Count(x =>
+                    x.PersonID == cmd.Parameters["@personid_1"].GetValue<int>() &&
+                    x.UnitID == cmd.Parameters["@unitid_2"].GetValue<int>())
+            }
+            .ToDataTable());
             DbContext.Database.Instance.AddCommandBehavior(renters_count.Format("T1"), cmd => new[] { Renters.Count }.ToDataTable());
         }
 
