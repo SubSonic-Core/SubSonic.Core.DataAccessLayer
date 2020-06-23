@@ -78,7 +78,7 @@ namespace SubSonic.Infrastructure.Builders
 
         private Expression BuildUpdateQuery<TEntity>(IEnumerable<TEntity> entities)
         {
-            return DbExpression.DbUpdate(DbTable, entities.Select(x => Expression.Constant(x)));
+            return DbExpression.DbUpdate(DbTable, entities.Select(x => Expression.Constant(x)), "@update");
         }
 
         private Expression BuildDeleteQuery<TEntity>(IEnumerable<TEntity> entities)

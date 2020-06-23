@@ -44,9 +44,19 @@ namespace SubSonic.Linq.Expressions
     {
         public static DbExpression DbUpdate(DbExpression table, IEnumerable<Expression> data)
         {
+            return new DbUpdateExpression(table, data);
+        }
+
+        public static DbExpression DbUpdate(DbExpression table, IEnumerable<Expression> data, string inputTableName)
+        {
+            if (inputTableName.IsNullOrEmpty())
+            {
+                throw new ArgumentNullException(nameof(inputTableName));
+            }
+
             DbUpdateExpression dbUpdate = new DbUpdateExpression(table, data);
 
-            dbUpdate.Table.Joins.Add(DbJoin(JoinType.InnerJoin, table, DbTableType(dbUpdate.Table.Model, "update")));
+            dbUpdate.Table.Joins.Add(DbJoin(JoinType.InnerJoin, table, DbTableType(dbUpdate.Table.Model, inputTableName)));
 
             return dbUpdate;
         }
