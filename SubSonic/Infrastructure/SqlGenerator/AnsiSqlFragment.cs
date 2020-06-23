@@ -15,6 +15,7 @@ namespace SubSonic.Infrastructure.SqlGenerator
         public virtual string NOT_BETWEEN => "NOT BETWEEN";
         public virtual string CROSS_JOIN => "CROSS JOIN";
         public virtual string DELETE_FROM => "DELETE FROM";
+        public virtual string DELETED => "DELETED";
         public virtual string DESC => "DESC";
         public virtual string DISTINCT => "DISTINCT";
         public virtual string EQUAL_TO => "=";
@@ -26,7 +27,9 @@ namespace SubSonic.Infrastructure.SqlGenerator
         public virtual string CROSS_APPLY => "CROSS APPLY";
         public virtual string OUTER_APPLY => "OUTER APPLY";
         public virtual string INNER_JOIN => "INNER JOIN";
-        public virtual string INSERT_INTO => "INSERT INTO";
+        public virtual string INTO => "INTO";
+        public virtual string INSERT_INTO => $"INSERT {INTO}";
+        public virtual string INSERTED => "INSERTED";
         public virtual string JOIN_PREFIX => "J";
         public virtual string LEFT_INNER_JOIN => "LEFT INNER JOIN";
         public virtual string LEFT_JOIN => "LEFT JOIN";
@@ -69,7 +72,8 @@ namespace SubSonic.Infrastructure.SqlGenerator
         public virtual string OPTION => "OPTION";
         public virtual string ONLY => "ONLY";
         public virtual string RECOMPILE => "RECOMPILE";
-        public virtual string OUTPUT_INSERTED_INTO => $"OUTPUT INSERTED.{ASTRIX} INTO";
+        public virtual string OUTPUT => "OUTPUT";
+        public virtual string OUTPUT_INSERTED_INTO => $"{OUTPUT} {INSERTED}.{ASTRIX} {INTO}";
         public virtual string VALUES => "VALUES";
         public virtual string STATEMENT_END => ";";
         public virtual string DECLARE => "DECLARE";

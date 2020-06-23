@@ -164,7 +164,7 @@ namespace SubSonic.Infrastructure.Builders
                     throw new NotSupportedException();
                 }
             }
-            return DbExpression.Where(table, type, predicate);
+            return DbExpression.DbWhere(table, type, predicate);
         }
 
         public Expression BuildWhere(DbTableExpression table, Expression where, Type type, Expression predicate)
@@ -187,13 +187,33 @@ namespace SubSonic.Infrastructure.Builders
             return BuildCall("Where", collection, lambda);
         }
 
+        public Expression BuildWhereFindByIDPredicate(DbTableExpression dbTable, object[] keyData, params string[] keyNames)
+        {
+            if (keyData.IsNull())
+            {
+                throw new ArgumentNullException(nameof(keyData));
+            }
+
+            Expression
+                    logical = null;
+
+            for (int i = 0; i < keyNames.Length; i++)
+            {
+                logical = BuildLogicalBinary(logical, keyNames[i], keyData[i], DbComparisonOperator.Equal, DbGroupOperator.AndAlso);
+            }
+
+            LambdaExpression predicate = (LambdaExpression)BuildLambda(logical, LambdaType.Predicate);
+
+            return BuildWhere(dbTable, null, DbEntity.EntityModelType, predicate);
+        }
+
         public Expression BuildWhereExists<TEntity>(DbTableExpression from, Type type, Expression<Func<TEntity, System.Linq.IQueryable>> select)
         {
-            return DbExpression.Where(from, type, select, DbExpressionType.Exists);
+            return DbExpression.DbWhere(from, type, select, DbExpressionType.Exists);
         }
         public Expression BuildWhereNotExists<TEntity>(DbTableExpression from, Type type, Expression<Func<TEntity, System.Linq.IQueryable>> select)
         {
-            return DbExpression.Where(from, type, select, DbExpressionType.NotExists);
+            return DbExpression.DbWhere(from, type, select, DbExpressionType.NotExists);
         }
         #endregion
 
@@ -350,23 +370,21 @@ namespace SubSonic.Infrastructure.Builders
                     return new DbQuery(
                         select.ToString(),
                         CmdBehavior,
-                        GetSubSonicParameters(select.Where));
+                        GetSubSonicParameters(select));
                 }
                 else if (expression is DbSelectPageExpression paged)
                 {
                     return new DbQuery(
                         paged.ToString(),
                         CmdBehavior,
-                        GetSubSonicParameters(paged.Select.Where)
-                            .Union(paged.Parameters)
-                            .ToArray());
+                        GetSubSonicParameters(paged));
                 }
                 else if (expression is DbSelectAggregateExpression aggregate)
                 {
                     return new DbQuery(
                             aggregate.ToString(),
                             CmdBehavior,
-                            GetSubSonicParameters(aggregate.Where)
+                            GetSubSonicParameters(aggregate)
                         );
                 }
                 else if (expression is DbInsertExpression insert)
@@ -377,12 +395,20 @@ namespace SubSonic.Infrastructure.Builders
                             GetSubSonicParameters(insert)
                         );
                 }
+                else if (expression is DbUpdateExpression update)
+                {
+                    return new DbQuery(
+                            update.ToString(),
+                            CmdBehavior,
+                            GetSubSonicParameters(update)
+                        );
+                }
                 else if (expression is DbDeleteExpression delete)
                 {
                     return new DbQuery(
                             delete.ToString(),
                             CmdBehavior,
-                            GetSubSonicParameters(delete.Where)
+                            GetSubSonicParameters(delete)
                         );
                 }
                 else
@@ -414,9 +440,37 @@ namespace SubSonic.Infrastructure.Builders
             {
                 return where.Parameters.ToArray();
             }
+            else if (expression is DbSelectPageExpression paged)
+            {
+                return paged
+                    .Parameters
+                    .Union(GetSubSonicParameters(paged.Select.Where))
+                    .ToArray();
+            }
+            else if (expression is DbSelectExpression select)
+            {
+                return GetSubSonicParameters(select.Where);
+            }
+            else if(expression is DbSelectAggregateExpression aggregate)
+            {
+                return GetSubSonicParameters(aggregate.Where);
+            }
             else if (expression is DbInsertExpression insert)
             {
-                return insert.DbParameters.ToArray();
+                return insert
+                    .DbParameters
+                    .ToArray();
+            }
+            else if (expression is DbUpdateExpression update)
+            {
+                return update
+                    .DbParameters
+                    .Union(GetSubSonicParameters(update.Where))
+                    .ToArray();
+            }
+            else if (expression is DbDeleteExpression delete)
+            {
+                return GetSubSonicParameters(delete.Where);
             }
 
             return Array.Empty<SubSonicParameter>();

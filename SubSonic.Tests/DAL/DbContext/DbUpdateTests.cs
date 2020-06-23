@@ -12,14 +12,28 @@ namespace SubSonic.Tests.DAL
     using Infrastructure;
     using Infrastructure.Schema;
     using Linq;
+    using SubSonic.Data.Caching;
     using Models = Extensions.Test.Models;
 
     public partial class DbContextTests
     {
         private static IEnumerable<IDbTestCase> UpdateTestCases()
         {
-            yield return new DbTestCase<Models.Person>(true, @"UPDATE [{0}] SET", person => person.ID > 2);
-            yield return new DbTestCase<Models.Person>(false, @"UPDATE [{0}] SET", person => person.ID == 3);
+            yield return new DbTestCase<Models.Person>(true, @"UPDATE [T1] SET
+	[T1].[FirstName] = [T2].[FirstName],
+	[T1].[MiddleInitial] = [T2].[MiddleInitial],
+	[T1].[FamilyName] = [T2].[FamilyName]
+OUTPUT INSERTED.* INTO @output
+FROM [dbo].[Person] AS [T1]
+	INNER JOIN @update AS [T2]
+		ON ([T2].[ID] = [T1].[ID])", person => person.ID > 2);
+            yield return new DbTestCase<Models.Person>(false, @"UPDATE [T1] SET
+	[T1].[FirstName] = @FirstName,
+	[T1].[MiddleInitial] = @MiddleInitial,
+	[T1].[FamilyName] = @FamilyName
+OUTPUT INSERTED.* INTO @output
+FROM [dbo].[Person] AS [T1]
+WHERE ([T1].[ID] = @id_1)", person => person.ID == 3);
         }
 
         [Test]
@@ -86,17 +100,73 @@ namespace SubSonic.Tests.DAL
                 DbContext.Database.Instance.RecievedCommandCount(dbTest.Expectation)
                     .Should()
                     .Be(dbTest.UseDefinedTableType ? 1 : expected.Count());
+
+                foreach (IEntityProxy proxy in expected)
+                {
+                    if (proxy is Models.Person person)
+                    {
+                        person.FullName.Should().Be("Walters, Bob S.");
+                    }
+
+                    proxy.IsDirty.Should().BeFalse();
+                }
             }
         }
 
-        private object UpdateCmdBehaviorForInArray(DbCommand cmd, IEnumerable<IEntityProxy> expected)
+        private DataTable UpdateCmdBehaviorForInArray(DbCommand cmd, IEnumerable<IEntityProxy> expected)
         {
-            throw new NotImplementedException();
+            IEntityProxy proxy = expected.ElementAt(0);
+
+            if (proxy is Models.Person)
+            {
+                Models.Person person = People.Single(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>());
+
+                person.FirstName = cmd.Parameters["@FirstName"].GetValue<string>();
+                person.MiddleInitial = cmd.Parameters["@MiddleInitial"].GetValue<string>();
+                person.FamilyName = cmd.Parameters["@FamilyName"].GetValue<string>();
+
+                person.FullName = String.Format("{0}, {1}{2}",
+                    person.FamilyName, person.FirstName,
+                    person.MiddleInitial.IsNotNullOrEmpty() ? $" {person.MiddleInitial}." : "");
+
+                return new[] { person }.ToDataTable();
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
-        private object UpdateCmdBehaviorForUDTT(DbCommand cmd, IEnumerable<IEntityProxy> expected)
+        private DataTable UpdateCmdBehaviorForUDTT(DbCommand cmd, IEnumerable<IEntityProxy> expected)
         {
-            throw new NotImplementedException();
+            using (DataTable table = cmd.Parameters["@update"].GetValue<DataTable>())
+            {
+                if (expected.ElementAt(0) is Models.Person)
+                {
+                    List<Models.Person> result = new List<Models.Person>();
+
+                    foreach (DataRow entity in table.Rows)
+                    {
+                        Models.Person person = People.Single(x => x.ID == (int)entity[nameof(Models.Person.ID)]);
+
+                        person.FirstName = (string)entity[nameof(Models.Person.FirstName)];
+                        person.MiddleInitial = (string)entity[nameof(Models.Person.MiddleInitial)];
+                        person.FamilyName = (string)entity[nameof(Models.Person.FamilyName)];
+
+                        person.FullName = String.Format("{0}, {1}{2}",
+                            person.FamilyName, person.FirstName,
+                            person.MiddleInitial.IsNotNullOrEmpty() ? $" {person.MiddleInitial}." : "");
+
+                        result.Add(person);
+                    }
+
+                    return result.ToDataTable();
+                }
+                else
+                {
+                    throw new NotImplementedException();
+                }
+            }
         }
     }
 }

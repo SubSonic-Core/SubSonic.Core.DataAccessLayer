@@ -14,13 +14,13 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             if (expression.IsNotNull())
             {
-                if (expression.IsOfType<DbColumnExpression>())
+                if (expression is DbColumnExpression column)
                 {
-                    return VisitColumn((DbColumnExpression)expression);
+                    return VisitColumn(column);
                 }
-                else if (expression.IsOfType<DbNamedValueExpression>())
+                else if (expression is DbNamedValueExpression value)
                 {
-                    return VisitNamedValue((DbNamedValueExpression)expression);
+                    return VisitNamedValue(value);
                 }
             }
             return expression;

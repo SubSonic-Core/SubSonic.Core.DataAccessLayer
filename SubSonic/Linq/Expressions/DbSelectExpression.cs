@@ -91,7 +91,7 @@ namespace SubSonic.Linq.Expressions
 
         public IReadOnlyCollection<DbColumnDeclaration> Columns { get; }
         public DbTableExpression From { get; set; }
-        public new Expression Where { get; }
+        public Expression Where { get; }
 
         public ReadOnlyCollection<DbOrderByDeclaration> OrderBy { get; }
         public ReadOnlyCollection<Expression> GroupBy { get; }

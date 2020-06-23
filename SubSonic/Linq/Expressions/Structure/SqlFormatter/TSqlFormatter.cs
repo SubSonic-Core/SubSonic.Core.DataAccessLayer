@@ -15,6 +15,7 @@ namespace SubSonic.Linq.Expressions.Structure
 {
     using Alias;
     using Infrastructure.SqlGenerator;
+    using Infrastructure.Factory;
 
 
     public partial class TSqlFormatter
@@ -27,6 +28,7 @@ namespace SubSonic.Linq.Expressions.Structure
         private readonly TextWriter writer;
         private readonly ISqlContext context;
         private readonly TableAliasCollection aliases = new TableAliasCollection();
+        private readonly SubSonicDbProvider provider;
 
 
         public static string Format(ISqlContext context, Expression expression)
@@ -46,6 +48,7 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             this.writer = writer ?? throw new ArgumentNullException(nameof(writer));
             this.context = context ?? throw new ArgumentNullException(nameof(context));
+            this.provider = context.Provider ?? throw new InvalidOperationException();
 
             if (__instances is null)
             {
@@ -60,7 +63,7 @@ namespace SubSonic.Linq.Expressions.Structure
         protected bool IsNested { get; set; } = false;
 
         protected ISqlFragment Fragments => context.Fragments;
-
+        
         protected TSqlFormatter Indent(Indentation style)
         {
             if (style == Indentation.Inner)

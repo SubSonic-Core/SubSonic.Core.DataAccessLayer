@@ -18,6 +18,7 @@ namespace SubSonic.Infrastructure
         Expression BuildLogicalIn(Expression body, PropertyInfo property, IEnumerable<Expression> values, DbGroupOperator @group);
         Expression BuildLogicalBinary(Expression eBody, string name, object value, DbComparisonOperator op, DbGroupOperator group);
         Expression BuildWherePredicate(Expression collection, Expression logical);
+        Expression BuildWhereFindByIDPredicate(DbTableExpression from, object[] keyData, params string[] keyNames);
         Expression BuildSelect(IQueryable queryable);
         Expression BuildSelect(IQueryable queryable, Expression eWhere);
         Expression BuildSelect(Expression eSelect, Expression eWhere);

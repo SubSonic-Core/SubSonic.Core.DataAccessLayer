@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
+using System.Data.Common;
 
 namespace SubSonic.Linq.Expressions
 {
@@ -10,22 +11,28 @@ namespace SubSonic.Linq.Expressions
     public class DbUpdateExpression
         : DbExpression
     {
-        protected internal DbUpdateExpression(DbExpression table, IEnumerable<Expression> data)
-            : base(DbExpressionType.Update, table.IsNullThrowArgumentNull(nameof(table)).Type)
+        protected internal DbUpdateExpression(DbExpression from, Expression where, IEnumerable<Expression> data)
+            : base(DbExpressionType.Update, from.IsNullThrowArgumentNull(nameof(from)).Type)
         {
-            if (table is DbTableExpression dbTable)
+            if (from is DbTableExpression dbTable)
             {
-                Table = dbTable;
+                From = dbTable;
             }
             else
             {
-                throw new ArgumentException(SubSonicErrorMessages.ExpectedDbTableExpression, nameof(table));
+                throw new ArgumentException(SubSonicErrorMessages.ExpectedDbTableExpression, nameof(from));
             }
 
             Data = data ?? throw new ArgumentNullException(nameof(data));
+            Where = where;
+            DbParameters = new List<DbParameter>();
         }
 
-        public DbTableExpression Table { get; }
+        public DbTableExpression From { get; }
+
+        public Expression Where { get; }
+
+        public ICollection<DbParameter> DbParameters { get; }
 
         public IEnumerable<Expression> Data { get; }
 
@@ -42,21 +49,21 @@ namespace SubSonic.Linq.Expressions
 
     public partial class DbExpression
     {
-        public static DbExpression DbUpdate(DbExpression table, IEnumerable<Expression> data)
+        public static DbExpression DbUpdate(DbExpression from, Expression where, IEnumerable<Expression> data)
         {
-            return new DbUpdateExpression(table, data);
+            return new DbUpdateExpression(from, where, data); 
         }
 
-        public static DbExpression DbUpdate(DbExpression table, IEnumerable<Expression> data, string inputTableName)
+        public static DbExpression DbUpdate(DbExpression from, IEnumerable<Expression> data, string inputTableName)
         {
             if (inputTableName.IsNullOrEmpty())
             {
                 throw new ArgumentNullException(nameof(inputTableName));
             }
 
-            DbUpdateExpression dbUpdate = (DbUpdateExpression)DbUpdate(table, data);
+            DbUpdateExpression dbUpdate = (DbUpdateExpression)DbUpdate(from, null, data);
 
-            dbUpdate.Table.Joins.Add(DbJoin(JoinType.InnerJoin, table, DbTableType(dbUpdate.Table.Model, inputTableName)));
+            dbUpdate.From.Joins.Add(DbJoin(JoinType.InnerJoin, from, DbTableType(dbUpdate.From.Model, inputTableName)));
 
             return dbUpdate;
         }

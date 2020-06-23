@@ -76,10 +76,10 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
         [TestCase(typeof(Models.Unit), "DECLARE @Unit [dbo].[Unit];")]
         [TestCase(typeof(Models.Person), @"DECLARE @Person TABLE(
 		[ID] [Int] NOT NULL,
-		[FirstName] [VarChar](MAX) NOT NULL,
-		[MiddleInitial] [VarChar](MAX) NULL,
-		[FamilyName] [VarChar](MAX) NOT NULL,
-		[FullName] [VarChar](MAX) NULL,
+		[FirstName] [VarChar](50) NOT NULL,
+		[MiddleInitial] [VarChar](1) NULL,
+		[FamilyName] [VarChar](50) NOT NULL,
+		[FullName] [VarChar](104) NULL,
 		PRIMARY KEY CLUSTERED
 		(
 			[ID] ASC

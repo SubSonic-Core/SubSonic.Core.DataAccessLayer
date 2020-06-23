@@ -136,8 +136,6 @@ WHERE ([{0}].[ID] = 1)".Format("T1");
         [Test]
         public void CanLazyLoadAnythingFromAnything()
         {
-            
-
             foreach (Unit unit in DbContext.Units)
             {
                 ((IEntityProxy)unit).IsNew.Should().BeFalse();

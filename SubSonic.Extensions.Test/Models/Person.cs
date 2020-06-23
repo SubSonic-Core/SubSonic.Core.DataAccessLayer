@@ -13,14 +13,18 @@ namespace SubSonic.Extensions.Test.Models
         public int ID { get; set; }
 
         [Required]
+        [MaxLength(50)]
         public virtual string FirstName { get; set; }
 
+        [MaxLength(1)]
         public virtual string MiddleInitial { get; set; }
 
         [Required]
+        [MaxLength(50)]
         public virtual string FamilyName { get; set; }
 
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
+        [MaxLength(104)]
         public string FullName { get; set; }
 
         public virtual ICollection<Renter> Renters { get; set; }

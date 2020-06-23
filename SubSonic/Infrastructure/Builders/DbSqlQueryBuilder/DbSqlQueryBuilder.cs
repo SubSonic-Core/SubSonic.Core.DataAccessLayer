@@ -78,7 +78,26 @@ namespace SubSonic.Infrastructure.Builders
 
         private Expression BuildUpdateQuery<TEntity>(IEnumerable<TEntity> entities)
         {
-            return DbExpression.DbUpdate(DbTable, entities.Select(x => Expression.Constant(x)), "@update");
+            if (DbEntity.DefinedTableTypeExists)
+            {
+                return DbExpression.DbUpdate(DbTable, entities.Select(x => Expression.Constant(x)), "update");
+            }
+            else
+            {
+                ConstantExpression entity = Expression.Constant(entities.Single());
+
+                if (entity.Value is IEntityProxy proxy)
+                {
+                    return DbExpression.DbUpdate(DbTable,
+                        BuildWhereFindByIDPredicate(
+                            DbTable,
+                            proxy.KeyData.ToArray(),
+                            DbEntity.GetPrimaryKey().ToArray()),
+                        new[] { entity });
+                }
+
+                throw new NotSupportedException();
+            }
         }
 
         private Expression BuildDeleteQuery<TEntity>(IEnumerable<TEntity> entities)
@@ -124,7 +143,7 @@ namespace SubSonic.Infrastructure.Builders
             return DbExpression.DbDelete(
                     entities,
                     DbTable,
-                    DbExpression.Where(DbTable, DbEntity.EntityModelType, predicate));
+                    DbExpression.DbWhere(DbTable, DbEntity.EntityModelType, predicate));
         }
 
         protected virtual DbSqlQueryType GetQueryType(Expression expression)

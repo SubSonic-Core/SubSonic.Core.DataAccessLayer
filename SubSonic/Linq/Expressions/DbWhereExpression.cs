@@ -42,7 +42,7 @@ namespace SubSonic.Linq.Expressions
 
     public partial class DbExpression
     {
-        public static DbExpression Where(DbTableExpression table, Type type, LambdaExpression predicate, DbExpressionType whereType = DbExpressionType.Where)
+        public static DbExpression DbWhere(DbTableExpression table, Type type, LambdaExpression predicate, DbExpressionType whereType = DbExpressionType.Where)
         {
             if (table is null)
             {

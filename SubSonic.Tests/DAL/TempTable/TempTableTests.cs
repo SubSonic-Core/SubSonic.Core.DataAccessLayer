@@ -28,10 +28,10 @@ namespace SubSonic.Tests.DAL.TempTable
 
         const string expected_person = @"CREATE TABLE #Person(
 	[ID] [Int] NOT NULL,
-	[FirstName] [VarChar](MAX) NOT NULL,
-	[MiddleInitial] [VarChar](MAX) NULL,
-	[FamilyName] [VarChar](MAX) NOT NULL,
-	[FullName] [VarChar](MAX) NULL,
+	[FirstName] [VarChar](50) NOT NULL,
+	[MiddleInitial] [VarChar](1) NULL,
+	[FamilyName] [VarChar](50) NOT NULL,
+	[FullName] [VarChar](104) NULL,
 	PRIMARY KEY CLUSTERED
 		(
 			[ID] ASC

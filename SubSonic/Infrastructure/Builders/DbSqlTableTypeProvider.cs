@@ -157,6 +157,11 @@ namespace SubSonic.Infrastructure.Builders
             throw new NotImplementedException();
         }
 
+        public Expression BuildWhereFindByIDPredicate(DbTableExpression from, object[] keyData, params string[] keyNames)
+        {
+            throw new NotImplementedException();
+        }
+
         public SysLinq.IQueryable CreateQuery(Expression expression)
         {
             if (expression.IsNull())

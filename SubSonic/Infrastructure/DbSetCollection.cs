@@ -165,19 +165,9 @@ namespace SubSonic.Infrastructure
             {
                 ISubSonicQueryProvider<TEntity> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<TEntity>>();
 
-                Expression
-                    logical = null;
-
-                for (int i = 0; i < keyNames.Length; i++)
-                {
-                    logical = builder.BuildLogicalBinary(logical, keyNames[i], keyData[i], DbComparisonOperator.Equal, DbGroupOperator.AndAlso);
-                }
-
-                LambdaExpression predicate = (LambdaExpression)builder.BuildLambda(logical, LambdaType.Predicate);
-
-                Expression where = builder.BuildWhere(select.From, null, typeof(TEntity), predicate);
-
-                return builder.CreateQuery<TEntity>(builder.BuildSelect(select, where));
+                return builder.CreateQuery<TEntity>(
+                    builder.BuildSelect(select,
+                    builder.BuildWhereFindByIDPredicate(select.From, keyData, keyNames)));
             }
 
             throw new NotSupportedException();
