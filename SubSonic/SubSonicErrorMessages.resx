@@ -132,6 +132,9 @@
   <data name="EntityTypeIsNotRegisteredException" xml:space="preserve">
     <value>Type {0}is not registed with the db model.</value>
   </data>
+  <data name="ExpectedDbTableExpression" xml:space="preserve">
+    <value>Expected expression of type DbTableExpression.</value>
+  </data>
   <data name="MissingInterfaceImplementation" xml:space="preserve">
     <value>{0} does not implement the {1} interface.</value>
   </data>

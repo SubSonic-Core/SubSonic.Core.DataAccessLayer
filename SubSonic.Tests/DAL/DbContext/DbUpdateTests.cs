@@ -62,31 +62,31 @@ namespace SubSonic.Tests.DAL
                 .Should()
                 .Be(expected.Count());
 
-            //if (expected.Count() > 0)
-            //{
-            //    if (dbTest.UseDefinedTableType)
-            //    {
-            //        using (dbTest.EntityModel.AlteredState<IDbEntityModel, DbEntityModel>(new
-            //        {
-            //            DefinedTableType = new DbUserDefinedTableTypeAttribute(dbTest.EntityModel.Name)
-            //        }).Apply())
-            //        {
-            //            DbContext.SaveChanges().Should().BeTrue();
-            //        }
-            //    }
-            //    else
-            //    {
-            //        DbContext.SaveChanges().Should().BeTrue();
-            //    }
+            if (expected.Count() > 0)
+            {
+                if (dbTest.UseDefinedTableType)
+                {
+                    using (dbTest.EntityModel.AlteredState<IDbEntityModel, DbEntityModel>(new
+                    {
+                        DefinedTableType = new DbUserDefinedTableTypeAttribute(dbTest.EntityModel.Name)
+                    }).Apply())
+                    {
+                        DbContext.SaveChanges().Should().BeTrue();
+                    }
+                }
+                else
+                {
+                    DbContext.SaveChanges().Should().BeTrue();
+                }
 
-            //    FluentActions.Invoking(() =>
-            //        DbContext.Database.Instance.RecievedCommand(dbTest.Expectation))
-            //        .Should().NotThrow();
+                FluentActions.Invoking(() =>
+                    DbContext.Database.Instance.RecievedCommand(dbTest.Expectation))
+                    .Should().NotThrow();
 
-            //    DbContext.Database.Instance.RecievedCommandCount(dbTest.Expectation)
-            //        .Should()
-            //        .Be(dbTest.UseDefinedTableType ? 1 : expected.Count());
-            //}
+                DbContext.Database.Instance.RecievedCommandCount(dbTest.Expectation)
+                    .Should()
+                    .Be(dbTest.UseDefinedTableType ? 1 : expected.Count());
+            }
         }
 
         private object UpdateCmdBehaviorForInArray(DbCommand cmd, IEnumerable<IEntityProxy> expected)

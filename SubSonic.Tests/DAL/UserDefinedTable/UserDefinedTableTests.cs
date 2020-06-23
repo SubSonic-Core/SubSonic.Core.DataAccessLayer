@@ -72,6 +72,37 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
         }
 
         [Test]
+        [TestCase(typeof(Models.RealEstateProperty), "DECLARE @RealEstateProperty [dbo].[RealEstateProperty];")]
+        [TestCase(typeof(Models.Unit), "DECLARE @Unit [dbo].[Unit];")]
+        [TestCase(typeof(Models.Person), @"DECLARE @Person TABLE(
+		[ID] [Int] NOT NULL,
+		[FirstName] [VarChar](MAX) NOT NULL,
+		[MiddleInitial] [VarChar](MAX) NULL,
+		[FamilyName] [VarChar](MAX) NOT NULL,
+		[FullName] [VarChar](MAX) NULL,
+		PRIMARY KEY CLUSTERED
+		(
+			[ID] ASC
+		) WITH (IGNORE_DUP_KEY = OFF));")]
+        public void CanDeclareUserDefinedTableInlineForModel(Type modelType, string expected)
+        {
+            IDbEntityModel dbEntityModel = DbContext.Model.GetEntityModel(modelType);
+
+            DbUserDefinedTableBuilder builder = new DbUserDefinedTableBuilder(dbEntityModel);
+
+            string sql;
+
+            using (var perf = Logger.Start("Generate SQL"))
+            {
+                sql = builder.GenerateSql(true, $"@{dbEntityModel.Name}");
+
+                Logger.LogInformation(sql);
+            }
+
+            sql.Should().Be(expected);
+        }
+
+        [Test]
         [TestCase(typeof(Models.RealEstateProperty), DbQueryType.Insert)]
         public void CanGenerateInsertStoredProcedureSqlFor(Type modelType, DbQueryType queryType)
         {

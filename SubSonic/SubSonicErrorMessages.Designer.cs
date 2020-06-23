@@ -106,6 +106,15 @@ namespace SubSonic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Expected expression of type DbTableExpression..
+        /// </summary>
+        internal static string ExpectedDbTableExpression {
+            get {
+                return ResourceManager.GetString("ExpectedDbTableExpression", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} does not implement the {1} interface..
         /// </summary>
         internal static string MissingInterfaceImplementation {

@@ -18,7 +18,7 @@ namespace SubSonic.Infrastructure
     {
         private class SQL
         {
-            public const string UserDefinedTableExists = 
+            public const string UserDefinedTableExists =
 @"SELECT
 	COUNT(*)
 FROM sys.types 
@@ -27,7 +27,7 @@ WHERE schemas.name = '{0}' AND types.name = '{1}'";
 
             public const string CreateDefinedTable = "CREATE TYPE [{0}].[{1}] AS TABLE({2})";
 
-            public static string DropUserDefinedTable = 
+            public static string DropUserDefinedTable =
 $@"IF (({UserDefinedTableExists}) > 0)
 BEGIN
 	DROP TYPE [{{0}}].[{{1}}];
@@ -38,8 +38,13 @@ $@"IF (({UserDefinedTableExists}) = 0)
 BEGIN
 	{CreateDefinedTable};
 END;";
+            private static string DeclareUserDefined = "DECLARE {0}";
 
-            
+            private static string DeclareInline = "TABLE({1});";
+
+            public static string DeclareInlineTableDoesExist = $"{DeclareUserDefined} {{1}};";
+
+            public static string DeclareInlineTableDoesNotExist = $"{DeclareUserDefined} {DeclareInline}";
         }
 
         private readonly Type _type;
@@ -52,16 +57,18 @@ END;";
             _data = data ?? throw new ArgumentNullException(nameof(data));
         }
 
+        public DbUserDefinedTableBuilder(IDbEntityModel model)
+            : base(DbContext.ServiceProvider.GetService<ISqlQueryProvider>())
+        {
+            _model = model ?? throw new ArgumentNullException(nameof(model));
+            _type = model.EntityModelType;
+        }
+
         public DbUserDefinedTableBuilder(IDbEntityModel model, IEnumerable data)
             : this(data)
         {
             _model = model ?? throw new ArgumentNullException(nameof(model));
             _type = model.EntityModelType;
-
-            if(!_model.DefinedTableTypeExists)
-            {
-                throw new InvalidOperationException(SubSonicErrorMessages.UserDefinedTableNotDefined.Format(_type.Name));
-            }
         }
 
         public DbUserDefinedTableBuilder(Type type, IEnumerable data)
@@ -81,21 +88,46 @@ END;";
 
         IDbObject Table => _model?.DefinedTableType ?? (IDbObject)_type.GetCustomAttribute<DbUserDefinedTableTypeAttribute>();
 
-        public string GenerateSql()
-        {
+        public string GenerateSql(bool declareInlineTable = false, string tableName = null)
+        { 
             StringBuilder oUserDefinedTable = new StringBuilder();
-            
-            if (_model.IsNull())
+
+            if (!declareInlineTable)
             {
-                oUserDefinedTable
-                    .AppendFormat(CultureInfo.CurrentCulture, SQL.DropUserDefinedTable, Table.SchemaName, Table.Name)
-                    .AppendLine()
-                    .AppendFormat(CultureInfo.CurrentCulture, SQL.CreateDefinedTable, Table.SchemaName, Table.Name, GenerateSqlBody(true, GetColumnInformation()));
+                if (_model.IsNull())
+                {
+                    oUserDefinedTable
+                        .AppendFormat(CultureInfo.CurrentCulture, SQL.DropUserDefinedTable, Table.SchemaName, Table.Name)
+                        .AppendLine()
+                        .AppendFormat(CultureInfo.CurrentCulture, SQL.CreateDefinedTable, Table.SchemaName, Table.Name, GenerateSqlBody(true, GetColumnInformation()));
+                }
+                else
+                {
+                    oUserDefinedTable
+                        .AppendFormat(CultureInfo.CurrentCulture, SQL.CreateDefinedTableIfNotExist, Table.SchemaName, Table.Name, GenerateSqlBody(true, GetColumnInformation()));
+                }
             }
             else
             {
-                oUserDefinedTable
-                    .AppendFormat(CultureInfo.CurrentCulture, SQL.CreateDefinedTableIfNotExist, Table.SchemaName, Table.Name, GenerateSqlBody(true, GetColumnInformation()));
+                if (tableName.IsNullOrEmpty())
+                {
+                    throw new ArgumentNullException(nameof(tableName));
+                }
+
+                if (Table.IsNotNull())
+                {
+                    oUserDefinedTable
+                        .AppendFormat(CultureInfo.CurrentCulture, SQL.DeclareInlineTableDoesExist,
+                            tableName,
+                            Table.QualifiedName);
+                }
+                else
+                {
+                    oUserDefinedTable
+                        .AppendFormat(CultureInfo.CurrentCulture, SQL.DeclareInlineTableDoesNotExist,
+                            tableName,
+                            GenerateSqlBody(true, GetColumnInformation()));
+                }
             }
 
             return oUserDefinedTable.ToString();

@@ -185,6 +185,11 @@ namespace SubSonic.Linq.Expressions.Structure
             throw new NotImplementedException();
         }
 
+        protected internal virtual Expression VisitUpdate(DbUpdateExpression update)
+        {
+            throw new NotImplementedException();
+        }
+
         protected internal virtual Expression VisitNull(DbIsNullExpression isnull)
         {
             if(isnull is null)
