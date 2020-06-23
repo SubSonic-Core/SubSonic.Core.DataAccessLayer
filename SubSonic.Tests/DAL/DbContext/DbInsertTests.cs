@@ -20,7 +20,7 @@ namespace SubSonic.Tests.DAL
         public void ShouldBeAbleToInsertOnePersonRecordWithNoUDTT()
         {
             string expected_cmd = @"INSERT INTO [dbo].[Person]
-OUTPUT INSERTED.* INTO #Person
+OUTPUT INSERTED.* INTO @output
 VALUES
 	(@FirstName, @MiddleInitial, @FamilyName)";
 
@@ -174,7 +174,7 @@ FROM @input";
         public void ShouldBeAbleToInsertThreePeopleRecordsWithNoUDTT()
         {
             string expected_cmd = @"INSERT INTO [dbo].[Person]
-OUTPUT INSERTED.* INTO #Person
+OUTPUT INSERTED.* INTO @output
 VALUES
 	(@FirstName, @MiddleInitial, @FamilyName)";
 
@@ -296,7 +296,7 @@ FROM @input";
         }
 
         const string renter_expected_temp = @"INSERT INTO [dbo].[Renter]
-OUTPUT INSERTED.* INTO #Renter
+OUTPUT INSERTED.* INTO @output
 VALUES
 	(@PersonID, @UnitID, @Rent, @StartDate, @EndDate)";
 

@@ -34,9 +34,13 @@ namespace SubSonic.Linq.Expressions.Structure
                 WriteNewLine(builder.GenerateSql(true, @output));
                 WriteNewLine($"{Fragments.UPDATE} [{GetAliasName(update.From.Alias)}] {Fragments.SET}", Indentation.Inner);
 
+                IEnumerable<DbColumnDeclaration> columns = update.From.Columns.Where(x =>
+                    !x.Property.IsReadOnly &&
+                    x.Property.EntityPropertyType == DbEntityPropertyType.Value);
+
                 if (update.From.Model.DefinedTableTypeExists)
                 {
-                    FormatUpdateUsingDefinedTableType(update, update.From.Columns.Where(x => !x.Property.IsReadOnly));
+                    FormatUpdateUsingDefinedTableType(update, columns);
 
                     if (update.From.Joins.ElementAt(0) is DbJoinExpression join)
                     {
@@ -56,7 +60,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 }
                 else
                 {
-                    FormatUpdateUsingParameters(update, update.From.Columns.Where(x => !x.Property.IsReadOnly));
+                    FormatUpdateUsingParameters(update, columns);
                 }
 
                 WriteNewLine(Indentation.Outer);
@@ -97,14 +101,14 @@ namespace SubSonic.Linq.Expressions.Structure
 
                     Write($" {Fragments.EQUAL_TO} {parameterName}");
 
-                    object value = update.Type
-                        .GetProperty(column.PropertyName)
-                        .GetValue(entity.Value);
-
                     if (update.DbParameters.Count(x =>
                             x.ParameterName.Equals(parameterName, StringComparison.CurrentCulture)) == 0)
                     {
-                        update.DbParameters.Add(provider.CreateParameter(parameterName, value));
+                        object value = update.Type
+                        .GetProperty(column.PropertyName)
+                        .GetValue(entity.Value);
+
+                        update.DbParameters.Add(provider.CreateParameter(parameterName, value ?? DBNull.Value, column.Property));
                     }
 
                     if (i < (n - 1))

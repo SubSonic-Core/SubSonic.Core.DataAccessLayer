@@ -15,95 +15,11 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             if (insert.IsNotNull())
             {
-                if (insert.Table.Model.DefinedTableTypeExists)
-                {
-                    FormatInsertWithUserDefinedTableType(insert);
-                }
-                else
-                {
-                    FormatInsertWithTempTable(insert);
-                }
-
-                return insert;
-            }
-
-            return null;
-        }
-
-        private void FormatInsertWithTempTable(DbInsertExpression insert)
-        {
-            DbTempTableBuilder builder = new DbTempTableBuilder(insert.Table.Model);
-
-            WriteNewLine(builder.GenerateSql());
-
-            WriteNewLine($"{Fragments.INSERT_INTO} {insert.Table.QualifiedName}");
-            WriteNewLine($"{Fragments.OUTPUT_INSERTED_INTO} {builder.GetTableName()}");
-            WriteNewLine(Fragments.VALUES);
-
-            WriteNewLine(Indentation.Inner);
-
-            for(int i = 0, cnt = insert.Values.Count(); i < cnt; i++)
-            {
-                Write(Fragments.LEFT_PARENTHESIS);
-                IEnumerable<IDbEntityProperty> properties = insert.Table.Model.Properties;
-
-                for (int x = 0, x_cnt = properties.Count(); x < x_cnt; x++)
-                {
-                    IDbEntityProperty property = properties.ElementAt(x);
-
-                    if (property.IsReadOnly || property.EntityPropertyType != DbEntityPropertyType.Value)
-                    {
-                        continue;
-                    }
-
-                    PropertyInfo propertyInfo = insert.Type.BaseType.GetProperty(property.PropertyName);
-
-                    string parameterName = $"@{property.Name}";
-
-                    if (insert.Values.ElementAt(i) is ConstantExpression element)
-                    {
-                        object value = propertyInfo.GetValue(element.Value);
-
-                        insert.DbParameters.Add(builder.CreateParameter(
-                            parameterName,
-                            value ?? DBNull.Value,
-                            property));
-                    }
-
-                    Write(parameterName);
-
-                    if (x < (x_cnt - 1) &&
-                        !properties.ElementAt(x + 1).IsReadOnly)
-                    {
-                        Write($"{Fragments.COMMA} ");
-                    }
-                }
-                Write(Fragments.RIGHT_PARENTHESIS);
-
-                if (i < (cnt - 1))
-                {
-                    WriteNewLine(Fragments.COMMA);
-                }
-                else
-                {
-                    WriteNewLine(Fragments.STATEMENT_END, Indentation.Outer);
-                }
-            }
-
-            WriteNewLine(builder.GenerateSelectSql());
-
-            Write(builder.GenerateDropSql());
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "<Pending>")]
-        private void FormatInsertWithUserDefinedTableType(DbInsertExpression insert)
-        {
-
-            DbUserDefinedTableBuilder builder = new DbUserDefinedTableBuilder(insert.Table.Model,
+                DbUserDefinedTableBuilder builder = new DbUserDefinedTableBuilder(insert.Into.Model,
                 insert.Values
-                .Select(value =>
+                .Select(entity =>
                 {
-                    if (value is ConstantExpression constant)
+                    if (entity is ConstantExpression constant)
                     {
                         return constant.Value;
                     }
@@ -112,19 +28,92 @@ namespace SubSonic.Linq.Expressions.Structure
                 })
                 .Where(value => value.IsNotNull()));
 
-            string 
-                input_parameter_name = "input",
-                output_parameter_name = "output";
+                string @output = "@output";
 
-            WriteNewLine($"{Fragments.DECLARE} @{output_parameter_name} {insert.Table.Model.DefinedTableType.QualifiedName};");
-            WriteNewLine($"{Fragments.INSERT_INTO} {insert.Table.QualifiedName}");
-            WriteNewLine($"{Fragments.OUTPUT_INSERTED_INTO} @{output_parameter_name}");
+                WriteNewLine(builder.GenerateSql(true, @output));
+                WriteNewLine($"{Fragments.INSERT_INTO} {insert.Into.QualifiedName}");
+                WriteNewLine($"{Fragments.OUTPUT_INSERTED_INTO} {@output}");
+
+                IEnumerable<DbColumnDeclaration> columns = insert.Into.Columns.Where(x =>
+                    !x.Property.IsReadOnly &&
+                    x.Property.EntityPropertyType == DbEntityPropertyType.Value);
+
+                if (insert.Into.Model.DefinedTableTypeExists)
+                {
+                    FormatInsertWithUserDefinedTableType(insert, builder);
+                }
+                else
+                {
+                    FormatInsertUsingParameters(insert, columns);
+                }
+
+                Write(builder.GenerateSelectSql(@output));
+            }
+
+            return insert;
+        }
+
+        private void FormatInsertUsingParameters(DbInsertExpression insert, IEnumerable<DbColumnDeclaration> columns)
+        {
+            WriteNewLine(Fragments.VALUES);
+
+            WriteNewLine(Indentation.Inner);
+
+            for (int iValue = 0, vCount = insert.Values.Count(); iValue < vCount; iValue++)
+            {
+                Write(Fragments.LEFT_PARENTHESIS);
+
+                if (insert.Values.ElementAt(iValue) is ConstantExpression entity)
+                {
+                    for (int iColumn = 0, cCount = columns.Count(); iColumn < cCount; iColumn++)
+                    {
+                        DbColumnDeclaration column = columns.ElementAt(iColumn);
+
+                        string parameterName = $"@{column.PropertyName}";
+
+                        Write(parameterName);
+
+                        if (insert.DbParameters.Count(x =>
+                                x.ParameterName.Equals(parameterName, StringComparison.CurrentCulture)) == 0)
+                        {
+                            object value = insert.Type.BaseType
+                            .GetProperty(column.PropertyName)
+                            .GetValue(entity.Value);
+
+                            insert.DbParameters.Add(provider.CreateParameter(parameterName, value ?? DBNull.Value, column.Property));
+                        }
+
+                        if (iColumn < (cCount - 1))
+                        {
+                            Write($"{Fragments.COMMA} ");
+                        }
+                    }
+                }
+
+                Write(Fragments.RIGHT_PARENTHESIS);
+
+                if (iValue < (vCount - 1))
+                {
+                    WriteNewLine(Fragments.COMMA);
+                }
+                else
+                {
+                    WriteNewLine(Fragments.STATEMENT_END, Indentation.Outer);
+                }
+            }
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "<Pending>")]
+        private void FormatInsertWithUserDefinedTableType(DbInsertExpression insert, DbUserDefinedTableBuilder builder)
+        {
+            string 
+                input_parameter_name = "input";
+
             WriteNewLine(builder.GenerateSelectSql(
                 $"@{input_parameter_name}", 
                 builder.GetColumnInformation()
                     .Where(column =>
                         column.IsIdentity == false && column.IsComputed == false)));
-            WriteNewLine(builder.GenerateSelectSql($"@{output_parameter_name}"));
 
             insert.DbParameters.Add(builder.CreateParameter(input_parameter_name, builder.GenerateTable()));
         }

@@ -16,14 +16,14 @@ namespace SubSonic.Linq.Expressions
         protected internal DbInsertExpression(DbTableExpression table, IEnumerable<Expression> values)
             : base(DbExpressionType.Insert, table.IsNullThrowArgumentNull(nameof(table)).Type)
         {
-            Table = table ?? throw new ArgumentNullException(nameof(table));
+            Into = table ?? throw new ArgumentNullException(nameof(table));
             Values = values ?? throw new ArgumentNullException(nameof(values));
             DbParameters = new List<DbParameter>();
         }
 
         public override ExpressionType NodeType => (ExpressionType)DbExpressionType.Insert;
 
-        public DbTableExpression Table { get; }
+        public DbTableExpression Into { get; }
         public IEnumerable<Expression> Values { get; }
         public ICollection<DbParameter> DbParameters { get; }
 
