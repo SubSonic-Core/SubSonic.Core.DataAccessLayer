@@ -1,4 +1,7 @@
 ![DotNET](https://github.com/kccarter76/SubSonic-Core/workflows/DotNET/badge.svg?branch=master)
+![Downloads](https://img.shields.io/nuget/dt/SubSonic.Core)
+![Nuget](https://img.shields.io/nuget/v/SubSonic.Core)
+<!--![Nuget](https://img.shields.io/nuget/vpre/SubSonic.Core)--->
 # SubSonic-Core 
 The driving force behind this project is the various issues with the current EF DAL available for .net core 2.2 during 2019.
 various issues in which prevented minimal manipulation of the data to release projects.
