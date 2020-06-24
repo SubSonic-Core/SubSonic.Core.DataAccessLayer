@@ -58,7 +58,8 @@ This way I know the DAL from the ground up and speak for its performance and imp
    <li>apply TDD, DRY, YAGNI, and KISS principles where applicable.</li>
 </ol>
 
-[![](/images/tipjar.png)](https://commerce.coinbase.com/checkout/e234bf33-6611-496f-b816-685fe0dedb66)
+
+[![Crypto Tip Jar](/images/tipjar.png)](https://commerce.coinbase.com/checkout/e234bf33-6611-496f-b816-685fe0dedb66)
 
 # Reference Material
 * https://docs.microsoft.com/en-us/dotnet/api/system.reflection.emit.assemblybuilder
