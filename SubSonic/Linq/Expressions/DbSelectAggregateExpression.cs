@@ -34,7 +34,7 @@ namespace SubSonic.Linq.Expressions
 
         public DbTableExpression From => select.From;
 
-        public new Expression Where => select.Where;
+        public Expression Where => select.Where;
 
         public ReadOnlyCollection<Expression> GroupBy => select.GroupBy;
 

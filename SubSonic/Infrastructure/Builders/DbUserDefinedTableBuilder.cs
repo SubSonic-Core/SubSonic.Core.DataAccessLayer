@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Data;
+using System.Data.Common;
 using System.Globalization;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SubSonic.Infrastructure
 {
     using Linq;
     using Schema;
-    using System.Data.Common;
+
 
     public class DbUserDefinedTableBuilder
         : DbProviderBuilder<DbUserDefinedTableColumn>
@@ -219,15 +220,25 @@ END;";
             {
                 DataRow row = dt.NewRow();
 
-                foreach (DbUserDefinedTableColumn column in columns)
+                Parallel.ForEach(columns, column =>
                 {
                     if (column.Property is null)
                     {
-                        continue;
+                        return;
                     }
 
                     row.SetField(column.Name, column.Property.GetValue(obj) ?? DBNull.Value);
-                }
+                });
+
+                //foreach (DbUserDefinedTableColumn column in columns)
+                //{
+                //    if (column.Property is null)
+                //    {
+                //        continue;
+                //    }
+
+                //    row.SetField(column.Name, column.Property.GetValue(obj) ?? DBNull.Value);
+                //}
 
                 dt.Rows.Add(row);
             }

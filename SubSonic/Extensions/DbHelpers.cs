@@ -14,7 +14,7 @@ namespace SubSonic
     using Data.DynamicProxies;
     using Infrastructure;
     using Infrastructure.Schema;
-    
+    using System.Threading.Tasks;
 
     public static partial class SubSonicExtensions
     {
@@ -192,40 +192,145 @@ namespace SubSonic
             }
         }
 
-        public static IEnumerable<TEntity> Map<TEntity>(this DbDataReader reader, Action<TEntity> callback = null)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// experimental concurency approach to loading data
+        /// </remarks>
+        public static IEnumerable<TEntity> ReadDataInParallel<TEntity>(this DbDataReader reader)
         {
             if (reader is null)
             {
                 throw new ArgumentNullException(nameof(reader));
             }
 
-            List<TEntity> result = new List<TEntity>();
+            ICollection<TEntity> entities = new List<TEntity>();
 
-            IDbEntityModel model = DbContext.DbModel.GetEntityModel<TEntity>();
+            Parallel.ForEach(reader.ParallelMap<TEntity>(), entity => entities.Add(entity));
 
-            while (reader.Read())
+            return entities;
+        }
+
+        public static IEnumerable<TEntity> ParallelMap<TEntity>(this DbDataReader reader)
+        {
+            if (reader is null)
             {
-                TEntity item = DynamicProxy.CreateProxyInstanceOf<TEntity>(DbContext.Current);
+                throw new ArgumentNullException(nameof(reader));
+            }
 
-                foreach(IDbEntityProperty property in model.Properties)
+            if (reader.HasRows)
+            {
+                IDbEntityModel model = DbContext.DbModel.GetEntityModel<TEntity>();
+
+                while (reader.Read())
                 {
-                    if (property.EntityPropertyType != DbEntityPropertyType.Value)
-                    {
-                        continue;
-                    }
+                    yield return reader.Map<TEntity>(model);
+                }
+            }
+        }
 
-                    if (reader[property.Name] != DBNull.Value)
-                    {
-                        model.EntityModelType.GetProperty(property.PropertyName).SetValue(item, reader[property.Name]);
-                    }
+        public static TEntity Map<TEntity>(this DbDataReader reader, IDbEntityModel model)
+        {
+            if (reader is null)
+            {
+                throw new ArgumentNullException(nameof(reader));
+            }
+
+            if (model is null)
+            {
+                throw new ArgumentNullException(nameof(model));
+            }
+
+            TEntity item = DynamicProxy.CreateProxyInstanceOf<TEntity>(DbContext.Current);
+
+            Parallel.ForEach(model.Properties, property =>
+            {
+                if (property.EntityPropertyType != DbEntityPropertyType.Value)
+                {
+                    return;
                 }
 
-                if (callback.IsNotNull())
+                if (reader[property.Name] != DBNull.Value)
                 {
-                    callback(item);
+                    model.EntityModelType.GetProperty(property.PropertyName).SetValue(item, reader[property.Name]);
                 }
+            });
 
-                result.Add(item);
+            //foreach (IDbEntityProperty property in model.Properties)
+            //{
+            //    if (property.EntityPropertyType != DbEntityPropertyType.Value)
+            //    {
+            //        continue;
+            //    }
+
+            //    if (reader[property.Name] != DBNull.Value)
+            //    {
+            //        model.EntityModelType.GetProperty(property.PropertyName).SetValue(item, reader[property.Name]);
+            //    }
+            //}
+
+            return item;
+        }
+
+        public static IEnumerable<TEntity> ReadData<TEntity>(this DbDataReader reader, Action<TEntity> callback)
+        {
+            if (reader is null)
+            {
+                throw new ArgumentNullException(nameof(reader));
+            }
+
+            if (callback is null)
+            {
+                throw new ArgumentNullException(nameof(reader));
+            }
+
+            ICollection<TEntity> result = new List<TEntity>();
+
+            if (reader.HasRows)
+            {
+                IDbEntityModel model = DbContext.DbModel.GetEntityModel<TEntity>();
+
+                while (reader.Read())
+                {
+                    TEntity item = reader.Map<TEntity>(model);
+
+                    if (callback.IsNotNull())
+                    {
+                        callback(item);
+                    }
+
+                    result.Add(item);
+                }
+            }
+
+            reader.Close();
+
+            return result;
+        }
+
+        public static IEnumerable<TEntity> ReadData<TEntity>(this DbDataReader reader)
+        {
+            if (reader is null)
+            {
+                throw new ArgumentNullException(nameof(reader));
+            }
+
+            ICollection<TEntity> result = new List<TEntity>();
+
+            if (reader.HasRows)
+            {
+                IDbEntityModel model = DbContext.DbModel.GetEntityModel<TEntity>();
+
+                while (reader.Read())
+                {
+                    TEntity item = reader.Map<TEntity>(model);
+
+                    result.Add(item);
+                }
             }
 
             reader.Close();

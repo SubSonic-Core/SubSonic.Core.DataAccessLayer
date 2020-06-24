@@ -12,6 +12,8 @@ namespace SubSonic.Infrastructure
     using Linq;
     using Logging;
     using Schema;
+    using System.Linq;
+    using System.Threading.Tasks;
 
     public class DbDatabase
         : IInfrastructure<DbProviderFactory>
@@ -140,7 +142,7 @@ namespace SubSonic.Infrastructure
                             break;
                         case DbQueryType.Insert:
                         case DbQueryType.Update:
-                            results = cmd.ExecuteReader().Map<TEntity>();
+                            results = cmd.ExecuteReader().ReadData<TEntity>();
                             break;
                     }
 
@@ -185,7 +187,7 @@ namespace SubSonic.Infrastructure
 
                     cmd.Connection.Open();
 
-                    IEnumerable<TEntity> results = cmd.ExecuteReader().Map<TEntity>();
+                    IEnumerable<TEntity> results = cmd.ExecuteReader().ReadData<TEntity>();
 
                     cmd.Parameters.ApplyOutputParameters(procedure);
 

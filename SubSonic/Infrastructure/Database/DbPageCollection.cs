@@ -64,7 +64,7 @@ namespace SubSonic.Infrastructure
                             continue;
                         }
 
-                        return table.CreateDataReader().Map<TEntity>((entity) =>
+                        return table.CreateDataReader().ReadData<TEntity>((entity) =>
                         {
                             if (entity is IEntityProxy proxy)
                             {

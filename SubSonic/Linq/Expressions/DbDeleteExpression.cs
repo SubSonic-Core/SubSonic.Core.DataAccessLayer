@@ -34,7 +34,7 @@ namespace SubSonic.Linq.Expressions
 
         public DbTableExpression From { get; }
 
-        public new Expression Where { get; }
+        public Expression Where { get; }
 
         protected override Expression Accept(ExpressionVisitor visitor)
         {

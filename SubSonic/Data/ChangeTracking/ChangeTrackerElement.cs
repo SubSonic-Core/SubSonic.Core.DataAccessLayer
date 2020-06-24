@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Data;
 using System.Linq.Expressions;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SubSonic.Data.Caching
 {
@@ -156,32 +157,35 @@ namespace SubSonic.Data.Caching
                     }
                 }
 
-                for(int i = 0, n = data.Count(); i < n; i++)
+                Action<IEntityProxy<TEntity>> flag = new Action<IEntityProxy<TEntity>>(x =>
                 {
-                    if (data.ElementAt(i) is IEntityProxy<TEntity> entity)
+                    x.IsNew = false;
+                    x.IsDirty = false;
+                    x.IsDeleted = false;
+                });
+
+                Parallel.ForEach(data, (proxy, state, index) =>
+                {
+                    if (proxy is IEntityProxy<TEntity> entity)
                     {
                         if (queryType == DbQueryType.Delete)
                         {
-                            Remove(entity);
+                            lock (Cache)
+                            {
+                                Remove(entity);
+                            }
 
-                            continue;
+                            return;
                         }
-
-                        Action<IEntityProxy<TEntity>> flag = new Action<IEntityProxy<TEntity>>(x =>
-                        {
-                            x.IsNew = false;
-                            x.IsDirty = false;
-                            x.IsDeleted = false;
-                        });
 
                         if (result.Length == 0)
                         {
                             flag(entity);
 
-                            continue;
+                            return;
                         }
 
-                        IEntityProxy<TEntity> @object = result[i];
+                        IEntityProxy<TEntity> @object = result[index];
 
                         if (queryType == DbQueryType.Update)
                         {
@@ -189,18 +193,57 @@ namespace SubSonic.Data.Caching
                                 x.KeyData.SequenceEqual(entity.KeyData));
                         }
 
-                        if(queryType == DbQueryType.Insert)
+                        if (queryType == DbQueryType.Insert)
                         {
                             entity.SetKeyData(@object.KeyData);
                         }
 
-                        if(queryType.In(DbQueryType.Insert, DbQueryType.Update))
+                        if (queryType.In(DbQueryType.Insert, DbQueryType.Update))
                         {
                             entity.SetDbComputedProperties(@object);
                             flag(entity);
                         }
                     }
-                }
+                });
+
+                //for(int i = 0, n = data.Count(); i < n; i++)
+                //{
+                //    if (data.ElementAt(i) is IEntityProxy<TEntity> entity)
+                //    {
+                //        if (queryType == DbQueryType.Delete)
+                //        {
+                //            Remove(entity);
+
+                //            continue;
+                //        }
+
+                //        if (result.Length == 0)
+                //        {
+                //            flag(entity);
+
+                //            continue;
+                //        }
+
+                //        IEntityProxy<TEntity> @object = result[i];
+
+                //        if (queryType == DbQueryType.Update)
+                //        {
+                //            @object = result.Single(x =>
+                //                x.KeyData.SequenceEqual(entity.KeyData));
+                //        }
+
+                //        if(queryType == DbQueryType.Insert)
+                //        {
+                //            entity.SetKeyData(@object.KeyData);
+                //        }
+
+                //        if(queryType.In(DbQueryType.Insert, DbQueryType.Update))
+                //        {
+                //            entity.SetDbComputedProperties(@object);
+                //            flag(entity);
+                //        }
+                //    }
+                //}
 
                 success = true;
             }
