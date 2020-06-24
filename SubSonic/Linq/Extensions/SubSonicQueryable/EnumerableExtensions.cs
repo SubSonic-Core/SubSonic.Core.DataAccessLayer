@@ -30,6 +30,17 @@ namespace SubSonic.Linq
 
             return source;
         }
+
+        public static bool SequenceEqual<TType>(this IEnumerable<TType> left, IEnumerable<TType> right)
+        {
+            return Enumerable.SequenceEqual(left, right);
+        }
+
+        public static bool SequenceEqual<TType>(this IEnumerable<TType> left, IEnumerable<TType> right, IEqualityComparer<TType> comparer)
+        {
+            return Enumerable.SequenceEqual(left, right, comparer);
+        }
+
         public static int Count<TSource>(this IEnumerable<TSource> source)
         {
             return Enumerable.Count(source);

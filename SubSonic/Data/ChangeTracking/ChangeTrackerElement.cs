@@ -167,14 +167,22 @@ namespace SubSonic.Data.Caching
                             continue;
                         }
 
+                        IEntityProxy<TEntity> @object = result[i];
+
+                        if (queryType == DbQueryType.Update)
+                        {
+                            @object = result.Single(x =>
+                                x.KeyData.SequenceEqual(entity.KeyData));
+                        }
+
                         if(queryType == DbQueryType.Insert)
                         {
-                            entity.SetKeyData(result[i].KeyData);
+                            entity.SetKeyData(@object.KeyData);
                         }
 
                         if(queryType.In(DbQueryType.Insert, DbQueryType.Update))
                         {
-                            entity.SetDbComputedProperties(result[i]);
+                            entity.SetDbComputedProperties(@object);
                             entity.IsNew = false;
                             entity.IsDirty = false;
                             entity.IsDeleted = false;
