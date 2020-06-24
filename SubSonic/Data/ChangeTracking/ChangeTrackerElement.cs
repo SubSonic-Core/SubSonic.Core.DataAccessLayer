@@ -167,6 +167,20 @@ namespace SubSonic.Data.Caching
                             continue;
                         }
 
+                        Action<IEntityProxy<TEntity>> flag = new Action<IEntityProxy<TEntity>>(x =>
+                        {
+                            x.IsNew = false;
+                            x.IsDirty = false;
+                            x.IsDeleted = false;
+                        });
+
+                        if (result.Length == 0)
+                        {
+                            flag(entity);
+
+                            continue;
+                        }
+
                         IEntityProxy<TEntity> @object = result[i];
 
                         if (queryType == DbQueryType.Update)
@@ -183,9 +197,7 @@ namespace SubSonic.Data.Caching
                         if(queryType.In(DbQueryType.Insert, DbQueryType.Update))
                         {
                             entity.SetDbComputedProperties(@object);
-                            entity.IsNew = false;
-                            entity.IsDirty = false;
-                            entity.IsDeleted = false;
+                            flag(entity);
                         }
                     }
                 }
