@@ -83,6 +83,22 @@ namespace SubSonic.Extensions.Test
             }
         }
 
+        public static TType GetValue<TType>(this object value)
+        {
+            if (value is DBNull)
+            {
+                return default(TType);
+            }
+            else if (value is TType result)
+            {
+                return result;
+            }
+            else
+            {
+                throw new NotSupportedException();
+            }
+        }
+
         public static DataTable ToDataTable(this IDbEntityModel model)
         {
             if (model is null)

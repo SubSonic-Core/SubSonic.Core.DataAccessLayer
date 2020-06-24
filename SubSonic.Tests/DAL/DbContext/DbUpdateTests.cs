@@ -77,13 +77,15 @@ WHERE (([T1].[PersonID] = @personid_1) AND ([T1].[UnitID] = @unitid_2))", renter
                 }
             });
 
-            foreach(IEntityProxy proxy in expected)
+            for(int i = 0, c = expected.Count(); i < c; i++)
             {
+                IEntityProxy proxy = expected.ElementAt(i);
+
                 if (proxy is Models.Person person)
                 {   // we should really set this part up to set random data
                     person.FirstName = "Bob";
                     person.FamilyName = "Walters";
-                    person.MiddleInitial = "S";
+                    person.MiddleInitial = ((i % 2) == 0) ? "S" : null;
                 }
                 else if (proxy is Models.Renter renter)
                 {
@@ -126,11 +128,20 @@ WHERE (([T1].[PersonID] = @personid_1) AND ([T1].[UnitID] = @unitid_2))", renter
                     .Should()
                     .Be(dbTest.UseDefinedTableType ? 1 : expected.Count());
 
-                foreach (IEntityProxy proxy in expected)
+                for (int i = 0, c = expected.Count(); i < c; i++)
                 {
+                    IEntityProxy proxy = expected.ElementAt(i);
+
                     if (proxy is Models.Person person)
                     {
-                        person.FullName.Should().Be("Walters, Bob S.");
+                        if ((i % 2) == 0)
+                        {
+                            person.FullName.Should().Be("Walters, Bob S.");
+                        }
+                        else
+                        {
+                            person.FullName.Should().Be("Walters, Bob");
+                        }
                     }
                     else if (proxy is Models.Renter renter)
                     {
@@ -192,9 +203,9 @@ WHERE (([T1].[PersonID] = @personid_1) AND ([T1].[UnitID] = @unitid_2))", renter
                     {
                         Models.Person person = People.Single(x => x.ID == (int)entity[nameof(Models.Person.ID)]);
 
-                        person.FirstName = (string)entity[nameof(Models.Person.FirstName)];
-                        person.MiddleInitial = (string)entity[nameof(Models.Person.MiddleInitial)];
-                        person.FamilyName = (string)entity[nameof(Models.Person.FamilyName)];
+                        person.FirstName = entity[nameof(Models.Person.FirstName)].GetValue<string>();
+                        person.MiddleInitial = entity[nameof(Models.Person.MiddleInitial)].GetValue<string>();
+                        person.FamilyName = entity[nameof(Models.Person.FamilyName)].GetValue<string>();
 
                         person.FullName = String.Format("{0}, {1}{2}",
                             person.FamilyName, person.FirstName,
@@ -203,7 +214,7 @@ WHERE (([T1].[PersonID] = @personid_1) AND ([T1].[UnitID] = @unitid_2))", renter
                         result.Add(person);
                     }
 
-                    return result.ToDataTable();
+                    return result.OrderByDescending(x => x.ID).ToDataTable();
                 }
                 else if (expected.ElementAt(0) is Models.Renter)
                 {
@@ -224,7 +235,10 @@ WHERE (([T1].[PersonID] = @personid_1) AND ([T1].[UnitID] = @unitid_2))", renter
                         result.Add(renter);
                     }
 
-                    return result.ToDataTable();
+                    return result
+                        .OrderByDescending(x => x.PersonID)
+                        .ThenByDescending(x => x.UnitID)
+                        .ToDataTable();
                 }
                 else
                 {
