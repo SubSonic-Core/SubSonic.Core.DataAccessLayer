@@ -1,4 +1,5 @@
 ﻿using SubSonic.Infrastructure;
+using SubSonic.Infrastructure.Logging;
 using SubSonic.Infrastructure.Schema;
 using SubSonic.Linq;
 using SubSonic.Linq.Expressions;
@@ -17,13 +18,17 @@ namespace SubSonic.Data.Caching
     public class ChangeTrackerElement<TEntity>
         : ChangeTrackerElement, IEnumerable<TEntity>
     {
-        public ChangeTrackerElement()
+        private readonly ISubSonicLogger logger;
+
+        public ChangeTrackerElement(IDbEntityModel dbEntityModel, ISubSonicLogger<ChangeTrackerElement<TEntity>> logger)
             : base(typeof(TEntity)) 
         {
+            Model = dbEntityModel ?? throw new ArgumentNullException(nameof(dbEntityModel));
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             Cache = new ObservableCollection<IEntityProxy<TEntity>>();
         }
 
-        private static DbDatabase Database => DbContext.Current.Database;
+        DbDatabase Database => DbContext.Current.Database;
 
         public ICollection<IEntityProxy<TEntity>> Entities { get; }
 
@@ -91,165 +96,176 @@ namespace SubSonic.Data.Caching
                 throw new ArgumentNullException(nameof(data));
             }
 
-            bool success = false;
-
-            error = "";
-
-            try
+            using (logger.Start(nameof(SaveChanges)))
             {
-                IDbEntityModel model = DbContext.DbModel.GetEntityModel<TEntity>();
 
-                DbCommandQuery command = model.Commands[queryType];
+                bool success = false;
 
-                IEntityProxy<TEntity>[] result = Array.Empty<IEntityProxy<TEntity>>();
+                error = "";
 
-                if (command is null || command.CommandType == CommandType.Text)
+                try
                 {
-                    switch (queryType)
+                    IEntityProxy<TEntity>[] result = Array.Empty<IEntityProxy<TEntity>>();
+
+                    using (logger.Start($"On{nameof(SaveChanges)}"))
                     {
-                        case DbQueryType.Insert:
-                        case DbQueryType.Update:
-                        case DbQueryType.Delete:
-                            if (model.DefinedTableTypeExists)
+                        DbCommandQuery command = Model.Commands[queryType];
+
+                        if (command is null || command.CommandType == CommandType.Text)
+                        {
+                            switch (queryType)
                             {
-                                result = Database
-                                    .ExecuteDbQuery<TEntity>(queryType, model, data, out error)
-                                    .Select(x => x as IEntityProxy<TEntity>)
-                                    .ToArray();
+                                case DbQueryType.Insert:
+                                case DbQueryType.Update:
+                                case DbQueryType.Delete:
+
+                                    ISubSonicQueryProvider provider = Database.GetQueryBuilderFor(Model);
+
+                                    if (Model.DefinedTableTypeExists)
+                                    {
+                                        result = Database
+                                            .ExecuteDbQuery<TEntity>(provider, queryType, data, out error)
+                                            .Select(x => x as IEntityProxy<TEntity>)
+                                            .ToArray();
+                                    }
+                                    else
+                                    {
+                                        foreach (IEntityProxy proxy in data)
+                                        {
+                                            result = result.Union(Database
+                                                    .ExecuteDbQuery<TEntity>(provider, queryType, new[] { proxy }, out error)
+                                                    .Select(x => x as IEntityProxy<TEntity>))
+                                                .ToArray();
+                                        }
+                                    }
+                                    break;
+                                default:
+                                    throw new NotImplementedException();
                             }
-                            else
+                        }
+                        else if (command.CommandType == CommandType.StoredProcedure)
+                        {
+                            if (!Model.DefinedTableTypeExists)
                             {
-                                foreach (IEntityProxy proxy in data)
+                                throw new InvalidOperationException(SubSonicErrorMessages.UserDefinedTableNotDefined.Format(Model.EntityModelType.Name));
+                            }
+
+                            DbSubSonicStoredProcedure procedure = (DbSubSonicStoredProcedure)Activator.CreateInstance(command.StoredProcedureType, data);
+
+                            result = Database
+                                .ExecuteStoredProcedure<TEntity>(procedure)
+                                .Select(x => x as IEntityProxy<TEntity>)
+                                .ToArray();
+
+                            if (procedure.Result != 0)
+                            {
+                                // flush the invalid data
+                                data.ForEach(x => Remove(x));
+
+                                error = procedure.Error;
+
+                                return success;
+                            }
+                        }
+                    }
+
+                    using (logger.Start($"OnAfter{nameof(SaveChanges)}"))
+                    {
+                        Action<IEntityProxy<TEntity>> flag = new Action<IEntityProxy<TEntity>>(x =>
+                        {
+                            x.IsNew = false;
+                            x.IsDirty = false;
+                            x.IsDeleted = false;
+                        });
+
+                        Parallel.ForEach(data, (proxy, state, index) =>
+                        {
+                            if (proxy is IEntityProxy<TEntity> entity)
+                            {
+                                if (queryType == DbQueryType.Delete)
                                 {
-                                    result = result.Union(Database
-                                            .ExecuteDbQuery<TEntity>(queryType, model, new[] { proxy }, out error)
-                                            .Select(x => x as IEntityProxy<TEntity>))
-                                        .ToArray();
+                                    lock (Cache)
+                                    {
+                                        Remove(entity);
+                                    }
+
+                                    return;
+                                }
+
+                                if (result.Length == 0)
+                                {
+                                    flag(entity);
+
+                                    return;
+                                }
+
+                                IEntityProxy<TEntity> @object = result[index];
+
+                                if (queryType == DbQueryType.Update)
+                                {
+                                    @object = result.Single(x =>
+                                        x.KeyData.SequenceEqual(entity.KeyData));
+                                }
+
+                                if (queryType == DbQueryType.Insert)
+                                {
+                                    entity.SetKeyData(@object.KeyData);
+                                }
+
+                                if (queryType.In(DbQueryType.Insert, DbQueryType.Update))
+                                {
+                                    entity.SetDbComputedProperties(@object);
+                                    flag(entity);
                                 }
                             }
-                            break;
-                        default:
-                            throw new NotImplementedException();
+                        });
                     }
+
+                    //for(int i = 0, n = data.Count(); i < n; i++)
+                    //{
+                    //    if (data.ElementAt(i) is IEntityProxy<TEntity> entity)
+                    //    {
+                    //        if (queryType == DbQueryType.Delete)
+                    //        {
+                    //            Remove(entity);
+
+                    //            continue;
+                    //        }
+
+                    //        if (result.Length == 0)
+                    //        {
+                    //            flag(entity);
+
+                    //            continue;
+                    //        }
+
+                    //        IEntityProxy<TEntity> @object = result[i];
+
+                    //        if (queryType == DbQueryType.Update)
+                    //        {
+                    //            @object = result.Single(x =>
+                    //                x.KeyData.SequenceEqual(entity.KeyData));
+                    //        }
+
+                    //        if(queryType == DbQueryType.Insert)
+                    //        {
+                    //            entity.SetKeyData(@object.KeyData);
+                    //        }
+
+                    //        if(queryType.In(DbQueryType.Insert, DbQueryType.Update))
+                    //        {
+                    //            entity.SetDbComputedProperties(@object);
+                    //            flag(entity);
+                    //        }
+                    //    }
+                    //}
+
+                    success = true;
                 }
-                else if (command.CommandType == CommandType.StoredProcedure)
-                { 
-                    if (!model.DefinedTableTypeExists)
-                    {
-                        throw new InvalidOperationException(SubSonicErrorMessages.UserDefinedTableNotDefined.Format(model.EntityModelType.Name));
-                    }
+                finally { }
 
-                    DbSubSonicStoredProcedure procedure = (DbSubSonicStoredProcedure)Activator.CreateInstance(command.StoredProcedureType, data);
-
-                    result = Database
-                        .ExecuteStoredProcedure<TEntity>(procedure)
-                        .Select(x => x as IEntityProxy<TEntity>)
-                        .ToArray();
-
-                    if (procedure.Result != 0)
-                    {
-                        // flush the invalid data
-                        data.ForEach(x => Remove(x));
-
-                        error = procedure.Error;
-
-                        return success;
-                    }
-                }
-
-                Action<IEntityProxy<TEntity>> flag = new Action<IEntityProxy<TEntity>>(x =>
-                {
-                    x.IsNew = false;
-                    x.IsDirty = false;
-                    x.IsDeleted = false;
-                });
-
-                Parallel.ForEach(data, (proxy, state, index) =>
-                {
-                    if (proxy is IEntityProxy<TEntity> entity)
-                    {
-                        if (queryType == DbQueryType.Delete)
-                        {
-                            lock (Cache)
-                            {
-                                Remove(entity);
-                            }
-
-                            return;
-                        }
-
-                        if (result.Length == 0)
-                        {
-                            flag(entity);
-
-                            return;
-                        }
-
-                        IEntityProxy<TEntity> @object = result[index];
-
-                        if (queryType == DbQueryType.Update)
-                        {
-                            @object = result.Single(x =>
-                                x.KeyData.SequenceEqual(entity.KeyData));
-                        }
-
-                        if (queryType == DbQueryType.Insert)
-                        {
-                            entity.SetKeyData(@object.KeyData);
-                        }
-
-                        if (queryType.In(DbQueryType.Insert, DbQueryType.Update))
-                        {
-                            entity.SetDbComputedProperties(@object);
-                            flag(entity);
-                        }
-                    }
-                });
-
-                //for(int i = 0, n = data.Count(); i < n; i++)
-                //{
-                //    if (data.ElementAt(i) is IEntityProxy<TEntity> entity)
-                //    {
-                //        if (queryType == DbQueryType.Delete)
-                //        {
-                //            Remove(entity);
-
-                //            continue;
-                //        }
-
-                //        if (result.Length == 0)
-                //        {
-                //            flag(entity);
-
-                //            continue;
-                //        }
-
-                //        IEntityProxy<TEntity> @object = result[i];
-
-                //        if (queryType == DbQueryType.Update)
-                //        {
-                //            @object = result.Single(x =>
-                //                x.KeyData.SequenceEqual(entity.KeyData));
-                //        }
-
-                //        if(queryType == DbQueryType.Insert)
-                //        {
-                //            entity.SetKeyData(@object.KeyData);
-                //        }
-
-                //        if(queryType.In(DbQueryType.Insert, DbQueryType.Update))
-                //        {
-                //            entity.SetDbComputedProperties(@object);
-                //            flag(entity);
-                //        }
-                //    }
-                //}
-
-                success = true;
+                return success;
             }
-            finally { }
-
-            return success;
         }
 
         public override TResult Where<TResult>(System.Linq.IQueryProvider provider, Expression expression)
@@ -308,6 +324,8 @@ namespace SubSonic.Data.Caching
         public Type Key { get; }
 
         public ICollection Cache { get; protected set; }
+
+        public IDbEntityModel Model { get; protected set; }
 
         public void Clear()
         {

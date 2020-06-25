@@ -30,7 +30,7 @@ namespace SubSonic.Tests.DAL.SUT
         {
             config
                 .ConfigureServiceCollection()
-                .AddLogging((_config) => _config.AddNUnitLogger<TestDbContext>(LogLevel.Trace))
+                .AddLogging((_config) => _config.AddNUnitLogger<TestDbContext>(LogLevel.Debug))
                 .UseMockDbClient((builder, options) =>
                 {
                     builder

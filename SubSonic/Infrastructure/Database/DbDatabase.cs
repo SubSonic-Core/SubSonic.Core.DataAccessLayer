@@ -116,10 +116,14 @@ namespace SubSonic.Infrastructure
             }
         }
 
-        internal IEnumerable<TEntity> ExecuteDbQuery<TEntity>(DbQueryType queryType, IDbEntityModel model, IEnumerable<IEntityProxy> data, out string error)
+        internal ISubSonicQueryProvider GetQueryBuilderFor(IDbEntityModel model)
         {
-            IDbQuery query = new DbSqlQueryBuilder(model.EntityModelType, logger)
-                                .BuildDbQuery<TEntity>(queryType, data);
+            return new DbSqlQueryBuilder(model.EntityModelType, logger);
+        }
+
+        internal IEnumerable<TEntity> ExecuteDbQuery<TEntity>(ISubSonicQueryProvider provider, DbQueryType queryType, IEnumerable<IEntityProxy> data, out string error)
+        {
+            IDbQuery query = provider.BuildDbQuery<TEntity>(queryType, data);
 
             using (AutomaticConnectionScope Scope = GetConnectionScope())
             using (DbCommand cmd = GetCommand(Scope, query.Sql, query.Parameters))

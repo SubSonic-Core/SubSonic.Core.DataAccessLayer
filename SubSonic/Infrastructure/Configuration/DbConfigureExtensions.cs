@@ -18,6 +18,8 @@ namespace SubSonic.Infrastructure
         public static void SetupIOC(this DbContext context, IServiceCollection services, DbContextOptions options)
         {
             services
+                    .AddScoped(typeof(ISubSonicLogger<>), typeof(SubSonicLogger<>))
+                    .AddScoped(typeof(ISubSonicLogger), typeof(SubSonicLogger<DbContext>))
                     .AddSingleton(context)
                     .AddSingleton(new ChangeTrackerCollection())
                     .AddTransient(provider => DbProviderFactories.GetFactory(options.DbProviderInvariantName))
@@ -30,8 +32,6 @@ namespace SubSonic.Infrastructure
                         throw new NotSupportedException();
                     })
                     .AddScoped<DbContextAccessor>()
-                    .AddScoped(typeof(ISubSonicLogger<>), typeof(SubSonicLogger<>))
-                    .AddScoped(typeof(ISubSonicLogger), typeof(SubSonicLogger<DbContext>))
                     .AddTransient(typeof(ISubSonicQueryProvider<>), typeof(DbSqlQueryBuilder<>))
                     .AddTransient(typeof(DbSetCollection<>))
                     .AddScoped<DbDatabase>()

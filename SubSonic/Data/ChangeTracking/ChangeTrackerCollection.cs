@@ -40,7 +40,9 @@ namespace SubSonic.Data.Caching
 
             if (!collection.ContainsKey(elementKey))
             {
-                collection.Add(elementKey, new ChangeTrackerElement<TEntity>());
+                collection.Add(elementKey, new ChangeTrackerElement<TEntity>(
+                    DbContext.DbModel.GetEntityModel<TEntity>(), 
+                    DbContext.ServiceProvider.GetService<ISubSonicLogger<ChangeTrackerElement<TEntity>>>()));
             }
 
             return GetCacheElementFor<TEntity>();

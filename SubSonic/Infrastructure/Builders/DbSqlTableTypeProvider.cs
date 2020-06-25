@@ -210,5 +210,10 @@ namespace SubSonic.Infrastructure.Builders
         {
             throw new NotImplementedException();
         }
+
+        public IDbQuery BuildDbQuery<TEntity>(DbQueryType queryType, IEnumerable<IEntityProxy> proxies)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
