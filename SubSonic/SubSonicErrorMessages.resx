@@ -201,4 +201,7 @@
   <data name="UserDefinedTableNotDefined" xml:space="preserve">
     <value>{0} has not been decorated with DbUserDefinedTableTypeAttribute.</value>
   </data>
+  <data name="ValueIsNotOfExpectedType" xml:space="preserve">
+    <value>Expected value to be of type {0}, but found {1}.</value>
+  </data>
 </root>

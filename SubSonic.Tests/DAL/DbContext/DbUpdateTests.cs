@@ -65,7 +65,7 @@ WHERE (([T1].[PersonID] = @personid_1) AND ([T1].[UnitID] = @unitid_2))", renter
 
             expected.Count().Should().Be(dbTest.Count());
 
-            DbContext.Database.Instance.AddCommandBehavior(dbTest.Expectation, cmd =>
+            Context.Database.Instance.AddCommandBehavior(dbTest.Expectation, cmd =>
             {
                 if (dbTest.UseDefinedTableType)
                 {
@@ -97,7 +97,7 @@ WHERE (([T1].[PersonID] = @personid_1) AND ([T1].[UnitID] = @unitid_2))", renter
                 proxy.IsDirty.Should().BeTrue();
             }
 
-            DbContext.ChangeTracking
+            Context.ChangeTracking
                 .SelectMany(x => x.Value)
                 .Count(x => x.IsDirty)
                 .Should()
@@ -112,19 +112,19 @@ WHERE (([T1].[PersonID] = @personid_1) AND ([T1].[UnitID] = @unitid_2))", renter
                         DefinedTableType = new DbUserDefinedTableTypeAttribute(dbTest.EntityModel.Name)
                     }).Apply())
                     {
-                        DbContext.SaveChanges().Should().BeTrue();
+                        Context.SaveChanges().Should().BeTrue();
                     }
                 }
                 else
                 {
-                    DbContext.SaveChanges().Should().BeTrue();
+                    Context.SaveChanges().Should().BeTrue();
                 }
 
                 FluentActions.Invoking(() =>
-                    DbContext.Database.Instance.RecievedCommand(dbTest.Expectation))
+                    Context.Database.Instance.RecievedCommand(dbTest.Expectation))
                     .Should().NotThrow();
 
-                DbContext.Database.Instance.RecievedCommandCount(dbTest.Expectation)
+                Context.Database.Instance.RecievedCommandCount(dbTest.Expectation)
                     .Should()
                     .Be(dbTest.UseDefinedTableType ? 1 : expected.Count());
 

@@ -34,7 +34,7 @@ namespace SubSonic.Tests.DAL.SqlQueryProvider
 FROM [dbo].[RealEstateProperty] AS [{0}]
 WHERE [{0}].[StatusID] IN (@el_1, @el_2, @el_3)".Format("T1");
 
-            Expression select = DbContext
+            Expression select = Context
                 .RealEstateProperties
                 .Where(rep =>
                     rep.StatusID.In(new[] { 1, 2, 3 }))
@@ -42,13 +42,13 @@ WHERE [{0}].[StatusID] IN (@el_1, @el_2, @el_3)".Format("T1");
 
             IDbQuery query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
                 FluentActions.Invoking(() =>
                 {
-                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+                    ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
                     query = builder.ToQuery(select);
                 }).Should().NotThrow();
@@ -78,11 +78,11 @@ WHERE [T1].[StatusID] IN (
 	FROM [dbo].[Status] AS [T2]
 	WHERE ([T2].[IsAvailableStatus] = @b_isavailablestatus_1))".Format("T1", "T2");
 
-            Expression select = DbContext
+            Expression select = Context
                 .RealEstateProperties
                 .Where(rep =>
                     rep.StatusID.In(
-                        DbContext
+                        Context
                             .Statuses
                             .Where(stat => stat.IsAvailableStatus == true)
                             .Select(x => x.ID)))
@@ -90,13 +90,13 @@ WHERE [T1].[StatusID] IN (
 
             IDbQuery query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
                 FluentActions.Invoking(() =>
                 {
-                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+                    ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
                     query = builder.ToQuery(select);
                 }).Should().NotThrow();
@@ -124,11 +124,11 @@ WHERE [{0}].[StatusID] NOT IN (
 	FROM [dbo].[Status] AS [{1}]
 	WHERE ([{1}].[IsAvailableStatus] = @b_isavailablestatus_1))".Format("T1", "T2");
 
-            Expression select = DbContext
+            Expression select = Context
                 .RealEstateProperties
                 .Where(rep =>
                     rep.StatusID.NotIn(
-                        DbContext
+                        Context
                             .Statuses
                             .Where(stat => stat.IsAvailableStatus == true)
                             .Select(x => x.ID)))
@@ -136,13 +136,13 @@ WHERE [{0}].[StatusID] NOT IN (
 
             IDbQuery query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
                 FluentActions.Invoking(() =>
                 {
-                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+                    ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
                     query = builder.ToQuery(select);
                 }).Should().NotThrow();
@@ -167,7 +167,7 @@ WHERE [{0}].[StatusID] NOT IN (
 FROM [dbo].[RealEstateProperty] AS [{0}]
 WHERE [{0}].[StatusID] NOT IN (@el_1, @el_2, @el_3)".Format("T1");
 
-            Expression select = DbContext
+            Expression select = Context
                 .RealEstateProperties
                 .Where(rep =>
                     rep.StatusID.NotIn(new[] { 1, 2, 3 }))
@@ -175,13 +175,13 @@ WHERE [{0}].[StatusID] NOT IN (@el_1, @el_2, @el_3)".Format("T1");
 
             IDbQuery query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
                 FluentActions.Invoking(() =>
                 {
-                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+                    ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
                     query = builder.ToQuery(select);
                 }).Should().NotThrow();
@@ -207,7 +207,7 @@ WHERE [{0}].[StatusID] NOT IN (@el_1, @el_2, @el_3)".Format("T1");
 @"SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
 FROM [dbo].[RealEstateProperty] AS [{0}]".Format("T1");
 
-            Expression expression = DbContext.RealEstateProperties.Select().Expression;
+            Expression expression = Context.RealEstateProperties.Select().Expression;
 
             expression.Should().BeOfType<DbSelectExpression>();
 
@@ -215,7 +215,7 @@ FROM [dbo].[RealEstateProperty] AS [{0}]".Format("T1");
 
             string sql = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
@@ -232,7 +232,7 @@ FROM [dbo].[RealEstateProperty] AS [{0}]".Format("T1");
 
             sql.Should().Be(expected);
 
-            sql.Should().Be(DbContext.RealEstateProperties.Select().Expression.ToString());
+            sql.Should().Be(Context.RealEstateProperties.Select().Expression.ToString());
         }
 
         [Test]
@@ -242,7 +242,7 @@ FROM [dbo].[RealEstateProperty] AS [{0}]".Format("T1");
 @"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
 FROM [dbo].[Status] AS [{0}]".Format("T1");
 
-            Expression expression = DbContext.Statuses.Select().Expression;
+            Expression expression = Context.Statuses.Select().Expression;
 
             expression.Should().BeOfType<DbSelectExpression>();
 
@@ -250,7 +250,7 @@ FROM [dbo].[Status] AS [{0}]".Format("T1");
 
             string sql = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
@@ -267,7 +267,7 @@ FROM [dbo].[Status] AS [{0}]".Format("T1");
 
             sql.Should().Be(expected);
 
-            sql.Should().Be(DbContext.Statuses.Select().Expression.ToString());
+            sql.Should().Be(Context.Statuses.Select().Expression.ToString());
         }
 
         [Test]
@@ -277,7 +277,7 @@ FROM [dbo].[Status] AS [{0}]".Format("T1");
 @"SELECT [{0}].[ID], [{0}].[Bedrooms] AS [NumberOfBedrooms], [{0}].[StatusID], [{0}].[RealEstatePropertyID]
 FROM [dbo].[Unit] AS [{0}]".Format("T1");
 
-            Expression expression = DbContext.Units.Select().Expression;
+            Expression expression = Context.Units.Select().Expression;
 
             expression.Should().BeOfType<DbSelectExpression>();
 
@@ -285,7 +285,7 @@ FROM [dbo].[Unit] AS [{0}]".Format("T1");
 
             string sql = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
@@ -302,7 +302,7 @@ FROM [dbo].[Unit] AS [{0}]".Format("T1");
 
             sql.Should().Be(expected);
 
-            sql.Should().Be(DbContext.Units.Select().Expression.ToString());
+            sql.Should().Be(Context.Units.Select().Expression.ToString());
         }
 
         [Test]
@@ -313,7 +313,7 @@ FROM [dbo].[Unit] AS [{0}]".Format("T1");
 FROM [dbo].[Status] AS [{0}]
 WHERE ([{0}].[ID] = @id_1)".Format("T1");
 
-            Expression expression = DbContext.Statuses.FindByID(1).Expression;
+            Expression expression = Context.Statuses.FindByID(1).Expression;
 
             expression.Should().BeOfType<DbSelectExpression>();
 
@@ -321,7 +321,7 @@ WHERE ([{0}].[ID] = @id_1)".Format("T1");
 
             string sql = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
@@ -347,7 +347,7 @@ WHERE ([{0}].[ID] = @id_1)".Format("T1");
 FROM [dbo].[Status] AS [{0}]
 WHERE ([{0}].[IsAvailableStatus] = @b_isavailablestatus_1)".Format("T1");
 
-            Expression select = DbContext
+            Expression select = Context
                 .Statuses
                 .Where(Status => Status.IsAvailableStatus == true)
                 .Select(Status => Status.ID)
@@ -357,13 +357,13 @@ WHERE ([{0}].[IsAvailableStatus] = @b_isavailablestatus_1)".Format("T1");
 
             IDbQuery query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
                 FluentActions.Invoking(() =>
                 {
-                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+                    ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
                     query = builder.ToQuery(select);
                 }).Should().NotThrow();
@@ -395,23 +395,23 @@ WHERE EXISTS (
 	FROM [dbo].[Unit] AS [{1}]
 	WHERE (([{1}].[RealEstatePropertyID] = [{0}].[ID]) AND ([{1}].[Bedrooms] = @bedrooms_1)))".Format("T1", "T2");
 
-            Expression select = DbContext
+            Expression select = Context
                 .RealEstateProperties
                 .WhereExists((property) => 
-                    DbContext.Units
+                    Context.Units
                         .Where(unit => unit.RealEstatePropertyID == property.ID && unit.NumberOfBedrooms == 2)
                         .Select(unit => unit.ID))
                 .Expression;
 
             IDbQuery query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
                 FluentActions.Invoking(() =>
                 {
-                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+                    ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
                     query = builder.ToQuery(select);
                 }).Should().NotThrow();
@@ -440,23 +440,23 @@ WHERE NOT EXISTS (
 	FROM [dbo].[Unit] AS [{1}]
 	WHERE (([{1}].[RealEstatePropertyID] = [{0}].[ID]) AND ([{1}].[Bedrooms] = @bedrooms_1)))".Format("T1", "T2");
 
-            Expression select = DbContext
+            Expression select = Context
                 .RealEstateProperties
                 .WhereNotExists((Property) =>
-                    DbContext.Units
+                    Context.Units
                         .Where(x => x.RealEstatePropertyID == Property.ID && x.NumberOfBedrooms == 1)
                         .Select(x => x.ID))
                 .Expression;
 
             IDbQuery query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
                 FluentActions.Invoking(() =>
                 {
-                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+                    ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
                     query = builder.ToQuery(select);
                 }).Should().NotThrow();
@@ -490,16 +490,16 @@ WHERE (([{0}].[RealEstatePropertyID] = 1) AND ([{0}].[StatusID] = 1))".Format("T
 FROM [dbo].[Unit] AS [{0}]
 WHERE (([{0}].[RealEstatePropertyID] = @realestatepropertyid_1) AND ([{0}].[StatusID] = @statusid_2))".Format("T1");
 
-            RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(DbContext);
+            RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(Context);
 
             instance.ID = 1;
             instance.StatusID = 1;
 
-            DbContext.Database.Instance.AddCommandBehavior(
+            Context.Database.Instance.AddCommandBehavior(
                 units,
                 Units.Where(x => x.RealEstatePropertyID == 1));
 
-            DbContext.Database.Instance.AddCommandBehavior(
+            Context.Database.Instance.AddCommandBehavior(
                 status,
                 Units.Where(x => x.RealEstatePropertyID == 1 && x.StatusID == 1));
 
@@ -509,13 +509,13 @@ WHERE (([{0}].[RealEstatePropertyID] = @realestatepropertyid_1) AND ([{0}].[Stat
 
             IDbQuery query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
                 FluentActions.Invoking(() =>
                 {
-                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+                    ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
                     query = builder.ToQuery(select);
                 }).Should().NotThrow();
@@ -544,7 +544,7 @@ WHERE [{0}].[StartDate] BETWEEN @dt_start_1 AND @dt_end_2".Format("T1");
                 Start = new DateTime(1985, 01, 01),
                 End = DateTime.Now;
 
-            Expression select = DbContext
+            Expression select = Context
                 .Renters
                 .Where(Renter =>
                     Renter.StartDate.Between(Start, End))
@@ -552,13 +552,13 @@ WHERE [{0}].[StartDate] BETWEEN @dt_start_1 AND @dt_end_2".Format("T1");
 
             IDbQuery query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
                 FluentActions.Invoking(() =>
                 {
-                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+                    ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
                     query = builder.ToQuery(select);
                 }).Should().NotThrow();
@@ -588,7 +588,7 @@ WHERE [{0}].[StartDate] NOT BETWEEN @dt_start_1 AND @dt_end_2".Format("T1");
                 Start = new DateTime(1985, 01, 01),
                 End = DateTime.Now;
 
-            Expression select = DbContext
+            Expression select = Context
                 .Renters
                 .Where(Renter =>
                     Renter.StartDate.NotBetween(Start, End))
@@ -596,13 +596,13 @@ WHERE [{0}].[StartDate] NOT BETWEEN @dt_start_1 AND @dt_end_2".Format("T1");
 
             IDbQuery query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
                 FluentActions.Invoking(() =>
                 {
-                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+                    ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
                     query = builder.ToQuery(select);
                 }).Should().NotThrow();
@@ -632,7 +632,7 @@ WHERE @dt_now_1 BETWEEN [{0}].[StartDate] AND ISNULL([{0}].[EndDate], @dt_defaul
                 Now = DateTime.Now,
                 Default = Now.AddDays(1).Date;
 
-            Expression select = DbContext
+            Expression select = Context
                 .Renters
                 .Where(Renter =>
                     Now.Between(Renter.StartDate, Renter.EndDate.IsNull(Default)))
@@ -640,13 +640,13 @@ WHERE @dt_now_1 BETWEEN [{0}].[StartDate] AND ISNULL([{0}].[EndDate], @dt_defaul
 
             IDbQuery query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
                 FluentActions.Invoking(() =>
                 {
-                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+                    ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
                     query = builder.ToQuery(select);
                 }).Should().NotThrow();
@@ -676,7 +676,7 @@ WHERE @dt_now_1 NOT BETWEEN [{0}].[StartDate] AND ISNULL([{0}].[EndDate], @dt_de
                 Now = DateTime.Now,
                 Default = Now.AddDays(1).Date;
 
-            Expression select = DbContext
+            Expression select = Context
                 .Renters
                 .Where(Renter =>
                     Now.NotBetween(Renter.StartDate, Renter.EndDate.IsNull(Default)))
@@ -684,13 +684,13 @@ WHERE @dt_now_1 NOT BETWEEN [{0}].[StartDate] AND ISNULL([{0}].[EndDate], @dt_de
 
             IDbQuery query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
                 FluentActions.Invoking(() =>
                 {
-                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+                    ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
                     query = builder.ToQuery(select);
                 }).Should().NotThrow();
@@ -715,7 +715,7 @@ WHERE @dt_now_1 NOT BETWEEN [{0}].[StartDate] AND ISNULL([{0}].[EndDate], @dt_de
 @"SELECT DISTINCT [{0}].[PersonID]
 FROM [dbo].[Renter] AS [{0}]".Format("T1");
 
-            Expression select = DbContext
+            Expression select = Context
                 .Renters
                 .Distinct()
                 .Select(x => x.PersonID)
@@ -723,13 +723,13 @@ FROM [dbo].[Renter] AS [{0}]".Format("T1");
 
             IDbQuery query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
                 FluentActions.Invoking(() =>
                 {
-                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+                    ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
                     query = builder.ToQuery(select);
                 }).Should().NotThrow();
@@ -750,20 +750,20 @@ FROM [dbo].[Renter] AS [{0}]".Format("T1");
 @"SELECT TOP (1) [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
 FROM [dbo].[Renter] AS [{0}]".Format("T1");
 
-            Expression select = DbContext
+            Expression select = Context
                 .Renters
                 .Take(1)
                 .Expression;
 
             IDbQuery query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
                 FluentActions.Invoking(() =>
                 {
-                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+                    ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
                     query = builder.ToQuery(select);
                 }).Should().NotThrow();
@@ -795,20 +795,20 @@ FROM [dbo].[Renter] AS [{0}]
 		ON (([page].[PersonID] = [{0}].[PersonID]) AND ([page].[UnitID] = [{0}].[UnitID]))
 OPTION (RECOMPILE)".Format("T1");
 
-            Expression select = DbContext
+            Expression select = Context
                 .Renters
                 .Page(default(int), 20)
                 .Expression;
 
             IDbQuery query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectPageExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectPageExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
                 FluentActions.Invoking(() =>
                 {
-                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+                    ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
                     query = builder.ToQuery(select);
                 }).Should().NotThrow();
@@ -843,20 +843,20 @@ FROM [dbo].[RealEstateProperty] AS [{0}]
 		ON ([page].[ID] = [{0}].[ID])
 OPTION (RECOMPILE)".Format("T1");
 
-            Expression select = DbContext
+            Expression select = Context
                 .RealEstateProperties
                 .Page(default(int), 5)
                 .Expression;
 
             IDbQuery query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectPageExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectPageExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
                 FluentActions.Invoking(() =>
                 {
-                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+                    ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
                     query = builder.ToPagedQuery(select);
                 }).Should().NotThrow();
@@ -891,7 +891,7 @@ FROM [dbo].[RealEstateProperty] AS [{0}]
 		ON ([page].[ID] = [{0}].[ID])
 OPTION (RECOMPILE)".Format("T1");
 
-            Expression select = DbContext
+            Expression select = Context
                 .RealEstateProperties
                 .Where((property) =>
                     property.HasParallelPowerGeneration == true)
@@ -900,13 +900,13 @@ OPTION (RECOMPILE)".Format("T1");
 
             IDbQuery query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectPageExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectPageExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
                 FluentActions.Invoking(() =>
                 {
-                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+                    ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
                     query = builder.ToPagedQuery(select);
                 }).Should().NotThrow();
@@ -941,7 +941,7 @@ FROM [dbo].[RealEstateProperty] AS [{0}]
 		ON ([page].[ID] = [{0}].[ID])
 OPTION (RECOMPILE)".Format("T1");
 
-            Expression select = DbContext
+            Expression select = Context
                 .RealEstateProperties
                 .Where((property) =>
                     property.HasParallelPowerGeneration == true)
@@ -952,13 +952,13 @@ OPTION (RECOMPILE)".Format("T1");
 
             IDbQuery query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectPageExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectPageExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
                 FluentActions.Invoking(() =>
                 {
-                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+                    ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
                     query = builder.ToPagedQuery(select);
                 }).Should().NotThrow();
@@ -993,7 +993,7 @@ FROM [dbo].[RealEstateProperty] AS [{0}]
 		ON ([page].[ID] = [{0}].[ID])
 OPTION (RECOMPILE)".Format("T1");
 
-            Expression select = DbContext
+            Expression select = Context
                 .RealEstateProperties
                 .Where((property) =>
                     property.HasParallelPowerGeneration == true)
@@ -1004,13 +1004,13 @@ OPTION (RECOMPILE)".Format("T1");
 
             IDbQuery query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectPageExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectPageExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
                 FluentActions.Invoking(() =>
                 {
-                    ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+                    ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
                     query = builder.ToPagedQuery(select);
                 }).Should().NotThrow();

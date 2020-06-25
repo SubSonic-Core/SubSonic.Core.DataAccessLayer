@@ -41,19 +41,19 @@ WHERE ([{0}].[UnitID] = @unitid_1)",
 FROM [dbo].[Status] AS [{0}]
 WHERE ([{0}].[ID] = @id_1)";
 
-            DbContext.Database.Instance.AddCommandBehavior(units.Format("T1"), Units);
-            DbContext.Database.Instance.AddCommandBehavior(units_by_property.Format("T1"), cmd => Units
+            Context.Database.Instance.AddCommandBehavior(units.Format("T1"), Units);
+            Context.Database.Instance.AddCommandBehavior(units_by_property.Format("T1"), cmd => Units
                 .Where(x => x.RealEstatePropertyID == cmd.Parameters["@realestatepropertyid_1"].GetValue<int>())
                 .ToDataTable());
-            DbContext.Database.Instance.AddCommandBehavior(property.Format("T1"), cmd => RealEstateProperties
+            Context.Database.Instance.AddCommandBehavior(property.Format("T1"), cmd => RealEstateProperties
                 .Where(x =>
                     x.ID == cmd.Parameters["@id_1"].GetValue<int>())
                 .ToDataTable());
-            DbContext.Database.Instance.AddCommandBehavior(renters.Format("T1"), cmd => Renters
+            Context.Database.Instance.AddCommandBehavior(renters.Format("T1"), cmd => Renters
                 .Where(x =>
                     x.UnitID == cmd.Parameters["@unitid_1"].GetValue<int>())
                 .ToDataTable());
-            DbContext.Database.Instance.AddCommandBehavior(status.Format("T1"), cmd => Statuses
+            Context.Database.Instance.AddCommandBehavior(status.Format("T1"), cmd => Statuses
                 .Where(x =>
                     x.ID == cmd.Parameters["@id_1"].GetValue<int>())
                 .ToDataTable());
@@ -62,12 +62,12 @@ WHERE ([{0}].[ID] = @id_1)";
         [Test]
         public void BuildProxyForElegibleType()
         {
-            DynamicProxyWrapper proxyWrapper = DynamicProxy.GetProxyWrapper<RealEstateProperty>(DbContext);
+            DynamicProxyWrapper proxyWrapper = DynamicProxy.GetProxyWrapper<RealEstateProperty>(Context);
 
             proxyWrapper.IsElegibleForProxy.Should().BeTrue();
             proxyWrapper.Type.Should().BeDerivedFrom<RealEstateProperty>();
 
-            RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(DbContext);
+            RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(Context);
 
             instance.Should().BeAssignableTo<RealEstateProperty>();
         }
@@ -75,7 +75,7 @@ WHERE ([{0}].[ID] = @id_1)";
         [Test]
         public void DynamicProxyImplementsIEntityProxy()
         {
-            RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(DbContext);
+            RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(Context);
 
             ((IEntityProxy)instance).Should().NotBeNull();
 
@@ -95,7 +95,7 @@ WHERE ([{0}].[ID] = @id_1)";
         [Test]
         public void ProxyNavigationPropertyWillSetForeignKeysOnSet()
         {
-            RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(DbContext);
+            RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(Context);
 
             instance.StatusID.Should().Be(0);
 
@@ -109,7 +109,7 @@ WHERE ([{0}].[ID] = @id_1)";
         [Test]
         public void ProxyNavigationPropertyWillNotLoadWhenNullAndForiengKeyIsDefaultValueOnGet()
         {
-            RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(DbContext);
+            RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(Context);
 
             instance.Status.Should().BeNull();
         }
@@ -122,9 +122,9 @@ WHERE ([{0}].[ID] = @id_1)";
 FROM [dbo].[Status] AS [{0}]
 WHERE ([{0}].[ID] = 1)".Format("T1");
 
-            RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(DbContext);
+            RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(Context);
 
-            DbContext.Database.Instance.AddCommandBehavior(expected, Statuses.Where(x => x.ID == 1));
+            Context.Database.Instance.AddCommandBehavior(expected, Statuses.Where(x => x.ID == 1));
 
             instance.StatusID = 1;
 
@@ -136,7 +136,7 @@ WHERE ([{0}].[ID] = 1)".Format("T1");
         [Test]
         public void CanLazyLoadAnythingFromAnything()
         {
-            foreach (Unit unit in DbContext.Units)
+            foreach (Unit unit in Context.Units)
             {
                 ((IEntityProxy)unit).IsNew.Should().BeFalse();
 
@@ -156,13 +156,13 @@ WHERE ([{0}].[ID] = 1)".Format("T1");
                 ((IEntityProxy)unit.RealEstateProperty.Status).IsNew.Should().BeFalse();
             }
 
-            DbContext.Units.Should().NotBeEmpty();
+            Context.Units.Should().NotBeEmpty();
         }
 
         [Test]
         public void ProxyCollectionPropertyWillNotBeNullOnGet()
         {
-            RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(DbContext);
+            RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(Context);
 
             instance.Units = null;
 
@@ -173,7 +173,7 @@ WHERE ([{0}].[ID] = 1)".Format("T1");
         [Test]
         public void ProxyCollectionPropertyWillLoadWhenNotNullAndCountIsZeroOnGet()
         {
-            RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(DbContext);
+            RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(Context);
 
             instance.Units.Should().NotBeNull();
             // have yet to hit the db
@@ -187,9 +187,9 @@ WHERE ([{0}].[ID] = 1)".Format("T1");
         [Test]
         public void ProxyCollectionPropertyWillNotLoadWhenNotNullAndCountGreaterThanZeroOnGet()
         {
-            RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(DbContext);
+            RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(Context);
 
-            instance.Units = new HashSet<Unit>(new[] { DynamicProxy.CreateProxyInstanceOf<Unit>(DbContext) });
+            instance.Units = new HashSet<Unit>(new[] { DynamicProxy.CreateProxyInstanceOf<Unit>(Context) });
 
             instance.Units.Should().NotBeNull();
         }

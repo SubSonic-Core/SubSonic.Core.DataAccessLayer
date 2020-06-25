@@ -47,7 +47,7 @@ WHERE ([PersonID] IN (
 
             dbTest.Count().Should().Be(expected.Count());
 
-            DbContext.Database.Instance.AddCommandBehavior(dbTest.Expectation, cmd =>
+            Context.Database.Instance.AddCommandBehavior(dbTest.Expectation, cmd =>
             {
                 if (dbTest.UseDefinedTableType)
                 {
@@ -61,7 +61,7 @@ WHERE ([PersonID] IN (
 
             dbTest.Delete(expected);
 
-            DbContext.ChangeTracking
+            Context.ChangeTracking
                 .SelectMany(x => x.Value)
                 .Count(x => x.IsDeleted)
                 .Should().Be(expected.Count());
@@ -75,19 +75,19 @@ WHERE ([PersonID] IN (
                         DefinedTableType = new DbUserDefinedTableTypeAttribute(dbTest.EntityModel.Name)
                     }).Apply())
                     {
-                        DbContext.SaveChanges().Should().BeTrue();
+                        Context.SaveChanges().Should().BeTrue();
                     }
                 }
                 else
                 {
-                    DbContext.SaveChanges().Should().BeTrue();
+                    Context.SaveChanges().Should().BeTrue();
                 }
 
                 FluentActions.Invoking(() =>
-                    DbContext.Database.Instance.RecievedCommand(dbTest.Expectation))
+                    Context.Database.Instance.RecievedCommand(dbTest.Expectation))
                     .Should().NotThrow();
 
-                DbContext.Database.Instance.RecievedCommandCount(dbTest.Expectation)
+                Context.Database.Instance.RecievedCommandCount(dbTest.Expectation)
                     .Should()
                     .Be(dbTest.UseDefinedTableType ? 1 : expected.Count());
 

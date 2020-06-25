@@ -26,7 +26,7 @@ VALUES
 
             Models.Person person = new Models.Person(){ FirstName = "First_1", FamilyName = "Last_1", MiddleInitial = "M" };
 
-            DbContext.Database.Instance.AddCommandBehavior(expected_cmd, cmd =>
+            Context.Database.Instance.AddCommandBehavior(expected_cmd, cmd =>
             {
                 Models.Person data = new Models.Person()
                 {
@@ -46,11 +46,11 @@ VALUES
                 return new[] { data }.ToDataTable();
             });
 
-            DbContext.People.Add(person);
+            Context.People.Add(person);
 
-            DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
+            Context.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
 
-            DbContext.SaveChanges().Should().BeTrue();
+            Context.SaveChanges().Should().BeTrue();
 
             person.ID.Should().Be(5);
             person.FullName.Should().Be("Last_1, First_1 M.");
@@ -68,18 +68,18 @@ SELECT
 	[FamilyName]
 FROM @input";
 
-            DbContext.Model.GetEntityModel<Models.Person>().DefinedTableTypeExists.Should().BeFalse();
+            Context.Model.GetEntityModel<Models.Person>().DefinedTableTypeExists.Should().BeFalse();
 
-            using (DbContext.Model.GetEntityModel<Models.Person>().AlteredState<IDbEntityModel, DbEntityModel>(new
+            using (Context.Model.GetEntityModel<Models.Person>().AlteredState<IDbEntityModel, DbEntityModel>(new
             {
                 DefinedTableType = new DbUserDefinedTableTypeAttribute(nameof(Models.Person))
             }).Apply())
             {
-                DbContext.Model.GetEntityModel<Models.Person>().DefinedTableTypeExists.Should().BeTrue();
+                Context.Model.GetEntityModel<Models.Person>().DefinedTableTypeExists.Should().BeTrue();
 
                 Models.Person person = new Models.Person() { FirstName = "First_1", FamilyName = "Last_1", MiddleInitial = "M" };
 
-                DbContext.Database.Instance.AddCommandBehavior(expected_cmd, cmd =>
+                Context.Database.Instance.AddCommandBehavior(expected_cmd, cmd =>
                 {
                     if (cmd.Parameters["@input"].Value is DataTable table)
                     {
@@ -104,25 +104,25 @@ FROM @input";
                     throw new NotSupportedException();
                 });
 
-                DbContext.People.Add(person);
+                Context.People.Add(person);
 
-                DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
+                Context.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
 
-                DbContext.SaveChanges().Should().BeTrue();
+                Context.SaveChanges().Should().BeTrue();
 
                 person.ID.Should().Be(5);
                 person.FullName.Should().Be("Last_1, First_1 M.");
             }
 
             FluentActions.Invoking(() =>
-                    DbContext.Database.Instance.RecievedCommand(expected_cmd))
+                    Context.Database.Instance.RecievedCommand(expected_cmd))
                     .Should().NotThrow();
 
-            DbContext.Database.Instance.RecievedCommandCount(expected_cmd)
+            Context.Database.Instance.RecievedCommandCount(expected_cmd)
                 .Should()
                 .Be(1);
 
-            DbContext.Model.GetEntityModel<Models.Person>().DefinedTableTypeExists.Should().BeFalse();
+            Context.Model.GetEntityModel<Models.Person>().DefinedTableTypeExists.Should().BeFalse();
         }
 
         [Test]
@@ -139,7 +139,7 @@ FROM @input";
 
             Models.Unit unit = new Models.Unit() { NumberOfBedrooms = 2, RealEstatePropertyID = 1, StatusID = 1 };
 
-            DbContext.Database.Instance.AddCommandBehavior(expected_cmd, cmd =>
+            Context.Database.Instance.AddCommandBehavior(expected_cmd, cmd =>
             {
                 if (cmd.Parameters["@input"].Value is DataTable table)
                 {
@@ -160,11 +160,11 @@ FROM @input";
                 throw new InvalidOperationException();
             });
 
-            DbContext.Units.Add(unit);
+            Context.Units.Add(unit);
 
-            DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
+            Context.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
 
-            DbContext.SaveChanges().Should().BeTrue();
+            Context.SaveChanges().Should().BeTrue();
 
             unit.ID.Should().Be(5);
         }
@@ -185,7 +185,7 @@ VALUES
                 new Models.Person(){ FirstName = "First_4", FamilyName = "Last_4", FullName = "First_4 Last_4" }
             };
 
-            DbContext.Database.Instance.AddCommandBehavior(expected_cmd, cmd =>
+            Context.Database.Instance.AddCommandBehavior(expected_cmd, cmd =>
             {
                 cmd.Parameters["@MiddleInitial"].DbType.Should().Be(DbType.AnsiString);
 
@@ -212,17 +212,17 @@ VALUES
                 return _persons.ToDataTable();
             });
 
-            DbContext.People.AddRange(people);
+            Context.People.AddRange(people);
 
-            DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(3);
+            Context.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(3);
 
-            DbContext.SaveChanges().Should().BeTrue();
+            Context.SaveChanges().Should().BeTrue();
 
             FluentActions.Invoking(() =>
-                    DbContext.Database.Instance.RecievedCommand(expected_cmd))
+                    Context.Database.Instance.RecievedCommand(expected_cmd))
                     .Should().NotThrow();
 
-            DbContext.Database.Instance.RecievedCommandCount(expected_cmd)
+            Context.Database.Instance.RecievedCommandCount(expected_cmd)
                 .Should()
                 .Be(people.Length);
 
@@ -246,7 +246,7 @@ SELECT
 	[RealEstatePropertyID]
 FROM @input";
 
-            DbContext.Database.Instance.AddCommandBehavior(expected_cmd, cmd =>
+            Context.Database.Instance.AddCommandBehavior(expected_cmd, cmd =>
             {
                 if (cmd.Parameters["@input"].Value is DataTable table)
                 {
@@ -281,15 +281,15 @@ FROM @input";
 
             Models.Unit[] units;
 
-            DbContext.Units.AddRange(units = new[]
+            Context.Units.AddRange(units = new[]
             {
                 new Models.Unit() { NumberOfBedrooms = 2, RealEstatePropertyID = 1, StatusID = 1 },
                 new Models.Unit() { NumberOfBedrooms = 3, RealEstatePropertyID = 1, StatusID = 1 }
             });
 
-            DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(2);
+            Context.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(2);
 
-            DbContext.SaveChanges().Should().BeTrue();
+            Context.SaveChanges().Should().BeTrue();
 
             units[0].ID.Should().Be(5);
             units[1].ID.Should().Be(6);
@@ -339,7 +339,7 @@ FROM @input";
             //    }
             //}
 
-            DbContext.Database.Instance.AddCommandBehavior(expected, cmd =>
+            Context.Database.Instance.AddCommandBehavior(expected, cmd =>
             {
                 if (withUDTT)
                 {
@@ -351,21 +351,21 @@ FROM @input";
                 }
             });
 
-            DbContext.Renters.AddRange(renters);
+            Context.Renters.AddRange(renters);
 
-            DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(renters.Length);
+            Context.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(renters.Length);
 
             AlteredState<IDbEntityModel, DbEntityModel> state = null;
 
             if (withUDTT)
             {
-                state = DbContext.Model.GetEntityModel<Models.Renter>().AlteredState<IDbEntityModel, DbEntityModel>(new
+                state = Context.Model.GetEntityModel<Models.Renter>().AlteredState<IDbEntityModel, DbEntityModel>(new
                 {
                     DefinedTableType = new DbUserDefinedTableTypeAttribute(nameof(Models.Renter))
                 }).Apply();
             }
 
-            DbContext.SaveChanges().Should().BeTrue();
+            Context.SaveChanges().Should().BeTrue();
 
             if (withUDTT)
             {
@@ -374,10 +374,10 @@ FROM @input";
             }
 
             FluentActions.Invoking(() =>
-                    DbContext.Database.Instance.RecievedCommand(expected))
+                    Context.Database.Instance.RecievedCommand(expected))
                     .Should().NotThrow();
 
-            DbContext.Database.Instance.RecievedCommandCount(expected)
+            Context.Database.Instance.RecievedCommandCount(expected)
                 .Should()
                 .Be(withUDTT ? 1 : original.Length);
 
@@ -402,7 +402,7 @@ FROM @input";
                 EndDate = (DateTime)cmd.Parameters[$"@EndDate"].Value
             };
 
-            DbContext.Renters.Add(renter);
+            Context.Renters.Add(renter);
 
             return new[] { renter }.ToDataTable();
         }
@@ -429,7 +429,7 @@ FROM @input";
                         renters.Add(renter);
                     }
 
-                    DbContext.Renters.AddRange(renters);
+                    Context.Renters.AddRange(renters);
 
                     return renters.ToDataTable();
                 }

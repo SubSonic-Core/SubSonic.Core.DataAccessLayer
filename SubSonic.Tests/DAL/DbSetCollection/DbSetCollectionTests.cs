@@ -38,16 +38,16 @@ FROM [dbo].[Status] AS [{0}]",
 FROM [dbo].[Person] AS [{0}]
 WHERE ([{0}].[ID] = @id_1)";
 
-            DbContext.Database.Instance.AddCommandBehavior(units.Format("T1"), cmd => Units.Where(x => x.RealEstatePropertyID == cmd.Parameters["@realestatepropertyid_1"].GetValue<int>()).ToDataTable());
-            DbContext.Database.Instance.AddCommandBehavior(status.Format("T1"), cmd => Statuses.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
-            DbContext.Database.Instance.AddCommandBehavior(statuses.Format("T1"), Statuses);
-            DbContext.Database.Instance.AddCommandBehavior(kara.Format("T1"), cmd => People.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(units.Format("T1"), cmd => Units.Where(x => x.RealEstatePropertyID == cmd.Parameters["@realestatepropertyid_1"].GetValue<int>()).ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(status.Format("T1"), cmd => Statuses.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(statuses.Format("T1"), Statuses);
+            Context.Database.Instance.AddCommandBehavior(kara.Format("T1"), cmd => People.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
         }
 
         [Test]
         public void CanAddNewInstanceToCollection()
         {
-            Status status = DbContext.Statuses.Single(x => x.ID == 1);
+            Status status = Context.Statuses.Single(x => x.ID == 1);
 
             RealEstateProperty property = new RealEstateProperty()
             {
@@ -56,9 +56,9 @@ WHERE ([{0}].[ID] = @id_1)";
                 Status = status
             };
 
-            DbContext.RealEstateProperties.Add(property);
+            Context.RealEstateProperties.Add(property);
 
-            IEntityProxy<RealEstateProperty> proxy = (IEntityProxy<RealEstateProperty>)DbContext.RealEstateProperties.ElementAt(0);
+            IEntityProxy<RealEstateProperty> proxy = (IEntityProxy<RealEstateProperty>)Context.RealEstateProperties.ElementAt(0);
 
             proxy.IsNew.Should().BeTrue();
             proxy.Data.HasParallelPowerGeneration.Should().Be(property.HasParallelPowerGeneration);
@@ -69,13 +69,13 @@ WHERE ([{0}].[ID] = @id_1)";
         [Test]
         public void CanEnumerateCacheObject()
         {
-            DbContext.ChangeTracking.Add(typeof(RealEstateProperty), new Entity<RealEstateProperty>(new RealEstateProperty() { ID = -1, StatusID = 1 }));
+            Context.ChangeTracking.Add(typeof(RealEstateProperty), new Entity<RealEstateProperty>(new RealEstateProperty() { ID = -1, StatusID = 1 }));
 
-            DbContext.ChangeTracking.Add(typeof(RealEstateProperty), DynamicProxy.MapInstanceOf(DbContext, new Entity<RealEstateProperty>(new RealEstateProperty() { ID = -2, StatusID = 1 })));
+            Context.ChangeTracking.Add(typeof(RealEstateProperty), DynamicProxy.MapInstanceOf(Context, new Entity<RealEstateProperty>(new RealEstateProperty() { ID = -2, StatusID = 1 })));
 
-            DbContext.ChangeTracking.Add(typeof(Status), DynamicProxy.MapInstanceOf(DbContext, new Entity<Status>(new Status() { ID = -1, Name = "None", IsAvailableStatus = false })));
+            Context.ChangeTracking.Add(typeof(Status), DynamicProxy.MapInstanceOf(Context, new Entity<Status>(new Status() { ID = -1, Name = "None", IsAvailableStatus = false })));
 
-            foreach (var item in DbContext.ChangeTracking)
+            foreach (var item in Context.ChangeTracking)
             {
                 foreach (IEntityProxy proxy in item.Value)
                 {
@@ -101,11 +101,11 @@ WHERE ([{0}].[ID] = @id_1)";
         [Test]
         public void CanQueryFromCacheObject()
         {
-            Expression expression = DbContext.Statuses.Where(x => x.ID == 1).Expression;
+            Expression expression = Context.Statuses.Where(x => x.ID == 1).Expression;
 
             Status
-                status_ctrl = DbContext.Statuses.Where(x => x.ID == 1).Single(),
-                status_cache = DbContext.ChangeTracking.Where<IEnumerable<Status>>(typeof(Status), DbContext.Statuses.Provider, expression).Single();
+                status_ctrl = Context.Statuses.Where(x => x.ID == 1).Single(),
+                status_cache = Context.ChangeTracking.Where<IEnumerable<Status>>(typeof(Status), Context.Statuses.Provider, expression).Single();
 
             status_ctrl.Should().BeSameAs(status_cache);
         }
@@ -113,14 +113,14 @@ WHERE ([{0}].[ID] = @id_1)";
         [Test]
         public void CanPullFromCacheInsteadOfDatabase()
         {
-            List<Status> statuses = DbContext.Statuses.ToList();
+            List<Status> statuses = Context.Statuses.ToList();
 
             foreach (Status status in statuses)
             {
                 status.Should().NotBeNull();
             }
 
-            Status _status = DbContext.Statuses.Single(x => x.ID == 2);
+            Status _status = Context.Statuses.Single(x => x.ID == 2);
 
             _status.Should().NotBeNull();
             _status.ID.Should().Be(2);

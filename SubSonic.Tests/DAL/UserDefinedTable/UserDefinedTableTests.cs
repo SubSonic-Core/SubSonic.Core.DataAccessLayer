@@ -29,7 +29,7 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
         {
             base.SetupTestFixture();
 
-            Logger = DbContext.Instance.GetService<ISubSonicLogger<DbUserDefinedTableBuilder>>();
+            Logger = Context.Instance.GetService<ISubSonicLogger<DbUserDefinedTableBuilder>>();
         }
         [Test]
         [TestCase(typeof(Models.RealEstateProperty))]
@@ -49,7 +49,7 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
 
 
             DbUserDefinedTableBuilder builder = new DbUserDefinedTableBuilder(
-                DbContext.Model.GetEntityModel(modelType),
+                Context.Model.GetEntityModel(modelType),
                 data);
 
             string sql = null;
@@ -86,7 +86,7 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
 		) WITH (IGNORE_DUP_KEY = OFF));")]
         public void CanDeclareUserDefinedTableInlineForModel(Type modelType, string expected)
         {
-            IDbEntityModel dbEntityModel = DbContext.Model.GetEntityModel(modelType);
+            IDbEntityModel dbEntityModel = Context.Model.GetEntityModel(modelType);
 
             DbUserDefinedTableBuilder builder = new DbUserDefinedTableBuilder(dbEntityModel);
 

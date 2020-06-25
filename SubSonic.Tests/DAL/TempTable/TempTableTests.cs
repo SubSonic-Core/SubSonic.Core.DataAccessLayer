@@ -23,7 +23,7 @@ namespace SubSonic.Tests.DAL.TempTable
         {
             base.SetupTestFixture();
 
-            Logger = DbContext.Instance.GetService<ISubSonicLogger<DbTempTableBuilder>>();
+            Logger = Context.Instance.GetService<ISubSonicLogger<DbTempTableBuilder>>();
         }
 
         const string expected_person = @"CREATE TABLE #Person(
@@ -43,7 +43,7 @@ namespace SubSonic.Tests.DAL.TempTable
         public void CanGenerateCreateTempTableForModel(Type modelType, string expected)
         {
             DbTempTableBuilder builder = new DbTempTableBuilder(
-                DbContext.Model.GetEntityModel(modelType));
+                Context.Model.GetEntityModel(modelType));
 
             string sql = null;
 
@@ -63,7 +63,7 @@ namespace SubSonic.Tests.DAL.TempTable
         {
             // TODO: Add your test code here
             DbTempTableBuilder builder = new DbTempTableBuilder(
-                DbContext.Model.GetEntityModel(modelType));
+                Context.Model.GetEntityModel(modelType));
 
             string sql = null;
 
@@ -83,7 +83,7 @@ namespace SubSonic.Tests.DAL.TempTable
         {
             // TODO: Add your test code here
             DbTempTableBuilder builder = new DbTempTableBuilder(
-                DbContext.Model.GetEntityModel(modelType));
+                Context.Model.GetEntityModel(modelType));
 
             string sql = null;
 

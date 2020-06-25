@@ -69,57 +69,57 @@ FROM [dbo].[Renter] AS [{0}]",
 FROM [dbo].[Person] AS [{0}]
 WHERE ([{0}].[ID] = @id_1)";
 
-            DbContext.Database.Instance.AddCommandBehavior(units.Format("T1"), cmd => Units.Where(x => x.RealEstatePropertyID == cmd.Parameters["@RealEstatePropertyID"].GetValue<int>()).ToDataTable());
-            DbContext.Database.Instance.AddCommandBehavior(status.Format("T1"), cmd => 
+            Context.Database.Instance.AddCommandBehavior(units.Format("T1"), cmd => Units.Where(x => x.RealEstatePropertyID == cmd.Parameters["@RealEstatePropertyID"].GetValue<int>()).ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(status.Format("T1"), cmd => 
                 Statuses.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
-            DbContext.Database.Instance.AddCommandBehavior(statuses.Format("T1"), Statuses);
-            DbContext.Database.Instance.AddCommandBehavior(property.Format("T1"), cmd => RealEstateProperties.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
-            DbContext.Database.Instance.AddCommandBehavior(property_all.Format("T1"), RealEstateProperties);
-            DbContext.Database.Instance.AddCommandBehavior(people_all.Format("T1"), People);
-            DbContext.Database.Instance.AddCommandBehavior(people_count.Format("T1"), cmd => new[] { People.Count }.ToDataTable());
-            DbContext.Database.Instance.AddCommandBehavior(person.Format("T1"), cmd => People.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
-            DbContext.Database.Instance.AddCommandBehavior(person_count.Format("T1"), cmd => new[] { People.Count(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()) }.ToDataTable());
-            DbContext.Database.Instance.AddCommandBehavior(people_greater_than.Format("T1"), cmd => People.Where(x => x.ID > cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
-            DbContext.Database.Instance.AddCommandBehavior(people_greater_than_cnt.Format("T1"), cmd => new[] { People.Count(x => x.ID > cmd.Parameters["@id_1"].GetValue<int>()) }.ToDataTable());
-            DbContext.Database.Instance.AddCommandBehavior(renters.Format("T1"), Renters);
-            DbContext.Database.Instance.AddCommandBehavior(renters_filtered.Format("T1"), cmd => Renters.Where(x =>
+            Context.Database.Instance.AddCommandBehavior(statuses.Format("T1"), Statuses);
+            Context.Database.Instance.AddCommandBehavior(property.Format("T1"), cmd => RealEstateProperties.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(property_all.Format("T1"), RealEstateProperties);
+            Context.Database.Instance.AddCommandBehavior(people_all.Format("T1"), People);
+            Context.Database.Instance.AddCommandBehavior(people_count.Format("T1"), cmd => new[] { People.Count }.ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(person.Format("T1"), cmd => People.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(person_count.Format("T1"), cmd => new[] { People.Count(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()) }.ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(people_greater_than.Format("T1"), cmd => People.Where(x => x.ID > cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(people_greater_than_cnt.Format("T1"), cmd => new[] { People.Count(x => x.ID > cmd.Parameters["@id_1"].GetValue<int>()) }.ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(renters.Format("T1"), Renters);
+            Context.Database.Instance.AddCommandBehavior(renters_filtered.Format("T1"), cmd => Renters.Where(x =>
                 x.PersonID == cmd.Parameters["@personid_1"].GetValue<int>() &&
                 x.UnitID == cmd.Parameters["@unitid_2"].GetValue<int>())
             .ToDataTable());
-            DbContext.Database.Instance.AddCommandBehavior(renters_filtered_count, cmd => new[]
+            Context.Database.Instance.AddCommandBehavior(renters_filtered_count, cmd => new[]
             {
                 Renters.Count(x =>
                     x.PersonID == cmd.Parameters["@personid_1"].GetValue<int>() &&
                     x.UnitID == cmd.Parameters["@unitid_2"].GetValue<int>())
             }
             .ToDataTable());
-            DbContext.Database.Instance.AddCommandBehavior(renters_count.Format("T1"), cmd => new[] { Renters.Count }.ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(renters_count.Format("T1"), cmd => new[] { Renters.Count }.ToDataTable());
         }
 
         [Test]
         public void DbSetCollectionsShouldBeInitialized()
         {
-            DbContext.RealEstateProperties.Should().NotBeNull();
-            DbContext.Statuses.Should().NotBeNull();
-            DbContext.Units.Should().NotBeNull();
+            Context.RealEstateProperties.Should().NotBeNull();
+            Context.Statuses.Should().NotBeNull();
+            Context.Units.Should().NotBeNull();
         }
 
         [Test]
         public void DbOptionsShouldBeInitialized()
         {
-            DbContext.Options.Should().NotBeNull();
+            Context.Options.Should().NotBeNull();
         }
 
         [Test]
         public void DbModelShouldBeInitialized()
         {
-            DbContext.Model.Should().NotBeNull();
+            Context.Model.Should().NotBeNull();
         }
 
         [Test]
         public void ShouldBeAbleToCreateConnection()
         {
-            DbConnection dbConnection = DbContext.Database.CreateConnection();
+            DbConnection dbConnection = Context.Database.CreateConnection();
 
             dbConnection.Should().NotBeNull();
             dbConnection.ConnectionString.Should().NotBeNullOrEmpty();
@@ -131,7 +131,7 @@ WHERE ([{0}].[ID] = @id_1)";
             string
                 update = "[dbo].[UpdateRealEstateProperty]";
 
-            DbContext.Database.Instance.AddCommandBehavior(update, (cmd) =>
+            Context.Database.Instance.AddCommandBehavior(update, (cmd) =>
             {
                 if (cmd.Parameters[0].Value is DataTable data)
                 {
@@ -143,7 +143,7 @@ WHERE ([{0}].[ID] = @id_1)";
                 throw new NotSupportedException();
             });
 
-            Models.RealEstateProperty property = DbContext.RealEstateProperties
+            Models.RealEstateProperty property = Context.RealEstateProperties
                 .Where(x => x.ID == 1)
                 .Single();
 
@@ -151,19 +151,19 @@ WHERE ([{0}].[ID] = @id_1)";
 
             ((IEntityProxy)property).IsDirty.Should().BeTrue();
 
-            DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsDirty).Should().Be(1);
+            Context.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsDirty).Should().Be(1);
 
-            DbContext.SaveChanges().Should().BeTrue();
+            Context.SaveChanges().Should().BeTrue();
 
             ((IEntityProxy)property).IsDirty.Should().BeFalse();
 
-            property = DbContext.RealEstateProperties
+            property = Context.RealEstateProperties
                 .Where(x => x.ID == 1)
                 .Single();
 
             ((IEntityProxy)property).IsDirty.Should().BeFalse();
 
-            DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsDirty).Should().Be(0);
+            Context.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsDirty).Should().Be(0);
         }
 
         [Test]
@@ -172,7 +172,7 @@ WHERE ([{0}].[ID] = @id_1)";
             string
                 update = "[dbo].[UpdateRealEstateProperty]";
 
-            DbContext.Database.Instance.AddCommandBehavior(update, (cmd) =>
+            Context.Database.Instance.AddCommandBehavior(update, (cmd) =>
             {
                 if (cmd.Parameters[0].Value is DataTable data)
                 {
@@ -184,18 +184,18 @@ WHERE ([{0}].[ID] = @id_1)";
                 throw new NotSupportedException();
             });
 
-            foreach (Models.RealEstateProperty property in DbContext.RealEstateProperties)
+            foreach (Models.RealEstateProperty property in Context.RealEstateProperties)
             {
                 property.HasParallelPowerGeneration = !(property.HasParallelPowerGeneration ?? false);
 
                 ((IEntityProxy)property).IsDirty.Should().BeTrue();
             }
 
-            DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsDirty).Should().Be(DbContext.RealEstateProperties.Count);
+            Context.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsDirty).Should().Be(Context.RealEstateProperties.Count);
 
-            DbContext.SaveChanges().Should().BeTrue();
+            Context.SaveChanges().Should().BeTrue();
 
-            DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsDirty).Should().Be(0);
+            Context.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsDirty).Should().Be(0);
         }
 
         [Test]
@@ -204,7 +204,7 @@ WHERE ([{0}].[ID] = @id_1)";
             string
                 delete = "[dbo].[DeleteRealEstateProperty]";
 
-            DbContext.Database.Instance.AddCommandBehavior(delete, (cmd) =>
+            Context.Database.Instance.AddCommandBehavior(delete, (cmd) =>
             {
                 if (cmd.Parameters[0].Value is DataTable data)
                 {
@@ -216,23 +216,23 @@ WHERE ([{0}].[ID] = @id_1)";
                 throw new NotSupportedException();
             });
 
-            Models.RealEstateProperty property = DbContext.RealEstateProperties
+            Models.RealEstateProperty property = Context.RealEstateProperties
                 .Where(x => x.ID == 1)
                 .Single();
 
             ((IEntityProxy)property).IsDeleted.Should().BeFalse();
 
-            DbContext.RealEstateProperties.Delete(property);
+            Context.RealEstateProperties.Delete(property);
 
             ((IEntityProxy)property).IsDeleted.Should().BeTrue();
 
-            DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsDeleted).Should().Be(1);
+            Context.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsDeleted).Should().Be(1);
 
-            DbContext.SaveChanges().Should().BeTrue();
+            Context.SaveChanges().Should().BeTrue();
 
-            DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.KeyData.IsSameAs(new object[] { 1 })).Should().Be(0);
+            Context.ChangeTracking.SelectMany(x => x.Value).Count(x => x.KeyData.IsSameAs(new object[] { 1 })).Should().Be(0);
 
-            DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsDeleted).Should().Be(0);
+            Context.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsDeleted).Should().Be(0);
         }
 
         [Test]
@@ -241,7 +241,7 @@ WHERE ([{0}].[ID] = @id_1)";
             string
                 insert = "[dbo].[InsertRealEstateProperty]";
 
-            DbContext.Database.Instance.AddCommandBehavior(insert, (cmd) =>
+            Context.Database.Instance.AddCommandBehavior(insert, (cmd) =>
             {
                 DataTable correlation = null;
 
@@ -277,15 +277,15 @@ WHERE ([{0}].[ID] = @id_1)";
                 HasParallelPowerGeneration = true
             };
 
-            DbContext.RealEstateProperties.Add(property);
+            Context.RealEstateProperties.Add(property);
 
-            DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
+            Context.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
 
-            DbContext.SaveChanges().Should().BeTrue();
+            Context.SaveChanges().Should().BeTrue();
 
             property.ID.Should().Be(id);
 
-            DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(0);
+            Context.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(0);
         }
 
         [Test]
@@ -294,7 +294,7 @@ WHERE ([{0}].[ID] = @id_1)";
             string
                 insert = "[dbo].[InsertRealEstateProperty]";
 
-            DbContext.Database.Instance.AddCommandBehavior(insert, (cmd) =>
+            Context.Database.Instance.AddCommandBehavior(insert, (cmd) =>
             {
                 DataTable correlation = null;
 
@@ -326,15 +326,15 @@ WHERE ([{0}].[ID] = @id_1)";
                 HasParallelPowerGeneration = true
             };
 
-            DbContext.RealEstateProperties.Add(property);
+            Context.RealEstateProperties.Add(property);
 
-            DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
+            Context.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
 
-            DbContext.SaveChanges().Should().BeFalse();
+            Context.SaveChanges().Should().BeFalse();
 
             property.ID.Should().Be(0);
             // bad data removed from change tracking.
-            DbContext.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(0);
+            Context.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(0);
         }
 
         [Test]
@@ -364,7 +364,7 @@ FROM [dbo].[RealEstateProperty] AS [T1]
 		ON ([page].[ID] = [T1].[ID])
 OPTION (RECOMPILE)";
 
-            DbContext.Database.Instance.AddCommandBehavior(count, (cmd) =>
+            Context.Database.Instance.AddCommandBehavior(count, (cmd) =>
             {
                 using (DataTableBuilder table = new DataTableBuilder())
                 {
@@ -398,9 +398,9 @@ OPTION (RECOMPILE)";
                     .ToDataTable();
             };
 
-            DbContext.Database.Instance.AddCommandBehavior(paged, command);
+            Context.Database.Instance.AddCommandBehavior(paged, command);
 
-            IDbPageCollection<Models.RealEstateProperty> collection = DbContext.RealEstateProperties.ToPagedCollection(pageSize);
+            IDbPageCollection<Models.RealEstateProperty> collection = Context.RealEstateProperties.ToPagedCollection(pageSize);
 
             collection.PageSize.Should().Be(pageSize);
 
@@ -445,7 +445,7 @@ FROM [dbo].[RealEstateProperty] AS [T1]
 		ON ([page].[ID] = [T1].[ID])
 OPTION (RECOMPILE)";
 
-            DbContext.Database.Instance.AddCommandBehavior(count, (cmd) =>
+            Context.Database.Instance.AddCommandBehavior(count, (cmd) =>
             {
                 using (DataTableBuilder table = new DataTableBuilder())
                 {
@@ -479,9 +479,9 @@ OPTION (RECOMPILE)";
                     .ToDataTable();
             };
 
-            DbContext.Database.Instance.AddCommandBehavior(paged, command);
+            Context.Database.Instance.AddCommandBehavior(paged, command);
 
-            IDbPageCollection<Models.RealEstateProperty> collection = DbContext.RealEstateProperties.ToPagedCollection(pageSize);
+            IDbPageCollection<Models.RealEstateProperty> collection = Context.RealEstateProperties.ToPagedCollection(pageSize);
 
             bool enumerated = false;
 

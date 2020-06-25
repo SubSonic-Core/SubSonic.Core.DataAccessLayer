@@ -17,7 +17,7 @@ namespace SubSonic.Tests.DAL
         [Test]
         public void RealEstatePropertyModelHasRelationships()
         {
-            IDbEntityModel model = DbContext.Model.GetEntityModel<RealEstateProperty>();
+            IDbEntityModel model = Context.Model.GetEntityModel<RealEstateProperty>();
 
             model.HasRelationships.Should().BeTrue();
         }
@@ -25,7 +25,7 @@ namespace SubSonic.Tests.DAL
         [Test]
         public void PersonPropertyFullNameShouldBeReadOnly()
         {
-            IDbEntityModel model = DbContext.Model.GetEntityModel<Person>();
+            IDbEntityModel model = Context.Model.GetEntityModel<Person>();
 
             model.Properties.First(x => x.Name == nameof(Person.FullName)).IsReadOnly.Should().BeTrue();
         }

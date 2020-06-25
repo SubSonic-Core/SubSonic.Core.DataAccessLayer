@@ -247,31 +247,32 @@ namespace SubSonic
 
             TEntity item = DynamicProxy.CreateProxyInstanceOf<TEntity>(DbContext.Current);
 
-            Parallel.ForEach(model.Properties, property =>
+            foreach (IDbEntityProperty property in model.Properties)
+            //Parallel.ForEach(model.Properties, property =>
             {
                 if (property.EntityPropertyType != DbEntityPropertyType.Value)
                 {
-                    return;
+                    continue;
+                    //return;
                 }
 
-                if (reader[property.Name] != DBNull.Value)
+                int ordinal = reader.GetOrdinal(property.Name);
+
+                object value = reader.GetValue(ordinal);
+
+                if (value != DBNull.Value )
                 {
-                    model.EntityModelType.GetProperty(property.PropertyName).SetValue(item, reader[property.Name]);
+                    if (value.IsOfType(property.PropertyType.GetUnderlyingType()))
+                    {
+                        model.EntityModelType.GetProperty(property.PropertyName).SetValue(item, value);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException(SubSonicErrorMessages.ValueIsNotOfExpectedType.Format(property.PropertyType.Name, value.GetType().Name));
+                    }
                 }
-            });
-
-            //foreach (IDbEntityProperty property in model.Properties)
-            //{
-            //    if (property.EntityPropertyType != DbEntityPropertyType.Value)
-            //    {
-            //        continue;
-            //    }
-
-            //    if (reader[property.Name] != DBNull.Value)
-            //    {
-            //        model.EntityModelType.GetProperty(property.PropertyName).SetValue(item, reader[property.Name]);
-            //    }
-            //}
+            }
+            //);
 
             return item;
         }

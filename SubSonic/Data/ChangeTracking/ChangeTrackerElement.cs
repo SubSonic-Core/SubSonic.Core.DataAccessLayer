@@ -178,9 +178,10 @@ namespace SubSonic.Data.Caching
                             x.IsDeleted = false;
                         });
 
-                        Parallel.ForEach(data, (proxy, state, index) =>
+                        //for(int index = 0, n = data.Count(); index < n; index++)
+                        Parallel.For(0, data.Count(), index =>
                         {
-                            if (proxy is IEntityProxy<TEntity> entity)
+                            if (data.ElementAt(index) is IEntityProxy<TEntity> entity)
                             {
                                 if (queryType == DbQueryType.Delete)
                                 {
@@ -189,6 +190,7 @@ namespace SubSonic.Data.Caching
                                         Remove(entity);
                                     }
 
+                                    //continue;
                                     return;
                                 }
 
@@ -196,6 +198,7 @@ namespace SubSonic.Data.Caching
                                 {
                                     flag(entity);
 
+                                    //continue;
                                     return;
                                 }
 
@@ -218,10 +221,11 @@ namespace SubSonic.Data.Caching
                                     flag(entity);
                                 }
                             }
-                        });
+                        }
+                        );
                     }
 
-                    //for(int i = 0, n = data.Count(); i < n; i++)
+                    
                     //{
                     //    if (data.ElementAt(i) is IEntityProxy<TEntity> entity)
                     //    {

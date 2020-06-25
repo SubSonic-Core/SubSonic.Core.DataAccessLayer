@@ -12,16 +12,26 @@ namespace SubSonic.Tests.DAL.SUT
 {
     public class BaseTestFixture
     {
-        protected TestDbContext DbContext { get => SetUpSubSonic.DbContext; }
+        protected TestDbContext Context { get => SetUpSubSonic.DbContext; }
 
         protected ISubSonicLogger Logger { get; set; }
+
+        public class DataSeed
+        {
+            public class Person
+            {
+                public static string[] FamilyNames => new[] { "Carter", "Scully", "Mulder", "Barker", "Ward", "Fury", "Danvers", "Williamson", "Walters", "Spiner", "Smith", "Picard", "Davis", "Trump", "Paris" };
+                public static string[] FirstNames => new[] { "Abigail", "Alexander", "Ethan", "Evie", "Owen", "Bob", "Bethany", "Kara", "Clark", "Nick", "Kenneth", "Peggy", "Edward", "Brent", "William", "Jean" };
+                public static string[] MiddleInitial => new[] { "", " ", "A", null, "B", "C", "D", "E", null, "F", "G", "H", "I", "J", "K", null, "L", "M", "N", "O", null, "P", null, "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", null };
+            }
+        }
 
         [SetUp]
         public virtual void SetupTestFixture()
         {
-            DbContext.ChangeTracking.Flush();
+            Context.ChangeTracking.Flush();
 
-            DbContext.Instance.GetService<DbProviderFactory, SubSonicMockDbClient>().ClearBehaviors();
+            Context.Instance.GetService<DbProviderFactory, SubSonicMockDbClient>().ClearBehaviors();
 
             Statuses = new List<Status>()
             {

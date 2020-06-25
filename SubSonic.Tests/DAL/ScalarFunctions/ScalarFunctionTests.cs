@@ -21,7 +21,7 @@ namespace SubSonic.Tests.DAL.ScalarFunctions
         {
             base.SetupTestFixture();
 
-            Logger = DbContext.Instance.GetService<ISubSonicLogger<ScalarFunctionTests>>();
+            Logger = Context.Instance.GetService<ISubSonicLogger<ScalarFunctionTests>>();
         }
 
         [Test]
@@ -32,7 +32,7 @@ namespace SubSonic.Tests.DAL.ScalarFunctions
 FROM [dbo].[RealEstateProperty] AS [{0}]
 WHERE ([dbo].[IsPropertyAvailable]([{0}].[StatusID]) = @b_value_1)".Format("T1");
 
-            Expression select = DbContext
+            Expression select = Context
                 .RealEstateProperties
                 .Where(rep =>
                     Scalar.IsPropertyAvailable(rep.StatusID) == true)
@@ -40,13 +40,13 @@ WHERE ([dbo].[IsPropertyAvailable]([{0}].[StatusID]) = @b_value_1)".Format("T1")
 
             IDbQuery query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
                 FluentActions.Invoking(() =>
                 {
-                    ISubSonicQueryProvider<RealEstateProperty> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<RealEstateProperty>>();
+                    ISubSonicQueryProvider<RealEstateProperty> builder = Context.Instance.GetService<ISubSonicQueryProvider<RealEstateProperty>>();
 
                     query = builder.ToQuery(select);
                 }).Should().NotThrow();
@@ -72,7 +72,7 @@ WHERE ([dbo].[IsPropertyAvailable]([{0}].[StatusID]) = @b_value_1)".Format("T1")
 FROM [dbo].[RealEstateProperty] AS [{0}]
 WHERE ([dbo].[SupportsMultipleArguments]([{0}].[StatusID], @b_value_1) = @b_value_2)".Format("T1");
 
-            Expression select = DbContext
+            Expression select = Context
                 .RealEstateProperties
                 .Where(rep =>
                     Scalar.SupportsMultipleArguments(rep.StatusID, false) == true)
@@ -80,13 +80,13 @@ WHERE ([dbo].[SupportsMultipleArguments]([{0}].[StatusID], @b_value_1) = @b_valu
 
             IDbQuery query = null;
 
-            var logging = DbContext.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
 
             using (var perf = logging.Start("SQL Query Writer"))
             {
                 FluentActions.Invoking(() =>
                 {
-                    ISubSonicQueryProvider<RealEstateProperty> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<RealEstateProperty>>();
+                    ISubSonicQueryProvider<RealEstateProperty> builder = Context.Instance.GetService<ISubSonicQueryProvider<RealEstateProperty>>();
 
                     query = builder.ToQuery(select);
                 }).Should().NotThrow();

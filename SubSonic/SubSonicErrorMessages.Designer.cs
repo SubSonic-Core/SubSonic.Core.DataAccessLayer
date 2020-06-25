@@ -311,5 +311,14 @@ namespace SubSonic {
                 return ResourceManager.GetString("UserDefinedTableNotDefined", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Expected value to be of type {0}, but found {1}..
+        /// </summary>
+        internal static string ValueIsNotOfExpectedType {
+            get {
+                return ResourceManager.GetString("ValueIsNotOfExpectedType", resourceCulture);
+            }
+        }
     }
 }

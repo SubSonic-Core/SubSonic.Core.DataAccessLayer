@@ -23,9 +23,9 @@ namespace SubSonic.Tests.DAL.SqlQueryProvider
         [Test]
         public void CanCompileDbSetQuery()
         {
-            object set = Expression.Lambda(DbContext.RealEstateProperties.Expression).Compile().DynamicInvoke();
+            object set = Expression.Lambda(Context.RealEstateProperties.Expression).Compile().DynamicInvoke();
 
-            set.Should().BeSameAs(DbContext.RealEstateProperties);
+            set.Should().BeSameAs(Context.RealEstateProperties);
         }
 #endif
 
@@ -36,9 +36,9 @@ namespace SubSonic.Tests.DAL.SqlQueryProvider
 @"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
 FROM [dbo].[Status] AS [{0}]".Format("T1");
 
-            ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+            ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
-            IDbQuery dbQuery = builder.ToQuery(DbContext.Statuses.Expression);
+            IDbQuery dbQuery = builder.ToQuery(Context.Statuses.Expression);
 
             dbQuery.Should().NotBeNull();
             dbQuery.Sql.Should().Be(expected);
@@ -53,9 +53,9 @@ FROM [dbo].[Status] AS [{0}]".Format("T1");
 FROM [dbo].[Status] AS [{0}]
 WHERE ([{0}].[ID] = @id_1)".Format("T1");
 
-            ISubSonicQueryProvider<Status> builder = DbContext.Instance.GetService<ISubSonicQueryProvider<Status>>();
+            ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
-            IDbQuery dbQuery = builder.ToQuery(DbContext.Statuses.FindByID(1).Expression);
+            IDbQuery dbQuery = builder.ToQuery(Context.Statuses.FindByID(1).Expression);
 
             dbQuery.Should().NotBeNull();
             dbQuery.Sql.Should().Be(expected);
