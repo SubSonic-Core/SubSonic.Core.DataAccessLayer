@@ -144,7 +144,7 @@ WHERE ([{0}].[ID] = @id_1)";
                     return data;
                 }
 
-                throw new NotSupportedException($"Command Behavior For {update}");
+                throw new NotSupportedException($"Command Behavior For {nameof(ShouldBeAbleToUpdateRecordsUsingCQRS)}");
             });
 
             Models.RealEstateProperty property = Context.RealEstateProperties
@@ -178,14 +178,14 @@ WHERE ([{0}].[ID] = @id_1)";
 
             Context.Database.Instance.AddCommandBehavior(update, (cmd) =>
             {
-                if (cmd.Parameters[0].Value is DataTable data)
+                if (cmd.Parameters["@Entities"].Value is DataTable data)
                 {
                     data.Rows.Count.Should().BeGreaterThan(1);
 
                     return data;
                 }
 
-                throw new NotSupportedException();
+                throw new NotSupportedException($"Command Behavior For {nameof(ShouldBeAbleToUpdateMultipleRecordsUsingCQRS)}");
             });
 
             foreach (Models.RealEstateProperty property in Context.RealEstateProperties)
