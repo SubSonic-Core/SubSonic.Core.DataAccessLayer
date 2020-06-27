@@ -7,6 +7,7 @@ namespace SubSonic.Linq.Expressions.Structure
     public class ArgumentCollection<TArgument>
         : IDisposable
     {
+        [ThreadStatic]
         private static Stack<ArgumentCollection<TArgument>> __instance;
 
         private readonly Queue<TArgument> arguments;
