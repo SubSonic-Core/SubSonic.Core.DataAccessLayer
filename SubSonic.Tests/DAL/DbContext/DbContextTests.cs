@@ -23,10 +23,13 @@ namespace SubSonic.Tests.DAL
             base.SetupTestFixture();
 
             string
-                units =
+                units_property =
             @"SELECT [{0}].[ID], [{0}].[Bedrooms] AS [NumberOfBedrooms], [{0}].[StatusID], [{0}].[RealEstatePropertyID]
 FROM [dbo].[Unit] AS [{0}]
 WHERE ([{0}].[RealEstatePropertyID] = @RealEstatePropertyID)",
+                unitsById = @"SELECT [{0}].[ID], [{0}].[Bedrooms] AS [NumberOfBedrooms], [{0}].[StatusID], [{0}].[RealEstatePropertyID]
+FROM [dbo].[Unit] AS [{0}]
+WHERE ([{0}].[ID] = @id_1)",
                 status =
             @"SELECT [{0}].[ID], [{0}].[name] AS [Name], [{0}].[IsAvailableStatus]
 FROM [dbo].[Status] AS [{0}]
@@ -69,7 +72,8 @@ FROM [dbo].[Renter] AS [{0}]",
 FROM [dbo].[Person] AS [{0}]
 WHERE ([{0}].[ID] = @id_1)";
 
-            Context.Database.Instance.AddCommandBehavior(units.Format("T1"), cmd => Units.Where(x => x.RealEstatePropertyID == cmd.Parameters["@RealEstatePropertyID"].GetValue<int>()).ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(unitsById.Format("T1"), cmd => Units.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(units_property.Format("T1"), cmd => Units.Where(x => x.RealEstatePropertyID == cmd.Parameters["@RealEstatePropertyID"].GetValue<int>()).ToDataTable());
             Context.Database.Instance.AddCommandBehavior(status.Format("T1"), cmd => 
                 Statuses.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
             Context.Database.Instance.AddCommandBehavior(statuses.Format("T1"), Statuses);
