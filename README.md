@@ -51,12 +51,3 @@ This way I know the DAL from the ground up and speak for its performance and imp
 <br />
 
 [![Crypto Tip Jar](/images/tipjar.png)](https://commerce.coinbase.com/checkout/e234bf33-6611-496f-b816-685fe0dedb66)
-
-# Reference Material
-* https://docs.microsoft.com/en-us/dotnet/api/system.reflection.emit.assemblybuilder
-* https://www.databasejournal.com/features/mssql/article.php/3766391/SqlCredit-Part-18-Exploring-the-Performance-of-SQL-2005146s-OUTPUT-Clause.htm
-* https://sqlperformance.com/2015/01/t-sql-queries/pagination-with-offset-fetch
-
-# Reference Projects
-* [MockDbProvider](https://github.com/abeven/MockDbProvider)
-* [SubSonic 3.0](https://github.com/subsonic/SubSonic-3.0)
