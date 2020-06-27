@@ -40,6 +40,7 @@ Fast Data Access, your database should belong to SubSonic.
    <li>Support for paging large datasets</li>
    <li>Supports OrderBy, OrderByDescending, ThenBy, ThenByDescending</li>
    <li>Data Caching</li>
+   <li>Insert and Update queries use Change Data Capture (CDC) to extract database generated data back to the client.</li>
    <li>Proxy Support</li>
    <ul>
       <li>overrides virtual navigation and collection properties.</li>
