@@ -3,9 +3,7 @@
 ![Nuget](https://img.shields.io/nuget/v/SubSonic.Core)
 <!--![Nuget](https://img.shields.io/nuget/vpre/SubSonic.Core)--->
 # SubSonic-Core 
-The driving force behind this project is the various issues with the current EF DAL available for .net core 2.2 during 2019.
-various issues in which prevented minimal manipulation of the data to release projects.
-This way I know the DAL from the ground up and speak for its performance and implemenation. 
+Fast Data Access, your database should belong to SubSonic.
 
 # Why should you switch to SubSonic
 <ul>
