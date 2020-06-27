@@ -72,6 +72,10 @@ namespace SubSonic.Extensions.Test
                 {
                     return (TType)Activator.CreateInstance(typeof(Nullable<>).MakeGenericType(typeof(TType)));
                 }
+                else if (typeof(TType).IsNullableType())
+                {
+                    return Activator.CreateInstance<TType>();
+                }
                 else
                 {
                     throw new ArgumentNullException(parameter.ParameterName);

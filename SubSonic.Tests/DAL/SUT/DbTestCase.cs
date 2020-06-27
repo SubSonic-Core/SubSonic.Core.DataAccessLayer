@@ -71,7 +71,7 @@ namespace SubSonic.Tests.DAL
         {
             if (DataSet is ISubSonicDbSetCollection<TModel> dataSet)
             {
-                return (IEntityProxy)dataSet.FindByID(keyData).Single();
+                return (IEntityProxy)dataSet.FindByID(keyData);
             }
 
             return null;

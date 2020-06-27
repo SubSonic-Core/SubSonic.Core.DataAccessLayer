@@ -313,7 +313,7 @@ FROM [dbo].[Unit] AS [{0}]".Format("T1");
 FROM [dbo].[Status] AS [{0}]
 WHERE ([{0}].[ID] = @id_1)".Format("T1");
 
-            Expression expression = Context.Statuses.FindByID(1).Expression;
+            Expression expression = Context.Statuses.FindByID(new object[] { 1 }, nameof(Status.ID)).Expression;
 
             expression.Should().BeOfType<DbSelectExpression>();
 

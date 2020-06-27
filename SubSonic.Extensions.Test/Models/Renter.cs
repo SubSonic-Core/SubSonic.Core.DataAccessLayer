@@ -7,9 +7,9 @@ namespace SubSonic.Extensions.Test.Models
     public class Renter
     {
         [Key]
-        public virtual int PersonID { get; set; }
+        public int PersonID { get; set; }
         [Key]
-        public virtual int UnitID { get; set; }
+        public int UnitID { get; set; }
 
         [ForeignKey(nameof(PersonID))]
         public virtual Person Person { get; set; }

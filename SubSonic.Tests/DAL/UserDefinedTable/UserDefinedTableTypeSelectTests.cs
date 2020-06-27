@@ -35,22 +35,24 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
         [TestCaseSource(nameof(UserDefinedTableTestCases))]
         public void CanGenerateSelectFromUserDefinedTableType(IDbUserDefinedTableTestCase dbTest)
         {
-            AlteredState<IDbEntityModel, DbEntityModel> altered = null;
+            DbExpression select = null;
 
             if (!dbTest.Model.DefinedTableTypeExists)
             {
-                altered = dbTest.Model.AlteredState<IDbEntityModel, DbEntityModel>(new
+                using (dbTest.Model.AlteredState<IDbEntityModel, DbEntityModel>(new
                 {
                     DefinedTableType = new DbUserDefinedTableTypeAttribute(dbTest.Model.Name)
-                }).Apply();
+                }).Apply())
+                {
+                    select = DbExpression.DbSelect(dbTest.Data, dbTest.Data.GetType(), dbTest.Model.GetTableType(dbTest.Name));
+                }
             }
-
-            DbExpression select = DbExpression.DbSelect(dbTest.Data, dbTest.Data.GetType(), dbTest.Model.GetTableType(dbTest.Name));
-
+            else
+            {
+                select = DbExpression.DbSelect(dbTest.Data, dbTest.Data.GetType(), dbTest.Model.GetTableType(dbTest.Name));
+            }
+            
             select.ToString().Should().Be(dbTest.Expectation("T1"));
-
-            altered.IsNotNull(x => x.Dispose());
-            altered = null;
         }
 
         [Test]

@@ -104,6 +104,16 @@ WHERE ([{0}].[ID] = @id_1)";
             instance.StatusID.Should().Be(1);
 
             ((IEntityProxy)instance).IsDirty.Should().BeTrue();
+
+            Renter renter = DynamicProxy.CreateProxyInstanceOf<Renter>(Context);
+
+            renter.PersonID.Should().Be(0);
+
+            renter.Person = new Person() { ID = 1 };
+
+            renter.PersonID.Should().Be(1);
+
+            ((IEntityProxy)renter).IsDirty.Should().BeTrue();
         }
 
         [Test]

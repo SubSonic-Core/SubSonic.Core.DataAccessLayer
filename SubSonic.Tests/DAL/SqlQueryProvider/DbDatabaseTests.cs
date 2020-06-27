@@ -55,7 +55,7 @@ WHERE ([{0}].[ID] = @id_1)".Format("T1");
 
             ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
 
-            IDbQuery dbQuery = builder.ToQuery(Context.Statuses.FindByID(1).Expression);
+            IDbQuery dbQuery = builder.ToQuery(Context.Statuses.FindByID(new object[] { 1 }, nameof(Status.ID)).Expression);
 
             dbQuery.Should().NotBeNull();
             dbQuery.Sql.Should().Be(expected);

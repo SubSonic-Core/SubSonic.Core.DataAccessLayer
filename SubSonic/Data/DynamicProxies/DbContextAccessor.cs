@@ -43,7 +43,7 @@ namespace SubSonic.Data.DynamicProxies
             string[] keys = Ext.GetForeignKeyName(info);
             object[] keyData = GetKeyData(entity, keys);
 
-            return DbContext.Set<TProperty>().FindByID(keyData).Single();
+            return DbContext.Set<TProperty>().FindByID(keyData);
         }
 
         public bool IsForeignKeyPropertySetToDefaultValue<TEntity>(TEntity entity, PropertyInfo info)
@@ -92,18 +92,21 @@ namespace SubSonic.Data.DynamicProxies
                 foreignKeys = Ext.GetForeignKeyName(info);
             TProperty property = info.GetValue<TProperty>(entity);
 
-            for (int i = 0; i < keys.Length; i++)
+            if (!(property is null))
             {
-                PropertyInfo
-                    primaryKeyInfo = typeof(TProperty).GetProperty(keys[i]),
-                    foriegnKeyInfo = typeof(TEntity).GetProperty(foreignKeys[i]);
+                for (int i = 0; i < keys.Length; i++)
+                {
+                    PropertyInfo
+                        primaryKeyInfo = typeof(TProperty).GetProperty(keys[i]),
+                        foriegnKeyInfo = typeof(TEntity).GetProperty(foreignKeys[i]);
 
-                foriegnKeyInfo.SetValue(entity, primaryKeyInfo.GetValue(property), null);
-            }
+                    foriegnKeyInfo.SetValue(entity, primaryKeyInfo.GetValue(property), null);
+                }
 
-            if (entity is IEntityProxy proxy)
-            {
-                proxy.IsDirty = true;
+                if (entity is IEntityProxy proxy)
+                {
+                    proxy.IsDirty = true;
+                }
             }
         }
 

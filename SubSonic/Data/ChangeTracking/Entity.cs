@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SubSonic.Data.Caching
 {
@@ -24,11 +25,28 @@ namespace SubSonic.Data.Caching
         {
             DynamicProxyBuilder<TEntity>.ProxyStub.SetDbComputedProperties(this, fromDb);
         }
+
+        public void EnsureForeignKeys()
+        {
+            MethodInfo setForeignKeysInfo = typeof(DbContextAccessor).GetMethod(nameof(DbContextAccessor.SetForeignKeyProperty));
+
+            Parallel.ForEach(Model.Properties, property =>
+            {
+                if (property.EntityPropertyType != DbEntityPropertyType.Navigation)
+                {
+                    return;
+                }
+
+                setForeignKeysInfo.MakeGenericMethod(Model.EntityModelType, property.PropertyType).Invoke(Accessor, new object[] { Data, Model.EntityModelType.GetProperty(property.PropertyName) });
+            });
+        }
     }
 
     public class Entity
         : IEntityProxy
     {
+        internal DbContextAccessor Accessor => new DbContextAccessor(DbContext.Current);
+
         public Entity(object data)
         {
             Data = data ?? throw new ArgumentNullException(nameof(data));

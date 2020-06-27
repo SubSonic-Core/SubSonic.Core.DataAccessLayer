@@ -15,6 +15,7 @@ namespace SubSonic.Infrastructure
 
     public class DbSetCollection<TEntity>
         : ISubSonicDbSetCollection<TEntity>
+        , ISubSonicDbSetCollection
     {
         private readonly IQueryProvider provider;
         private readonly IDbEntityModel model;
@@ -47,8 +48,32 @@ namespace SubSonic.Infrastructure
         public IQueryProvider Provider => provider;
 
         #region ICollection<TEntity> Implementation
+        void ISubSonicDbSetCollection.Add(object entity)
+        {
+            if (entity is TEntity item)
+            {
+                Add(item);
+
+                return;
+            }
+
+            throw new NotSupportedException();
+        }
+
         public void Add(TEntity item)
         {
+            foreach(IDbEntityProperty property in model.Properties.Where(x =>
+                x.EntityPropertyType == DbEntityPropertyType.Navigation))
+            {
+                object navigation = model.EntityModelType.GetProperty(property.PropertyName).GetValue(item);
+
+                if (!(navigation is null) && 
+                    !(navigation is IEntityProxy))
+                {
+                    DbContext.Set(property.PropertyType).Add(navigation);
+                }
+            }
+
             if (item is IEntityProxy<TEntity> entity)
             {
                 dataset.Add(entity);
@@ -144,9 +169,9 @@ namespace SubSonic.Infrastructure
             return false;
         }
 
-        public IQueryable<TEntity> FindByID(params object[] keyData)
+        public TEntity FindByID(params object[] keyData)
         {
-            return FindByID(keyData, model.GetPrimaryKey().ToArray());
+            return FindByID(keyData, model.GetPrimaryKey().ToArray()).Single();
         }
 
         public IQueryable<TEntity> FindByID(object[] keyData, params string[] keyNames)

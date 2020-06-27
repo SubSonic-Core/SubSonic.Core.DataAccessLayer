@@ -16,12 +16,35 @@ namespace SubSonic
 
         public DbModel Model { get; }
 
+        public bool IsDbModelReadOnly { get; private set; }
+
         public static DbContext Current => ServiceProvider.GetService<DbContext>();
 
-        public DbSetCollection<TEntity> Set<TEntity>()
+        public ISubSonicDbSetCollection Set(Type entity)
+        {
+            if (entity is null)
+            {
+                throw new ArgumentNullException(nameof(entity));
+            }
+
+            if (Instance.GetService(typeof(ISubSonicDbSetCollection<>).MakeGenericType(entity)) is ISubSonicDbSetCollection set)
+            {
+                return set;
+            }
+
+            throw new NotSupportedException();
+        }
+
+        public ISubSonicDbSetCollection<TEntity> Set<TEntity>()
             where TEntity : class
         {
-            return Instance.GetService<DbSetCollection<TEntity>>();
+            if (Set(typeof(TEntity)) is ISubSonicDbSetCollection<TEntity> set)
+            {
+                return set;
+            }
+
+            throw new NotSupportedException();
+            //return Instance.GetService<DbSetCollection<TEntity>>();
         }
 
         public DbDatabase Database => Instance.GetService<DbDatabase>();

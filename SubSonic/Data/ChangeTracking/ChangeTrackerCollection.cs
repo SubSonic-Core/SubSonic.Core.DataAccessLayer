@@ -157,7 +157,7 @@ namespace SubSonic.Data.Caching
         {
             List<KeyValuePair<Type, IEnumerable<IEntityProxy>>> enumeration = new List<KeyValuePair<Type, IEnumerable<IEntityProxy>>>();
 
-            foreach(var element in collection)
+            foreach(var element in collection.OrderBy(x => x.Value.Model.ObjectGraphWeight))
             {
                 enumeration.Add(new KeyValuePair<Type, IEnumerable<IEntityProxy>>(element.Key, element.Value.Select(x => (IEntityProxy)x)));
             }

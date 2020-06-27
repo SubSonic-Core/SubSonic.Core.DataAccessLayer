@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using Bogus;
+using Microsoft.VisualStudio.TestPlatform.Common.Utilities;
+using NUnit.Framework;
 using SubSonic.Tests.DAL.SUT;
 using System;
 

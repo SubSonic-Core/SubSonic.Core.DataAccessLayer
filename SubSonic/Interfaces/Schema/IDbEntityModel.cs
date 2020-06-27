@@ -21,8 +21,11 @@ namespace SubSonic.Infrastructure.Schema
         bool DefinedTableTypeExists { get; }
         IDbObject DefinedTableType { get; }
 
+        int ObjectGraphWeight { get; }
+
         object CreateObject();
         IEnumerable<string> GetPrimaryKey();
         IDbRelationshipMap GetRelationshipWith(IDbEntityModel model);
+        void IncrementObjectGraphWeight();
     }
 }

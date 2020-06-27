@@ -34,6 +34,7 @@ namespace SubSonic.Infrastructure
                     .AddScoped<DbContextAccessor>()
                     .AddTransient(typeof(ISubSonicQueryProvider<>), typeof(DbSqlQueryBuilder<>))
                     .AddTransient(typeof(DbSetCollection<>))
+                    .AddTransient(typeof(ISubSonicDbSetCollection<>), typeof(DbSetCollection<>))
                     .AddScoped<DbDatabase>()
                     .AddTransient<SharedDbConnectionScope>()
                     .AddTransient<AutomaticConnectionScope>();

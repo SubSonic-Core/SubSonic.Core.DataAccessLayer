@@ -65,6 +65,16 @@ namespace SubSonic.Infrastructure.Schema
 
         public IDbObject DefinedTableType { get; internal set; }
 
+        public int ObjectGraphWeight { get; private set; }
+
+        public void IncrementObjectGraphWeight()
+        {
+            if (!DbContext.Current.IsDbModelReadOnly)
+            {
+                ObjectGraphWeight++;
+            }
+        }
+
         public IDbRelationshipMap GetRelationshipWith(IDbEntityModel model)
         {
             if (model.IsNotNull())

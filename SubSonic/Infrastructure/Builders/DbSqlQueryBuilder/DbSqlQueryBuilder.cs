@@ -46,9 +46,11 @@ namespace SubSonic.Infrastructure.Builders
         {
             IEnumerable<TEntity> entities = proxies.Select(x =>
             {
-                if (x is IEntityProxy<TEntity> property)
+                if (x is IEntityProxy<TEntity> entity)
                 {
-                    return property.Data;
+                    entity.EnsureForeignKeys();
+
+                    return entity.Data;
                 }
                 return default;
             })

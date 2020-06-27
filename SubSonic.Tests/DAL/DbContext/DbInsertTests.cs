@@ -355,22 +355,19 @@ FROM @input";
 
             Context.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(renters.Length);
 
-            AlteredState<IDbEntityModel, DbEntityModel> state = null;
-
             if (withUDTT)
             {
-                state = Context.Model.GetEntityModel<Models.Renter>().AlteredState<IDbEntityModel, DbEntityModel>(new
+                using (Context.Model.GetEntityModel<Models.Renter>().AlteredState<IDbEntityModel, DbEntityModel>(new
                 {
                     DefinedTableType = new DbUserDefinedTableTypeAttribute(nameof(Models.Renter))
-                }).Apply();
+                }).Apply())
+                {
+                    Context.SaveChanges().Should().BeTrue();
+                }
             }
-
-            Context.SaveChanges().Should().BeTrue();
-
-            if (withUDTT)
+            else
             {
-                state.Dispose();
-                state = null;
+                Context.SaveChanges().Should().BeTrue();
             }
 
             FluentActions.Invoking(() =>

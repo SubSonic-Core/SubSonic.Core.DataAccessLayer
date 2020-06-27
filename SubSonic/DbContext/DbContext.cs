@@ -67,6 +67,8 @@ namespace SubSonic
         {
             OnDbModeling(builder);
 
+            IsDbModelReadOnly = true;
+
             if(Options.PreLoadHandler.IsNotNull())
             {
                 Options.PreLoadHandler(Model);  
