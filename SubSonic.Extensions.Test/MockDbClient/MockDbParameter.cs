@@ -6,7 +6,8 @@ using System.Data.Common;
 
 namespace SubSonic.Extensions.Test.MockDbClient
 {
-    public class MockDbParameter : DbParameter
+    public class MockDbParameter 
+        : DbParameter
     {
         public override System.Data.DbType DbType
         {

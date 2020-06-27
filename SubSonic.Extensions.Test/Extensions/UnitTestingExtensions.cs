@@ -64,21 +64,23 @@ namespace SubSonic.Extensions.Test
         {
             if (!(parameter is null))
             {
+                Type type = typeof(TType);
+
                 if (parameter.Value != DBNull.Value)
                 {
-                    return (TType)Convert.ChangeType(parameter.Value, typeof(TType), CultureInfo.CurrentCulture);
+                    return (TType)Convert.ChangeType(parameter.Value, type, CultureInfo.CurrentCulture);
                 }
                 else if (parameter.SourceColumnNullMapping)
                 {
-                    return (TType)Activator.CreateInstance(typeof(Nullable<>).MakeGenericType(typeof(TType)));
+                    return (TType)Activator.CreateInstance(typeof(Nullable<>).MakeGenericType(type));
                 }
-                else if (typeof(TType).IsNullableType())
+                else if (type.IsNullableType())
                 {
                     return Activator.CreateInstance<TType>();
                 }
                 else
                 {
-                    throw new ArgumentNullException(parameter.ParameterName);
+                    return default(TType);
                 }
             }
             else

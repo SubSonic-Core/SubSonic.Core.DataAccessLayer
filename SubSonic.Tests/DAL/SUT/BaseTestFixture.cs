@@ -26,6 +26,20 @@ namespace SubSonic.Tests.DAL.SUT
             }
         }
 
+        protected Bogus.Faker<Person> GetFakePerson
+        {
+            get
+            {
+                return new Bogus.Faker<Person>()
+                    .RuleFor(person => person.ID, set => 0)
+                    .RuleFor(person => person.FirstName, set => set.PickRandom(DataSeed.Person.FirstNames))
+                    .RuleFor(person => person.MiddleInitial, set => null /*set.PickRandom(DataSeed.Person.MiddleInitial)*/)
+                    .RuleFor(person => person.FamilyName, set => set.PickRandom(DataSeed.Person.FamilyNames))
+                    .RuleFor(person => person.FullName, set => null)
+                    .RuleFor(person => person.Renters, set => new HashSet<Renter>());
+            }
+        }
+
         [SetUp]
         public virtual void SetupTestFixture()
         {
@@ -80,18 +94,6 @@ namespace SubSonic.Tests.DAL.SUT
         protected ICollection<RealEstateProperty> RealEstateProperties { get; set; }
         protected ICollection<Person> People { get; set; }
 
-        protected Bogus.Faker<Person> GetFakePerson
-        {
-            get
-            {
-                return new Bogus.Faker<Person>()
-                    .RuleFor(person => person.ID, set => 0)
-                    .RuleFor(person => person.FirstName, set => set.PickRandom(DataSeed.Person.FirstNames))
-                    .RuleFor(person => person.MiddleInitial, set => set.PickRandom(DataSeed.Person.MiddleInitial))
-                    .RuleFor(person => person.FamilyName, set => set.PickRandom(DataSeed.Person.FamilyNames))
-                    .RuleFor(person => person.FullName, set => null)
-                    .RuleFor(person => person.Renters, set => new HashSet<Renter>());
-            }
-        }
+        
     }
 }

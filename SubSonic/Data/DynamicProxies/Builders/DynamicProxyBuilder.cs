@@ -81,20 +81,20 @@ namespace SubSonic.Data.DynamicProxies
                 {
                     IDbEntityModel model = DbContext.DbModel.GetEntityModel<TEntity>();
 
-                    foreach (IDbEntityProperty property in model.Properties)
-                    //Parallel.ForEach(model.Properties, property =>
+                    //foreach (IDbEntityProperty property in model.Properties)
+                    Parallel.ForEach(model.Properties, property =>
                     {
                         if (property.EntityPropertyType != DbEntityPropertyType.Navigation)
                         {
-                            continue;
-                            //return;
+                            //continue;
+                            return;
                         }
 
                         PropertyInfo info = typeof(TEntity).GetProperty(property.PropertyName);
 
                         info.SetValue(entity.Data, info.GetValue(entity.Data));
                     }
-                    //);
+                    );
                 };
         }
 

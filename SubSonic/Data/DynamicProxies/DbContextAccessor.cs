@@ -103,10 +103,7 @@ namespace SubSonic.Data.DynamicProxies
                     foriegnKeyInfo.SetValue(entity, primaryKeyInfo.GetValue(property), null);
                 }
 
-                if (entity is IEntityProxy proxy)
-                {
-                    proxy.IsDirty = true;
-                }
+                OnPropertyChanged(entity);
             }
         }
 

@@ -21,6 +21,7 @@ namespace SubSonic.Linq.Expressions.Structure
     public partial class TSqlFormatter
         : DbExpressionVisitor
     {
+        [ThreadStatic]
         private static Stack<TSqlFormatter> __instances;
         private static readonly char[] splitters = new char[] { '\n', '\r' };
         private static readonly char[] special = new char[] { '\n', '\t', '\\' };
