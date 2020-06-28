@@ -210,14 +210,14 @@ WHERE ([{0}].[ID] = @id_1)";
 
             Context.Database.Instance.AddCommandBehavior(delete, (cmd) =>
             {
-                if (cmd.Parameters[0].Value is DataTable data)
+                if (cmd.Parameters["@Entities"].Value is DataTable data)
                 {
                     data.Rows[0]["ID"].Should().Be(1);
 
                     return 0;
                 }
 
-                throw new NotSupportedException();
+                throw new NotSupportedException($"Command Behavior For {nameof(ShouldBeAbleToDeleteRecordsUsingCQRS)}");
             });
 
             Models.RealEstateProperty property = Context.RealEstateProperties
