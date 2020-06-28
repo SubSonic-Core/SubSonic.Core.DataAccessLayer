@@ -12,6 +12,9 @@ namespace SubSonic.Linq.Expressions.Structure
     public abstract partial class DbExpressionVisitor
         : ExpressionVisitor
     {
+        protected static readonly char[] splitters = new char[] { '\n', '\r' };
+        protected static readonly char[] special = new char[] { '\n', '\t', '\\' };
+
         protected internal virtual Expression VisitClientJoin(DbClientJoinExpression join)
         {
             if (join is null)
@@ -39,7 +42,7 @@ namespace SubSonic.Linq.Expressions.Structure
 
         protected internal virtual Expression VisitProjection(DbProjectionExpression projection)
         {
-            if(projection is null)
+            if (projection is null)
             {
                 return projection;
             }
@@ -55,7 +58,7 @@ namespace SubSonic.Linq.Expressions.Structure
 
         protected internal virtual Expression VisitRowNumber(DbRowNumberExpression rowNumber)
         {
-            if(rowNumber is null)
+            if (rowNumber is null)
             {
                 return rowNumber;
             }
@@ -104,7 +107,7 @@ namespace SubSonic.Linq.Expressions.Structure
 
             Expression e = Visit(aggregate.AggregateAsSubQuery);
 
-            switch((DbExpressionType)e.NodeType)
+            switch ((DbExpressionType)e.NodeType)
             {
                 case DbExpressionType.Scalar:
                     {
@@ -117,7 +120,7 @@ namespace SubSonic.Linq.Expressions.Structure
                     }
                     break;
             }
-            
+
             return aggregate;
         }
 
@@ -162,7 +165,7 @@ namespace SubSonic.Linq.Expressions.Structure
                     }
                 }
             }
-            else if(inExp.Inside is NewArrayExpression array)
+            else if (inExp.Inside is NewArrayExpression array)
             {
                 array = (NewArrayExpression)Visit(array);
 
@@ -192,7 +195,7 @@ namespace SubSonic.Linq.Expressions.Structure
 
         protected internal virtual Expression VisitNull(DbIsNullExpression isnull)
         {
-            if(isnull is null)
+            if (isnull is null)
             {
                 return isnull;
             }
@@ -241,7 +244,7 @@ namespace SubSonic.Linq.Expressions.Structure
 
         protected internal virtual Expression VisitJoin(DbJoinExpression join, bool cte = false)
         {
-            if(join is null)
+            if (join is null)
             {
                 return join;
             }

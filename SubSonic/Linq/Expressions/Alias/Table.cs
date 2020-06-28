@@ -75,6 +75,7 @@ namespace SubSonic.Linq.Expressions.Alias
             return !(left == right);
         }
 
+        [ThreadStatic]
         private static int last = 0;
 
         private void ComputeHash()

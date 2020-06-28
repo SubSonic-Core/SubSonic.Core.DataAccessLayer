@@ -21,9 +21,6 @@ namespace SubSonic.Linq.Microsoft
     public class ExpressionWriter
         : DbExpressionVisitor
     {
-        private static readonly char[] splitters = new char[] { '\n', '\r' };
-        private static readonly char[] special = new char[] { '\n', '\t', '\\' };
-
         private readonly TextWriter writer;
         private int depth;
 

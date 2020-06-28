@@ -23,8 +23,6 @@ namespace SubSonic.Linq.Expressions.Structure
     {
         [ThreadStatic]
         private static Stack<TSqlFormatter> __instances;
-        private static readonly char[] splitters = new char[] { '\n', '\r' };
-        private static readonly char[] special = new char[] { '\n', '\t', '\\' };
         private int depth = 0;
         private readonly TextWriter writer;
         private readonly ISqlContext context;
