@@ -40,12 +40,18 @@ Fast Data Access, your database should belong to SubSonic.
    <li>Support for paging large datasets</li>
    <li>Supports OrderBy, OrderByDescending, ThenBy, ThenByDescending</li>
    <li>Data Caching</li>
-   <li>Insert and Update queries use Change Data Capture (CDC) to extract database generated data back to the client.</li>
-   <li>Proxy Support</li>
+   <li>Insert and Update queries use Change Data Capture (CDC) to extract database generated data back to the client.
+   <ul>
+      <li>It is not required that a User-Defined Table Type should exist, but it is performant to use one.</li>
+      <li>The insert DML is executed syncrounously, and SQL optimizer will not use parallelization.</li>
+      <li>The update DML is executed syncrounously, and SQL optimizer will use parallelization.</li>
+      </ul></li>
+   <li>Proxy Support
    <ul>
       <li>overrides virtual navigation and collection properties.</li>
       <li>when navigation property value changes proxy changes the foreign key property to match.</li>
       <li>proxy implments IEntityProxy<TEntity> which implements Data, KeyData, ModelType, IsDirty, IsNew, IsDeleted</li>
+   </ul></li>
 </ul> 
 <br />
 
