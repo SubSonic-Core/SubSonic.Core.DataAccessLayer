@@ -12,6 +12,7 @@ namespace SubSonic.Linq.Expressions.Structure
 
     public partial class TSqlFormatter
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "this datatable is disposed after the result from the db is returned.")]
         protected internal override Expression VisitUpdate(DbUpdateExpression update)
         {
             if (update.IsNotNull())

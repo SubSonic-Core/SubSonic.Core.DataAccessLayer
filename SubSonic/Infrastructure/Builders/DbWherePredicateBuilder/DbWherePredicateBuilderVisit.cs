@@ -134,6 +134,7 @@ namespace SubSonic.Infrastructure.Builders
             return base.VisitMethodCall(node);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "this data table is cleaned up after the result is back from the db.")]
         protected internal override Expression VisitSelect(DbExpression expression)
         {
             if (expression is DbSelectExpression select)
