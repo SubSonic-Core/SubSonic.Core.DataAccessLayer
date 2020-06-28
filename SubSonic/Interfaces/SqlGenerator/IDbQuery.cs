@@ -9,5 +9,7 @@ namespace SubSonic
         string Sql { get; }
         IReadOnlyCollection<DbParameter> Parameters { get; }
         CommandBehavior Behavior { get; }
+
+        void CleanUpParameters();
     }
 }

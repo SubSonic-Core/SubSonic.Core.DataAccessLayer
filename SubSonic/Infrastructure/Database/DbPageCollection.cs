@@ -53,29 +53,36 @@ namespace SubSonic.Infrastructure
         {
             using (DataSet data = new DataSet())
             {
-                if (DbContext.Current.Database.ExecuteAdapter(pagedQuery, data))
+                try
                 {
-                    foreach(DataTable table in data.Tables)
+                    if (DbContext.Current.Database.ExecuteAdapter(pagedQuery, data))
                     {
-                        if (table.Columns.Count == 1 && table.Columns[0].ColumnName == nameof(RecordCount).ToUpper(CultureInfo.CurrentCulture))
+                        foreach (DataTable table in data.Tables)
                         {
-                            RecordCount = (int)table.Rows[0][0];
-
-                            continue;
-                        }
-
-                        return table.CreateDataReader().ReadData<TEntity>((entity) =>
-                        {
-                            if (entity is IEntityProxy proxy)
+                            if (table.Columns.Count == 1 && table.Columns[0].ColumnName == nameof(RecordCount).ToUpper(CultureInfo.CurrentCulture))
                             {
-                                proxy.IsNew = false;
-                                proxy.IsDirty = false;
-                                proxy.IsDeleted = false;
+                                RecordCount = (int)table.Rows[0][0];
+
+                                continue;
                             }
 
-                            DbContext.Current.ChangeTracking.Add(typeof(TEntity), entity);
-                        });
+                            return table.CreateDataReader().ReadData<TEntity>((entity) =>
+                            {
+                                if (entity is IEntityProxy proxy)
+                                {
+                                    proxy.IsNew = false;
+                                    proxy.IsDirty = false;
+                                    proxy.IsDeleted = false;
+                                }
+
+                                DbContext.Current.ChangeTracking.Add(typeof(TEntity), entity);
+                            });
+                        }
                     }
+                }
+                finally
+                {
+                    pagedQuery.CleanUpParameters();
                 }
 
                 return Array.Empty<TEntity>();

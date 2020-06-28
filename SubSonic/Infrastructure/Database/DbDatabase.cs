@@ -107,6 +107,8 @@ namespace SubSonic.Infrastructure
 
                     cmd.Parameters.ApplyOutputParameters(procedure);
 
+                    db.CleanUpParameters();
+
                     return result;
                 }
                 finally
@@ -150,13 +152,25 @@ namespace SubSonic.Infrastructure
                             break;
                     }
 
-                    if (cmd.Parameters.Contains(nameof(error)))
+                    error = null;
+
+                    foreach (DbParameter parameter in cmd.Parameters)
                     {
-                        error = cmd.Parameters.GetOutputParameter<string>(nameof(error));
-                    }
-                    else
-                    {
-                        error = null;
+                        if (parameter.Direction == ParameterDirection.Input)
+                        {
+                            if (parameter.Value is DataTable table)
+                            {
+                                table.Dispose();
+                                parameter.Value = null;
+                            }
+
+                            continue;
+                        }
+
+                        if (parameter.ParameterName.Equals($"@{nameof(error)}", StringComparison.CurrentCultureIgnoreCase))
+                        {
+                            error = cmd.Parameters.GetOutputParameter<string>(nameof(error));
+                        }                        
                     }
 
                     return results;
@@ -194,6 +208,8 @@ namespace SubSonic.Infrastructure
                     IEnumerable<TEntity> results = cmd.ExecuteReader().ReadData<TEntity>();
 
                     cmd.Parameters.ApplyOutputParameters(procedure);
+
+                    db.CleanUpParameters();
 
                     return results;
                 }

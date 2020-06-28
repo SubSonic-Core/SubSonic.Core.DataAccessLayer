@@ -13,7 +13,7 @@ namespace SubSonic.Infrastructure.Builders
 {
     using Logging;
     using Linq.Expressions;
-    
+    using System.Threading.Tasks;
 
     public partial class DbSqlQueryBuilder
     {
@@ -53,11 +53,13 @@ namespace SubSonic.Infrastructure.Builders
                     if (!isEntityModel ||
                         DbContext.Current.ChangeTracking.Count(elementType, select) == 0)
                     {
+                        IDbQuery dbQuery = ToQuery(select);
+
                         try
                         {
                             Scope.Connection.Open();
 
-                            DbDataReader reader = Scope.Database.ExecuteReader(ToQuery(select));
+                            DbDataReader reader = Scope.Database.ExecuteReader(dbQuery);
 
                             while (reader.Read())
                             {
@@ -76,6 +78,8 @@ namespace SubSonic.Infrastructure.Builders
                         }
                         finally
                         {
+                            dbQuery.CleanUpParameters();
+
                             Scope.Connection.Close();
                         }
                     }
@@ -157,7 +161,16 @@ namespace SubSonic.Infrastructure.Builders
 
             using (SharedDbConnectionScope Scope = DbContext.ServiceProvider.GetService<SharedDbConnectionScope>())
             {
-                return Scope.Database.ExecuteReader(ToQuery(expression));
+                IDbQuery dbQuery = ToQuery(expression);
+
+                try
+                {
+                    return Scope.Database.ExecuteReader(dbQuery);
+                }
+                finally
+                {
+                    dbQuery.CleanUpParameters();
+                }
             }
         }
     }

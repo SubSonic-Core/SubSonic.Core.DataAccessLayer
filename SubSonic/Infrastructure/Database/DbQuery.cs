@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
 using System.Data.Common;
+using System.Threading.Tasks;
 
 namespace SubSonic.Infrastructure
 {
@@ -40,8 +41,22 @@ namespace SubSonic.Infrastructure
             Behavior = behavior;
         }
 
-        public CommandBehavior Behavior { get; }
+        public CommandBehavior Behavior { get; set; }
         public virtual string Sql { get; }
         public virtual IReadOnlyCollection<DbParameter> Parameters { get; }
+
+        public virtual void CleanUpParameters()
+        {
+            //foreach (DbParameter parameter in Parameters)
+            Parallel.ForEach(Parameters, parameter =>
+            {
+                if (parameter.Value is DataTable table)
+                {
+                    table.Dispose();
+                    parameter.Value = null;
+                }
+            }
+            );
+        }
     }
 }
