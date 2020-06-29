@@ -1,4 +1,4 @@
-name: DotNET
+name: .Net Standard General
 
 on:
   push:
