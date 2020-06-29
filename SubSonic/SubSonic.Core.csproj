@@ -9,15 +9,15 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageTags>DAL;</PackageTags>
-    <Version>1.0.0</Version>
+    <Version>4.0.0</Version>
     <PackageId>SubSonic.Core</PackageId>
     <Company />
+    <Description>SubSonic Core Library</Description>
     <PackageProjectUrl>https://github.com/kccarter76/SubSonic-Core/wiki</PackageProjectUrl>
     <RepositoryType>Git</RepositoryType>
     <RepositoryUrl>https://github.com/kccarter76/SubSonic-Core</RepositoryUrl>
     <Description></Description>
     <Copyright>Kenneth Carter © 2020</Copyright>
-    <PackageReleaseNotes>Preview Not Ready For Production Use.</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <RootNamespace>SubSonic</RootNamespace>
     <PackageLicenseFile>LICENSE.MD</PackageLicenseFile>
