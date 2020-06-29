@@ -3,6 +3,7 @@ name: DotNET
 on:
   push:
     branches:
+      - '*'
       - '!release/*'
 
 jobs:
