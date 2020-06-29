@@ -1,9 +1,10 @@
-name: DotNET
+name: .Net Standard General
 
 on:
   push:
-    branches: 
-    - release/*
+    branches:
+      - '*'
+      - '!release/*'
 
 jobs:
   build:
@@ -36,5 +37,3 @@ jobs:
       run: dotnet build --configuration Release
     - name: Unit Testing
       run: dotnet test
-    - name: Create Package(s)
-      run: dotnet pack --configuration Release
