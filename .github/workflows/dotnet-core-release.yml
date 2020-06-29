@@ -1,5 +1,5 @@
 
-name: .Net Release
+name: .Net Standard Release
 
 on:
   push:
