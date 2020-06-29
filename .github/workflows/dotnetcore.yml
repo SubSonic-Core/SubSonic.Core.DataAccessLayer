@@ -37,4 +37,5 @@ jobs:
       run: dotnet build --configuration Release
     - name: Unit Testing
       run: dotnet test
-        
+    - name: Create Package(s)
+      run: dotnet pack --configuration Release
