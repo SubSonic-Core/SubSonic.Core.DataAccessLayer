@@ -1,4 +1,4 @@
-![DotNET](https://github.com/kccarter76/SubSonic-Core/workflows/DotNET/badge.svg?branch=master)
+![DotNET](https://github.com/kccarter76/SubSonic-Core/workflows/DotNET/badge.svg?branch=main)
 ![Downloads](https://img.shields.io/nuget/dt/SubSonic.Core)
 
 # SubSonic.Core ![Nuget](https://img.shields.io/nuget/v/SubSonic.Core) 
