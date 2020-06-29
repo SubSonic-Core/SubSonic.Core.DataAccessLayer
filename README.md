@@ -1,7 +1,7 @@
 ![DotNET](https://github.com/kccarter76/SubSonic-Core/workflows/DotNET/badge.svg?branch=master)
 ![Downloads](https://img.shields.io/nuget/dt/SubSonic.Core)
 
-# SubSonic-Core ![Nuget](https://img.shields.io/nuget/v/SubSonic.Core) 
+# SubSonic.Core ![Nuget](https://img.shields.io/nuget/v/SubSonic.Core) 
 <!---![Nuget](https://img.shields.io/nuget/vpre/SubSonic.Core)--->
 Fast Data Access, your database should belong to SubSonic.
 
