@@ -8,20 +8,21 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <PackageTags>DAL;</PackageTags>
+    <PackageTags>DAL;SqlServer;C#;.Net Framework;.NetCore;</PackageTags>
     <Version>4.0.0</Version>
-    <PackageId>SubSonic.Core</PackageId>
-    <Company />
+    <PackageId>SubSonic.Core.DAL</PackageId>
+    <Company>SubSonic-Core</Company>
     <Description>Data Access Layer that is flexible and reliable to set and get data in a database.</Description>
-    <PackageProjectUrl>https://github.com/kccarter76/SubSonic-Core/wiki</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/SubSonic-Core/SubSonic/wiki</PackageProjectUrl>
     <RepositoryType>Git</RepositoryType>
-    <RepositoryUrl>https://github.com/kccarter76/SubSonic-Core</RepositoryUrl>
+    <RepositoryUrl>https://github.com/SubSonic-Core/SubSonic</RepositoryUrl>
     <Description></Description>
     <Copyright>Kenneth Carter © 2020</Copyright>
     <NeutralLanguage>en</NeutralLanguage>
     <RootNamespace>SubSonic</RootNamespace>
     <PackageLicenseFile>LICENSE.MD</PackageLicenseFile>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <AssemblyName>SubSonic.Core.DataAccessLayer</AssemblyName>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Platform)'=='AnyCPU'">

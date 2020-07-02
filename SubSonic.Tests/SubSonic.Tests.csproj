@@ -22,6 +22,6 @@
   <ItemGroup>
     <ProjectReference Include="..\SubSonic.Extensions.SqlServer\SubSonic.Extensions.SqlServer.csproj" />
     <ProjectReference Include="..\SubSonic.Extensions.Test\SubSonic.Extensions.Test.csproj" />
-    <ProjectReference Include="..\SubSonic\SubSonic.Core.csproj" />
+    <ProjectReference Include="..\SubSonic\SubSonic.Core.DataAccessLayer.csproj" />
   </ItemGroup>
 </Project>
