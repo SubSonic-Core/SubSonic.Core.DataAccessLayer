@@ -43,7 +43,13 @@ MockSubSonic Db Client and Factory, primary purpose is for unit testing and faki
       <li>WHERE (NOT) EXISTS ([QUERY])</li>
       <li>WHERE [DATE VALUE | COLUMN] (NOT) BETWEEN [DATE VALUE] AND [DATE VALUE]</li>
    </ul>
-   <li>Support for paging large datasets</li>
+   <li>Support for paging large datasets
+      <ul>
+         <li>How it is done, we use a cte to filter, order and page the table index.</li>
+         <li>Then we use an inner join with the cte to the table and pull back the complete page that we are looking for.</li>
+         <li>We use a MARS query to retrieve the unpaged record count at the same time. this approach removed the need for a second call from a traditional DAL and reduces the overhead by 50%.</li>
+      </ul>
+   </li>
    <li>Supports OrderBy, OrderByDescending, ThenBy, ThenByDescending</li>
    <li>Data Caching</li>
    <li>Insert and Update queries use Change Data Capture (CDC) to extract database generated data back to the client.
