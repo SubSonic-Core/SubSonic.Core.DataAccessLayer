@@ -27,7 +27,7 @@ namespace SubSonic.Tests.DAL.OData
         }
 
         /// <summary>
-        /// simulate an $filter on more than two fields
+        /// simulate an $filter
         /// </summary>
         /// <param name="direction"></param>
         [Test]
