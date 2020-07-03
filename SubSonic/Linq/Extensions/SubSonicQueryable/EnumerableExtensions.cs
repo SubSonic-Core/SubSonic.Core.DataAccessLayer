@@ -9,6 +9,10 @@ namespace SubSonic.Linq
     /// <summary>
     /// Extension Method Forwarding to avoid name conflicts
     /// </summary>
+    /// <remarks>
+    /// I have had some time to think about this and this approach is valid, but may not be the rabbit hole I am looking for.
+    /// I believe a better approach would be to map Iqueryable Extension methods in the Query Provider and SubSonicQueryable should only have the SubSonic Only Query Extensions.
+    /// </remarks>
     public static partial class SubSonicQueryable
     {
         public static IEnumerable<TSource> ForEach<TSource>(this IEnumerable<TSource> source, Action<TSource> action)
@@ -68,6 +72,16 @@ namespace SubSonic.Linq
         public static bool Any<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate)
         {
             return Enumerable.Any(source, predicate);
+        }
+
+        public static IEnumerable<TSource> Skip<TSource>(this IEnumerable<TSource> source, int count)
+        {
+            return Enumerable.Skip(source, count);
+        }
+
+        public static IEnumerable<TSource> Take<TSource>(this IEnumerable<TSource> source, int count)
+        {
+            return Enumerable.Take(source, count);
         }
 
         public static IEnumerable<TResult> Select<TResult>(this IEnumerable source, Func<object, TResult> selector)

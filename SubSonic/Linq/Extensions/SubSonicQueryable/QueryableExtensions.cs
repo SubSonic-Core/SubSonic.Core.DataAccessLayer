@@ -71,6 +71,11 @@ namespace SubSonic.Linq
             return Queryable.Distinct(source);
         }
 
+        public static IQueryable<TSource> Skip<TSource>(this IQueryable<TSource> source, int count)
+        {
+            return Queryable.Skip(source, count);
+        }
+
         public static IQueryable<TSource> Take<TSource>(this IQueryable<TSource> source, int count)
         {
             if (source.IsNotNull() && source.IsSubSonicQuerable())
