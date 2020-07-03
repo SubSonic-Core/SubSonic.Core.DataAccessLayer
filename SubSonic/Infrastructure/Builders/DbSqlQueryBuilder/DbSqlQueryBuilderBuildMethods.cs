@@ -491,6 +491,14 @@ namespace SubSonic.Infrastructure.Builders
                     {
                         return BuildSelectWithOrderByDeclaration(call, orderByType);
                     }
+                    else if (call.Method.IsWhere())
+                    {
+                        return BuildSelectWithWhere(call);
+                    }
+                    else
+                    {
+                        throw new NotSupportedException(SubSonicErrorMessages.UnSupportedMethodException.Format(call.Method.Name));
+                    }
                 }
             }
 
@@ -516,6 +524,40 @@ namespace SubSonic.Infrastructure.Builders
                 return types.ToArray();
             }
             return Array.Empty<Type>();
+        }
+
+        private Expression BuildSelectWithWhere(MethodCallExpression expression)
+        {
+            if (!(expression is null))
+            {
+                DbSelectExpression select = null;
+                LambdaExpression where = null;
+
+                foreach (var argument in expression.Arguments)
+                {
+                    if (argument is DbSelectExpression _select)
+                    {
+                        select = _select;
+                    }
+                    else if (argument is UnaryExpression unary)
+                    {
+                        if (unary.Operand is LambdaExpression _unary)
+                        {
+                            where = _unary;
+                        }                        
+                    }
+                    else if (argument is BinaryExpression binary)
+                    {
+                        throw new NotImplementedException();
+                    }
+                }
+
+                return DbExpression.DbSelect(
+                        select,
+                        DbExpression.DbWhere(select.From, select.Type, where));
+            }
+
+            return expression;
         }
 
         private Expression BuildSelectWithOrderByDeclaration(MethodCallExpression expression, OrderByType orderByType)

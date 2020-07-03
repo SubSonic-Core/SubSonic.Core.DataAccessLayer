@@ -46,22 +46,22 @@ namespace SubSonic.Linq.Expressions
         {
             if (table is null)
             {
-                throw new ArgumentNullException(nameof(table));
+                throw Error.ArgumentNull(nameof(table));
             }
 
             if (type is null)
             {
-                throw new ArgumentNullException(nameof(type));
+                throw Error.ArgumentNull(nameof(type));
             }
 
             if (predicate is null)
             {
-                throw new ArgumentNullException(nameof(predicate));
+                throw Error.ArgumentNull(nameof(predicate));
             }
 
             if (whereType.NotIn(DbExpressionType.Where, DbExpressionType.Exists, DbExpressionType.NotExists))
             {
-                throw new ArgumentException("", nameof(whereType));
+                throw Error.Argument("", nameof(whereType));
             }
 
             return DbWherePredicateBuilder.GetWherePredicate(type, predicate, whereType, table);

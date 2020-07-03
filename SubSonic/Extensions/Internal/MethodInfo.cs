@@ -23,5 +23,10 @@ namespace SubSonic
 
             return info.Name.In(nameof(Legacy.OrderBy), nameof(Legacy.ThenBy), nameof(Legacy.OrderByDescending), nameof(Legacy.ThenByDescending));
         }
+
+        public static bool IsWhere(this MethodInfo info)
+        {
+            return info.Name.Equals(nameof(Legacy.Where), StringComparison.CurrentCulture);
+        }
     }
 }

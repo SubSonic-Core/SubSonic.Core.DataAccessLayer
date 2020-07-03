@@ -24,4 +24,10 @@
     <ProjectReference Include="..\SubSonic.Extensions.Test\SubSonic.Extensions.Test.csproj" />
     <ProjectReference Include="..\SubSonic\SubSonic.Core.DataAccessLayer.csproj" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <Reference Include="Microsoft.AspNetCore.OData">
+      <HintPath>..\..\WebApi\bin\Release\netstandard2.0\Microsoft.AspNetCore.OData.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

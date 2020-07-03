@@ -31,8 +31,6 @@ namespace SubSonic.Infrastructure.Builders
                             Arguments.Push(Visit(node.Right));
 
                             BuildLogicalExpression();
-
-                            
                         }
                         return node;
                     case ExpressionType.Or:
@@ -72,6 +70,15 @@ namespace SubSonic.Infrastructure.Builders
                                 }
                             }
                         }
+                        else if (comparison.In(DbComparisonOperator.Contains, DbComparisonOperator.NotContains, DbComparisonOperator.StartsWith, DbComparisonOperator.NotStartsWith, DbComparisonOperator.EndsWith, DbComparisonOperator.NotEndsWith))
+                        {
+                            Arguments.Push(Visit(call.Object));
+
+                            foreach (Expression argument in call.Arguments)
+                            {
+                                Arguments.Push(Visit(argument));
+                            }
+                        }
                         else if (comparison.In(DbComparisonOperator.Between, DbComparisonOperator.NotBetween))
                         {
 #if NETSTANDARD2_0
@@ -80,7 +87,7 @@ namespace SubSonic.Infrastructure.Builders
                             if (call.Method.Name.Contains("Between", StringComparison.CurrentCulture))
 #endif
                             {
-                                using (var args = Arguments.FocusOn(call.Method.Name))
+                                using (Arguments.FocusOn(call.Method.Name))
                                 {
                                     foreach (Expression argument in call.Arguments)
                                     {

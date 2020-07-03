@@ -133,6 +133,16 @@ namespace SubSonic.Linq.Expressions
             };
         }
 
+        public static DbExpression DbSelect(DbSelectExpression select, DbExpression where)
+        {
+            if (select is null)
+            {
+                throw Error.ArgumentNull(nameof(select));
+            }
+
+            return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, where ?? select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take);
+        }
+
         public static DbExpression DbSelect(DbSelectExpression select, DbJoinExpression join)
         {
             if (select is null)
