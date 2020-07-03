@@ -546,10 +546,6 @@ namespace SubSonic.Infrastructure.Builders
                             where = _unary;
                         }                        
                     }
-                    else if (argument is BinaryExpression binary)
-                    {
-                        throw new NotImplementedException();
-                    }
                 }
 
                 return DbExpression.DbSelect(
