@@ -28,5 +28,15 @@ namespace SubSonic
         {
             return info.Name.Equals(nameof(Legacy.Where), StringComparison.CurrentCulture);
         }
+
+        public static bool IsTake(this MethodInfo info)
+        {
+            return info.Name.Equals(nameof(Legacy.Take), StringComparison.CurrentCulture);
+        }
+
+        public static bool IsSkip(this MethodInfo info)
+        {
+            return info.Name.Equals(nameof(Legacy.Skip), StringComparison.CurrentCulture);
+        }
     }
 }

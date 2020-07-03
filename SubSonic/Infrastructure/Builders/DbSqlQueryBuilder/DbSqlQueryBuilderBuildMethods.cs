@@ -495,9 +495,17 @@ namespace SubSonic.Infrastructure.Builders
                     {
                         return BuildSelectWithWhere(call);
                     }
+                    else if (call.Method.IsTake())
+                    {
+                        return BuildSelectWithTake(call);
+                    }
+                    else if (call.Method.IsSkip())
+                    {
+                        throw Error.NotImplemented();
+                    }
                     else
                     {
-                        throw new NotSupportedException(SubSonicErrorMessages.UnSupportedMethodException.Format(call.Method.Name));
+                        throw Error.NotSupported(SubSonicErrorMessages.UnSupportedMethodException.Format(call.Method.Name));
                     }
                 }
             }
@@ -524,6 +532,34 @@ namespace SubSonic.Infrastructure.Builders
                 return types.ToArray();
             }
             return Array.Empty<Type>();
+        }
+
+        private Expression BuildSelectWithTake(MethodCallExpression expression)
+        {
+            if (!(expression is null))
+            {
+                DbSelectExpression select = null;
+                Expression take = null;
+
+                foreach (var argument in expression.Arguments)
+                {
+                    if (argument is DbSelectExpression _select)
+                    {
+                        select = _select;
+                    }
+                    else if (argument is ConstantExpression constant)
+                    {
+                        take = constant;
+                    }
+                }
+
+                return DbExpression.DbSelect(
+                        select,
+                        take
+                        );
+            }
+
+            return expression;
         }
 
         private Expression BuildSelectWithWhere(MethodCallExpression expression)

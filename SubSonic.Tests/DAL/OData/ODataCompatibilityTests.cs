@@ -210,5 +210,47 @@ namespace SubSonic.Tests.DAL.OData
                 query.Sql.Should().Contain("DESC");
             }
         }
+
+        /// <summary>
+        /// simulate a $top 
+        /// </summary>
+        /// <param name="top"></param>
+        [Test]
+        [TestCase(1)]
+        [TestCase(10)]
+        public void ShouldBeAbleToApplyTopUsingOData(int top)
+        {
+            personQueryOptions.ApplyTo(Arg.Any<IQueryable>())
+                .Returns(call =>
+                {
+                    if (call.Arg<IQueryable>() is IQueryable<Models.Person> people)
+                    {
+                        return people.Take(top);
+                    }
+
+                    throw new NotImplementedException();
+                });
+
+            IQueryable select = personQueryOptions.ApplyTo(Context.People);
+
+            IDbQuery query = null;
+
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<Models.Person> builder = Context.Instance.GetService<ISubSonicQueryProvider<Models.Person>>();
+
+                    query = builder.ToQuery(select.Expression);
+                }).Should().NotThrow();
+            }
+
+            logging.LogInformation("\n" + query.Sql + "\n");
+
+            query.Sql.Should().NotBeNullOrEmpty();
+            query.Sql.Should().Contain($"SELECT TOP ({top})");
+        }
     }
 }
