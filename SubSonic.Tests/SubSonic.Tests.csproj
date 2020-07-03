@@ -27,7 +27,7 @@
   
   <ItemGroup>
     <Reference Include="Microsoft.AspNetCore.OData">
-      <HintPath>..\..\WebApi\bin\Release\netstandard2.0\Microsoft.AspNetCore.OData.dll</HintPath>
+      <HintPath>ExternalReferences\Microsoft.AspNetCore.OData.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>
