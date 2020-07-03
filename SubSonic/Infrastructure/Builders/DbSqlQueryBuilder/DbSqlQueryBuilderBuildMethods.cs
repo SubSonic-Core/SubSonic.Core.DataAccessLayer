@@ -45,7 +45,7 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (select is DbSelectExpression _select)
             {
-                return new DbSelectExpression(_select.QueryObject, _select.Type, _select.From, _select.Columns, where, _select.OrderBy, _select.GroupBy, _select.IsDistinct, _select.Take);
+                return new DbSelectExpression(_select.QueryObject, _select.Type, _select.From, _select.Columns, where, _select.OrderBy, _select.GroupBy, _select.IsDistinct, _select.Take, _select.Skip);
             }
 
             throw new NotSupportedException();
@@ -55,7 +55,7 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (expression is DbSelectExpression select)
             {
-                return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, isDistinct, select.Take);
+                return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, isDistinct, select.Take, select.Skip);
             }
 
             throw new NotSupportedException();
@@ -65,7 +65,7 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (expression is DbSelectExpression select)
             {
-                return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, Expression.Constant(count));
+                return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, Expression.Constant(count), select.Skip);
             }
 
             throw new NotSupportedException();
@@ -98,7 +98,7 @@ namespace SubSonic.Infrastructure.Builders
                     typeof(SysLinq.IQueryable<>).MakeGenericType(property.PropertyType),
                     select.From,
                     select.Columns.Where(x => x.PropertyName.Equals(property.PropertyName, StringComparison.CurrentCulture)), 
-                    select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take);
+                    select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip);
             }
 
             throw new NotSupportedException();
@@ -108,7 +108,7 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (expression is DbSelectExpression select)
             {
-                return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, select.Where, orderBy, select.GroupBy, select.IsDistinct, select.Take);
+                return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, select.Where, orderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip);
             }
 
             throw new NotSupportedException();
@@ -117,7 +117,7 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (expression is DbSelectExpression select)
             {
-                return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, select.Where, select.OrderBy, groupBy, select.IsDistinct, select.Take);
+                return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, select.Where, select.OrderBy, groupBy, select.IsDistinct, select.Take, select.Skip);
             }
 
             throw new NotSupportedException();
@@ -136,7 +136,7 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (expression is DbSelectExpression select)
             {
-                return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns.Where(col => col.PropertyName == selector.GetPropertyName()), select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take);
+                return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns.Where(col => col.PropertyName == selector.GetPropertyName()), select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip);
             }
             return expression;
         }
@@ -501,7 +501,7 @@ namespace SubSonic.Infrastructure.Builders
                     }
                     else if (call.Method.IsSkip())
                     {
-                        throw Error.NotImplemented();
+                        return BuildSelectWithSkip(call);
                     }
                     else
                     {
@@ -534,6 +534,35 @@ namespace SubSonic.Infrastructure.Builders
             return Array.Empty<Type>();
         }
 
+        private Expression BuildSelectWithSkip(MethodCallExpression expression)
+        {
+            if (!(expression is null))
+            {
+                DbSelectExpression select = null;
+                Expression skip = null;
+
+                foreach (var argument in expression.Arguments)
+                {
+                    if (argument is DbSelectExpression _select)
+                    {
+                        select = _select;
+                    }
+                    else if (argument is ConstantExpression constant)
+                    {
+                        skip = constant;
+                    }
+                }
+
+                return DbExpression.DbSelect(
+                        select,
+                        select.Take,
+                        skip
+                        );
+            }
+
+            return expression;
+        }
+
         private Expression BuildSelectWithTake(MethodCallExpression expression)
         {
             if (!(expression is null))
@@ -555,7 +584,8 @@ namespace SubSonic.Infrastructure.Builders
 
                 return DbExpression.DbSelect(
                         select,
-                        take
+                        take,
+                        select.Skip
                         );
             }
 

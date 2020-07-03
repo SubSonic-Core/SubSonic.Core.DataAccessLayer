@@ -111,7 +111,7 @@ namespace SubSonic.Infrastructure.Builders
                     typeof(SysLinq.IQueryable<>).MakeGenericType(property.PropertyType),
                     select.From,
                     select.Columns.Where(x => x.PropertyName.Equals(property.PropertyName, StringComparison.CurrentCulture)),
-                    select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take);
+                    select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip);
             }
 
             throw new NotSupportedException();

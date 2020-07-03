@@ -275,6 +275,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 ReadOnlyCollection<DbOrderByDeclaration> orderBy = VisitOrderBy(select.OrderBy);
                 ReadOnlyCollection<Expression> groupBy = VisitExpressionList(select.GroupBy);
                 Expression take = Visit(select.Take);
+                Expression skip = Visit(select.Skip);
                 IReadOnlyCollection<DbColumnDeclaration> columns = VisitColumnDeclarations(select.Columns);
                 if (from != select.From
                     || where != select.Where
@@ -282,9 +283,10 @@ namespace SubSonic.Linq.Expressions.Structure
                     || groupBy != select.GroupBy
                     || take != select.Take
                     || columns != select.Columns
+                    || skip != select.Skip
                     )
                 {
-                    return new DbSelectExpression(select.QueryObject, select.Type, from, columns, where, orderBy, groupBy, select.IsDistinct, take);
+                    return new DbSelectExpression(select.QueryObject, select.Type, from, columns, where, orderBy, groupBy, select.IsDistinct, take, skip);
                 }
             }
             else if (expression is DbSelectPageExpression paged)

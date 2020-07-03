@@ -55,7 +55,7 @@ namespace SubSonic.Linq.Expressions
             IEnumerable<DbOrderByDeclaration> orderBy,
             IEnumerable<Expression> groupBy
             )
-            : this(collection, type, table, columns, where, orderBy, groupBy, false, null) { }
+            : this(collection, type, table, columns, where, orderBy, groupBy, false, null, null) { }
 
         protected internal DbSelectExpression(
             object collection,
@@ -66,7 +66,8 @@ namespace SubSonic.Linq.Expressions
             IEnumerable<DbOrderByDeclaration> orderBy,
             IEnumerable<Expression> groupBy,
             bool isDistinct,
-            Expression take)
+            Expression take,
+            Expression skip)
             : this(collection, type, table, columns)
         {
             IsDistinct = isDistinct;
@@ -83,6 +84,7 @@ namespace SubSonic.Linq.Expressions
                 GroupBy = new List<Expression>(groupBy).AsReadOnly();
             }
             Take = take;
+            Skip = skip;
         }
 
         public bool IsCte { get; set; }
@@ -96,7 +98,9 @@ namespace SubSonic.Linq.Expressions
         public ReadOnlyCollection<DbOrderByDeclaration> OrderBy { get; }
         public ReadOnlyCollection<Expression> GroupBy { get; }
         public bool IsDistinct { get; }
-        public Expression Take { get; set; }
+        public Expression Take { get; }
+
+        public Expression Skip { get; }
         public string QueryText
         {
             get { return DbContext.GenerateSqlFor(this); }
@@ -140,17 +144,41 @@ namespace SubSonic.Linq.Expressions
                 throw Error.ArgumentNull(nameof(select));
             }
 
-            return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, where ?? select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take);
+            return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, where ?? select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip);
         }
 
-        public static DbExpression DbSelect(DbSelectExpression select, Expression take)
+        public static DbExpression DbSelect(DbSelectExpression select, Expression take, Expression skip)
         {
             if (select is null)
             {
                 throw Error.ArgumentNull(nameof(select));
             }
 
-            return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, take);
+            if (!(take is null) && !(skip is null))
+            {   // in this use case we are most likely paging
+                if(take is ConstantExpression _take)
+                {
+                    if (skip is ConstantExpression _skip)
+                    {
+                        int pageSize = (int)_take.Value;
+
+                        if (pageSize == 0)
+                        {
+                            throw Error.DivideByZero();
+                        }
+
+                        int pageNumber = ((int)_skip.Value) / pageSize;
+
+                        return new DbSelectPageExpression(
+                            new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, null, null),
+                            pageNumber,
+                            pageSize
+                            );
+                    }
+                }
+            }
+            
+            return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, take, skip);
         }
 
         public static DbExpression DbSelect(DbSelectExpression select, DbJoinExpression join)
@@ -174,7 +202,7 @@ namespace SubSonic.Linq.Expressions
 
             dbTable.Joins.Add(join);
 
-            return new DbSelectExpression(select.QueryObject, select.Type, dbTable, select.Columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take);
+            return new DbSelectExpression(select.QueryObject, select.Type, dbTable, select.Columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip);
         }
     }
 }

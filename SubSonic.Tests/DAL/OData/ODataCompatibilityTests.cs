@@ -12,6 +12,7 @@ namespace SubSonic.Tests.DAL.OData
     using Infrastructure.Logging;
     using Linq.Expressions;
     using System;
+    using System.Linq.Expressions;
 
     [TestFixture]
     public class ODataCompatibilityTests
@@ -67,6 +68,8 @@ namespace SubSonic.Tests.DAL.OData
                 });
 
             IQueryable select = personQueryOptions.ApplyTo(Context.People);
+
+            select.Expression.Should().BeOfType<DbSelectExpression>();
 
             IDbQuery query = null;
 
@@ -128,6 +131,8 @@ namespace SubSonic.Tests.DAL.OData
 
             IQueryable select = personQueryOptions.ApplyTo(Context.People);
 
+            select.Expression.Should().BeOfType<DbSelectExpression>();
+
             IDbQuery query = null;
 
             var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
@@ -186,6 +191,8 @@ namespace SubSonic.Tests.DAL.OData
 
             IQueryable select = personQueryOptions.ApplyTo(Context.People);
 
+            select.Expression.Should().BeOfType<DbSelectExpression>();
+
             IDbQuery query = null;
 
             var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
@@ -218,7 +225,7 @@ namespace SubSonic.Tests.DAL.OData
         [Test]
         [TestCase(1)]
         [TestCase(10)]
-        public void ShouldBeAbleToApplyTopUsingOData(int top)
+        public void ShouldBeAbleToApplyTakeUsingOData(int top)
         {
             personQueryOptions.ApplyTo(Arg.Any<IQueryable>())
                 .Returns(call =>
@@ -232,6 +239,105 @@ namespace SubSonic.Tests.DAL.OData
                 });
 
             IQueryable select = personQueryOptions.ApplyTo(Context.People);
+
+            IDbQuery query = null;
+
+            select.Expression.Should().BeOfType<DbSelectExpression>();
+
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<Models.Person> builder = Context.Instance.GetService<ISubSonicQueryProvider<Models.Person>>();
+
+                    query = builder.ToQuery(select.Expression);
+                }).Should().NotThrow();
+            }
+
+            logging.LogInformation("\n" + query.Sql + "\n");
+
+            query.Sql.Should().NotBeNullOrEmpty();
+            query.Sql.Should().Contain($"SELECT TOP ({top})");
+        }
+
+        /// <summary>
+        /// simulate a $skip 
+        /// </summary>
+        /// <param name="top"></param>
+        /// <remarks>
+        /// skips by themselves do not make a lick of sense, but we should recognize that a skip was applied
+        /// </remarks>
+        [Test]
+        [TestCase(1)]
+        [TestCase(10)]
+        public void ShouldBeAbleToApplySkipUsingOData(int skip)
+        {
+            personQueryOptions.ApplyTo(Arg.Any<IQueryable>())
+                .Returns(call =>
+                {
+                    if (call.Arg<IQueryable>() is IQueryable<Models.Person> people)
+                    {
+                        return people.Skip(skip);
+                    }
+
+                    throw new NotImplementedException();
+                });
+
+            IQueryable select = personQueryOptions.ApplyTo(Context.People);
+
+            select.Expression.Should().BeOfType<DbSelectExpression>();
+
+            if (select.Expression is DbSelectExpression expression)
+            {
+                if (expression.Skip is ConstantExpression constant)
+                {
+                    constant.Value.Should().Be(skip);
+                }
+                else
+                {
+                    throw Error.InvalidOperation();
+                }
+            }
+        }
+
+        /// <summary>
+        /// simulate a $skip and $top
+        /// </summary>
+        /// <param name="top"></param>
+        /// <remarks>
+        /// skips by themselves do not make a lick of sense, but we should recognize that a skip was applied
+        /// </remarks>
+        [Test]
+        [TestCase(5, 10, true)]
+        [TestCase(10, 0, false)]
+        public void ShouldBeAbleToApplyTakeSkipUsingOData(int take, int skip, bool reverse)
+        {
+            personQueryOptions.ApplyTo(Arg.Any<IQueryable>())
+                .Returns(call =>
+                {
+                    if (call.Arg<IQueryable>() is IQueryable<Models.Person> people)
+                    {
+                        if (!reverse)
+                        {
+                            return people.Take(take).Skip(skip);
+                        }
+                        else
+                        {
+                            return people.Skip(skip).Take(take);
+                        }
+                    }
+
+                    throw new NotImplementedException();
+                });
+
+            IQueryable select = personQueryOptions.ApplyTo(Context.People);
+
+            int
+                pageNumber = skip / take;
+
+            select.Expression.Should().BeOfType<DbSelectPageExpression>();
 
             IDbQuery query = null;
 
@@ -250,7 +356,9 @@ namespace SubSonic.Tests.DAL.OData
             logging.LogInformation("\n" + query.Sql + "\n");
 
             query.Sql.Should().NotBeNullOrEmpty();
-            query.Sql.Should().Contain($"SELECT TOP ({top})");
+            query.Sql.Should().NotContain($"SELECT TOP ({take})");
+            query.Parameters.Get("@PageSize").Value.Should().Be(take);
+            query.Parameters.Get("@PageNumber").Value.Should().Be(pageNumber);
         }
     }
 }

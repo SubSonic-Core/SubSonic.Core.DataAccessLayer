@@ -21,9 +21,19 @@ namespace SubSonic
             return new NotImplementedException();
         }
 
-        internal static Exception NotSupported(string message)
+        public static Exception NotSupported(string message)
         {
             return new NotSupportedException(message);
+        }
+
+        public static Exception DivideByZero()
+        {
+            return new DivideByZeroException();
+        }
+
+        public static Exception InvalidOperation()
+        {
+            return new InvalidOperationException();
         }
     }
 }
