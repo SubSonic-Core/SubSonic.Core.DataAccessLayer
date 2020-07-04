@@ -1,16 +1,18 @@
 ﻿using Microsoft.Extensions.Logging;
-using SubSonic.Infrastructure;
-using SubSonic.Infrastructure.Logging;
-using SubSonic.Linq;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 
 namespace SubSonic.Data.Caching
 {
+    using Infrastructure;
+    using Infrastructure.Logging;
+    using Linq;
+
     public class ChangeTrackerCollection
         : IEnumerable<KeyValuePair<Type, IEnumerable<IEntityProxy>>>
     {
@@ -109,7 +111,7 @@ namespace SubSonic.Data.Caching
 
                 string error_feedback = "";
 
-                if (insert.Count() > 0)
+                if (insert.Any())
                 {
                     success &= collection[dataset.Key].SaveChanges(DbQueryType.Insert, insert, out error_feedback);
                     if (!success && error_feedback.IsNotNullOrEmpty())
@@ -120,7 +122,7 @@ namespace SubSonic.Data.Caching
                     }
                 }
 
-                if (update.Count() > 0)
+                if (update.Any())
                 {
                     success &= collection[dataset.Key].SaveChanges(DbQueryType.Update, update, out error_feedback);
                     if (!success && error_feedback.IsNotNullOrEmpty())
@@ -131,7 +133,7 @@ namespace SubSonic.Data.Caching
                     }
                 }
 
-                if (delete.Count() > 0)
+                if (delete.Any())
                 {
                     success &= collection[dataset.Key].SaveChanges(DbQueryType.Delete, delete, out error_feedback);
                     if (!success && error_feedback.IsNotNullOrEmpty())

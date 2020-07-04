@@ -1,14 +1,12 @@
-﻿using SubSonic.Infrastructure;
-using SubSonic.Infrastructure.Schema;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Data.Common;
+using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
 
 namespace SubSonic.Linq.Expressions.Structure
 {
+    using Infrastructure;
+
     public partial class TSqlFormatter
     {
         protected internal override Expression VisitInsert(DbInsertExpression insert)
@@ -73,8 +71,8 @@ namespace SubSonic.Linq.Expressions.Structure
 
                         Write(parameterName);
 
-                        if (insert.DbParameters.Count(x =>
-                                x.ParameterName.Equals(parameterName, StringComparison.CurrentCulture)) == 0)
+                        if (insert.DbParameters.Any(x =>
+                                x.ParameterName.Equals(parameterName, StringComparison.CurrentCulture)))
                         {
                             object value = insert.Type.BaseType
                             .GetProperty(column.PropertyName)

@@ -32,11 +32,11 @@ namespace SubSonic.Linq.Expressions.Structure
                 {
                     VisitDateTimeMethods(info, method);
                 }
-                else if (info.DeclaringType == typeof(Queryable))
+                else if (info.DeclaringType == typeof(System.Linq.Queryable))
                 {
                     VisitQueryableMethods(info, method);
                 }
-                else if (info.DeclaringType.GetInterface(typeof(ISqlMethods).FullName).IsNotNull())
+                else if (Linq.SubSonicQueryable.IsNotNull<Type>(info.DeclaringType.GetInterface(typeof(ISqlMethods).FullName)))
                 {
                     VisitSqlMethods(info, method);
                 }
@@ -91,7 +91,7 @@ namespace SubSonic.Linq.Expressions.Structure
                             Write(Fragments.RIGHT_PARENTHESIS);
                         }
                     }
-                    else if (info.GetCustomAttribute(typeof(DbProgrammabilityAttribute)).IsNotNull())
+                    else if (Linq.SubSonicQueryable.IsNotNull<Attribute>(info.GetCustomAttribute(typeof(DbProgrammabilityAttribute))))
                     {
                         if (info.GetCustomAttribute(typeof(DbProgrammabilityAttribute)) is DbScalarFunctionAttribute scalar)
                         {

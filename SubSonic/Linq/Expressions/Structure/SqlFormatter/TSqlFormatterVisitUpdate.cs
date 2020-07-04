@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace SubSonic.Linq.Expressions.Structure
 {
     using Infrastructure;
-    using SubSonic.Infrastructure.Schema;
-    using System.ComponentModel;
-    using System.Diagnostics;
 
     public partial class TSqlFormatter
     {
@@ -47,8 +45,8 @@ namespace SubSonic.Linq.Expressions.Structure
                     {
                         if (join.Right is DbTableExpression table)
                         {
-                            if (update.DbParameters.Count(x =>
-                                x.ParameterName.Equals($"@{table.QualifiedName}", StringComparison.CurrentCulture)) == 0)
+                            if (update.DbParameters.Any(x =>
+                                x.ParameterName.Equals($"@{table.QualifiedName}", StringComparison.CurrentCulture)))
                             {
                                 update.DbParameters.Add(builder.CreateParameter(table.QualifiedName, builder.GenerateTable()));
                             }
@@ -102,8 +100,8 @@ namespace SubSonic.Linq.Expressions.Structure
 
                     Write($" {Fragments.EQUAL_TO} {parameterName}");
 
-                    if (update.DbParameters.Count(x =>
-                            x.ParameterName.Equals(parameterName, StringComparison.CurrentCulture)) == 0)
+                    if (update.DbParameters.Any(x =>
+                            x.ParameterName.Equals(parameterName, StringComparison.CurrentCulture)))
                     {
                         object value = update.Type
                         .GetProperty(column.PropertyName)

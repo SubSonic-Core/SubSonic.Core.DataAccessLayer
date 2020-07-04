@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using Ext = SubSonic.SubSonicExtensions;
@@ -7,7 +8,7 @@ namespace SubSonic.Data.DynamicProxies
 {
     using Linq;
     using Infrastructure;
-    using SubSonic.Infrastructure.Schema;
+    using Infrastructure.Schema;
 
     /// <summary>
     /// 

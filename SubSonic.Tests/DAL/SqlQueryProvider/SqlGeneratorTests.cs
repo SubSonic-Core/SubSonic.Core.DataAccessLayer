@@ -1,9 +1,9 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
-using SubSonic.Tests.DAL.SUT;
 using System;
 using System.Data;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace SubSonic.Tests.DAL.SqlQueryProvider
@@ -13,9 +13,9 @@ namespace SubSonic.Tests.DAL.SqlQueryProvider
     using Extensions.Test.Models;
     using Infrastructure;
     using Infrastructure.Logging;
-    using Infrastructure.Schema;
     using Linq;
     using Linq.Expressions;
+    using Tests.DAL.SUT;
 
     [TestFixture]
     public partial class SqlQueryProviderTests
@@ -946,7 +946,7 @@ OPTION (RECOMPILE)".Format("T1");
                 .Where((property) =>
                     property.HasParallelPowerGeneration == true)
                 .OrderBy((property) => property.ID)
-                .ThenOrderBy((property) => property.StatusID)
+                .ThenBy((property) => property.StatusID)
                 .Page(default(int), 5)
                 .Expression;
 
@@ -998,7 +998,7 @@ OPTION (RECOMPILE)".Format("T1");
                 .Where((property) =>
                     property.HasParallelPowerGeneration == true)
                 .OrderByDescending((property) => property.ID)
-                .ThenOrderByDescending((property) => property.StatusID)
+                .ThenByDescending((property) => property.StatusID)
                 .Page(default(int), 5)
                 .Expression;
 

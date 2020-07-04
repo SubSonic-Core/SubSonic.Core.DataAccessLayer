@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Data;
 using System.Data.Common;
@@ -628,7 +629,7 @@ namespace SubSonic.Infrastructure.Builders
             UnaryExpression unary = null;
             List<DbOrderByDeclaration> orderBy = new List<DbOrderByDeclaration>();
 
-            bool clearOrderBy = expression.Method.Name.In(nameof(SubSonicQueryable.OrderBy), nameof(SubSonicQueryable.OrderByDescending));
+            bool clearOrderBy = expression.Method.Name.In(nameof(Queryable.OrderBy), nameof(Queryable.OrderByDescending));
 
             foreach (var argument in expression.Arguments)
             {

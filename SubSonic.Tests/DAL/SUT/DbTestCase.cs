@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace SubSonic.Tests.DAL
 {
-    using Infrastructure.Schema;
     using Extensions.Test;
     using Infrastructure;
-    using Linq;
+    using Infrastructure.Schema;
     using SysLinq = System.Linq;
 
     public class DbTestCase<TModel>

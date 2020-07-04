@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using MLinq = System.Linq;
+using System.Linq;
 
 namespace SubSonic.Infrastructure.Builders
 {
@@ -62,7 +62,7 @@ namespace SubSonic.Infrastructure.Builders
                                 {
                                     object set = Expression.Lambda(method).Compile().DynamicInvoke();
 
-                                    Arguments.Push(PullUpParameters(((MLinq.IQueryable)set).Expression));
+                                    Arguments.Push(PullUpParameters(((IQueryable)set).Expression));
                                 }
                                 else
                                 {
@@ -199,7 +199,7 @@ namespace SubSonic.Infrastructure.Builders
                         func = Expression.Lambda(lambda).Compile().DynamicInvoke(),
                         set = ((Delegate)func).DynamicInvoke(table.QueryObject);
 
-                    body = PullUpParameters(((MLinq.IQueryable)set).Expression);
+                    body = PullUpParameters(((IQueryable)set).Expression);
 
                     return node;
                 }

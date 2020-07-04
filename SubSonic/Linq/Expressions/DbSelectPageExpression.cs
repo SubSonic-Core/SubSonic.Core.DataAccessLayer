@@ -1,14 +1,14 @@
-﻿using SubSonic.Infrastructure;
-using SubSonic.Infrastructure.Factory;
-using SubSonic.Linq.Expressions.Structure;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace SubSonic.Linq.Expressions
 {
+    using Infrastructure.Factory;
+    using Structure;
+
     /// <summary>
     /// a custom expression used to generate a SELECT statement with CTE using OFFSET and FETCH
     /// </summary>

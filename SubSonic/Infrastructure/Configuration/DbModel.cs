@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace SubSonic.Infrastructure
 {
+    using Data.DynamicProxies;
     using Linq;
     using Schema;
-    using SubSonic.Data.DynamicProxies;
 
     public class DbModel
     {

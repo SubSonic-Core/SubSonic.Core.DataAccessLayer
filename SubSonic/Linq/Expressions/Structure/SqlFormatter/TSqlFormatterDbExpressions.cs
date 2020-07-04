@@ -4,6 +4,7 @@
 
 // refactored by Kenneth Carter (c) 2019
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions.Structure

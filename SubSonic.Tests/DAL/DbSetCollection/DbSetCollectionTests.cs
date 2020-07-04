@@ -1,17 +1,17 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
-using SubSonic.Extensions.Test;
-using SubSonic.Extensions.Test.Models;
-using SubSonic.Infrastructure;
-using SubSonic.Linq;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace SubSonic.Tests.DAL.DbSetCollection
 {
-    using SubSonic.Data.Caching;
-    using SubSonic.Data.DynamicProxies;
+    using Data.Caching;
+    using Data.DynamicProxies;
+    using Extensions.Test;
+    using Extensions.Test.Models;
+    using Infrastructure;
     using SUT;
-    using System.Collections.Generic;
-    using System.Linq.Expressions;
 
     [TestFixture]
     public class DbSetCollectionTests

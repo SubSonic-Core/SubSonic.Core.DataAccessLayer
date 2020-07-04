@@ -1,19 +1,20 @@
-﻿using SubSonic.Infrastructure;
-using SubSonic.Infrastructure.Logging;
-using SubSonic.Infrastructure.Schema;
-using SubSonic.Linq;
-using SubSonic.Linq.Expressions;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SubSonic.Data.Caching
 {
+    using Infrastructure;
+    using Infrastructure.Logging;
+    using Infrastructure.Schema;
+    using Linq;
+    using Linq.Expressions;
+
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "It is getting to wordy if I do this")]
     public class ChangeTrackerElement<TEntity>
         : ChangeTrackerElement, IEnumerable<TEntity>
@@ -38,7 +39,7 @@ namespace SubSonic.Data.Caching
             {
                 if(record is IEntityProxy<TEntity> entity)
                 {
-                    if (cache.Count(x => x.IsNew == false && x.KeyData.IsSameAs(entity.KeyData)) == 0)
+                    if (cache.Any(x => x.IsNew == false && x.KeyData.IsSameAs(entity.KeyData)))
                     {
                         cache.Add(entity);
                     }
@@ -79,7 +80,7 @@ namespace SubSonic.Data.Caching
                             return 0;
                         }
 
-                        results = results.Where((Expression<Func<TEntity, bool>>)where.LambdaPredicate);
+                        results = results.Where(((Expression<Func<TEntity, bool>>)where.LambdaPredicate).Compile());
                     }
 
                     return results.Count();
@@ -272,7 +273,7 @@ namespace SubSonic.Data.Caching
             }
         }
 
-        public override TResult Where<TResult>(System.Linq.IQueryProvider provider, Expression expression)
+        public override TResult Where<TResult>(IQueryProvider provider, Expression expression)
         {
             if (Cache is ObservableCollection<IEntityProxy<TEntity>> cache)
             {
@@ -284,7 +285,7 @@ namespace SubSonic.Data.Caching
 
                     if (select.Where is DbWhereExpression where)
                     {
-                        results = results.Where((Expression<Func<TEntity, bool>>)where.LambdaPredicate);
+                        results = results.Where(((Expression<Func<TEntity, bool>>)where.LambdaPredicate).Compile());
                     }
 
                     if (typeof(TResult).IsEnumerable())

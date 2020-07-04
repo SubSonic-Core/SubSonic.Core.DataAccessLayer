@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -111,7 +112,7 @@ namespace SubSonic.Infrastructure
                 }
             }
 
-            if (definition && keys.Count() > 0)
+            if (definition && keys.Any())
             {
                 oTempTableBody
                     .AppendLine(",")

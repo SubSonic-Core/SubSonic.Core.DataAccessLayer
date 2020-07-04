@@ -16,16 +16,6 @@ namespace SubSonic.Linq
             return source is ISubSonicCollection<TSource>;
         }
 
-        public static int Count<TSource>(this IQueryable<TSource> source)
-        {
-            return Queryable.Count(source);
-        }
-
-        public static int Count<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> selector)
-        {
-            return Queryable.Count(source, selector);
-        }
-
         public static IDbPageCollection<TEntity> ToPagedCollection<TEntity>(this IQueryable<TEntity> source, int pageSize)
         {
             if (source.IsNotNull() && source.IsSubSonicQuerable())
@@ -54,44 +44,39 @@ namespace SubSonic.Linq
             return query.Provider.Execute<IQueryable<TEntity>>(query.Expression);
         }
 
-        public static IQueryable<TSource> Distinct<TSource>(this IQueryable<TSource> source)
-        {
-            if (source.IsNotNull() && source.IsSubSonicQuerable())
-            {
-                IQueryable<TSource> query = source.AsQueryable();
+        //public static IQueryable<TSource> Distinct<TSource>(this IQueryable<TSource> source)
+        //{
+        //    if (source.IsNotNull() && source.IsSubSonicQuerable())
+        //    {
+        //        IQueryable<TSource> query = source.AsQueryable();
 
-                ISubSonicQueryProvider builder = (ISubSonicQueryProvider)query.Provider;
+        //        ISubSonicQueryProvider builder = (ISubSonicQueryProvider)query.Provider;
 
-                if (query.Expression is DbSelectExpression select)
-                {
-                    return builder.CreateQuery<TSource>(builder.BuildSelect(select, true));
-                }
-            }
+        //        if (query.Expression is DbSelectExpression select)
+        //        {
+        //            return builder.CreateQuery<TSource>(builder.BuildSelect(select, true));
+        //        }
+        //    }
 
-            return Queryable.Distinct(source);
-        }
+        //    return Queryable.Distinct(source);
+        //}
 
-        public static IQueryable<TSource> Skip<TSource>(this IQueryable<TSource> source, int count)
-        {
-            return Queryable.Skip(source, count);
-        }
+        //public static IQueryable<TSource> Take<TSource>(this IQueryable<TSource> source, int count)
+        //{
+        //    if (source.IsNotNull() && source.IsSubSonicQuerable())
+        //    {
+        //        IQueryable<TSource> query = source.AsQueryable();
 
-        public static IQueryable<TSource> Take<TSource>(this IQueryable<TSource> source, int count)
-        {
-            if (source.IsNotNull() && source.IsSubSonicQuerable())
-            {
-                IQueryable<TSource> query = source.AsQueryable();
+        //        ISubSonicQueryProvider builder = (ISubSonicQueryProvider)query.Provider;
 
-                ISubSonicQueryProvider builder = (ISubSonicQueryProvider)query.Provider;
+        //        if (query.Expression is DbSelectExpression select)
+        //        {
+        //            return builder.CreateQuery<TSource>(builder.BuildSelect(select, count));
+        //        }
+        //    }
 
-                if (query.Expression is DbSelectExpression select)
-                {
-                    return builder.CreateQuery<TSource>(builder.BuildSelect(select, count));
-                }
-            }
-
-            return Queryable.Take(source, count);
-        }
+        //    return Queryable.Take(source, count);
+        //}
 
         public static IQueryable<TSource> Page<TSource>(this IQueryable<TSource> source, int number, int size)
         {
@@ -137,16 +122,16 @@ namespace SubSonic.Linq
             throw new NotSupportedException();
         }
 
-        public static IQueryable<TResult> Select<TSource, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, TResult>> selector)
-        {
-            if (source.IsNotNull() && source.IsSubSonicQuerable())
-            {
-                ISubSonicQueryProvider provider = (ISubSonicQueryProvider)source.Provider;
+        //public static IQueryable<TResult> Select<TSource, TResult>(this IQueryable<TSource> source, Expression<Func<TSource, TResult>> selector)
+        //{
+        //    if (source.IsNotNull() && source.IsSubSonicQuerable())
+        //    {
+        //        ISubSonicQueryProvider provider = (ISubSonicQueryProvider)source.Provider;
 
-                return provider.CreateQuery<TResult>(provider.BuildSelect(source.Expression, selector));
-            }
-            return Queryable.Select(source, selector);
-        }
+        //        return provider.CreateQuery<TResult>(provider.BuildSelect(source.Expression, selector));
+        //    }
+        //    return Queryable.Select(source, selector);
+        //}
 
         public static IQueryable Select<TSource>(this IQueryable<TSource> source, IDbEntityProperty property)
         {
@@ -160,30 +145,30 @@ namespace SubSonic.Linq
             throw new NotSupportedException();
         }
 
-        public static IQueryable<TSource> Where<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
-        {
-            if (source.IsNotNull() && source.IsSubSonicQuerable())
-            {
-                if (source.Expression is DbSelectExpression)
-                {
-                    ISubSonicQueryProvider provider = (ISubSonicQueryProvider)source.Provider;
+        //public static IQueryable<TSource> Where<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+        //{
+        //    if (source.IsNotNull() && source.IsSubSonicQuerable())
+        //    {
+        //        if (source.Expression is DbSelectExpression)
+        //        {
+        //            ISubSonicQueryProvider provider = (ISubSonicQueryProvider)source.Provider;
 
-                    Expression where = null;
+        //            Expression where = null;
 
-                    if (source.Expression is ConstantExpression)
-                    {
-                        where = provider.BuildWhere(provider.DbTable, null, source.GetType(), predicate);
-                    }
-                    else if (source.Expression is DbSelectExpression select)
-                    {
-                        where = provider.BuildWhere(select.From, select.Where, source.GetType(), predicate);
-                    }
+        //            if (source.Expression is ConstantExpression)
+        //            {
+        //                where = provider.BuildWhere(provider.DbTable, null, source.GetType(), predicate);
+        //            }
+        //            else if (source.Expression is DbSelectExpression select)
+        //            {
+        //                where = provider.BuildWhere(select.From, select.Where, source.GetType(), predicate);
+        //            }
 
-                    return provider.CreateQuery<TSource>(provider.BuildSelect(source.Expression, where));
-                }
-            }
-            return Queryable.Where(source, predicate);
-        }
+        //            return provider.CreateQuery<TSource>(provider.BuildSelect(source.Expression, where));
+        //        }
+        //    }
+        //    return Queryable.Where(source, predicate);
+        //}
 
         public static IQueryable<TSource> WhereExists<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, IQueryable>> select)
         {
@@ -235,119 +220,47 @@ namespace SubSonic.Linq
             throw new NotSupportedException();
         }
 
-        public static TSource First<TSource>(this IQueryable<TSource> source)
-        {
-            if (source.IsNotNull() && source.IsSubSonicQuerable())
-            {
-                IQueryable<TSource> query = source.AsQueryable();
+        //[System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1720:Identifier contains type name", Justification = "Microsoft already named a IQueryable.Single and it would be confusing not to.")]
+        //public static TSource Single<TSource>(this IQueryable<TSource> source)
+        //{
+        //    if (source.IsNotNull() && source.IsSubSonicQuerable())
+        //    {
+        //        IQueryable<TSource> query = source.AsQueryable();
 
-                return Enumerable.First(query.Provider.Execute<IQueryable<TSource>>(query.Expression));
-            }
+        //        return Enumerable.Single(query.Load());
+        //    }
 
-            return Queryable.First(source);
-        }
+        //    return Queryable.Single(source);
+        //}
 
-        public static TSource First<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
-        {
-            if (source.IsNotNull() && source.IsSubSonicQuerable())
-            {
-                IQueryable<TSource> query = source.AsQueryable();
+        //[System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1720:Identifier contains type name", Justification = "Microsoft set this standard")]
+        //public static TSource Single<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
+        //{
+        //    if (source.IsNotNull() && source.IsSubSonicQuerable())
+        //    {
+        //        if (predicate is null)
+        //        {
+        //            throw new ArgumentNullException(nameof(predicate));
+        //        }
 
-                return Enumerable.First(query.Where(predicate).Provider.Execute<IQueryable<TSource>>(query.Expression));
-            }
+        //        IQueryable<TSource> query = source.AsQueryable();
 
-            return Queryable.First(source, predicate);
-        }
+        //        return Enumerable.Single(query.Where(predicate).Load());
+        //    }
 
-        public static TSource FirstOrDefault<TSource>(this IQueryable<TSource> source)
-        {
-            if (source.IsNotNull() && source.IsSubSonicQuerable())
-            {
-                IQueryable<TSource> query = source.AsQueryable();
+        //    return Queryable.Single(source, predicate);
+        //}
 
-                return Enumerable.FirstOrDefault(query.Provider.Execute<IQueryable<TSource>>(query.Expression));
-            }
+        //public static TSource SingleOrDefault<TSource>(this IQueryable<TSource> source)
+        //{
+        //    if (source.IsNotNull() && source.IsSubSonicQuerable())
+        //    {
+        //        IQueryable<TSource> query = source.AsQueryable();
 
-            return Queryable.FirstOrDefault(source);
-        }
+        //        return Enumerable.SingleOrDefault(query.Provider.Execute<IQueryable<TSource>>(query.Expression));
+        //    }
 
-        public static TSource FirstOrDefault<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
-        {
-            if (source.IsNotNull() && source.IsSubSonicQuerable())
-            {
-                IQueryable<TSource> query = source.AsQueryable();
-
-                return Enumerable.FirstOrDefault(query.Where(predicate).Provider.Execute<IQueryable<TSource>>(query.Expression));
-            }
-
-            return Queryable.FirstOrDefault(source, predicate);
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1720:Identifier contains type name", Justification = "Microsoft already named a IQueryable.Single and it would be confusing not to.")]
-        public static TSource Single<TSource>(this IQueryable<TSource> source)
-        {
-            if (source.IsNotNull() && source.IsSubSonicQuerable())
-            {
-                IQueryable<TSource> query = source.AsQueryable();
-
-                return Enumerable.Single(query.Load());
-            }
-
-            return Queryable.Single(source);
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1720:Identifier contains type name", Justification = "Microsoft set this standard")]
-        public static TSource Single<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
-        {
-            if (source.IsNotNull() && source.IsSubSonicQuerable())
-            {
-                if (predicate is null)
-                {
-                    throw new ArgumentNullException(nameof(predicate));
-                }
-
-                IQueryable<TSource> query = source.AsQueryable();
-
-                return Enumerable.Single(query.Where(predicate).Load());
-            }
-
-            return Queryable.Single(source, predicate);
-        }
-
-        public static TSource SingleOrDefault<TSource>(this IQueryable<TSource> source)
-        {
-            if (source.IsNotNull() && source.IsSubSonicQuerable())
-            {
-                IQueryable<TSource> query = source.AsQueryable();
-
-                return Enumerable.SingleOrDefault(query.Provider.Execute<IQueryable<TSource>>(query.Expression));
-            }
-
-            return Queryable.SingleOrDefault(source);
-        }
-
-        public static TResult SingleOrDefault<TSource, TResult>(this IQueryable<TSource> source)
-        {
-            TSource single = Queryable.SingleOrDefault(source);
-
-            if ((object)single is TResult result)
-            {
-                return result;
-            }
-
-            return default(TResult);
-        }
-
-        public static TSource SingleOrDefault<TSource>(this IQueryable<TSource> source, Expression<Func<TSource, bool>> predicate)
-        {
-            if (source.IsNotNull() && source.IsSubSonicQuerable())
-            {
-                IQueryable<TSource> query = source.AsQueryable();
-
-                return Enumerable.SingleOrDefault(query.Where(predicate).Provider.Execute<IQueryable<TSource>>(query.Expression));
-            }
-
-            return Queryable.SingleOrDefault(source, predicate);
-        }
+        //    return Queryable.SingleOrDefault(source);
+        //}
     }
 }
