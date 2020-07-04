@@ -3,13 +3,27 @@
   <metadata>
     <id>$id$</id>
     <version>$version$</version>
-    <description></description>
+    <description>Fast Data Access, your database should belong to SubSonic.</description>
     <owners>Kenneth Carter</owners>
     <authors>Kenneth Carter</authors>
     <license type="file">LICENSE.MD</license>
     <dependencies>
-      <group targetFramework="netstandard2.0">
-
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="Microsoft.Extensions.DependencyInjection" version="3.1.5" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.DependencyInjection.Abstractions" version="3.1.5" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Logging.Abstractions" version="3.1.5" exclude="Build,Analyzers" />
+        <dependency id="System.ComponentModel.Annotations" version="4.7.0" exclude="Build,Analyzers" />
+        <dependency id="System.Data.Common" version="4.3.0" exclude="Build,Analyzers" />
+        <dependency id="System.Data.DataSetExtensions" version="4.5.0" exclude="Build,Analyzers" />
+        <dependency id="System.Reflection.Emit" version="4.7.0" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework=".NETStandard2.1">
+        <dependency id="Microsoft.Extensions.DependencyInjection" version="3.1.5" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.DependencyInjection.Abstractions" version="3.1.5" exclude="Build,Analyzers" />
+        <dependency id="Microsoft.Extensions.Logging.Abstractions" version="3.1.5" exclude="Build,Analyzers" />
+        <dependency id="System.ComponentModel.Annotations" version="4.7.0" exclude="Build,Analyzers" />
+        <dependency id="System.Data.Common" version="4.3.0" exclude="Build,Analyzers" />
+        <dependency id="System.Reflection.Emit" version="4.7.0" exclude="Build,Analyzers" />
       </group>
     </dependencies>
   </metadata>

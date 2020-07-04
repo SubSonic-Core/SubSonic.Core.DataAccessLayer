@@ -8,16 +8,15 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <PackageTags>DAL;SqlServer;C#;.Net Framework;.NetCore;</PackageTags>
-    <Version>4.0.0</Version>
+    <PackageTags>DAL;SqlServer;C#;.NetFramework;.NetCore;</PackageTags>
+    <Version>4.1.0-alpha.1</Version>
     <PackageId>SubSonic.Core.DAL</PackageId>
     <Company>SubSonic-Core</Company>
-    <Description>Data Access Layer that is flexible and reliable to set and get data in a database.</Description>
     <PackageProjectUrl>https://github.com/SubSonic-Core/SubSonic/wiki</PackageProjectUrl>
     <RepositoryType>Git</RepositoryType>
     <RepositoryUrl>https://github.com/SubSonic-Core/SubSonic</RepositoryUrl>
-    <Description></Description>
-    <Copyright>Kenneth Carter © 2020</Copyright>
+    <Description>Fast Data Access, your database should belong to SubSonic.</Description>
+    <Copyright>SubSonic-Core © 2020</Copyright>
     <NeutralLanguage>en</NeutralLanguage>
     <RootNamespace>SubSonic</RootNamespace>
     <PackageLicenseFile>LICENSE.MD</PackageLicenseFile>
