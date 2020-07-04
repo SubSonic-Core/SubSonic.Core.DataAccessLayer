@@ -3,6 +3,8 @@ name: .Net Standard Release
 
 on:
   push:
+    tags: 
+      - v*-alpha.*
     branches:
       - release/*
 
