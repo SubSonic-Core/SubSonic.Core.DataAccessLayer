@@ -15,7 +15,7 @@
     <PackageLicenseFile>LICENSE.MD</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/kccarter76/SubSonic-Core/projects/1</PackageProjectUrl>
     <RepositoryUrl>https://github.com/kccarter76/SubSonic-Core/tree/master/SubSonic.Extensions.Test</RepositoryUrl>
-    <Version>4.0.0</Version>
+    <Version>4.1.0-alpha.1</Version>
     <NeutralLanguage>en</NeutralLanguage>
   </PropertyGroup>
 
