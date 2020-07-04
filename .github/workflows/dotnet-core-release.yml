@@ -7,7 +7,6 @@ on:
       - v4.1.0-alpha.*
     branches:
       - release/*
-      - main
 
 jobs:
   build:
