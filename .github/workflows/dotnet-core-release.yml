@@ -39,3 +39,5 @@ jobs:
       run: dotnet test
     - name: Create Packages
       run: dotnet pack --configuration Release
+    - name: Publish Package
+      run: dotnet nuget push "SubSonic/bin/Release/SubSonic.Core.DAL.4.1.0-alpha.1.nupkg" --source "github"
