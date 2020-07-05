@@ -46,7 +46,7 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (select is DbSelectExpression _select)
             {
-                return new DbSelectExpression(_select.QueryObject, _select.Type, _select.From, _select.Columns, where, _select.OrderBy, _select.GroupBy, _select.IsDistinct, _select.Take, _select.Skip);
+                return new DbSelectExpression(_select.QueryObject, _select.Type, _select.From, _select.Columns, where ?? _select.Where, _select.OrderBy, _select.GroupBy, _select.IsDistinct, _select.Take, _select.Skip);
             }
 
             throw new NotSupportedException();
@@ -133,12 +133,13 @@ namespace SubSonic.Infrastructure.Builders
             return select;
         }
 
-        public Expression BuildSelect<TEntity, TColumn>(Expression expression, Expression<Func<TEntity, TColumn>> selector)
+        private Expression BuildSelect(Expression expression, IEnumerable<DbColumnDeclaration> columns)
         {
             if (expression is DbSelectExpression select)
             {
-                return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns.Where(col => col.PropertyName == selector.GetPropertyName()), select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip);
+                return new DbSelectExpression(select.QueryObject, select.Type, select.From, columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip);
             }
+
             return expression;
         }
         #endregion
@@ -504,6 +505,14 @@ namespace SubSonic.Infrastructure.Builders
                     {
                         return BuildSelectWithSkip(call);
                     }
+                    else if (call.Method.IsDistinct())
+                    {
+                        return BuildSelectWithDistinct(call);
+                    }
+                    else if (call.Method.IsSupportedSelect())
+                    {
+                        return BuildSelectWithExpression(call);
+                    }
                     else
                     {
                         throw Error.NotSupported(SubSonicErrorMessages.UnSupportedMethodException.Format(call.Method.Name));
@@ -533,6 +542,54 @@ namespace SubSonic.Infrastructure.Builders
                 return types.ToArray();
             }
             return Array.Empty<Type>();
+        }
+
+        private Expression BuildSelectWithExpression(MethodCallExpression expression)
+        {
+            if (!(expression is null))
+            {
+                DbSelectExpression select = null;
+                LambdaExpression selector = null;
+
+                foreach (var argument in expression.Arguments)
+                {
+                    if (argument is DbSelectExpression _select)
+                    {
+                        select = _select;
+                    }
+                    else if (argument is UnaryExpression unary)
+                    {
+                        if (unary.Operand is LambdaExpression lambda)
+                        {
+                            selector = lambda;
+                        }
+                    }
+                }
+
+                return BuildSelect(select, select.Columns.Where(column => column.PropertyName.Equals(selector.GetProperty().Name, StringComparison.CurrentCulture)));
+            }
+
+            return expression;
+        }
+
+        private Expression BuildSelectWithDistinct(MethodCallExpression expression)
+        {
+            if (!(expression is null))
+            {
+                DbSelectExpression select = null;
+
+                foreach (var argument in expression.Arguments)
+                {
+                    if (argument is DbSelectExpression _select)
+                    {
+                        select = _select;
+                    }
+                }
+
+                return BuildSelect(select, true);                    
+            }
+
+            return expression;
         }
 
         private Expression BuildSelectWithSkip(MethodCallExpression expression)

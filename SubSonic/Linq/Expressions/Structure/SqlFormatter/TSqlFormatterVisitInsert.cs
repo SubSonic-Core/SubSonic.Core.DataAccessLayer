@@ -71,7 +71,7 @@ namespace SubSonic.Linq.Expressions.Structure
 
                         Write(parameterName);
 
-                        if (insert.DbParameters.Any(x =>
+                        if (!insert.DbParameters.Any(x =>
                                 x.ParameterName.Equals(parameterName, StringComparison.CurrentCulture)))
                         {
                             object value = insert.Type.BaseType

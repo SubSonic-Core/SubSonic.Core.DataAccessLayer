@@ -45,7 +45,7 @@ namespace SubSonic.Linq.Expressions.Structure
                     {
                         if (join.Right is DbTableExpression table)
                         {
-                            if (update.DbParameters.Any(x =>
+                            if (!update.DbParameters.Any(x =>
                                 x.ParameterName.Equals($"@{table.QualifiedName}", StringComparison.CurrentCulture)))
                             {
                                 update.DbParameters.Add(builder.CreateParameter(table.QualifiedName, builder.GenerateTable()));
@@ -100,7 +100,7 @@ namespace SubSonic.Linq.Expressions.Structure
 
                     Write($" {Fragments.EQUAL_TO} {parameterName}");
 
-                    if (update.DbParameters.Any(x =>
+                    if (!update.DbParameters.Any(x =>
                             x.ParameterName.Equals(parameterName, StringComparison.CurrentCulture)))
                     {
                         object value = update.Type

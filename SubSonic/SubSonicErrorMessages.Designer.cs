@@ -115,6 +115,15 @@ namespace SubSonic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Expression Method {0} is not supported..
+        /// </summary>
+        internal static string ExpressionNotSupported {
+            get {
+                return ResourceManager.GetString("ExpressionNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} does not implement the {1} interface..
         /// </summary>
         internal static string MissingInterfaceImplementation {

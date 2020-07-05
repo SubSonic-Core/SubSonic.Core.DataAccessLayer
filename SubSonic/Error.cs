@@ -31,9 +31,14 @@ namespace SubSonic
             return new DivideByZeroException();
         }
 
-        public static Exception InvalidOperation()
+        public static Exception InvalidOperation(string message = null)
         {
-            return new InvalidOperationException();
+            return new InvalidOperationException(message);
+        }
+
+        public static Exception OutOfBounds()
+        {
+            return new IndexOutOfRangeException();
         }
     }
 }

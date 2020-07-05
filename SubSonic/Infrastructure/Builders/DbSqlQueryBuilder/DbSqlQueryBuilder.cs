@@ -58,20 +58,27 @@ namespace SubSonic.Infrastructure.Builders
                 .Where(x => x.IsNotNull())
                 .ToArray();
 
+            Expression expression = null;
+
             switch (queryType)
             {
                 case DbQueryType.Insert:
-                    return ToQuery(BuildInsertQuery(entities));
+                    expression = BuildInsertQuery(entities);
+                    break;
                 case DbQueryType.Update:
-                    return ToQuery(BuildUpdateQuery(entities));
+                    expression = BuildUpdateQuery(entities);
+                    break;
                 case DbQueryType.Delete:
                     // delete queries can not be alaised.
                     DbTable = (DbTableExpression)DbExpression.DbTable(DbEntity, null);
 
-                    return ToQuery(BuildDeleteQuery(entities));
+                    expression = BuildDeleteQuery(entities);
+                    break;
                 default:
                     throw new NotSupportedException();
             }
+
+            return ToQuery(expression);
         }
 
         private Expression BuildInsertQuery<TEntity>(IEnumerable<TEntity> entities)

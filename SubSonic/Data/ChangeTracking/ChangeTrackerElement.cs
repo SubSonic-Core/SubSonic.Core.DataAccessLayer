@@ -39,7 +39,7 @@ namespace SubSonic.Data.Caching
             {
                 if(record is IEntityProxy<TEntity> entity)
                 {
-                    if (cache.Any(x => x.IsNew == false && x.KeyData.IsSameAs(entity.KeyData)))
+                    if (!cache.Any(x => x.IsNew == false && x.KeyData.IsSameAs(entity.KeyData)))
                     {
                         cache.Add(entity);
                     }

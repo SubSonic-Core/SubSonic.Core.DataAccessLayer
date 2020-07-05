@@ -44,40 +44,6 @@ namespace SubSonic.Linq
             return query.Provider.Execute<IQueryable<TEntity>>(query.Expression);
         }
 
-        //public static IQueryable<TSource> Distinct<TSource>(this IQueryable<TSource> source)
-        //{
-        //    if (source.IsNotNull() && source.IsSubSonicQuerable())
-        //    {
-        //        IQueryable<TSource> query = source.AsQueryable();
-
-        //        ISubSonicQueryProvider builder = (ISubSonicQueryProvider)query.Provider;
-
-        //        if (query.Expression is DbSelectExpression select)
-        //        {
-        //            return builder.CreateQuery<TSource>(builder.BuildSelect(select, true));
-        //        }
-        //    }
-
-        //    return Queryable.Distinct(source);
-        //}
-
-        //public static IQueryable<TSource> Take<TSource>(this IQueryable<TSource> source, int count)
-        //{
-        //    if (source.IsNotNull() && source.IsSubSonicQuerable())
-        //    {
-        //        IQueryable<TSource> query = source.AsQueryable();
-
-        //        ISubSonicQueryProvider builder = (ISubSonicQueryProvider)query.Provider;
-
-        //        if (query.Expression is DbSelectExpression select)
-        //        {
-        //            return builder.CreateQuery<TSource>(builder.BuildSelect(select, count));
-        //        }
-        //    }
-
-        //    return Queryable.Take(source, count);
-        //}
-
         public static IQueryable<TSource> Page<TSource>(this IQueryable<TSource> source, int number, int size)
         {
             if (source.IsNotNull() && source.IsSubSonicQuerable())
