@@ -7,11 +7,6 @@ namespace SubSonic.Linq
 {
     public static class SubSonicEnumerable
     {
-        //public static IEnumerable<TSource> Where<TSource>(this IEnumerable<TSource> source, Expression<Func<TSource, bool>> predicate)
-        //{
-        //    return Enumerable.Where(source, predicate.IsNullThrowArgumentNull(nameof(predicate)).Compile());
-        //}
-
         public static IEnumerable<TSource> ForEach<TSource>(this IEnumerable<TSource> source, Action<TSource> action)
         {
             if (source is null)
