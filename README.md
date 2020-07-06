@@ -4,10 +4,10 @@
 # SubSonic.Core.DAL ![Nuget](https://img.shields.io/nuget/v/SubSonic.Core) ![Nuget](https://img.shields.io/nuget/vpre/SubSonic.Core.DAL)
 Fast Data Access, your database should belong to SubSonic.
 
-# SubSonic.Extensions.SqlServer ![Nuget](https://img.shields.io/nuget/v/SubSonic.Extensions.SqlServer)
+# SubSonic.Extensions.SqlServer ![Nuget](https://img.shields.io/nuget/v/SubSonic.Extensions.SqlServer) ![Nuget](https://img.shields.io/nuget/vpre/SubSonic.Extensions.SqlServer)
 SqlServer Db Client and Factory
 
-# SubSonic.Extensions.Test ![Nuget](https://img.shields.io/nuget/v/SubSonic.Extensions.Test)
+# SubSonic.Extensions.Test ![Nuget](https://img.shields.io/nuget/v/SubSonic.Extensions.Test) ![Nuget](https://img.shields.io/nuget/vpre/SubSonic.Extensions.Test)
 MockSubSonic Db Client and Factory, primary purpose is for unit testing and faking the database server.
 
 # Why should you switch to SubSonic
