@@ -1,15 +1,15 @@
 ﻿using System;
-using System.Linq.Expressions;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace SubSonic.Infrastructure.Builders
 {
     using Linq;
     using Linq.Expressions;
     using Logging;
-    using Schema;    
+    using Schema;
 
     public partial class DbSqlQueryBuilder
         : DbExpressionAccessor

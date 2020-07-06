@@ -171,26 +171,6 @@ namespace SubSonic.Infrastructure.Builders
             throw new NotSupportedException(expression.ToString());
         }
 
-        public async Task<TResult> ExecuteAsync<TResult>(Expression expression)
-        {
-            if (expression is null)
-            {
-                throw Error.ArgumentNull(nameof(expression));
-            }
-
-            throw Error.NotImplemented();
-        }
-
-        public async Task<object> ExecuteAsync(Expression expression)
-        {
-            if (expression is null)
-            {
-                throw Error.ArgumentNull(nameof(expression));
-            }
-
-            throw Error.NotImplemented();
-        }
-
         public object Execute(Expression expression)
         {
             if (expression is null)
