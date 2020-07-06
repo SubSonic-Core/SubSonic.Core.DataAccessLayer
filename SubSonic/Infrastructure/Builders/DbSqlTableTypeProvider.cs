@@ -36,11 +36,6 @@ namespace SubSonic.Infrastructure.Builders
 
         public DbTableExpression DbTable { get; }
 
-        public Expression BuildCall(string nameOfCallee, Expression collection, Expression lambda)
-        {
-            throw new NotImplementedException();
-        }
-
         public Expression BuildJoin(JoinType type, Expression left, Expression right)
         {
             throw new NotImplementedException();
@@ -66,27 +61,12 @@ namespace SubSonic.Infrastructure.Builders
             throw new NotImplementedException();
         }
 
-        public Expression BuildSelect(IQueryable queryable)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Expression BuildSelect(IQueryable queryable, Expression eWhere)
-        {
-            throw new NotImplementedException();
-        }
-
         public Expression BuildSelect(Expression eSelect, Expression eWhere)
         {
             throw new NotImplementedException();
         }
 
         public Expression BuildSelect(Expression eSelect, bool isDistinct)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Expression BuildSelect(Expression eSelect, int count)
         {
             throw new NotImplementedException();
         }
@@ -114,46 +94,6 @@ namespace SubSonic.Infrastructure.Builders
             }
 
             throw new NotSupportedException();
-        }
-
-        public Expression BuildSelect(Expression eSelect, IEnumerable<DbOrderByDeclaration> orderBy)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Expression BuildSelect(Expression eSelect, IEnumerable<Expression> groupBy)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Expression BuildSelect(Expression eSelect, DbExpressionType eType, IEnumerable<Expression> expressions)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Expression BuildSelect<TEntity, TColumn>(Expression eSelect, Expression<Func<TEntity, TColumn>> selector)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Expression BuildWhere(DbTableExpression table, Expression where, Type type, LambdaExpression predicate)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Expression BuildWhereExists<TEntity>(DbTableExpression dbTableExpression, Type type, Expression<Func<TEntity, IQueryable>> query)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Expression BuildWhereNotExists<TEntity>(DbTableExpression from, Type type, Expression<Func<TEntity, IQueryable>> query)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Expression BuildWherePredicate(Expression collection, Expression logical)
-        {
-            throw new NotImplementedException();
         }
 
         public Expression BuildWhereFindByIDPredicate(DbExpression expression, object[] keyData, params string[] keyNames)

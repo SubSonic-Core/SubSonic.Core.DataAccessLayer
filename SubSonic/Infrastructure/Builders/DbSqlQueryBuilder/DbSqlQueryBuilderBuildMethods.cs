@@ -23,26 +23,6 @@ namespace SubSonic.Infrastructure.Builders
         #endregion
 
         #region Build Select
-        public Expression BuildSelect(System.Linq.IQueryable queryable)
-        {
-            if (queryable.IsNull())
-            {
-                throw new ArgumentNullException(nameof(queryable));
-            }
-
-            return DbExpression.DbSelect(queryable, queryable.Expression.Type, DbTable);
-        }
-
-        public Expression BuildSelect(System.Linq.IQueryable queryable, Expression where)
-        {
-            if (queryable.IsNull())
-            {
-                throw new ArgumentNullException(nameof(queryable));
-            }
-
-            return new DbSelectExpression(queryable, queryable.Expression.Type, DbTable, DbTable.Columns, where);
-        }
-
         public Expression BuildSelect(Expression select, Expression where)
         {
             if (select is DbSelectExpression _select)
@@ -63,15 +43,6 @@ namespace SubSonic.Infrastructure.Builders
             throw new NotSupportedException();
         }
 
-        public Expression BuildSelect(Expression expression, int count)
-        {
-            if (expression is DbSelectExpression select)
-            {
-                return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, Expression.Constant(count), select.Skip);
-            }
-
-            throw new NotSupportedException();
-        }
         public Expression BuildSelect(Expression expression, int pageNumber, int pageSize)
         {
             if (expression is DbSelectExpression select)
@@ -106,34 +77,6 @@ namespace SubSonic.Infrastructure.Builders
             throw new NotSupportedException();
         }
 
-        public Expression BuildSelect(Expression expression, IEnumerable<DbOrderByDeclaration> orderBy)
-        {
-            if (expression is DbSelectExpression select)
-            {
-                return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, select.Where, orderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip);
-            }
-
-            throw new NotSupportedException();
-        }
-        public Expression BuildSelect(Expression expression, IEnumerable<Expression> groupBy)
-        {
-            if (expression is DbSelectExpression select)
-            {
-                return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, select.Where, select.OrderBy, groupBy, select.IsDistinct, select.Take, select.Skip);
-            }
-
-            throw new NotSupportedException();
-        }
-
-        public Expression BuildSelect(Expression select, DbExpressionType eType, IEnumerable<Expression> expressions)
-        {
-            if (select is DbSelectExpression)
-            {
-                throw new NotImplementedException();
-            }
-            return select;
-        }
-
         private Expression BuildSelect(Expression expression, IEnumerable<DbColumnDeclaration> columns)
         {
             if (expression is DbSelectExpression select)
@@ -162,51 +105,6 @@ namespace SubSonic.Infrastructure.Builders
 
             return DbWherePredicateBuilder.GetWhereTranslation(
                 DbExpression.DbWhere(method, new Expression[] { expression, predicate }));
-        }
-
-        public Expression BuildWhere(DbTableExpression table, Expression where, Type type, LambdaExpression predicate)
-        {
-            if (where.IsNotNull())
-            {
-                if (predicate is null)
-                {
-                    throw new ArgumentNullException(nameof(predicate));
-                }
-
-                if (((DbExpressionType)where.NodeType) == DbExpressionType.Where &&
-                    where is DbWhereExpression _where)
-                {
-                    Expression
-                        logical = DbWherePredicateBuilder.GetBodyExpression(_where.GetArgument(1), predicate.Body, DbGroupOperator.AndAlso);
-                    predicate = BuildLambda(logical, LambdaType.Predicate) as LambdaExpression;
-                }
-                else
-                {
-                    throw new NotSupportedException();
-                }
-            }
-
-            throw Error.NotImplemented();
-        }
-
-        //public Expression BuildWhere(DbTableExpression table, Expression where, Type type, Expression predicate)
-        //{
-        //    LambdaExpression lambda = null;
-
-        //    if (predicate is UnaryExpression unary)
-        //    {
-        //        if (unary.Operand is LambdaExpression _unary)
-        //        {
-        //            lambda = _unary;
-        //        }
-        //    }
-
-        //    return BuildWhere(table, where, type, lambda);
-        //}
-
-        public Expression BuildWherePredicate(Expression collection, Expression lambda)
-        {
-            return BuildCall("Where", collection, lambda);
         }
 
         public Expression BuildWhereFindByIDPredicate(DbExpression expression, object[] keyData, params string[] keyNames)
@@ -246,24 +144,8 @@ namespace SubSonic.Infrastructure.Builders
         #endregion
 
         #region Lambda
-        public Expression BuildCall(string nameofCallee, Expression collection, Expression lambda)
-        {
-            if (lambda.IsNotNull())
-            {
-                return Expression.Call(
-                    typeof(System.Linq.Queryable),
-                    nameofCallee,
-                    GetTypeArguments((LambdaExpression)lambda),
-                    GetMethodCall(collection) ?? Expression.Parameter(GetTypeOf(typeof(ISubSonicCollection<>), DbEntity.EntityModelType)),
-                    lambda);
-            }
-            return lambda;
-        }
-
         public Expression BuildLambda(Expression body, LambdaType @call, params string[] properties)
         {
-            Expression result;
-
             switch (call)
             {
                 case Infrastructure.LambdaType.Predicate:
@@ -536,27 +418,6 @@ namespace SubSonic.Infrastructure.Builders
             }
 
             return expression ?? DbEntity.Table;
-        }
-
-        private Type GetTypeOf(Type type, params Type[] types)
-        {
-            return type.IsGenericType ? type.MakeGenericType(types) : type;
-        }
-
-        private static Type[] GetTypeArguments(LambdaExpression expression)
-        {
-            if (expression.IsNotNull())
-            {
-                IEnumerable<Type> types = expression.Parameters.Select(Param => Param.Type);
-
-                if (!expression.Body.Type.IsBoolean())
-                {   // not a predicate
-                    types = types.Union(new[] { expression.Body.Type });
-                }
-
-                return types.ToArray();
-            }
-            return Array.Empty<Type>();
         }
 
         private Expression BuildSelectWithExpression(MethodCallExpression expression)

@@ -17,7 +17,6 @@ namespace SubSonic.Infrastructure
         Expression BuildLogicalIn(Expression body, PropertyInfo property, IQueryable queryable, DbGroupOperator @group);
         Expression BuildLogicalIn(Expression body, PropertyInfo property, IEnumerable<Expression> values, DbGroupOperator @group);
         Expression BuildLogicalBinary(Expression eBody, string name, object value, DbComparisonOperator op, DbGroupOperator group);
-        Expression BuildWherePredicate(Expression collection, Expression logical);
         /// <summary>
         /// 
         /// </summary>
@@ -26,20 +25,12 @@ namespace SubSonic.Infrastructure
         /// <param name="keyNames"></param>
         /// <returns></returns>
         Expression BuildWhereFindByIDPredicate(DbExpression expression, object[] keyData, params string[] keyNames);
-        Expression BuildSelect(IQueryable queryable);
-        Expression BuildSelect(IQueryable queryable, Expression eWhere);
         Expression BuildSelect(Expression eSelect, Expression eWhere);
         Expression BuildSelect(Expression eSelect, bool isDistinct);
-        Expression BuildSelect(Expression eSelect, int count);
         Expression BuildSelect(Expression eSelect, int pageNumber, int pageSize);
         Expression BuildSelect(Expression eSelect, IDbEntityProperty properties);
-        Expression BuildSelect(Expression eSelect, IEnumerable<DbOrderByDeclaration> orderBy);
-        Expression BuildSelect(Expression eSelect, IEnumerable<Expression> groupBy);
-        Expression BuildSelect(Expression eSelect, DbExpressionType eType, IEnumerable<Expression> expressions);
-        Expression BuildWhere(DbTableExpression table, Expression where, Type type, LambdaExpression predicate);
         Expression BuildJoin(JoinType type, Expression left, Expression right);
         Expression BuildLambda(Expression body, LambdaType callType, params string[] properties);
-        Expression BuildCall(string nameOfCallee, Expression collection, Expression lambda);
 
         IDbQuery BuildDbQuery<TEntity>(DbQueryType queryType, IEnumerable<IEntityProxy> proxies);
         IDbQuery ToQuery(Expression expression);
