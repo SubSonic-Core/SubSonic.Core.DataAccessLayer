@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace SubSonic.Linq.Expressions
 {
     using Structure;
-    using System.Security.Cryptography;
 
     public class DbDeleteExpression
         : DbConstantExpression
