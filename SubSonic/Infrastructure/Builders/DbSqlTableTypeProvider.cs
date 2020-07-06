@@ -156,7 +156,7 @@ namespace SubSonic.Infrastructure.Builders
             throw new NotImplementedException();
         }
 
-        public Expression BuildWhereFindByIDPredicate(DbTableExpression from, object[] keyData, params string[] keyNames)
+        public Expression BuildWhereFindByIDPredicate(DbExpression expression, object[] keyData, params string[] keyNames)
         {
             throw new NotImplementedException();
         }

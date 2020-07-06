@@ -192,7 +192,7 @@ namespace SubSonic.Infrastructure
 
                 return builder.CreateQuery<TEntity>(
                     builder.BuildSelect(select,
-                    builder.BuildWhereFindByIDPredicate(select.From, keyData, keyNames)));
+                    builder.BuildWhereFindByIDPredicate(select, keyData, keyNames)));
             }
 
             throw new NotSupportedException();

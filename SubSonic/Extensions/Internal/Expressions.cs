@@ -8,6 +8,9 @@ namespace SubSonic
 
     internal static partial class InternalExtensions
     {
+        public static Func<TSource, bool> CombinePredicates<TSource>(Func<TSource, bool> predicate1, Func<TSource, bool> predicate2) =>
+            (x) => predicate1(x) && predicate2(x);
+
         public static Expression ReBuild(this Expression expression, ParameterExpression parameter)
         {
             if (expression is BinaryExpression binary)

@@ -94,7 +94,7 @@ namespace SubSonic.Infrastructure.Schema
 
         public object CreateObject()
         {
-            return DbContext.CreateObject(EntityModelType);
+            return Activator.CreateInstance(EntityModelType);
         }
 
         public IEnumerable<string> GetPrimaryKey()

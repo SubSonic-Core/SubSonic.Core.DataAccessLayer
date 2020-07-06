@@ -14,19 +14,23 @@ namespace SubSonic.Tests.DAL.Builders
     using Linq.Expressions;
     using Infrastructure.Builders;
     using Models = Extensions.Test.Models;
-   
+    using System.Reflection;
+    using SubSonic.Infrastructure;
+
     [TestFixture]
     public class DbWherePredicateBuilderTests
         : SUT.BaseTestFixture
     {
         interface IPredicateTestCase
         {
-            LambdaExpression Predicate { get; }
+            Expression Predicate { get; }
             Type Type { get; }
-            DbTableExpression Table { get; }
+            Type DbSetType { get; }
+            Expression Expression { get; }
         }
         class GetPredicateFor<TEntity>
             : IPredicateTestCase
+            where TEntity : class
         {
             public GetPredicateFor(Expression<Func<TEntity, bool>> selector)
             {
@@ -35,9 +39,21 @@ namespace SubSonic.Tests.DAL.Builders
 
             public Type Type => typeof(TEntity);
 
-            public LambdaExpression Predicate { get; }
+            public Type DbSetType => typeof(DbSetCollection<>).MakeGenericType(Type);
 
-            public DbTableExpression Table => DbContext.DbModel.GetEntityModel<TEntity>().Table;
+            public Expression Predicate { get; }
+
+            public Expression Expression
+            {
+                get
+                {
+                    MethodInfo method = typeof(Queryable).GetGenericMethod(nameof(Queryable.Where), new[] { DbSetType, Predicate.GetType() });
+
+                    return DbExpression.DbWhere(method, new[] { 
+                        DbContext.Current.Set<TEntity>()?.Expression, 
+                        Predicate });
+                }
+            }
         }
 
         private static IEnumerable<IPredicateTestCase> Expressions()
@@ -50,14 +66,25 @@ namespace SubSonic.Tests.DAL.Builders
         [Test]
         public void ShouldBeAbleToGetWherePredicateBody()
         {
-            //foreach(IPredicateTestCase @case in Expressions())
-            Parallel.ForEach(Expressions(), @case =>
+            foreach(IPredicateTestCase @case in Expressions())
+            //Parallel.ForEach(Expressions(), @case =>
             {
-                var result = DbWherePredicateBuilder.GetWherePredicate(@case.Type, @case.Predicate, DbExpressionType.Where, @case.Table);
+                var result = DbWherePredicateBuilder.GetWhereTranslation(@case.Expression);
+
+                if (result is DbWhereExpression where)
+                {
+                    where.Parameters.Count.Should().NotBe(0);
+
+                    where.Type.Should().Be(typeof(bool));
+
+                    where.GetArgument(0).Type.Should().Be(@case.DbSetType);
+
+                    where.Expression.Should().NotBeNull();
+                }
 
                 result.Should().NotBeNull();
             }
-            );
+            //);
         }
     }
 }

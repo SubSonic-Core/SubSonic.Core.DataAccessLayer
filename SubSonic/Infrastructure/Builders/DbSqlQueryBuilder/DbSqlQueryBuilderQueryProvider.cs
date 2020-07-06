@@ -111,7 +111,10 @@ namespace SubSonic.Infrastructure.Builders
                     }
                     else if (call.Arguments[i] is UnaryExpression unary)
                     {
-                        where = BuildWhere(dbSelect.From, dbSelect.Where, dbSelect.Type, unary);
+                        if (unary.Operand is LambdaExpression lambda)
+                        {
+                            where = BuildWhere(dbSelect, lambda);
+                        }
                     }
                 }
 

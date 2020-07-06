@@ -10,8 +10,15 @@ namespace SubSonic.Infrastructure.Builders
     using Linq.Expressions;
     using System.Net.Http.Headers;
 
-    partial class DbWherePredicateBuilder
+    public partial class DbWherePredicateBuilder
     {
+        protected internal override Expression VisitWhere(DbWhereExpression where)
+        {
+            Visit(where?.GetArgument(1));
+
+            return body;
+        }
+
         protected override Expression VisitBinary(BinaryExpression node)
         {
             if (node.IsNotNull())

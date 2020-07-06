@@ -12,6 +12,7 @@ namespace SubSonic.Infrastructure.Builders
     using Linq.Expressions;
     using Infrastructure.Schema;
     using SysLinq = System.Linq;
+    using System.Diagnostics;
 
     public partial class DbSqlQueryBuilder
     {
@@ -145,6 +146,24 @@ namespace SubSonic.Infrastructure.Builders
         #endregion
 
         #region Build Where
+        public Expression BuildWhere(DbExpression expression, LambdaExpression predicate)
+        {
+            if (expression is null)
+            {
+                throw Error.ArgumentNull(nameof(expression));
+            }
+
+            if (predicate is null)
+            {
+                throw Error.ArgumentNull(nameof(predicate));
+            }
+
+            MethodInfo method = typeof(Queryable).GetGenericMethod(nameof(Queryable.Where), new[] { expression.Type, predicate.GetType() });
+
+            return DbWherePredicateBuilder.GetWhereTranslation(
+                DbExpression.DbWhere(method, new Expression[] { expression, predicate }));
+        }
+
         public Expression BuildWhere(DbTableExpression table, Expression where, Type type, LambdaExpression predicate)
         {
             if (where.IsNotNull())
@@ -158,7 +177,7 @@ namespace SubSonic.Infrastructure.Builders
                     where is DbWhereExpression _where)
                 {
                     Expression
-                        logical = DbWherePredicateBuilder.GetBodyExpression(_where.LambdaPredicate.Body, predicate.Body, DbGroupOperator.AndAlso);
+                        logical = DbWherePredicateBuilder.GetBodyExpression(_where.GetArgument(1), predicate.Body, DbGroupOperator.AndAlso);
                     predicate = BuildLambda(logical, LambdaType.Predicate) as LambdaExpression;
                 }
                 else
@@ -166,30 +185,31 @@ namespace SubSonic.Infrastructure.Builders
                     throw new NotSupportedException();
                 }
             }
-            return DbExpression.DbWhere(table, type, predicate);
+
+            throw Error.NotImplemented();
         }
 
-        public Expression BuildWhere(DbTableExpression table, Expression where, Type type, Expression predicate)
-        {
-            LambdaExpression lambda = null;
+        //public Expression BuildWhere(DbTableExpression table, Expression where, Type type, Expression predicate)
+        //{
+        //    LambdaExpression lambda = null;
 
-            if (predicate is UnaryExpression unary)
-            {
-                if (unary.Operand is LambdaExpression _unary)
-                {
-                    lambda = _unary;
-                }
-            }
+        //    if (predicate is UnaryExpression unary)
+        //    {
+        //        if (unary.Operand is LambdaExpression _unary)
+        //        {
+        //            lambda = _unary;
+        //        }
+        //    }
 
-            return BuildWhere(table, where, type, lambda);
-        }
+        //    return BuildWhere(table, where, type, lambda);
+        //}
 
         public Expression BuildWherePredicate(Expression collection, Expression lambda)
         {
             return BuildCall("Where", collection, lambda);
         }
 
-        public Expression BuildWhereFindByIDPredicate(DbTableExpression dbTable, object[] keyData, params string[] keyNames)
+        public Expression BuildWhereFindByIDPredicate(DbExpression expression, object[] keyData, params string[] keyNames)
         {
             if (keyData.IsNull())
             {
@@ -206,16 +226,7 @@ namespace SubSonic.Infrastructure.Builders
 
             LambdaExpression predicate = (LambdaExpression)BuildLambda(logical, LambdaType.Predicate);
 
-            return BuildWhere(dbTable, null, DbEntity.EntityModelType, predicate);
-        }
-
-        public Expression BuildWhereExists<TEntity>(DbTableExpression from, Type type, Expression<Func<TEntity, System.Linq.IQueryable>> select)
-        {
-            return DbExpression.DbWhere(from, type, select, DbExpressionType.Exists);
-        }
-        public Expression BuildWhereNotExists<TEntity>(DbTableExpression from, Type type, Expression<Func<TEntity, System.Linq.IQueryable>> select)
-        {
-            return DbExpression.DbWhere(from, type, select, DbExpressionType.NotExists);
+            return BuildWhere(expression, predicate);
         }
         #endregion
 
@@ -252,27 +263,31 @@ namespace SubSonic.Infrastructure.Builders
         public Expression BuildLambda(Expression body, LambdaType @call, params string[] properties)
         {
             Expression result;
+
             switch (call)
             {
                 case Infrastructure.LambdaType.Predicate:
                     {
-                        Type fnType = Expression.GetFuncType(Parameter.Type, typeof(bool));
+                        if (body is null)
+                        {
+                            throw Error.ArgumentNull(nameof(body));
+                        }
 
-                        result = Expression.Lambda(fnType, body, Parameter);
+                        return Expression.Lambda(
+                            Expression.GetFuncType(Parameter.Type, body.Type), 
+                            body, 
+                            Parameter);
                     }
-                    break;
                 case Infrastructure.LambdaType.Selector:
                     {
                         PropertyInfo info = Parameter.Type.GetProperty(properties[0]);
                         Expression property = Expression.Property(Parameter, info);
 
-                        result = Expression.Lambda(Expression.GetFuncType(Parameter.Type, info.PropertyType), property, Parameter);
+                        return Expression.Lambda(Expression.GetFuncType(Parameter.Type, info.PropertyType), property, Parameter);
                     }
-                    break;
                 default:
                     throw new NotImplementedException();
             }
-            return result;
         }
 
         public Expression BuildLogicalIn(Expression body, PropertyInfo property, SysLinq.IQueryable queryable, DbGroupOperator @group)
@@ -665,16 +680,32 @@ namespace SubSonic.Infrastructure.Builders
                     }
                     else if (argument is UnaryExpression unary)
                     {
-                        if (unary.Operand is LambdaExpression _unary)
+                        if (unary.Operand is LambdaExpression predicate)
                         {
-                            where = _unary;
+                            if (select.Where is DbWhereExpression existing)
+                            {
+                                if (existing.GetArgument(1) is LambdaExpression predicate2)
+                                {
+                                    Expression
+                                        body = Expression.AndAlso(predicate2.Body, predicate.Body);
+
+                                    where = Expression.Lambda(predicate2.Type, body, predicate2.Parameters.ToArray());
+                                }
+                            }
+                            else
+                            {
+                                where = predicate;
+                            }
                         }                        
                     }
                 }
 
+                MethodInfo method = typeof(Queryable).GetGenericMethod(nameof(Queryable.Where), new[] { select.Type, where.GetType() });
+
                 return DbExpression.DbSelect(
                         select,
-                        DbExpression.DbWhere(select.From, select.Type, where));
+                        DbWherePredicateBuilder.GetWhereTranslation(
+                            DbExpression.DbWhere(method, new Expression[] { select, where })));
             }
 
             return expression;

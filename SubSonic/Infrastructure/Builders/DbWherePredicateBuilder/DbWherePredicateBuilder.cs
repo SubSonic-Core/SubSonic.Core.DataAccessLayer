@@ -11,8 +11,9 @@ namespace SubSonic.Infrastructure.Builders
     using Linq;
     using Linq.Expressions;
     using Linq.Expressions.Structure;
+    using System.Data.Common;
 
-    partial class DbWherePredicateBuilder
+    public partial class DbWherePredicateBuilder
         : DbExpressionVisitor
     {
         [ThreadStatic]
@@ -44,12 +45,45 @@ namespace SubSonic.Infrastructure.Builders
             __instances.Push(this);
         }
 
-        public static DbExpression GetWherePredicate(Type type, LambdaExpression lambda, DbExpressionType whereType, DbTableExpression table)
+        public static Expression GetWhereTranslation(Expression expression)
         {
-            using (var builder = new DbWherePredicateBuilder(whereType, table))
+            if (expression is DbWhereExpression where)
             {
-                return new DbWhereExpression(whereType, type, lambda, builder.ParseLambda(lambda), builder.CanReadFromCache, builder.parameters.ToReadOnlyCollection(DbExpressionType.Where));
+                Expression query = where.GetArgument(0);
+                DbTableExpression dbTable = null;
+
+
+                if (query is DbSelectExpression select)
+                {
+                    dbTable = select.From;
+                }
+                else if (query is DbSelectPageExpression paged_select)
+                {
+                    dbTable = paged_select.Select.From;
+                }
+                else if (query is DbSelectAggregateExpression aggregate_select)
+                {
+                    dbTable = aggregate_select.From;
+                }
+                else if (query is DbTableExpression table)
+                {
+                    dbTable = table;
+                }
+                else
+                {
+                    throw Error.NotSupported($"{query.GetType().Name} not supported");
+                }
+
+                using (var builder = new DbWherePredicateBuilder((DbExpressionType)where.NodeType, dbTable))
+                {
+                    return DbExpression.DbWhere(where.Method, where.Arguments,
+                        builder.Visit(where),
+                        builder.parameters.SelectMany(x => x.Value), 
+                        builder.CanReadFromCache);
+                }
             }
+
+            return expression;
         }
 
         public ArgumentCollection<Expression> Arguments { get; }
@@ -206,7 +240,11 @@ namespace SubSonic.Infrastructure.Builders
             return body;
         }
 
-        private static DbTableExpression GetDbTable(Type type) => __instances.Select(builder => builder.table).Single(table => table.Type == type || table.Type.IsSubclassOf(type));
+        private static DbTableExpression GetDbTable(Type type) => __instances
+            .Select(builder => 
+                builder.table)
+            .Single(table => 
+                table.Type.GenericTypeArguments[0] == type || table.Type.GenericTypeArguments[0].IsSubclassOf(type));
 
         private Expression GetDbColumnExpression(PropertyInfo propertyInfo)
         {

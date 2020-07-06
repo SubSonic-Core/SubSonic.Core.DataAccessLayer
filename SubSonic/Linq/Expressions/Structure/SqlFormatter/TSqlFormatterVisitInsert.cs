@@ -74,7 +74,7 @@ namespace SubSonic.Linq.Expressions.Structure
                         if (!insert.DbParameters.Any(x =>
                                 x.ParameterName.Equals(parameterName, StringComparison.CurrentCulture)))
                         {
-                            object value = insert.Type.BaseType
+                            object value = insert.Type.GenericTypeArguments[0]
                             .GetProperty(column.PropertyName)
                             .GetValue(entity.Value);
 

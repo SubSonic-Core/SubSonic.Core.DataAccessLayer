@@ -6,6 +6,7 @@ using System.Text;
 namespace SubSonic.Linq.Expressions
 {
     using Structure;
+    using System.Security.Cryptography;
 
     public class DbDeleteExpression
         : DbConstantExpression
@@ -14,20 +15,17 @@ namespace SubSonic.Linq.Expressions
             object collection,
             DbExpression from,
             Expression where)
-            : base(collection, null)
+            : base(
+                  collection, 
+                  from.IsNullThrowArgumentNull(nameof(from)).Type)
         {
-            if (from.IsNull())
-            {
-                throw new ArgumentNullException(nameof(from));
-            }
-
             if (!(from is DbTableExpression))
             {
                 throw new InvalidOperationException(SubSonicErrorMessages.DbExpressionMustBeOfType.Format(nameof(DbTableExpression)));
             }
 
             From = (DbTableExpression)from;
-            Where = where ?? throw new ArgumentNullException(nameof(where));
+            Where = where;
         }
 
         public override ExpressionType NodeType => (ExpressionType)DbExpressionType.Delete;
@@ -54,8 +52,18 @@ namespace SubSonic.Linq.Expressions
 
     public partial class DbExpression
     {
-        public static DbExpression DbDelete(object collection, DbExpression from, Expression where)
+        public static DbExpression DbDelete(object collection, DbExpression from)
         {
+            return new DbDeleteExpression(collection, from, null);
+        }
+
+        public static DbExpression DbDelete(object collection, DbExpression from, Expression where)
+        { 
+            if (where is null)
+            {
+                throw Error.ArgumentNull(nameof(where));
+            }
+
             return new DbDeleteExpression(collection, from, where);
         }
     }

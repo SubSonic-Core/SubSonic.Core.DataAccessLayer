@@ -3,31 +3,84 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.Common;
 using System.Linq.Expressions;
+using System.Linq;
+using System.Reflection;
 
 namespace SubSonic.Linq.Expressions
 {
+    using Interfaces;
     using Infrastructure.Builders;
-    using Structure;
+    using Structure;    
 
     public class DbWhereExpression
         : DbExpression
+        , IArgumentProvider
+        , IDbParameterProvider
     {
-        public DbWhereExpression(DbExpressionType eType, Type type, LambdaExpression lambda, Expression predicate, bool canReadFromCache, IReadOnlyCollection<DbParameter> parameters = null) 
-            : base(eType, eType == DbExpressionType.Where ? type : typeof(bool))
+        protected internal DbWhereExpression(MethodInfo method, IEnumerable<Expression> arguments)
+            : base(GetDbExpressionType(method), typeof(bool))
         {
-            LambdaPredicate = lambda ?? throw new ArgumentNullException(nameof(lambda));
-            Expression = predicate ?? throw new ArgumentNullException(nameof(predicate));
-            CanReadFromCache = canReadFromCache;
-            Parameters = parameters ?? new ReadOnlyCollection<DbParameter>(Array.Empty<DbParameter>());
+            Method = method;
+            Arguments = new ReadOnlyCollection<Expression>(arguments.ToList());
         }
+
+        protected internal DbWhereExpression(MethodInfo method, IEnumerable<Expression> arguments, Expression expression, IEnumerable<DbParameter> parameters, bool canReadFromCache)
+            : this(method, arguments)
+        {
+            Expression = expression;
+            Parameters = new ReadOnlyCollection<DbParameter>(parameters.ToList());
+            CanReadFromCache = canReadFromCache;
+        }
+
+        public MethodInfo Method { get; }
+
+        public IReadOnlyCollection<Expression> Arguments { get; }
+
+        public int ArgumentCount
+        {
+            get
+            {
+                return Arguments.Count;
+            }
+        }
+
+        public IReadOnlyCollection<DbParameter> Parameters { get; }
 
         public bool CanReadFromCache { get; }
 
-        public LambdaExpression LambdaPredicate { get; }
-
         public Expression Expression { get; }
 
-        public IReadOnlyCollection<DbParameter> Parameters { get; }
+        public Expression GetArgument(int index)
+        {
+            return Arguments.ElementAt(index);
+        }
+
+        public override bool CanReduce => true;
+
+        private static DbExpressionType GetDbExpressionType(MethodInfo method)
+        {
+            if (method is null)
+            {
+                throw Error.ArgumentNull(nameof(method));
+            }
+            if (method.Name.EndsWith(nameof(DbExpressionType.NotExists), StringComparison.CurrentCulture))
+            {
+                return DbExpressionType.NotExists;
+            }
+            else if (method.Name.EndsWith(nameof(DbExpressionType.Exists), StringComparison.CurrentCulture))
+            {
+                return DbExpressionType.Exists;
+            }
+            else
+            {
+                return DbExpressionType.Where;
+            }
+        }
+
+        public override Expression Reduce()
+        {
+            return Call(Method, Arguments);
+        }
 
         protected override Expression Accept(ExpressionVisitor visitor)
         {
@@ -42,29 +95,14 @@ namespace SubSonic.Linq.Expressions
 
     public partial class DbExpression
     {
-        public static DbExpression DbWhere(DbTableExpression table, Type type, LambdaExpression predicate, DbExpressionType whereType = DbExpressionType.Where)
+        public static Expression DbWhere(MethodInfo method, IEnumerable<Expression> arguments)
         {
-            if (table is null)
-            {
-                throw Error.ArgumentNull(nameof(table));
-            }
+            return new DbWhereExpression(method, arguments);
+        }
 
-            if (type is null)
-            {
-                throw Error.ArgumentNull(nameof(type));
-            }
-
-            if (predicate is null)
-            {
-                throw Error.ArgumentNull(nameof(predicate));
-            }
-
-            if (whereType.NotIn(DbExpressionType.Where, DbExpressionType.Exists, DbExpressionType.NotExists))
-            {
-                throw Error.Argument("", nameof(whereType));
-            }
-
-            return DbWherePredicateBuilder.GetWherePredicate(type, predicate, whereType, table);
+        public static Expression DbWhere(MethodInfo method, IEnumerable<Expression> arguments, Expression expression, IEnumerable<DbParameter> parameters, bool canReadFromCache)
+        {
+            return new DbWhereExpression(method, arguments, expression, parameters, canReadFromCache);
         }
     }
 }

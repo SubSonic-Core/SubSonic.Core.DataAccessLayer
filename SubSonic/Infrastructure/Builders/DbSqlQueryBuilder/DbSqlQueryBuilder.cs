@@ -150,10 +150,13 @@ namespace SubSonic.Infrastructure.Builders
 
             predicate = (LambdaExpression)BuildLambda(logical, LambdaType.Predicate);
 
+            MethodInfo method = typeof(Queryable).GetGenericMethod(nameof(Queryable.Where), new[] { DbTable.Type, predicate.GetType() });
+
             return DbExpression.DbDelete(
                     entities,
                     DbTable,
-                    DbExpression.DbWhere(DbTable, DbEntity.EntityModelType, predicate));
+                    DbWherePredicateBuilder.GetWhereTranslation(
+                        DbExpression.DbWhere(method, new Expression[] { DbTable, predicate })));
         }
 
         protected virtual DbSqlQueryType GetQueryType(Expression expression)

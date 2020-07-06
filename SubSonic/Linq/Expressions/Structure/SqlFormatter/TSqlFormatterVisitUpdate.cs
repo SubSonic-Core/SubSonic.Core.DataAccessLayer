@@ -103,7 +103,7 @@ namespace SubSonic.Linq.Expressions.Structure
                     if (!update.DbParameters.Any(x =>
                             x.ParameterName.Equals(parameterName, StringComparison.CurrentCulture)))
                     {
-                        object value = update.Type
+                        object value = update.Type.GenericTypeArguments[0]
                         .GetProperty(column.PropertyName)
                         .GetValue(entity.Value);
 

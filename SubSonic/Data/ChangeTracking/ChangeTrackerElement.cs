@@ -80,7 +80,10 @@ namespace SubSonic.Data.Caching
                             return 0;
                         }
 
-                        results = results.Where(((Expression<Func<TEntity, bool>>)where.LambdaPredicate).Compile());
+                        if (where.GetArgument(1) is Expression<Func<TEntity, bool>> predicate)
+                        {
+                            results = results.Where(predicate.Compile());
+                        }
                     }
 
                     return results.Count();
@@ -285,7 +288,10 @@ namespace SubSonic.Data.Caching
 
                     if (select.Where is DbWhereExpression where)
                     {
-                        results = results.Where(((Expression<Func<TEntity, bool>>)where.LambdaPredicate).Compile());
+                        if (where.GetArgument(1) is Expression<Func<TEntity, bool>> predicate)
+                        {
+                            results = results.Where(predicate.Compile());
+                        }
                     }
 
                     if (typeof(TResult).IsEnumerable())
