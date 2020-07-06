@@ -78,7 +78,7 @@ namespace SubSonic.Tests.DAL
 
         public IEnumerable FetchAll()
         {
-            SysLinq.IQueryable<TModel> data = null;
+            IQueryable data = null;
 
             if (DataSet is ISubSonicCollection<TModel> dataSet)
             {

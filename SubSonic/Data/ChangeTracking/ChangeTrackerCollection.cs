@@ -152,7 +152,25 @@ namespace SubSonic.Data.Caching
 
         public TResult Where<TResult>(Type elementKey, System.Linq.IQueryProvider provider, Expression expression)
         {
-            return collection[elementKey].Where<TResult>(provider, expression);
+            object result = collection[elementKey].Where(provider, expression);
+
+            if (result is TResult success)
+            {
+                return success;
+            }
+            else if (result is IEnumerable<TResult> workneeded)
+            {
+                return workneeded.FirstOrDefault();
+            }
+            else
+            {
+                return default(TResult);
+            }
+        }
+
+        public IEnumerable Where(Type elementKey, IQueryProvider provider, Expression expression)
+        {
+            return collection[elementKey].Where(provider, expression);
         }
 
         private IEnumerable<KeyValuePair<Type, IEnumerable<IEntityProxy>>> BuildEnumeration()

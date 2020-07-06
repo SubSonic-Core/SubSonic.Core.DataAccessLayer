@@ -106,10 +106,16 @@ namespace SubSonic.Infrastructure
                 throw new NotSupportedException();
             }
         }
+
         IEnumerator<TElement> IEnumerable<TElement>.GetEnumerator()
         {
             if (TableData is ICollection<TElement> data)
             {
+                if (!IsLoaded)
+                {
+                    Load();
+                }
+
                 return data.GetEnumerator();
             }
             else
@@ -118,19 +124,14 @@ namespace SubSonic.Infrastructure
             }
         }
         #endregion
-
-        public IQueryable<TElement> Load()
-        {
-            AddRange(Linq.SubSonicQueryable.Load(this));
-
-            return this;
-        }
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1010:Collections should implement generic interface", Justification = "Generic Class that inherits from this one addresses the generic interface")]
     public class SubSonicCollection
         : ISubSonicCollection
     {
+        protected bool IsLoaded { get; set; }
+
         public SubSonicCollection(Type elementType)
         {
             ElementType = elementType ?? throw new ArgumentNullException(nameof(elementType));
@@ -158,11 +159,12 @@ namespace SubSonic.Infrastructure
             : this(elementType, provider, expression)
         {
             TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(elementType), elements);
+            IsLoaded = true;
         }
 
         protected IDbEntityModel Model { get; }
 
-        protected IEnumerable TableData { get; }
+        protected IEnumerable TableData { get; private set; }
 
         public Type ElementType { get; }
 
@@ -170,11 +172,28 @@ namespace SubSonic.Infrastructure
 
         public IQueryProvider Provider { get; }
 
+        public virtual IQueryable Load()
+        {
+            if (Provider.Execute(Expression) is IEnumerable elements)
+            {
+                TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(ElementType), elements);
+
+                IsLoaded = true;
+            }
+
+            return this;
+        }
+
         #region ICollection<> Implementation
         public int Count => (int)TableData.GetType().GetProperty(nameof(Count)).GetValue(TableData);
         public bool IsReadOnly => false;
         public IEnumerator GetEnumerator()
         {
+            if (!IsLoaded)
+            {
+                Load();
+            }
+
             return TableData.GetEnumerator();
         }
         #endregion

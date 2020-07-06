@@ -262,7 +262,16 @@ namespace SubSonic.Infrastructure
             {
                 logger.LogTrace(queryObject.Sql);
 
-                return cmd.ExecuteReader(queryObject.Behavior);
+                try
+                {
+                    cmd.Connection.Open();
+
+                    return cmd.ExecuteReader(queryObject.Behavior);
+                }
+                finally
+                {
+                    cmd.Connection.Close();
+                }
             }
         }
 

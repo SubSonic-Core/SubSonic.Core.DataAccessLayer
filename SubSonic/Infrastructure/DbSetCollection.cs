@@ -20,7 +20,9 @@ namespace SubSonic.Infrastructure
         private readonly IQueryProvider provider;
         private readonly IDbEntityModel model;
         private readonly ICollection<IEntityProxy<TEntity>> dataset;
-        
+
+        private bool isLoaded = false;
+
         public DbSetCollection(ISubSonicQueryProvider<TEntity> provider)
         {
             this.provider = provider ?? throw new ArgumentNullException(nameof(provider));
@@ -132,16 +134,17 @@ namespace SubSonic.Infrastructure
 
         public IEnumerator GetEnumerator()
         {
-            if (dataset.Count == 0)
+            if (!isLoaded)
             {
                 Load();
             }
+
             return ((IEnumerable)dataset).GetEnumerator();
         }
 
         IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()
         {
-            if (dataset.Count == 0)
+            if (!isLoaded)
             {
                 Load();
             }
@@ -149,9 +152,11 @@ namespace SubSonic.Infrastructure
             return dataset.Select(x => DynamicProxy.MapInstanceOf(DbContext, x)).GetEnumerator();
         }
 
-        public IQueryable<TEntity> Load()
+        public IQueryable Load()
         {
-            SubSonicQueryable.Load(this);
+            Provider.Execute(Expression);
+
+            isLoaded = true;
 
             return this;
         }

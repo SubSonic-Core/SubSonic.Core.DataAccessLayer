@@ -229,45 +229,6 @@ namespace SubSonic.Data.Caching
                         );
                     }
 
-                    
-                    //{
-                    //    if (data.ElementAt(i) is IEntityProxy<TEntity> entity)
-                    //    {
-                    //        if (queryType == DbQueryType.Delete)
-                    //        {
-                    //            Remove(entity);
-
-                    //            continue;
-                    //        }
-
-                    //        if (result.Length == 0)
-                    //        {
-                    //            flag(entity);
-
-                    //            continue;
-                    //        }
-
-                    //        IEntityProxy<TEntity> @object = result[i];
-
-                    //        if (queryType == DbQueryType.Update)
-                    //        {
-                    //            @object = result.Single(x =>
-                    //                x.KeyData.SequenceEqual(entity.KeyData));
-                    //        }
-
-                    //        if(queryType == DbQueryType.Insert)
-                    //        {
-                    //            entity.SetKeyData(@object.KeyData);
-                    //        }
-
-                    //        if(queryType.In(DbQueryType.Insert, DbQueryType.Update))
-                    //        {
-                    //            entity.SetDbComputedProperties(@object);
-                    //            flag(entity);
-                    //        }
-                    //    }
-                    //}
-
                     success = true;
                 }
                 finally { }
@@ -276,11 +237,11 @@ namespace SubSonic.Data.Caching
             }
         }
 
-        public override TResult Where<TResult>(IQueryProvider provider, Expression expression)
+        public override IEnumerable Where(IQueryProvider provider, Expression query)
         {
             if (Cache is ObservableCollection<IEntityProxy<TEntity>> cache)
             {
-                if (expression is DbSelectExpression select)
+                if (query is DbSelectExpression select)
                 {
                     IEnumerable<TEntity> results = cache
                             .Where(x => x.IsNew == false && x.IsDirty == false)
@@ -294,17 +255,10 @@ namespace SubSonic.Data.Caching
                         }
                     }
 
-                    if (typeof(TResult).IsEnumerable())
-                    {
-                        return (TResult)Activator.CreateInstance(typeof(SubSonicCollection<>).MakeGenericType(Key),
+                    return (IEnumerable)Activator.CreateInstance(typeof(SubSonicCollection<>).MakeGenericType(Key),
                                 provider,
-                                expression,
+                                query,
                                 results);
-                    }
-                    else
-                    {
-                        return results.SingleOrDefault<TEntity, TResult>();
-                    }
                 }
             }
 
@@ -351,7 +305,7 @@ namespace SubSonic.Data.Caching
 
         public abstract bool SaveChanges(DbQueryType queryType, IEnumerable<IEntityProxy> data, out string error);
 
-        public abstract TResult Where<TResult>(System.Linq.IQueryProvider provider, Expression expression);
+        public abstract IEnumerable Where(IQueryProvider provider, Expression expression);
 
         public IEnumerator GetEnumerator()
         {

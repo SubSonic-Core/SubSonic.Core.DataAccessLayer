@@ -19,7 +19,6 @@ namespace SubSonic
         : ISubSonicCollection, IOrderedQueryable<TEntity>, IQueryable<TEntity>, IEnumerable<TEntity>, IQueryable, IEnumerable, ICollection<TEntity>
     {
         void AddRange(IEnumerable<TEntity> entities);
-        IQueryable<TEntity> Load();
     }
 
     public interface ISubSonicDbSetCollection
@@ -30,5 +29,7 @@ namespace SubSonic
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1010:Collections should implement generic interface", Justification = "Implemented on generic sub interface")]
     public interface ISubSonicCollection
         : IQueryable, IEnumerable
-    { }
+    {
+        IQueryable Load();
+    }
 }

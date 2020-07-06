@@ -41,7 +41,7 @@ namespace SubSonic.Infrastructure.Builders
                 throw new ArgumentNullException(nameof(expression));
             }
 
-            if (expression is DbExpression dbExpression)
+            if (expression is DbExpression query)
             {   // execution request is from the subsonic namespace
                 using (SharedDbConnectionScope Scope = DbContext.ServiceProvider.GetService<SharedDbConnectionScope>())
                 {
@@ -52,27 +52,28 @@ namespace SubSonic.Infrastructure.Builders
                     bool isEntityModel = DbContext.DbModel.IsEntityModelRegistered(elementType);
 
                     if (!isEntityModel ||
-                        DbContext.Current.ChangeTracking.Count(elementType, dbExpression) == 0)
+                        DbContext.Current.ChangeTracking.Count(elementType, query) == 0)
                     {
-                        IDbQuery dbQuery = ToQuery(dbExpression);
+                        IDbQuery dbQuery = ToQuery(query);
 
                         try
                         {
                             Scope.Connection.Open();
 
-                            DbDataReader reader = Scope.Database.ExecuteReader(dbQuery);
-
-                            while (reader.Read())
+                            using (DbDataReader reader = Scope.Database.ExecuteReader(dbQuery))
                             {
-                                if (isEntityModel)
+                                while (reader.Read())
                                 {
-                                    DbContext.Current.ChangeTracking.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
-                                }
-                                else
-                                {
-                                    if (CmdBehavior == CommandBehavior.SingleRow)
+                                    if (isEntityModel)
                                     {
-                                        return Scalar<TResult>(reader);
+                                        DbContext.Current.ChangeTracking.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
+                                    }
+                                    else
+                                    {
+                                        if (CmdBehavior == CommandBehavior.SingleRow)
+                                        {
+                                            return Scalar<TResult>(reader);
+                                        }
                                     }
                                 }
                             }
@@ -87,7 +88,7 @@ namespace SubSonic.Infrastructure.Builders
 
                     if (isEntityModel)
                     {
-                        return DbContext.Current.ChangeTracking.Where<TResult>(elementType, this, expression);
+                        return DbContext.Current.ChangeTracking.Where<TResult>(elementType, this, query);
                     }
                     else
                     {
@@ -177,18 +178,52 @@ namespace SubSonic.Infrastructure.Builders
                 throw new ArgumentNullException(nameof(expression));
             }
 
-            using (SharedDbConnectionScope Scope = DbContext.ServiceProvider.GetService<SharedDbConnectionScope>())
+            if (expression is DbExpression query)
             {
-                IDbQuery dbQuery = ToQuery(expression);
+                using (SharedDbConnectionScope Scope = DbContext.ServiceProvider.GetService<SharedDbConnectionScope>())
+                {
+                    IDbQuery dbQuery = ToQuery(query);
 
-                try
-                {
-                    return Scope.Database.ExecuteReader(dbQuery);
+                    try
+                    {
+                        Type elementType = query.Type.GetQualifiedType();
+
+                        bool isEntityModel = DbContext.DbModel.IsEntityModelRegistered(elementType);
+
+                        using (DbDataReader reader = Scope.Database.ExecuteReader(dbQuery))
+                        {
+                            if (reader.HasRows)
+                            {
+                                while (reader.Read())
+                                {
+                                    if (isEntityModel)
+                                    {
+                                        DbContext.Current.ChangeTracking.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
+                                    }
+                                }
+                            }
+                        }
+
+                        if (isEntityModel)
+                        {
+                            return DbContext.Current.ChangeTracking.Where(elementType, this, query);
+                        }
+                        else
+                        {
+                            logger.LogDebug(SubSonicErrorMessages.NoDataAvailable);
+
+                            return Array.Empty<object>();
+                        }
+                    }
+                    finally
+                    {
+                        dbQuery.CleanUpParameters();
+                    }
                 }
-                finally
-                {
-                    dbQuery.CleanUpParameters();
-                }
+            }
+            else
+            {
+                throw Error.NotSupported($"{expression} Not Supported");
             }
         }
     }

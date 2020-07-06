@@ -33,11 +33,6 @@ namespace SubSonic.Infrastructure
 
         }
 
-        public IQueryable<TElement> Load()
-        {
-            throw new NotSupportedException();
-        }
-
         #region ICollection<> Implementation
         public void Clear()
         {
@@ -173,7 +168,17 @@ namespace SubSonic.Infrastructure
 
         public IQueryProvider Provider { get; }
 
-        protected IEnumerable TableData { get; }
+        protected IEnumerable TableData { get; private set; }
+
+        public IQueryable Load()
+        {
+            if (Provider.Execute(Expression) is IEnumerable elements)
+            {
+                TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(ElementType), elements);
+            }
+
+            return this;
+        }
 
         #region ICollection<> Implementation
         public int Count => (int)TableData.GetType().GetProperty(nameof(Count)).GetValue(TableData);

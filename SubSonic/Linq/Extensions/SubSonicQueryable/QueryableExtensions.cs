@@ -9,6 +9,7 @@ namespace SubSonic.Linq
     using Infrastructure;
     using SubSonic.Infrastructure.Builders;
     using SubSonic.Infrastructure.Schema;
+    using System.Diagnostics;
     using System.Reflection;
 
     public static partial class SubSonicQueryable
@@ -41,6 +42,28 @@ namespace SubSonic.Linq
             }
 
             throw new NotSupportedException();
+        }
+
+        /// <summary>
+        /// ensure a queryable is loaded then send it to a array
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static TSource[] ToArray<TSource>(this IQueryable<TSource> source)
+        {
+            return source.Load().AsEnumerable().ToArray();
+        }
+
+        /// <summary>
+        /// ensure a queryable is loaded then send it to a list
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        public static List<TSource> ToList<TSource>(this IQueryable<TSource> source)
+        {
+            return source.Load().AsEnumerable().ToList();
         }
 
         /// <summary>
