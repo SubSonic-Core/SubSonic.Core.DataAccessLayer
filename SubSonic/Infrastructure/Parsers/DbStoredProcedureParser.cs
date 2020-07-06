@@ -1,17 +1,18 @@
-﻿using SubSonic.Infrastructure.Factory;
-using SubSonic.Infrastructure.Schema;
-using SubSonic.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace SubSonic.Infrastructure
 {
+    using Infrastructure.Factory;
+    using Infrastructure.Schema;
+    using Linq;
+
     internal static class DbStoredProcedureParser
     {
         private static readonly Parsers.Helper helper = new Parsers.Helper();

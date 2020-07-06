@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -7,6 +8,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Data;
 using System.Data.Common;
+using System.Threading.Tasks;
 
 namespace SubSonic
 {
@@ -14,7 +16,6 @@ namespace SubSonic
     using Data.DynamicProxies;
     using Infrastructure;
     using Infrastructure.Schema;
-    using System.Threading.Tasks;
 
     public static partial class SubSonicExtensions
     {

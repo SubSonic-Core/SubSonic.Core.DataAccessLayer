@@ -1,15 +1,16 @@
-﻿using SubSonic.Infrastructure;
-using SubSonic.Infrastructure.Schema;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Threading.Tasks;
 
 namespace SubSonic.Data.DynamicProxies
 {
+    using Infrastructure;
+    using Infrastructure.Schema;
     using Linq;
-    using System.Threading.Tasks;
 
     public delegate void Proxy();
 
@@ -689,7 +690,7 @@ namespace SubSonic.Data.DynamicProxies
                         }
 
                         iL.Emit(OpCodes.Ldarg_0);
-                        for (int i = 0, n = info.GetParameters().Count(); i < n; i++)
+                        for (int i = 0, n = info.GetParameters().Length; i < n; i++)
                         {
                             iL.Emit((OpCode)typeof(OpCodes).GetField($"Ldarg_{(i + 1)}").GetValue(null));
                         }

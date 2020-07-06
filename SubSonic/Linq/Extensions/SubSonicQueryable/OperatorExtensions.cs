@@ -27,7 +27,7 @@ namespace SubSonic.Linq
 
         public static bool In<TType>(this TType source, params TType[] values)
         {
-            return Enumerable.Any(values, (value) => value.Equals(source));
+            return values.Any((value) => value.Equals(source));
         }
         /// <summary>
         /// only used to represent a DbInExpression in code

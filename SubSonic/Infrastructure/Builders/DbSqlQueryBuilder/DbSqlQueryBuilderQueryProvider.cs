@@ -14,6 +14,7 @@ namespace SubSonic.Infrastructure.Builders
     using Logging;
     using Linq.Expressions;
     using System.Threading.Tasks;
+    using SubSonic.Linq;
 
     public partial class DbSqlQueryBuilder
     {
@@ -40,8 +41,8 @@ namespace SubSonic.Infrastructure.Builders
                 throw new ArgumentNullException(nameof(expression));
             }
 
-            if (expression is DbExpression select)
-            {
+            if (expression is DbExpression dbExpression)
+            {   // execution request is from the subsonic namespace
                 using (SharedDbConnectionScope Scope = DbContext.ServiceProvider.GetService<SharedDbConnectionScope>())
                 {
                     CmdBehavior = typeof(TResult).IsEnumerable() ? CommandBehavior.Default : CommandBehavior.SingleRow;
@@ -51,9 +52,9 @@ namespace SubSonic.Infrastructure.Builders
                     bool isEntityModel = DbContext.DbModel.IsEntityModelRegistered(elementType);
 
                     if (!isEntityModel ||
-                        DbContext.Current.ChangeTracking.Count(elementType, select) == 0)
+                        DbContext.Current.ChangeTracking.Count(elementType, dbExpression) == 0)
                     {
-                        IDbQuery dbQuery = ToQuery(select);
+                        IDbQuery dbQuery = ToQuery(dbExpression);
 
                         try
                         {
@@ -96,47 +97,64 @@ namespace SubSonic.Infrastructure.Builders
                     }
                 }
             }
-            else if (expression is MethodCallExpression method)
-            {   // Linq call is coming from System.Linq namespace directly.
-                // expression needs to be rebuilt into something the DAL can use
-                while (method.Arguments[0] is MethodCallExpression _method)
+            else if (expression is MethodCallExpression call)
+            {   // execution request originates from the System.Linq namespace
+
+                DbSelectExpression dbSelect = null;
+                Expression where = null;
+
+                for (int i = 0, n = call.Arguments.Count; i < n; i++)
                 {
-                    method = _method;
+                    if (call.Arguments[i] is DbSelectExpression select)
+                    {
+                        dbSelect = select;
+                    }
+                    else if (call.Arguments[i] is UnaryExpression unary)
+                    {
+                        if (unary.Operand is LambdaExpression lambda)
+                        {
+                            where = BuildWhere(dbSelect, lambda);
+                        }
+                    }
                 }
 
-                
-
-                if (method.Arguments[0] is DbSelectExpression _select)
+                if (call.Method.Name.In(nameof(Queryable.Single), nameof(Queryable.SingleOrDefault), nameof(Queryable.First), nameof(Queryable.FirstOrDefault)))
                 {
-                    Expression where = null;
+                    object result = Execute<TResult>(BuildSelect(dbSelect, where));
 
-                    for(int i = 1, n = method.Arguments.Count; i < n; i++)
+                    if (result is TResult matched)
                     {
-                        where = BuildWhere(_select.From, where, _select.Type, method.Arguments[i]);
+                        return matched;
                     }
-
-                    if (method.Method.Name.Equals(nameof(Queryable.Count), StringComparison.CurrentCulture))
-                    {   // the method count has been called on the collection
-                        if (BuildSelect(_select, where) is DbSelectExpression __select)
-                        {
-                            return Execute<TResult>(DbExpression.DbSelectAggregate(__select, new[]
-                            {
-                                DbExpression.DbAggregate(typeof(TResult), AggregateType.Count, __select.Columns.First(x => x.Property.IsPrimaryKey).Expression)
-                            }));
-                        }
+                    else if (result is IEnumerable<TResult> enumerable)
+                    {
+                        return enumerable.Any() ? enumerable.ElementAt(0) : default(TResult);
+                    }
+#if NETSTANDARD2_0
+                    else if (call.Method.Name.Contains("Default"))
+#elif NETSTANDARD2_1
+                    else if (call.Method.Name.Contains("Default", StringComparison.CurrentCulture))
+#endif
+                    {
+                        return default(TResult);
                     }
                     else
                     {
-                        if (method.Arguments.Count > 1)
-                        {
-                            return Execute<TResult>(BuildSelect(_select, where));
-                        }
-                        else
-                        {
-                            return Execute<TResult>(_select);
-                        }
+                        throw Error.InvalidOperation($"Method {call.Method.Name} expects data.");
                     }
                 }
+                else if (call.Method.Name.In(nameof(Queryable.Count)))
+                {
+                    if (BuildSelect(dbSelect, where) is DbSelectExpression select)
+                    {
+                        return Execute<TResult>(DbExpression.DbSelectAggregate(select, new[]
+                        {
+                            DbExpression.DbAggregate(typeof(TResult), AggregateType.Count, select.Columns.First(x => x.Property.IsPrimaryKey).Expression)
+                        }));
+                    }
+                }
+                
+                throw Error.NotSupported(SubSonicErrorMessages.ExpressionNotSupported.Format(call.Method.Name));
             }
 
             throw new NotSupportedException(expression.ToString());

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace SubSonic.Infrastructure.Schema
@@ -93,7 +94,7 @@ namespace SubSonic.Infrastructure.Schema
 
         public object CreateObject()
         {
-            return DbContext.CreateObject(EntityModelType);
+            return Activator.CreateInstance(EntityModelType);
         }
 
         public IEnumerable<string> GetPrimaryKey()

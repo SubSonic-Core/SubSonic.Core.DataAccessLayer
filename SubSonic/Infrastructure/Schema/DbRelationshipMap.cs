@@ -1,10 +1,11 @@
-﻿using SubSonic.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
 namespace SubSonic.Infrastructure.Schema
 {
+    using Linq;
+
     public class DbRelationshipMap
         : IDbRelationshipMap
     {

@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Data;
-using System.Data.Common;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace SubSonic.Infrastructure.Builders
 {
     using Linq;
     using Linq.Expressions;
-    using Schema;
     using Logging;
-    using SysLinq = System.Linq;
+    using Schema;
 
     public class DbSqlTableTypeProvider
         : ISubSonicQueryProvider
@@ -37,11 +36,6 @@ namespace SubSonic.Infrastructure.Builders
 
         public DbTableExpression DbTable { get; }
 
-        public Expression BuildCall(string nameOfCallee, Expression collection, Expression lambda)
-        {
-            throw new NotImplementedException();
-        }
-
         public Expression BuildJoin(JoinType type, Expression left, Expression right)
         {
             throw new NotImplementedException();
@@ -57,22 +51,12 @@ namespace SubSonic.Infrastructure.Builders
             throw new NotImplementedException();
         }
 
-        public Expression BuildLogicalIn(Expression body, PropertyInfo property, SysLinq.IQueryable queryable, DbGroupOperator group)
+        public Expression BuildLogicalIn(Expression body, PropertyInfo property, IQueryable queryable, DbGroupOperator group)
         {
             throw new NotImplementedException();
         }
 
         public Expression BuildLogicalIn(Expression body, PropertyInfo property, IEnumerable<Expression> values, DbGroupOperator group)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Expression BuildSelect(SysLinq.IQueryable queryable)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Expression BuildSelect(SysLinq.IQueryable queryable, Expression eWhere)
         {
             throw new NotImplementedException();
         }
@@ -83,11 +67,6 @@ namespace SubSonic.Infrastructure.Builders
         }
 
         public Expression BuildSelect(Expression eSelect, bool isDistinct)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Expression BuildSelect(Expression eSelect, int count)
         {
             throw new NotImplementedException();
         }
@@ -108,7 +87,7 @@ namespace SubSonic.Infrastructure.Builders
             {
                 return new DbSelectExpression(
                     select.QueryObject, 
-                    typeof(SysLinq.IQueryable<>).MakeGenericType(property.PropertyType),
+                    typeof(IQueryable<>).MakeGenericType(property.PropertyType),
                     select.From,
                     select.Columns.Where(x => x.PropertyName.Equals(property.PropertyName, StringComparison.CurrentCulture)),
                     select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip);
@@ -117,52 +96,12 @@ namespace SubSonic.Infrastructure.Builders
             throw new NotSupportedException();
         }
 
-        public Expression BuildSelect(Expression eSelect, IEnumerable<DbOrderByDeclaration> orderBy)
+        public Expression BuildWhereFindByIDPredicate(DbExpression expression, object[] keyData, params string[] keyNames)
         {
             throw new NotImplementedException();
         }
 
-        public Expression BuildSelect(Expression eSelect, IEnumerable<Expression> groupBy)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Expression BuildSelect(Expression eSelect, DbExpressionType eType, IEnumerable<Expression> expressions)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Expression BuildSelect<TEntity, TColumn>(Expression eSelect, Expression<Func<TEntity, TColumn>> selector)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Expression BuildWhere(DbTableExpression table, Expression where, Type type, LambdaExpression predicate)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Expression BuildWhereExists<TEntity>(DbTableExpression dbTableExpression, Type type, Expression<Func<TEntity, SysLinq.IQueryable>> query)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Expression BuildWhereNotExists<TEntity>(DbTableExpression from, Type type, Expression<Func<TEntity, SysLinq.IQueryable>> query)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Expression BuildWherePredicate(Expression collection, Expression logical)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Expression BuildWhereFindByIDPredicate(DbTableExpression from, object[] keyData, params string[] keyNames)
-        {
-            throw new NotImplementedException();
-        }
-
-        public SysLinq.IQueryable CreateQuery(Expression expression)
+        public IQueryable CreateQuery(Expression expression)
         {
             if (expression.IsNull())
             {
@@ -173,12 +112,12 @@ namespace SubSonic.Infrastructure.Builders
             {
                 Type collectionType = typeof(SubSonicTableTypeCollection<>).MakeGenericType(expression.Type);
 
-                return (SysLinq.IQueryable)Activator.CreateInstance(collectionType,
+                return (IQueryable)Activator.CreateInstance(collectionType,
                     tableTypeName, this, expression);
             }
         }
 
-        public SysLinq.IQueryable<TElement> CreateQuery<TElement>(Expression expression)
+        public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
         {
             if (expression.IsNull())
             {

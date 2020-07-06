@@ -137,7 +137,7 @@ namespace SubSonic.Linq.Expressions
             };
         }
 
-        public static DbExpression DbSelect(DbSelectExpression select, DbExpression where)
+        public static DbExpression DbSelect(DbSelectExpression select, Expression where)
         {
             if (select is null)
             {

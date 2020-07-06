@@ -224,6 +224,8 @@ WHERE ([{0}].[ID] = @id_1)";
                 .Where(x => x.ID == 1)
                 .Single();
 
+            property.Should().NotBeNull();
+
             ((IEntityProxy)property).IsDeleted.Should().BeFalse();
 
             Context.RealEstateProperties.Delete(property);

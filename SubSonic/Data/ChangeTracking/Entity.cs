@@ -1,7 +1,7 @@
 ﻿using SubSonic.Data.DynamicProxies;
 using SubSonic.Infrastructure;
 using SubSonic.Infrastructure.Schema;
-using SubSonic.Linq;
+using System.Linq;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
@@ -10,6 +10,11 @@ using System.Threading.Tasks;
 
 namespace SubSonic.Data.Caching
 {
+    using Linq;
+    using Infrastructure;
+    using Infrastructure.Schema;
+    using Data.DynamicProxies;
+
     public class Entity<TEntity>
         : Entity
         , IEntityProxy<TEntity>

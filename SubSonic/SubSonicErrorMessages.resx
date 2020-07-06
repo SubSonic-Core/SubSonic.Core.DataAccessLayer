@@ -135,6 +135,9 @@
   <data name="ExpectedDbTableExpression" xml:space="preserve">
     <value>Expected expression of type DbTableExpression.</value>
   </data>
+  <data name="ExpressionNotSupported" xml:space="preserve">
+    <value>Expression Method {0} is not supported.</value>
+  </data>
   <data name="MissingInterfaceImplementation" xml:space="preserve">
     <value>{0} does not implement the {1} interface.</value>
   </data>

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Text;
+using System.Linq;
 using System.Reflection;
 
 namespace SubSonic
@@ -199,7 +200,16 @@ namespace SubSonic
             {
                 if (info.IsGenericMethod)
                 {
-                    MethodInfo test = info.MakeGenericMethod(types[0]);
+                    MethodInfo test = null;
+
+                    if (types[0].IsGenericType)
+                    {
+                        test = info.MakeGenericMethod(types[0].GenericTypeArguments[0]);
+                    }
+                    else
+                    {
+                        test = info.MakeGenericMethod(types[0]);
+                    }
 
                     bool match = true;
 
@@ -207,7 +217,8 @@ namespace SubSonic
 
                     for (int i = 0, cnt = types.Length; i < cnt; i++)
                     {
-                        match &= parameters[i].ParameterType == types[i];
+                        match &= parameters[i].ParameterType.IsAssignableFrom(types[i]) ||
+                            types[i].IsAssignableFrom(parameters[i].ParameterType);
                     }
 
                     if (match)

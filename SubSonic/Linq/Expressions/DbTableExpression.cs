@@ -8,6 +8,7 @@ namespace SubSonic.Linq.Expressions
     using SubSonic.Linq.Expressions.Structure;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Linq;
 
 
     /// <summary>
@@ -35,9 +36,28 @@ namespace SubSonic.Linq.Expressions
         }
 
         public DbTableExpression(object value, TableAlias alias)
-            : base(value, value.IsNullThrowArgumentNull(nameof(value)).GetType(), alias)
+            : base(value, GetQueryableType(value), alias)
         {
             Alias.IsNotNull(Al => Al.SetTable(this));
+        }
+
+        private static Type GetQueryableType(object value)
+        {
+            if (value is null)
+            {
+                throw Error.ArgumentNull(nameof(value));
+            }
+
+            Type type = value.GetType();
+
+            if(type.IsEnumerable())
+            {
+                return type;
+            }
+            else
+            {
+                return typeof(IQueryable<>).MakeGenericType(type);
+            }
         }
 
         public override ExpressionType NodeType => (ExpressionType)DbExpressionType.Table;

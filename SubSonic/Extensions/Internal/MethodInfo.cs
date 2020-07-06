@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using SubSonic.Linq.Expressions;
 
 namespace SubSonic
 {
     using Linq;
-    
+    using Linq.Expressions;
     using Legacy = System.Linq.Queryable;
 
     internal static partial class InternalExtensions
@@ -37,6 +35,18 @@ namespace SubSonic
         public static bool IsSkip(this MethodInfo info)
         {
             return info.Name.Equals(nameof(Legacy.Skip), StringComparison.CurrentCulture);
+        }
+
+        public static bool IsDistinct(this MethodInfo info)
+        {
+            return info.Name.Equals(nameof(Legacy.Distinct), StringComparison.CurrentCulture);
+        }
+
+        public static bool IsSupportedSelect(this MethodInfo info)
+        {
+            return info.GetParameters().Length > 1 &&
+                info.Name.Equals(nameof(Legacy.Select), StringComparison.CurrentCulture) &&
+                info.GetParameters()[1].ParameterType.IsSubclassOf(typeof(Expression));                   
         }
     }
 }

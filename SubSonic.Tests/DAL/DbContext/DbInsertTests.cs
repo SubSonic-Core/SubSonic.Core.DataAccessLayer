@@ -24,7 +24,7 @@ OUTPUT INSERTED.* INTO @output
 VALUES
 	(@FirstName, @MiddleInitial, @FamilyName)";
 
-            Models.Person person = new Models.Person(){ FirstName = "First_1", FamilyName = "Last_1", MiddleInitial = "M" };
+            Models.Person person = GetFakePerson.Generate();
 
             Context.Database.Instance.AddCommandBehavior(expected_cmd, cmd =>
             {
@@ -41,7 +41,7 @@ VALUES
 
                 data.FullName = String.Format("{0}, {1}{2}",
                     data.FamilyName, data.FirstName,
-                    data.MiddleInitial.IsNotNullOrEmpty() ? $" {data.MiddleInitial}." : "");
+                    string.IsNullOrEmpty(data.MiddleInitial?.Trim()) ? "" : $" {data.MiddleInitial}.");
 
                 return new[] { data }.ToDataTable();
             });
@@ -53,7 +53,9 @@ VALUES
             Context.SaveChanges().Should().BeTrue();
 
             person.ID.Should().Be(5);
-            person.FullName.Should().Be("Last_1, First_1 M.");
+            person.FullName.Should().Be(String.Format("{0}, {1}{2}",
+                    person.FamilyName, person.FirstName,
+                    string.IsNullOrEmpty(person.MiddleInitial?.Trim()) ? "" : $" {person.MiddleInitial}."));
         }
 
         [Test]

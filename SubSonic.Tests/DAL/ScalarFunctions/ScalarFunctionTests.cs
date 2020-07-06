@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace SubSonic.Tests.DAL.ScalarFunctions
@@ -8,7 +9,6 @@ namespace SubSonic.Tests.DAL.ScalarFunctions
     using Extensions.Test.Data.Functions;
     using Infrastructure;
     using Infrastructure.Logging;
-    using Linq;
     using Linq.Expressions;
     using SubSonic.Extensions.Test.Models;
     using SUT;

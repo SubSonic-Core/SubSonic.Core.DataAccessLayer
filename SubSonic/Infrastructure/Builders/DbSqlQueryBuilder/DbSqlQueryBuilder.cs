@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 
 namespace SubSonic.Infrastructure.Builders
 {
@@ -57,20 +58,27 @@ namespace SubSonic.Infrastructure.Builders
                 .Where(x => x.IsNotNull())
                 .ToArray();
 
+            Expression expression = null;
+
             switch (queryType)
             {
                 case DbQueryType.Insert:
-                    return ToQuery(BuildInsertQuery(entities));
+                    expression = BuildInsertQuery(entities);
+                    break;
                 case DbQueryType.Update:
-                    return ToQuery(BuildUpdateQuery(entities));
+                    expression = BuildUpdateQuery(entities);
+                    break;
                 case DbQueryType.Delete:
                     // delete queries can not be alaised.
                     DbTable = (DbTableExpression)DbExpression.DbTable(DbEntity, null);
 
-                    return ToQuery(BuildDeleteQuery(entities));
+                    expression = BuildDeleteQuery(entities);
+                    break;
                 default:
                     throw new NotSupportedException();
             }
+
+            return ToQuery(expression);
         }
 
         private Expression BuildInsertQuery<TEntity>(IEnumerable<TEntity> entities)
@@ -142,10 +150,13 @@ namespace SubSonic.Infrastructure.Builders
 
             predicate = (LambdaExpression)BuildLambda(logical, LambdaType.Predicate);
 
+            MethodInfo method = typeof(Queryable).GetGenericMethod(nameof(Queryable.Where), new[] { DbTable.Type, predicate.GetType() });
+
             return DbExpression.DbDelete(
                     entities,
                     DbTable,
-                    DbExpression.DbWhere(DbTable, DbEntity.EntityModelType, predicate));
+                    DbWherePredicateBuilder.GetWhereTranslation(
+                        DbExpression.DbWhere(method, new Expression[] { DbTable, predicate })));
         }
 
         protected virtual DbSqlQueryType GetQueryType(Expression expression)

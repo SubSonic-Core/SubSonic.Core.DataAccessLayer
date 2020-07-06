@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace SubSonic.Infrastructure
 {
@@ -164,7 +165,7 @@ END;";
                 }
             }
 
-            if (definition && keys.Count() > 0)
+            if (definition && keys.Any())
             {
                 oUserDefinedTableBody
                     .AppendLine(",")

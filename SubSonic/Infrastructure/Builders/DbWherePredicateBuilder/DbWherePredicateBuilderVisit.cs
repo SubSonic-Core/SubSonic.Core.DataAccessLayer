@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using MLinq = System.Linq;
+using System.Linq;
 
 namespace SubSonic.Infrastructure.Builders
 {
@@ -10,8 +10,15 @@ namespace SubSonic.Infrastructure.Builders
     using Linq.Expressions;
     using System.Net.Http.Headers;
 
-    partial class DbWherePredicateBuilder
+    public partial class DbWherePredicateBuilder
     {
+        protected internal override Expression VisitWhere(DbWhereExpression where)
+        {
+            Visit(where?.GetArgument(1));
+
+            return body;
+        }
+
         protected override Expression VisitBinary(BinaryExpression node)
         {
             if (node.IsNotNull())
@@ -62,7 +69,7 @@ namespace SubSonic.Infrastructure.Builders
                                 {
                                     object set = Expression.Lambda(method).Compile().DynamicInvoke();
 
-                                    Arguments.Push(PullUpParameters(((MLinq.IQueryable)set).Expression));
+                                    Arguments.Push(PullUpParameters(((IQueryable)set).Expression));
                                 }
                                 else
                                 {
@@ -199,7 +206,7 @@ namespace SubSonic.Infrastructure.Builders
                         func = Expression.Lambda(lambda).Compile().DynamicInvoke(),
                         set = ((Delegate)func).DynamicInvoke(table.QueryObject);
 
-                    body = PullUpParameters(((MLinq.IQueryable)set).Expression);
+                    body = PullUpParameters(((IQueryable)set).Expression);
 
                     return node;
                 }

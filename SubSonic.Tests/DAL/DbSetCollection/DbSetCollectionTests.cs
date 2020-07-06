@@ -1,17 +1,17 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
-using SubSonic.Extensions.Test;
-using SubSonic.Extensions.Test.Models;
-using SubSonic.Infrastructure;
-using SubSonic.Linq;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace SubSonic.Tests.DAL.DbSetCollection
 {
-    using SubSonic.Data.Caching;
-    using SubSonic.Data.DynamicProxies;
+    using Data.Caching;
+    using Data.DynamicProxies;
+    using Extensions.Test;
+    using Extensions.Test.Models;
+    using Infrastructure;
     using SUT;
-    using System.Collections.Generic;
-    using System.Linq.Expressions;
 
     [TestFixture]
     public class DbSetCollectionTests
@@ -22,6 +22,8 @@ namespace SubSonic.Tests.DAL.DbSetCollection
             base.SetupTestFixture();
 
             string
+                properties_all = @"SELECT [T1].[ID], [T1].[StatusID], [T1].[HasParallelPowerGeneration]
+FROM [dbo].[RealEstateProperty] AS [T1]",
                 units =
 @"SELECT [{0}].[ID], [{0}].[Bedrooms] AS [NumberOfBedrooms], [{0}].[StatusID], [{0}].[RealEstatePropertyID]
 FROM [dbo].[Unit] AS [{0}]
@@ -38,6 +40,7 @@ FROM [dbo].[Status] AS [{0}]",
 FROM [dbo].[Person] AS [{0}]
 WHERE ([{0}].[ID] = @id_1)";
 
+            Context.Database.Instance.AddCommandBehavior(properties_all, cmd => RealEstateProperties.ToDataTable());
             Context.Database.Instance.AddCommandBehavior(units.Format("T1"), cmd => Units.Where(x => x.RealEstatePropertyID == cmd.Parameters["@realestatepropertyid_1"].GetValue<int>()).ToDataTable());
             Context.Database.Instance.AddCommandBehavior(status.Format("T1"), cmd => Statuses.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
             Context.Database.Instance.AddCommandBehavior(statuses.Format("T1"), Statuses);
@@ -58,7 +61,7 @@ WHERE ([{0}].[ID] = @id_1)";
 
             Context.RealEstateProperties.Add(property);
 
-            IEntityProxy<RealEstateProperty> proxy = (IEntityProxy<RealEstateProperty>)Context.RealEstateProperties.ElementAt(0);
+            IEntityProxy<RealEstateProperty> proxy = (IEntityProxy<RealEstateProperty>)Context.RealEstateProperties.AsEnumerable().ElementAt(0);
 
             proxy.IsNew.Should().BeTrue();
             proxy.Data.HasParallelPowerGeneration.Should().Be(property.HasParallelPowerGeneration);

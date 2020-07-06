@@ -1,9 +1,9 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
-using SubSonic.Tests.DAL.SUT;
 using System;
 using System.Data;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace SubSonic.Tests.DAL.SqlQueryProvider
@@ -13,9 +13,9 @@ namespace SubSonic.Tests.DAL.SqlQueryProvider
     using Extensions.Test.Models;
     using Infrastructure;
     using Infrastructure.Logging;
-    using Infrastructure.Schema;
     using Linq;
     using Linq.Expressions;
+    using Tests.DAL.SUT;
 
     [TestFixture]
     public partial class SqlQueryProviderTests
@@ -477,11 +477,11 @@ WHERE NOT EXISTS (
         public void CanMergeMultipleWhereStatements()
         {
             string 
-                units =
+                units_sql =
 @"SELECT [{0}].[ID], [{0}].[Bedrooms] AS [NumberOfBedrooms], [{0}].[StatusID], [{0}].[RealEstatePropertyID]
 FROM [dbo].[Unit] AS [{0}]
 WHERE ([{0}].[RealEstatePropertyID] = 1)".Format("T1"),
-                status =
+                status_sql =
 @"SELECT [{0}].[ID], [{0}].[Bedrooms] AS [NumberOfBedrooms], [{0}].[StatusID], [{0}].[RealEstatePropertyID]
 FROM [dbo].[Unit] AS [{0}]
 WHERE (([{0}].[RealEstatePropertyID] = 1) AND ([{0}].[StatusID] = 1))".Format("T1"),
@@ -496,14 +496,18 @@ WHERE (([{0}].[RealEstatePropertyID] = @realestatepropertyid_1) AND ([{0}].[Stat
             instance.StatusID = 1;
 
             Context.Database.Instance.AddCommandBehavior(
-                units,
+                units_sql,
                 Units.Where(x => x.RealEstatePropertyID == 1));
 
             Context.Database.Instance.AddCommandBehavior(
-                status,
+                status_sql,
                 Units.Where(x => x.RealEstatePropertyID == 1 && x.StatusID == 1));
 
-            Expression select = ((ISubSonicCollection<Unit>)instance.Units.Where(Unit => Unit.StatusID == 1)).Expression;
+            IQueryable<Unit> units = instance.Units
+                .AsQueryable()
+                .Where(Unit => Unit.StatusID == 1);
+
+            Expression select = units.Expression;
 
             select.Should().NotBeNull();
 
@@ -946,7 +950,7 @@ OPTION (RECOMPILE)".Format("T1");
                 .Where((property) =>
                     property.HasParallelPowerGeneration == true)
                 .OrderBy((property) => property.ID)
-                .ThenOrderBy((property) => property.StatusID)
+                .ThenBy((property) => property.StatusID)
                 .Page(default(int), 5)
                 .Expression;
 
@@ -998,7 +1002,7 @@ OPTION (RECOMPILE)".Format("T1");
                 .Where((property) =>
                     property.HasParallelPowerGeneration == true)
                 .OrderByDescending((property) => property.ID)
-                .ThenOrderByDescending((property) => property.StatusID)
+                .ThenByDescending((property) => property.StatusID)
                 .Page(default(int), 5)
                 .Expression;
 
