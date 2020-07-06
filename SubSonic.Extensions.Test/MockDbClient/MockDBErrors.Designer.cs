@@ -61,7 +61,16 @@ namespace SubSonic.Extensions.Test.MockDbClient {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Connection State Not Open.
+        ///   Looks up a localized string similar to Connection State Already Open..
+        /// </summary>
+        internal static string ConnectionStateAlreadyOpen {
+            get {
+                return ResourceManager.GetString("ConnectionStateAlreadyOpen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Connection State Not Open..
         /// </summary>
         internal static string ConnectionStateNotOpen {
             get {

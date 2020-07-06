@@ -264,13 +264,13 @@ namespace SubSonic.Infrastructure
 
                 try
                 {
-                    cmd.Connection.Open();
-
                     return cmd.ExecuteReader(queryObject.Behavior);
                 }
-                finally
-                {
-                    cmd.Connection.Close();
+                catch(DataException ex)
+                { 
+                    logger.LogCritical(ex, ex.Message);
+
+                    throw;
                 }
             }
         }

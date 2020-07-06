@@ -190,6 +190,8 @@ namespace SubSonic.Infrastructure.Builders
 
                         bool isEntityModel = DbContext.DbModel.IsEntityModelRegistered(elementType);
 
+                        Scope.Connection.Open();
+
                         using (DbDataReader reader = Scope.Database.ExecuteReader(dbQuery))
                         {
                             if (reader.HasRows)
@@ -218,6 +220,8 @@ namespace SubSonic.Infrastructure.Builders
                     finally
                     {
                         dbQuery.CleanUpParameters();
+
+                        Scope.Connection.Close();
                     }
                 }
             }

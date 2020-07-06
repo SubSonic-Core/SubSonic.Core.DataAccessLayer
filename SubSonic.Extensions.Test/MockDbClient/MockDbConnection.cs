@@ -55,6 +55,11 @@ namespace SubSonic.Extensions.Test.MockDbClient
 
         public override void Open()
         {
+            if (state == ConnectionState.Open)
+            {
+                throw Error.InvalidOperation(MockDBErrors.ConnectionStateAlreadyOpen);
+            }
+
             state = ConnectionState.Open;
         }
 
