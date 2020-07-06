@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Infrastructure
 {
+    using Interfaces;
     using Data.Caching;
     using Data.DynamicProxies;
     using Linq;
@@ -48,6 +49,19 @@ namespace SubSonic.Infrastructure
         public Expression Expression { get; }
 
         public IQueryProvider Provider => provider;
+
+        public IAsyncSubSonicQueryProvider AsyncProvider
+        {
+            get
+            {
+                if (this.provider is IAsyncSubSonicQueryProvider @provider)
+                {
+                    return @provider;
+                }
+
+                return null;
+            }
+        }
 
         #region ICollection<TEntity> Implementation
         void ISubSonicDbSetCollection.Add(object entity)
@@ -150,6 +164,11 @@ namespace SubSonic.Infrastructure
             }
 
             return dataset.Select(x => DynamicProxy.MapInstanceOf(DbContext, x)).GetEnumerator();
+        }
+
+        IAsyncEnumerator<TEntity> IAsyncEnumerable<TEntity>.GetAsyncEnumerator(System.Threading.CancellationToken cancellationToken)
+        {
+            throw Error.NotImplemented();
         }
 
         public IQueryable Load()

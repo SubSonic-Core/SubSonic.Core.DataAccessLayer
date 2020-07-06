@@ -10,6 +10,7 @@ namespace SubSonic.Infrastructure
     using Linq.Expressions;
     using Logging;
     using Schema;
+    using SubSonic.Interfaces;
 
     public sealed class SubSonicCollection<TElement>
         : SubSonicCollection
@@ -31,6 +32,19 @@ namespace SubSonic.Infrastructure
             : base(typeof(TElement), provider, expression, enumerable)
         {
 
+        }
+
+        IAsyncSubSonicQueryProvider IAsyncSubSonicQueryable<TElement>.AsyncProvider
+        {
+            get
+            {
+                if (Provider is IAsyncSubSonicQueryProvider provider)
+                {
+                    return provider;
+                }
+
+                return null;
+            }
         }
 
         #region ICollection<> Implementation
@@ -124,6 +138,11 @@ namespace SubSonic.Infrastructure
             }
         }
         #endregion
+
+        IAsyncEnumerator<TElement> IAsyncEnumerable<TElement>.GetAsyncEnumerator(System.Threading.CancellationToken cancellationToken)
+        {
+            throw Error.NotImplemented();
+        }
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1010:Collections should implement generic interface", Justification = "Generic Class that inherits from this one addresses the generic interface")]

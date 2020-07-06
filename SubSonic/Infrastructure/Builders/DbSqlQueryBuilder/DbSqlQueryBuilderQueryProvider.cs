@@ -34,6 +34,16 @@ namespace SubSonic.Infrastructure.Builders
             return new SubSonicCollection<TEntity>(this, BuildQuery(expression));
         }
 
+        private TResult Scalar<TResult>(IDataRecord reader)
+        {
+            if (reader.FieldCount > 1)
+            {
+                throw new InvalidOperationException();
+            }
+
+            return (TResult)Convert.ChangeType(reader[0], typeof(TResult), CultureInfo.CurrentCulture);
+        }
+
         public TResult Execute<TResult>(Expression expression)
         {
             if (expression is null)
@@ -161,21 +171,31 @@ namespace SubSonic.Infrastructure.Builders
             throw new NotSupportedException(expression.ToString());
         }
 
-        private TResult Scalar<TResult>(IDataRecord reader)
+        public async Task<TResult> ExecuteAsync<TResult>(Expression expression)
         {
-            if (reader.FieldCount > 1)
+            if (expression is null)
             {
-                throw new InvalidOperationException();
+                throw Error.ArgumentNull(nameof(expression));
             }
 
-            return (TResult)Convert.ChangeType(reader[0], typeof(TResult), CultureInfo.CurrentCulture);
+            throw Error.NotImplemented();
+        }
+
+        public async Task<object> ExecuteAsync(Expression expression)
+        {
+            if (expression is null)
+            {
+                throw Error.ArgumentNull(nameof(expression));
+            }
+
+            throw Error.NotImplemented();
         }
 
         public object Execute(Expression expression)
         {
             if (expression is null)
             {
-                throw new ArgumentNullException(nameof(expression));
+                throw Error.ArgumentNull(nameof(expression));
             }
 
             if (expression is DbExpression query)

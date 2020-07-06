@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SubSonic.Interfaces;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -16,7 +17,7 @@ namespace SubSonic
     }
     
     public interface ISubSonicCollection<TEntity>
-        : ISubSonicCollection, IOrderedQueryable<TEntity>, IQueryable<TEntity>, IEnumerable<TEntity>, IQueryable, IEnumerable, ICollection<TEntity>
+        : ISubSonicCollection, IOrderedQueryable<TEntity>, IQueryable<TEntity>, IEnumerable<TEntity>, IAsyncSubSonicQueryable<TEntity>, IQueryable, IEnumerable, ICollection<TEntity>
     {
         void AddRange(IEnumerable<TEntity> entities);
     }

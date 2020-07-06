@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace SubSonic.Infrastructure.Builders
 {
@@ -130,14 +131,44 @@ namespace SubSonic.Infrastructure.Builders
             }
         }
 
+        public async Task<TResult> ExecuteAsync<TResult>(Expression expression)
+        {
+            if (expression is null)
+            {
+                throw Error.ArgumentNull(nameof(expression));
+            }
+
+            throw Error.NotImplemented();
+        }
+
+        public async Task<object> ExecuteAsync(Expression expression)
+        {
+            if (expression is null)
+            {
+                throw Error.ArgumentNull(nameof(expression));
+            }
+
+            throw Error.NotImplemented();
+        }
+
         public object Execute(Expression expression)
         {
-            throw new NotImplementedException();
+            if (expression is null)
+            {
+                throw Error.ArgumentNull(nameof(expression));
+            }
+
+            throw Error.NotImplemented();
         }
 
         public TResult Execute<TResult>(Expression expression)
         {
-            throw new NotImplementedException();
+            if (expression is null)
+            {
+                throw Error.ArgumentNull(nameof(expression));
+            }
+
+            throw Error.NotImplemented();
         }
 
         public IDbPagedQuery ToPagedQuery(Expression expression, int size = 20)
