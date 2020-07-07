@@ -180,7 +180,7 @@ namespace SubSonic.Infrastructure.Builders
 
             if (expression is DbExpression query)
             {
-                using (SharedDbConnectionScope Scope = DbContext.ServiceProvider.GetService<SharedDbConnectionScope>())
+                using (AutomaticConnectionScope Scope = DbContext.ServiceProvider.GetService<AutomaticConnectionScope>())
                 {
                     IDbQuery dbQuery = ToQuery(query);
 

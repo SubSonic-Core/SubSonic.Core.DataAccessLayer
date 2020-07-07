@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SubSonic.Infrastructure
 {
@@ -33,15 +34,16 @@ namespace SubSonic.Infrastructure
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
+
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)
             {
                 if (disposing)
                 {
-                    __instances.Pop();
+                    __instances?.Pop();
 
-                    if(__instances.Count == 0)
+                    if(__instances?.Count == 0)
                     {
                         this.dbDatabase.ResetSharedConnection();
                     }

@@ -120,10 +120,9 @@ namespace SubSonic.Extensions.Test.MockDbClient
             }
         }
 
-        protected override Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+        protected override async Task<DbDataReader> ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
         {
-
-            return Task.Run(() => ExecuteDbDataReader(behavior), cancellationToken);
+            return ExecuteDbDataReader(behavior);
         }
 
         public override int ExecuteNonQuery()

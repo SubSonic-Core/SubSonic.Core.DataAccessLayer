@@ -26,13 +26,13 @@ namespace SubSonic.Tests.DAL
             string
                 people_equal = @"SELECT [T1].[ID], [T1].[FirstName], [T1].[MiddleInitial], [T1].[FamilyName], [T1].[FullName]
 FROM [dbo].[Person] AS [T1]
-WHERE ([T1].[ID] == @id_1)",
+WHERE ([T1].[ID] = @id_1)",
                 people_greater_than = @"SELECT [T1].[ID], [T1].[FirstName], [T1].[MiddleInitial], [T1].[FamilyName], [T1].[FullName]
 FROM [dbo].[Person] AS [T1]
 WHERE ([T1].[ID] > @id_1)",
                 people_less_than = @"SELECT [T1].[ID], [T1].[FirstName], [T1].[MiddleInitial], [T1].[FamilyName], [T1].[FullName]
 FROM [dbo].[Person] AS [T1]
-WHERE ([T1].[ID] > @id_1)";
+WHERE ([T1].[ID] < @id_1)";
 
             Context.Database.Instance.AddCommandBehavior(people_greater_than, cmd => People.Where(x => x.ID > cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
             Context.Database.Instance.AddCommandBehavior(people_equal, cmd => People.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
@@ -96,11 +96,11 @@ WHERE ([T1].[ID] > @id_1)";
         }
 
         [Test]
-        public async Task ShouldBeAbleToGetFirstAsync(CancellationToken cancellationToken)
+        public async Task ShouldBeAbleToGetFirstAsync()
         {
             Person person = await Context.People.Where(x => x.ID > 0)
                 .AsAsyncSubSonicQueryable()
-                .FirstAsync(cancellationToken);
+                .FirstAsync();
 
             person.ID.Should().Be(1);
         }
@@ -141,7 +141,7 @@ WHERE ([T1].[ID] > @id_1)";
         }
 
         [Test]
-        public async Task ShouldBeAbleToLoadResultSet()
+        public void ShouldBeAbleToLoadResultSet()
         {
             FluentActions.Invoking(async () =>
             {

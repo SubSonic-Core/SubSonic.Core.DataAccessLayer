@@ -92,7 +92,7 @@ namespace SubSonic.Infrastructure.Builders
                     typeof(IQueryable<>).MakeGenericType(property.PropertyType),
                     select.From,
                     select.Columns.Where(x => x.PropertyName.Equals(property.PropertyName, StringComparison.CurrentCulture)),
-                    select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip);
+                    select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip, select.IsCte);
             }
 
             throw new NotSupportedException();

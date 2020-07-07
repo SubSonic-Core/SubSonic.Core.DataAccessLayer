@@ -286,7 +286,7 @@ namespace SubSonic.Linq.Expressions.Structure
                     || skip != select.Skip
                     )
                 {
-                    return new DbSelectExpression(select.QueryObject, select.Type, from, columns, where, orderBy, groupBy, select.IsDistinct, take, skip);
+                    return new DbSelectExpression(select.QueryObject, select.Type, from, columns, where, orderBy, groupBy, select.IsDistinct, take, skip, select.IsCte);
                 }
             }
             else if (expression is DbSelectPageExpression paged)
