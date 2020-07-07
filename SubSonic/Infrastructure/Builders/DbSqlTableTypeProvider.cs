@@ -12,6 +12,7 @@ namespace SubSonic.Infrastructure.Builders
     using Linq.Expressions;
     using Logging;
     using Schema;
+    using System.Threading;
 
     public class DbSqlTableTypeProvider
         : ISubSonicQueryProvider
@@ -131,7 +132,7 @@ namespace SubSonic.Infrastructure.Builders
             }
         }
 
-        public async Task<TResult> ExecuteAsync<TResult>(Expression expression)
+        public async Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
         {
             if (expression is null)
             {
@@ -141,7 +142,7 @@ namespace SubSonic.Infrastructure.Builders
             throw Error.NotImplemented();
         }
 
-        public async Task<object> ExecuteAsync(Expression expression)
+        public async Task<object> ExecuteAsync(Expression expression, CancellationToken cancellationToken)
         {
             if (expression is null)
             {

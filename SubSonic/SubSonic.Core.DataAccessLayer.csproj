@@ -90,4 +90,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Infrastructure\Attributes\Binding\" />
+  </ItemGroup>
+
 </Project>
