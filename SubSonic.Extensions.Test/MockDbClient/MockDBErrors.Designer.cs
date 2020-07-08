@@ -86,5 +86,14 @@ namespace SubSonic.Extensions.Test.MockDbClient {
                 return ResourceManager.GetString("MissingDbParameter", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The return is not of type DataTable..
+        /// </summary>
+        internal static string ResultSetIsNotDataTable {
+            get {
+                return ResourceManager.GetString("ResultSetIsNotDataTable", resourceCulture);
+            }
+        }
     }
 }

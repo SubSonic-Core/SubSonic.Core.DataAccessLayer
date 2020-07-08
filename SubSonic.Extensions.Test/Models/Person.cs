@@ -28,5 +28,7 @@ namespace SubSonic.Extensions.Test.Models
         public string FullName { get; set; }
 
         public virtual ICollection<Renter> Renters { get; set; }
+
+        public override string ToString() => FullName;
     }
 }

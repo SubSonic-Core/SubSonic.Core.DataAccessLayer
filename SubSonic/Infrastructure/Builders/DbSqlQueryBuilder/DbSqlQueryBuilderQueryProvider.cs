@@ -34,16 +34,6 @@ namespace SubSonic.Infrastructure.Builders
             return new SubSonicCollection<TEntity>(this, BuildQuery(expression));
         }
 
-        private TResult Scalar<TResult>(IDataRecord reader)
-        {
-            if (reader.FieldCount > 1)
-            {
-                throw new InvalidOperationException();
-            }
-
-            return (TResult)Convert.ChangeType(reader[0], typeof(TResult), CultureInfo.CurrentCulture);
-        }
-
         public TResult Execute<TResult>(Expression expression)
         {
             if (expression is null)
@@ -70,21 +60,21 @@ namespace SubSonic.Infrastructure.Builders
                         {
                             Scope.Connection.Open();
 
-                            using (DbDataReader reader = Scope.Database.ExecuteReader(dbQuery))
+                            if (isEntityModel)
                             {
-                                while (reader.Read())
+                                using (DbDataReader reader = Scope.Database.ExecuteReader(dbQuery))
                                 {
-                                    if (isEntityModel)
+                                    while (reader.Read())
                                     {
                                         DbContext.Current.ChangeTracking.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
                                     }
-                                    else
-                                    {
-                                        if (CmdBehavior == CommandBehavior.SingleRow)
-                                        {
-                                            return Scalar<TResult>(reader);
-                                        }
-                                    }
+                                }
+                            }
+                            else if (CmdBehavior == CommandBehavior.SingleRow)
+                            {
+                                if (Scope.Database.ExecuteScalar(dbQuery) is TResult result)
+                                {
+                                    return result;
                                 }
                             }
                         }
@@ -180,7 +170,7 @@ namespace SubSonic.Infrastructure.Builders
 
             if (expression is DbExpression query)
             {
-                using (AutomaticConnectionScope Scope = DbContext.ServiceProvider.GetService<AutomaticConnectionScope>())
+                using (SharedDbConnectionScope Scope = DbContext.ServiceProvider.GetService<SharedDbConnectionScope>())
                 {
                     IDbQuery dbQuery = ToQuery(query);
 
@@ -192,18 +182,22 @@ namespace SubSonic.Infrastructure.Builders
 
                         Scope.Connection.Open();
 
-                        using (DbDataReader reader = Scope.Database.ExecuteReader(dbQuery))
+                        if (isEntityModel)
                         {
-                            if (reader.HasRows)
+                            using (DbDataReader reader = Scope.Database.ExecuteReader(dbQuery))
                             {
-                                while (reader.Read())
+                                if (reader.HasRows)
                                 {
-                                    if (isEntityModel)
+                                    while (reader.Read())
                                     {
                                         DbContext.Current.ChangeTracking.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
                                     }
                                 }
                             }
+                        }
+                        else if (CmdBehavior == CommandBehavior.SingleRow)
+                        {
+                            return Scope.Database.ExecuteScalar(dbQuery);
                         }
 
                         if (isEntityModel)

@@ -20,12 +20,12 @@ namespace SubSonic.Infrastructure.Builders
         private static Stack<DbWherePredicateBuilder> __instances;
 
         private readonly DbTableExpression table;
-        private SubSonicParameterDictionary parameters;
+        private readonly SubSonicParameterDictionary parameters;
         private Expression body;
 
         private DbGroupOperator group;
         private DbComparisonOperator comparison;
-        private DbExpressionType whereType;
+        private readonly DbExpressionType whereType;
         private PropertyInfo propertyInfo;
         private bool CanReadFromCache;
         private bool visitingForArray;
@@ -281,10 +281,8 @@ namespace SubSonic.Infrastructure.Builders
 
         private Expression GetNamedExpression(object value, PropertyInfo info = null)
         {
-            string name = "";
-
-            ConstantExpression constant = null;
-
+            string name;
+            ConstantExpression constant;
             if (info.IsNotNull())
             {
                 DbTableExpression table = GetDbTable(info.DeclaringType);

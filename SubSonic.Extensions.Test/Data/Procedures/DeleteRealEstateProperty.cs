@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace SubSonic.Extensions.Test
 {
-    [DbStoredProcedure(nameof(DeleteRealEstateProperty))]
+    [DbStoredProcedure(nameof(DeleteRealEstateProperty), IsNonQuery = true)]
     public class DeleteRealEstateProperty
         : DbSubSonicCommandQueryProcedure<Models.RealEstateProperty>
     {

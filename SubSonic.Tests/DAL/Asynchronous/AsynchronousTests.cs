@@ -24,6 +24,8 @@ namespace SubSonic.Tests.DAL
             base.SetupTestFixture();
 
             string
+                people_all = @"SELECT [T1].[ID], [T1].[FirstName], [T1].[MiddleInitial], [T1].[FamilyName], [T1].[FullName]
+FROM [dbo].[Person] AS [T1]",
                 people_equal = @"SELECT [T1].[ID], [T1].[FirstName], [T1].[MiddleInitial], [T1].[FamilyName], [T1].[FullName]
 FROM [dbo].[Person] AS [T1]
 WHERE ([T1].[ID] = @id_1)",
@@ -34,6 +36,7 @@ WHERE ([T1].[ID] > @id_1)",
 FROM [dbo].[Person] AS [T1]
 WHERE ([T1].[ID] < @id_1)";
 
+            Context.Database.Instance.AddCommandBehavior(people_all, cmd => People.ToDataTable());
             Context.Database.Instance.AddCommandBehavior(people_greater_than, cmd => People.Where(x => x.ID > cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
             Context.Database.Instance.AddCommandBehavior(people_equal, cmd => People.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
             Context.Database.Instance.AddCommandBehavior(people_less_than, cmd => People.Where(x => x.ID < cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
@@ -133,7 +136,7 @@ WHERE ([T1].[ID] < @id_1)";
             {
                 Person person = await Context.People.Where(x => x.ID < 1)
                 .AsAsyncSubSonicQueryable()
-                .SingleAsync();
+                .FirstOrDefaultAsync();
 
                 person.Should().BeNull();
 
@@ -145,18 +148,29 @@ WHERE ([T1].[ID] < @id_1)";
         {
             FluentActions.Invoking(async () =>
             {
-                ISubSonicCollection<Person> people = await Context.People
-                .AsAsyncSubSonicQueryable()
-                .LoadAsync();
+                var cts = new CancellationTokenSource();
 
-                await foreach(Person person in people)
+                var people = Context.People
+                .AsAsyncSubSonicQueryable()
+                .LoadAsync(cts.Token);
+
+                int cnt = 0;
+
+                await foreach(Person person in people.Result
+                    .WithCancellation(cts.Token)
+                    .ConfigureAwait(true))
                 {
                     person.FullName.Should().Be(String.Format("{0}, {1}{2}",
                         person.FamilyName, person.FirstName,
                         string.IsNullOrEmpty(person.MiddleInitial?.Trim()) ? "" : $" {person.MiddleInitial}."));
+
+                    cnt++;
                 }
 
+                cnt.Should().Be(Context.People.Count);
+
             }).Should().NotThrow();
+
         }
     }
 }

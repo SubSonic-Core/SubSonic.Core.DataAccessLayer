@@ -24,6 +24,7 @@ namespace SubSonic.Infrastructure
             return new DbStoredProcedure(
                 GenerateSql(procedure, parameters),
                 GenerateName(procedure),
+                GetIsNonQuery(procedure),
                 GenerateSqlParameters(procedure, parameters));
 
         }
@@ -31,6 +32,11 @@ namespace SubSonic.Infrastructure
         private static string GenerateName(object procedure)
         {
             return helper.StoreProcedureName(procedure.GetType());
+        }
+
+        private static bool GetIsNonQuery(object procedure)
+        {
+            return helper.IsNonQuery(procedure.GetType());
         }
 
         private static string GenerateSql(object procedure, IEnumerable<DbStoredProcedureParameter> parameters)

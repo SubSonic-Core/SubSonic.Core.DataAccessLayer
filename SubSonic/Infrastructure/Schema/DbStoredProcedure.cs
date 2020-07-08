@@ -11,7 +11,7 @@ namespace SubSonic.Infrastructure
     internal class DbStoredProcedure
         : DbQuery
     {
-        public DbStoredProcedure(string sql, string name, IEnumerable<DbParameter> parameters)
+        public DbStoredProcedure(string sql, string name, bool isNonQuery, IEnumerable<DbParameter> parameters)
             : base(sql)
         {
             if (parameters is null)
@@ -20,10 +20,13 @@ namespace SubSonic.Infrastructure
             }
 
             Name = name;
+            IsNonQuery = isNonQuery;
             Parameters = new ReadOnlyCollection<DbParameter>(parameters.ToList());
         }
 
         public string Name { get; }
+
+        public bool IsNonQuery { get; }
 
         public override IReadOnlyCollection<DbParameter> Parameters { get; }
     }

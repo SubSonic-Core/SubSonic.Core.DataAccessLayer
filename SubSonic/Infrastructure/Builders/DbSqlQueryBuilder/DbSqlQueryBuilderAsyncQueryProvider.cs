@@ -2,12 +2,15 @@
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Data.Common;
 
 namespace SubSonic.Infrastructure.Builders
 {
     using Linq;
     using Linq.Expressions;
-    using System.Data.Common;
+    using System.Linq;
+    using System.Runtime.CompilerServices;
 
     public partial class DbSqlQueryBuilder
     {
@@ -18,7 +21,7 @@ namespace SubSonic.Infrastructure.Builders
                 throw Error.ArgumentNull(nameof(expression));
             }
 
-            TResult result = default(TResult);
+            TResult @return = default(TResult);
 
             if (expression is DbExpression query)
             {
@@ -50,14 +53,14 @@ namespace SubSonic.Infrastructure.Builders
                                 }
                             }
 
-                            result = DbContext.Current.ChangeTracking.Where<TResult>(elementType, this, query);
+                            @return = DbContext.Current.ChangeTracking.Where<TResult>(elementType, this, query);
                         }
                         else
                         {
                             if (await Scope.Database.ExecuteScalarAsync(dbQuery, cancellationToken)
                                 .ConfigureAwait(false) is TResult scalar)
                             {
-                                result = scalar;
+                                @return = scalar;
                             }
                         }
                     }
@@ -79,17 +82,56 @@ namespace SubSonic.Infrastructure.Builders
             }
             else if (expression is MethodCallExpression call)
             {
-                result = await ExecuteAsync<TResult>(BuildSelect(call), cancellationToken).ConfigureAwait(true);
+                if (!call.Type.GenericTypeArguments[0].IsEnumerable())
+                {
+                    IEnumerable<TResult> result = await ExecuteAsync<IEnumerable<TResult>>(BuildSelect(call), cancellationToken).ConfigureAwait(true);
+
+                    if (result?.Count() > 0)
+                    {
+#if NETSTANDARD2_0
+                    if (call.Method.Name.Contains("Single"))
+#elif NETSTANDARD2_1
+                        if (call.Method.Name.Contains("Single", StringComparison.Ordinal))
+#endif
+                        {
+                            if (result.Count() > 1)
+                            {
+                                throw Error.InvalidOperation($"{call.Method.Name} does not allow more than one result");
+                            }
+                        }
+
+                        @return = result.ElementAt(0);
+                    }
+                }
+                else
+                {
+                    @return = await ExecuteAsync<TResult>(BuildSelect(call), cancellationToken).ConfigureAwait(true);
+                }
             }
 
-            if (result is TResult success)
+            if (@return is TResult success)
             {
                 return success;
             }
+            else if (expression is MethodCallExpression call)
+            {
+#if NETSTANDARD2_0
+                if (!call.Method.Name.Contains("OrDefault"))
+#elif NETSTANDARD2_1
+                if (!call.Method.Name.Contains("OrDefault", StringComparison.Ordinal))
+#endif
+                {
+                    throw Error.InvalidOperation($"{call.Method.Name} does not allow nulls to be returned");
+                }
+
+                return @return;
+            }
             else
             {
-                throw Error.NotImplemented();
+                return @return;
             }
+
+            throw Error.NotImplemented();
         }
 
         public async Task<object> ExecuteAsync(Expression expression, CancellationToken cancellationToken)

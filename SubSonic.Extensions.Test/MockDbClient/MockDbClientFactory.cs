@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Data;
 using System.Data.Common;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SubSonic.Extensions.Test.MockDbClient
 {
@@ -91,7 +93,12 @@ namespace SubSonic.Extensions.Test.MockDbClient
 
         int IMockCommandExecution.ExecuteNonQuery(MockDbCommand cmd)
         {
-            return GetReturnValue<int>(cmd);
+            if (GetReturnValue<int>(cmd) is int @return)
+            {
+                return @return;
+            }
+
+            throw Error.InvalidOperation();
         }
 
         object IMockCommandExecution.ExecuteScalar(MockDbCommand cmd)
@@ -99,13 +106,26 @@ namespace SubSonic.Extensions.Test.MockDbClient
             return GetReturnValue<object>(cmd);
         }
 
-        MockDbDataReaderCollection IMockCommandExecution.ExecuteDataReader(MockDbCommand cmd)
+        async Task<MockDbDataReaderCollection> IMockCommandExecution.ExecuteDataReaderAsync(MockDbCommand cmd, CancellationToken cancellationToken)
         {
             string[] commands = cmd.CommandText.Split(';');
 
             if (commands.Length == 1)
             {   // command contains one select command
-                return new MockDbDataReaderCollection(GetReturnValue<DataTable>(cmd).IsNotNull(x => x.CreateDataReader()));
+                object value = GetReturnValue<DataTable>(cmd);
+
+                if (value is DataTable result)
+                {
+                    return new MockDbDataReaderCollection(result.CreateDataReader());
+                }
+                else if (value is null)
+                {
+                    return new MockDbDataReaderCollection();
+                }
+                else
+                {
+                    throw Error.InvalidOperation(MockDBErrors.ResultSetIsNotDataTable);
+                }
             }
             else
             {
@@ -113,10 +133,11 @@ namespace SubSonic.Extensions.Test.MockDbClient
                 {
                     foreach (string sql in commands)
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
+
 #pragma warning disable CA2100 // Review SQL queries for security vulnerabilities
 #pragma warning disable CA2000 // Dispose objects before losing scope
-                        DataTable result = GetReturnValue<DataTable>(new MockDbCommand(this, cmd.Parameters) { CommandText = sql.Trim("\r\n".ToCharArray()) });
-                        if (!(result is null))
+                        if (GetReturnValue<DataTable>(new MockDbCommand(this, cmd.Parameters) { CommandText = sql.Trim("\r\n".ToCharArray()) }) is DataTable result)
                         {
                             data.Tables.Add(result);
                         }
@@ -134,7 +155,54 @@ namespace SubSonic.Extensions.Test.MockDbClient
             }
         }
 
-        public TReturn GetReturnValue<TReturn>(MockDbCommand cmd)
+        MockDbDataReaderCollection IMockCommandExecution.ExecuteDataReader(MockDbCommand cmd)
+        {
+            string[] commands = cmd.CommandText.Split(';');
+
+            if (commands.Length == 1)
+            {   // command contains one select command
+                object value = GetReturnValue<DataTable>(cmd);
+
+                if (value is DataTable result)
+                {
+                    return new MockDbDataReaderCollection(result.CreateDataReader());
+                }
+                else if (value is null)
+                {
+                    return new MockDbDataReaderCollection();
+                }
+                else
+                {
+                    throw Error.InvalidOperation(MockDBErrors.ResultSetIsNotDataTable);
+                }
+            }
+            else
+            {
+                using (DataSet data = new DataSet())
+                {
+                    foreach (string sql in commands)
+                    {
+#pragma warning disable CA2100 // Review SQL queries for security vulnerabilities
+#pragma warning disable CA2000 // Dispose objects before losing scope
+                        if (GetReturnValue<DataTable>(new MockDbCommand(this, cmd.Parameters) { CommandText = sql.Trim("\r\n".ToCharArray()) }) is DataTable result)
+                        {
+                            data.Tables.Add(result);
+                        }
+#pragma warning restore CA2000 // Dispose objects before losing scope
+#pragma warning restore CA2100 // Review SQL queries for security vulnerabilities
+                    }
+
+                    if (data.Tables.Count == 0)
+                    {
+                        throw new InvalidOperationException(string.Format(CultureInfo.CurrentCulture, "Could not find behavior for command '{0}'", cmd.CommandText));
+                    }
+
+                    return new MockDbDataReaderCollection(data.CreateDataReader());
+                }
+            }
+        }
+
+        public object GetReturnValue<TReturn>(MockDbCommand cmd)
         {
             if (cmd is null)
             {
@@ -150,7 +218,7 @@ namespace SubSonic.Extensions.Test.MockDbClient
 
             object value = behavior.ReturnValue;
 
-            if (value is Func<DbCommand, TReturn> func)
+            if (value is Func<DbCommand, object> func)
             {
                 return func(cmd);
             }

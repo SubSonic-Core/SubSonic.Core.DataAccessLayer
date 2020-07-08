@@ -497,11 +497,11 @@ WHERE (([{0}].[RealEstatePropertyID] = @realestatepropertyid_1) AND ([{0}].[Stat
 
             Context.Database.Instance.AddCommandBehavior(
                 units_sql,
-                Units.Where(x => x.RealEstatePropertyID == 1));
+                cmd => Units.Where(x => x.RealEstatePropertyID == 1).ToDataTable());
 
             Context.Database.Instance.AddCommandBehavior(
                 status_sql,
-                Units.Where(x => x.RealEstatePropertyID == 1 && x.StatusID == 1));
+                cmd => Units.Where(x => x.RealEstatePropertyID == 1 && x.StatusID == 1).ToDataTable());
 
             IQueryable<Unit> units = instance.Units
                 .AsQueryable()

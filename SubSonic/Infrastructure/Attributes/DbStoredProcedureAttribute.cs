@@ -18,5 +18,8 @@ namespace SubSonic.Infrastructure
 
         [DefaultValue(CommandType.StoredProcedure)]
         public CommandType CommandType { get; set; }
+
+        [DefaultValue(false)]
+        public bool IsNonQuery { get; set; }
     }
 }

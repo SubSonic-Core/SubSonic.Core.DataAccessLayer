@@ -7,12 +7,12 @@ using System.Linq.Expressions;
 namespace SubSonic.Infrastructure
 {
     using Builders;
+    using Interfaces;
     using Linq.Expressions;
     using Logging;
     using Schema;
-    using SubSonic.Interfaces;
 
-    public sealed class SubSonicCollection<TElement>
+    public sealed partial class SubSonicCollection<TElement>
         : SubSonicCollection
         , ISubSonicCollection<TElement>
     {
@@ -138,11 +138,6 @@ namespace SubSonic.Infrastructure
             }
         }
         #endregion
-
-        IAsyncEnumerator<TElement> IAsyncEnumerable<TElement>.GetAsyncEnumerator(System.Threading.CancellationToken cancellationToken)
-        {
-            throw Error.NotImplemented();
-        }
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1010:Collections should implement generic interface", Justification = "Generic Class that inherits from this one addresses the generic interface")]

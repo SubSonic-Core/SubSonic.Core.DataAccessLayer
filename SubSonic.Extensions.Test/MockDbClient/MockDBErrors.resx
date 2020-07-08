@@ -126,4 +126,7 @@
   <data name="MissingDbParameter" xml:space="preserve">
     <value>Missing expected db parameter.</value>
   </data>
+  <data name="ResultSetIsNotDataTable" xml:space="preserve">
+    <value>The return is not of type DataTable.</value>
+  </data>
 </root>

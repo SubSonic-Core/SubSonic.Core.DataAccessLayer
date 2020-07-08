@@ -72,25 +72,32 @@ namespace SubSonic.Infrastructure.Builders
                     predicate = predicate1 ?? predicate2;
                 }
 
-                method = method ?? typeof(Queryable).GetGenericMethod(nameof(Queryable.Where), new[] { DbTable.Type, predicate.GetType() });
+                if (!(predicate is null))
+                {
+                    method = method ?? typeof(Queryable).GetGenericMethod(nameof(Queryable.Where), new[] { DbTable.Type, predicate.GetType() });
 
-                if (query is DbSelectExpression select)
-                {
-                    return DbExpression.DbSelect(select, 
-                        DbWherePredicateBuilder.GetWhereTranslation(
-                            DbExpression.DbWhere(method, new Expression[] { query, predicate })));
-                }
-                else if (query is DbSelectPageExpression paged)
-                {
-                    return DbExpression.DbPagedSelect(
-                        DbExpression.DbSelect(paged.Select, 
+                    if (query is DbSelectExpression select)
+                    {
+                        return DbExpression.DbSelect(select,
                             DbWherePredicateBuilder.GetWhereTranslation(
-                                DbExpression.DbWhere(method, new Expression[] { query, predicate }))),
-                        paged.PageNumber, paged.PageSize);
+                                DbExpression.DbWhere(method, new Expression[] { query, predicate })));
+                    }
+                    else if (query is DbSelectPageExpression paged)
+                    {
+                        return DbExpression.DbPagedSelect(
+                            DbExpression.DbSelect(paged.Select,
+                                DbWherePredicateBuilder.GetWhereTranslation(
+                                    DbExpression.DbWhere(method, new Expression[] { query, predicate }))),
+                            paged.PageNumber, paged.PageSize);
+                    }
+                    else
+                    {
+                        throw Error.NotImplemented();
+                    }
                 }
                 else
                 {
-                    throw Error.NotImplemented();
+                    return query;
                 }
             }
 

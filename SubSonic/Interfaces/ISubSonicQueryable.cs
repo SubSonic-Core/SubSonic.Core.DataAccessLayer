@@ -17,7 +17,11 @@ namespace SubSonic
     }
     
     public interface ISubSonicCollection<TEntity>
+#if NETSTANDARD
         : ISubSonicCollection, IOrderedQueryable<TEntity>, IQueryable<TEntity>, IEnumerable<TEntity>, IAsyncSubSonicQueryable<TEntity>, IQueryable, IEnumerable, ICollection<TEntity>
+#else
+        : ISubSonicCollection, IOrderedQueryable<TEntity>, IQueryable<TEntity>, IEnumerable<TEntity>, IQueryable, IEnumerable, ICollection<TEntity>
+#endif
     {
         void AddRange(IEnumerable<TEntity> entities);
     }

@@ -210,7 +210,18 @@ namespace SubSonic.Infrastructure
 
                     cmd.Connection.Open();
 
-                    IEnumerable<TEntity> results = cmd.ExecuteReader().ReadData<TEntity>();
+                    IEnumerable<TEntity> results = Array.Empty<TEntity>();
+
+                    if (!db.IsNonQuery)
+                    {
+                        results = cmd.ExecuteReader().ReadData<TEntity>();
+                    }
+                    else
+                    {
+                        int cnt = cmd.ExecuteNonQuery();
+
+                        logger.LogInformation($"{cnt} record(s) affected.");
+                    }
 
                     cmd.Parameters.ApplyOutputParameters(procedure);
 
