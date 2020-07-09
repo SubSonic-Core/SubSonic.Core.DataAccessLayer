@@ -253,3 +253,4 @@ _Pvt_Extensions
 
 # Ignore local nuget sources to force server sources
 SubSonic/MyKey.PublicKeyOnly.snk
+SubSonic/temp.txt

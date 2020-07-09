@@ -7,7 +7,7 @@
     <Platforms>AnyCPU</Platforms>
     <SignAssembly>true</SignAssembly>
     <DelaySign>false</DelaySign>
-    <AssemblyOriginatorKeyFile>SubSonicStrongName.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>SubSonicStrongName.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   
   <ItemGroup>

@@ -9,7 +9,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageTags>DAL;SqlServer;C#;.NetFramework;.NetCore;</PackageTags>
-    <Version>4.1.0-alpha.4</Version>
+    <Version>4.1.0-alpha.5</Version>
     <PackageId>SubSonic.Core.DAL</PackageId>
     <Company>SubSonic-Core</Company>
     <PackageProjectUrl>https://github.com/SubSonic-Core/SubSonic/wiki</PackageProjectUrl>
@@ -23,7 +23,7 @@
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <AssemblyName>SubSonic.Core.DataAccessLayer</AssemblyName>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>SubSonicStrongName.pfx</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>SubSonicStrongName.snk</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
   </PropertyGroup>
   

@@ -98,7 +98,7 @@ namespace SubSonic.Data.DynamicProxies
             Assembly assembly = Assembly.GetExecutingAssembly();
             string 
                 assemblyName = assembly.GetName().Name,
-                privateKeyFileForDynamicProxy = $"{assemblyName.Substring(0, assemblyName.IndexOf('.'))}.DynamicProxy.pfx";
+                privateKeyFileForDynamicProxy = $"{assemblyName.Substring(0, assemblyName.IndexOf(".", StringComparison.Ordinal))}.DynamicProxy.pfx";
 
             using (var resource = assembly.GetManifestResourceStream(privateKeyFileForDynamicProxy))
             using (var reader = new BinaryReader(resource))
@@ -116,7 +116,7 @@ namespace SubSonic.Data.DynamicProxies
             Assembly assembly = Assembly.GetExecutingAssembly();
             string
                 assemblyName = assembly.GetName().Name,
-                publicKeyFileForDynamicProxy = $"{assemblyName.Substring(0, assemblyName.IndexOf('.'))}.DynamicProxy.PublicKey.pfx";
+                publicKeyFileForDynamicProxy = $"{assemblyName.Substring(0, assemblyName.IndexOf(".", StringComparison.Ordinal))}.DynamicProxy.PublicKey.pfx";
 
             using (var resource = assembly.GetManifestResourceStream(publicKeyFileForDynamicProxy))
             using (var reader = new BinaryReader(resource))
