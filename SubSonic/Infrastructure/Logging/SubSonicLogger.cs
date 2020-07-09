@@ -5,7 +5,7 @@ namespace SubSonic.Infrastructure.Logging
 {
     using Linq;
 
-    class SubSonicLogger<TCategoryName>
+    public class SubSonicLogger<TCategoryName>
         : ISubSonicLogger<TCategoryName>
     {
         private readonly ILogger logger;

@@ -9,11 +9,11 @@ namespace SubSonic.Infrastructure
 {
     using Linq;
 
-    internal class DbExpressionBuilder
+    public class DbExpressionBuilder
     {
         private readonly ParameterExpression parameter;
         private readonly ConstantExpression root;
-        private MethodCallExpression call;
+        //private MethodCallExpression call;
         private Expression body;
 
         public DbExpressionBuilder(
@@ -24,7 +24,7 @@ namespace SubSonic.Infrastructure
             this.root = root ?? throw new ArgumentNullException(nameof(root));
         }
 
-        public Expression ToMethodCallExpression() => call;
+        //public Expression ToMethodCallExpression() => call;
 
         public DbExpressionBuilder BuildComparisonExpression(string property, object value, DbComparisonOperator @operator, DbGroupOperator @group)
         {
@@ -48,30 +48,30 @@ namespace SubSonic.Infrastructure
             return this;
         }
 
-        public DbExpressionBuilder ForEachProperty(string[] properties, Action<string> action)
-        {
-            foreach(string property in properties)
-            {
-                action(property);
-            }
+        //public DbExpressionBuilder ForEachProperty(string[] properties, Action<string> action)
+        //{
+        //    foreach(string property in properties)
+        //    {
+        //        action(property);
+        //    }
 
-            return this;
-        }
+        //    return this;
+        //}
             
 
-        public DbExpressionBuilder CallExpression<TEntity>(LambdaType @enum, params string[] properties)
-        {
-            Expression lambda = GetExpressionArgument<TEntity>(@enum, properties);
+        //public DbExpressionBuilder CallExpression<TEntity>(LambdaType @enum, params string[] properties)
+        //{
+        //    Expression lambda = GetExpressionArgument<TEntity>(@enum, properties);
 
-            this.call = Expression.Call(
-                typeof(System.Linq.Queryable),
-                @enum.ToString(),
-                GetTypeArguments(@enum, lambda),
-                (Expression)call ?? root,
-                lambda);
+        //    this.call = Expression.Call(
+        //        typeof(System.Linq.Queryable),
+        //        @enum.ToString(),
+        //        GetTypeArguments(@enum, lambda),
+        //        (Expression)call ?? root,
+        //        lambda);
 
-            return this;
-        }
+        //    return this;
+        //}
 
         private static Type[] GetTypeArguments(LambdaType @enum, Expression expression)
         {

@@ -18,6 +18,9 @@
     <ApplicationIcon />
     <OutputType>Library</OutputType>
     <NeutralLanguage>en</NeutralLanguage>
+    <SignAssembly>true</SignAssembly>
+    <DelaySign>false</DelaySign>
+    <AssemblyOriginatorKeyFile>SubSonicStrongName.pfx</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Platform)'=='AnyCPU'">
