@@ -104,7 +104,6 @@ namespace SubSonic.Data.DynamicProxies
                 assemblyName.KeyPair = executingName.KeyPair;
                 assemblyName.SetPublicKey(executingName.GetPublicKey());
                 
-
                 AssemblyBuilder DynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(
                     assemblyName,
                     AssemblyBuilderAccess.Run);
