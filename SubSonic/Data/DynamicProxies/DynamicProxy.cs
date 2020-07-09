@@ -11,7 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 
-[assembly: InternalsVisibleTo("SubSonic.DynamicProxies, PublicKey=0024000004800000940000000602000000240000525341310004000001000100290cde84efb341cb2ce91d1e881e9d927bdf6f825f1165ead25ce4881956c0f3c07d6194fb35f09c9aff40946aad571dcdc19a2a040e3a59060aca1dc0a999d081577e3fb1e325115db0794a78082e098da60ab34249388e6cad907ddae1e1b40489b815e9b3cb28e10942ffa651bbf4833611fd201afe5c05c4d27c241be2a9")]
+[assembly: InternalsVisibleTo("SubSonic.DynamicProxies, PublicKey=0024000004800000940000000602000000240000525341310004000001000100754c177654d80bd8f61f259da8b891ed72cc003e5bbe17828908490c5af8edaf9ecfb0c4564987334a7b92559823275cec4d314d3b172760f83f1b08688fd66588b6673f29f860ff367d616541e49b85e609bf0255ab722a2cb8080abaf15931d509423acea0c79b57df9772b634c5a3bdc0e299fd0a6aaa21739c1b8be49ebd")]
 
 namespace SubSonic.Data.DynamicProxies
 {
@@ -93,52 +93,16 @@ namespace SubSonic.Data.DynamicProxies
             return GetProxyWrapper(baseType);
         }
 
-        private static StrongNameKeyPair GetStrongNameKeyPair()
-        {
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            string 
-                assemblyName = assembly.GetName().Name,
-                privateKeyFileForDynamicProxy = $"{assemblyName.Substring(0, assemblyName.IndexOf(".", StringComparison.Ordinal))}.DynamicProxy.pfx";
-
-            using (var resource = assembly.GetManifestResourceStream(privateKeyFileForDynamicProxy))
-            using (var reader = new BinaryReader(resource))
-            {
-                var data = new byte[resource.Length];
-
-                data = reader.ReadBytes(data.Length);
-
-                return new StrongNameKeyPair(data);
-            }
-        }
-
-        private static byte[] GetPublicKey()
-        {
-            Assembly assembly = Assembly.GetExecutingAssembly();
-            string
-                assemblyName = assembly.GetName().Name,
-                publicKeyFileForDynamicProxy = $"{assemblyName.Substring(0, assemblyName.IndexOf(".", StringComparison.Ordinal))}.DynamicProxy.PublicKey.pfx";
-
-            using (var resource = assembly.GetManifestResourceStream(publicKeyFileForDynamicProxy))
-            using (var reader = new BinaryReader(resource))
-            {
-                var data = new byte[resource.Length];
-
-                data = reader.ReadBytes(data.Length);
-
-                return data;
-            }
-        }
-
         internal static ModuleBuilder GetModuleBuilder()
         {
             if (ModuleBuilder is null)
             {
-                AssemblyName assemblyName = new AssemblyName("SubSonic.DynamicProxies");
+                AssemblyName
+                    executingName = Assembly.GetExecutingAssembly().GetName(),
+                    assemblyName = new AssemblyName("SubSonic.DynamicProxies");
 
-                StrongNameKeyPair kp = GetStrongNameKeyPair();
-
-                assemblyName.KeyPair = kp;
-                assemblyName.SetPublicKey(GetPublicKey());
+                assemblyName.KeyPair = executingName.KeyPair;
+                assemblyName.SetPublicKey(executingName.GetPublicKey());
                 
 
                 AssemblyBuilder DynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(
