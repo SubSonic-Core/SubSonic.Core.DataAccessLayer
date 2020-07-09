@@ -1,23 +1,26 @@
-﻿using System;
+﻿using Dasync.Collections;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 
-namespace SubSonic.Infrastructure
+namespace SubSonic.Collections
 {
     using Data.Caching;
     using Data.DynamicProxies;
+    using Infrastructure;
+    using Infrastructure.Schema;
+    using Interfaces;
     using Linq;
     using Linq.Expressions;
-    using Schema;
 
-    public class DbSetCollection<TEntity>
+    public sealed partial class DbSetCollection<TEntity>
         : ISubSonicDbSetCollection<TEntity>
         , ISubSonicDbSetCollection
     {
-        private readonly IQueryProvider provider;
         private readonly IDbEntityModel model;
         private readonly ICollection<IEntityProxy<TEntity>> dataset;
 
@@ -25,7 +28,7 @@ namespace SubSonic.Infrastructure
 
         public DbSetCollection(ISubSonicQueryProvider<TEntity> provider)
         {
-            this.provider = provider ?? throw new ArgumentNullException(nameof(provider));
+            Provider = provider ?? throw new ArgumentNullException(nameof(provider));
 
             var dataset = DbContext.ChangeTracking.GetCacheFor<TEntity>();
                 
@@ -41,13 +44,26 @@ namespace SubSonic.Infrastructure
         {
         }
 
-        protected DbContext DbContext => DbContext.ServiceProvider.GetService<DbContext>();
+        private DbContext DbContext => DbContext.ServiceProvider.GetService<DbContext>();
 
         public Type ElementType => typeof(TEntity);
 
         public Expression Expression { get; }
 
-        public IQueryProvider Provider => provider;
+        public IQueryProvider Provider { get; }
+
+        IAsyncSubSonicQueryProvider IAsyncSubSonicQueryable<TEntity>.ProviderAsync
+        {
+            get
+            {
+                if (this.Provider is IAsyncSubSonicQueryProvider @provider)
+                {
+                    return @provider;
+                }
+
+                return null;
+            }
+        }
 
         #region ICollection<TEntity> Implementation
         void ISubSonicDbSetCollection.Add(object entity)
@@ -131,26 +147,6 @@ namespace SubSonic.Infrastructure
         public int Count => dataset.Count;
 
         public bool IsReadOnly => false;
-
-        public IEnumerator GetEnumerator()
-        {
-            if (!isLoaded)
-            {
-                Load();
-            }
-
-            return ((IEnumerable)dataset).GetEnumerator();
-        }
-
-        IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()
-        {
-            if (!isLoaded)
-            {
-                Load();
-            }
-
-            return dataset.Select(x => DynamicProxy.MapInstanceOf(DbContext, x)).GetEnumerator();
-        }
 
         public IQueryable Load()
         {

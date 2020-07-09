@@ -1,4 +1,5 @@
 ﻿using SubSonic.Infrastructure.Schema;
+using SubSonic.Interfaces;
 using SubSonic.Linq.Expressions;
 using System;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using System.Reflection;
 namespace SubSonic.Infrastructure
 {
     public interface ISubSonicQueryProvider
-        : IQueryProvider
+        : IQueryProvider, IAsyncSubSonicQueryProvider
     {
         DbTableExpression DbTable { get; }
 

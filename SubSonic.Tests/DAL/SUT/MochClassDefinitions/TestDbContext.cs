@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SubSonic.Collections;
 using SubSonic.Extensions;
 using SubSonic.Extensions.Test;
 using SubSonic.Extensions.Test.NUnit;
@@ -16,15 +17,15 @@ namespace SubSonic.Tests.DAL.SUT
 
         }
 
-        public DbSetCollection<Models.RealEstateProperty> RealEstateProperties { get; private set; }
+        public ISubSonicDbSetCollection<Models.RealEstateProperty> RealEstateProperties { get; private set; }
 
-        public DbSetCollection<Models.Status> Statuses { get; private set; }
+        public ISubSonicDbSetCollection<Models.Status> Statuses { get; private set; }
 
-        public DbSetCollection<Models.Unit> Units { get; private set; }
+        public ISubSonicDbSetCollection<Models.Unit> Units { get; private set; }
 
-        public DbSetCollection<Models.Renter> Renters { get; private set; }
+        public ISubSonicDbSetCollection<Models.Renter> Renters { get; private set; }
 
-        public DbSetCollection<Models.Person> People { get; private set; }
+        public ISubSonicDbSetCollection<Models.Person> People { get; private set; }
 
         protected override void OnDbConfiguring(DbContextOptionsBuilder config)
         {

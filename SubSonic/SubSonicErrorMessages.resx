@@ -132,6 +132,9 @@
   <data name="EntityTypeIsNotRegisteredException" xml:space="preserve">
     <value>Type {0}is not registed with the db model.</value>
   </data>
+  <data name="ErrorPreviousContinuation" xml:space="preserve">
+    <value>previous continuation does not equal callback!</value>
+  </data>
   <data name="ExpectedDbTableExpression" xml:space="preserve">
     <value>Expected expression of type DbTableExpression.</value>
   </data>
@@ -146,6 +149,9 @@
   </data>
   <data name="MissingServiceCollectionException" xml:space="preserve">
     <value>IServiceCollection is not found in the IOC container.</value>
+  </data>
+  <data name="MultipleContinuations" xml:space="preserve">
+    <value>Multiple continuations detected.</value>
   </data>
   <data name="NoDataAvailable" xml:space="preserve">
     <value>No Data Available</value>

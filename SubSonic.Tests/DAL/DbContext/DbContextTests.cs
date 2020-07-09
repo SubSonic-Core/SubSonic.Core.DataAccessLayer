@@ -80,24 +80,21 @@ WHERE ([{0}].[ID] = @id_1)";
             Context.Database.Instance.AddCommandBehavior(property.Format("T1"), cmd => RealEstateProperties.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
             Context.Database.Instance.AddCommandBehavior(property_all.Format("T1"), RealEstateProperties);
             Context.Database.Instance.AddCommandBehavior(people_all.Format("T1"), People);
-            Context.Database.Instance.AddCommandBehavior(people_count.Format("T1"), cmd => new[] { People.Count }.ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(people_count.Format("T1"), cmd => People.Count);
             Context.Database.Instance.AddCommandBehavior(person.Format("T1"), cmd => People.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
-            Context.Database.Instance.AddCommandBehavior(person_count.Format("T1"), cmd => new[] { People.Count(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()) }.ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(person_count.Format("T1"), cmd => People.Count(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()));
             Context.Database.Instance.AddCommandBehavior(people_greater_than.Format("T1"), cmd => People.Where(x => x.ID > cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
-            Context.Database.Instance.AddCommandBehavior(people_greater_than_cnt.Format("T1"), cmd => new[] { People.Count(x => x.ID > cmd.Parameters["@id_1"].GetValue<int>()) }.ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(people_greater_than_cnt.Format("T1"), cmd => People.Count(x => x.ID > cmd.Parameters["@id_1"].GetValue<int>()));
             Context.Database.Instance.AddCommandBehavior(renters.Format("T1"), Renters);
             Context.Database.Instance.AddCommandBehavior(renters_filtered.Format("T1"), cmd => Renters.Where(x =>
                 x.PersonID == cmd.Parameters["@personid_1"].GetValue<int>() &&
                 x.UnitID == cmd.Parameters["@unitid_2"].GetValue<int>())
             .ToDataTable());
-            Context.Database.Instance.AddCommandBehavior(renters_filtered_count, cmd => new[]
-            {
+            Context.Database.Instance.AddCommandBehavior(renters_filtered_count, cmd =>
                 Renters.Count(x =>
                     x.PersonID == cmd.Parameters["@personid_1"].GetValue<int>() &&
-                    x.UnitID == cmd.Parameters["@unitid_2"].GetValue<int>())
-            }
-            .ToDataTable());
-            Context.Database.Instance.AddCommandBehavior(renters_count.Format("T1"), cmd => new[] { Renters.Count }.ToDataTable());
+                    x.UnitID == cmd.Parameters["@unitid_2"].GetValue<int>()));
+            Context.Database.Instance.AddCommandBehavior(renters_count.Format("T1"), cmd => Renters.Count);
         }
 
         [Test]
@@ -214,7 +211,7 @@ WHERE ([{0}].[ID] = @id_1)";
                 {
                     data.Rows[0]["ID"].Should().Be(1);
 
-                    return 0;
+                    return data.Rows.Count;
                 }
 
                 throw new NotSupportedException($"Command Behavior For {nameof(ShouldBeAbleToDeleteRecordsUsingCQRS)}");

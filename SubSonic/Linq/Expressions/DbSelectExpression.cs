@@ -55,7 +55,7 @@ namespace SubSonic.Linq.Expressions
             IEnumerable<DbOrderByDeclaration> orderBy,
             IEnumerable<Expression> groupBy
             )
-            : this(collection, type, table, columns, where, orderBy, groupBy, false, null, null) { }
+            : this(collection, type, table, columns, where, orderBy, groupBy, false, null, null, false) { }
 
         protected internal DbSelectExpression(
             object collection,
@@ -67,10 +67,12 @@ namespace SubSonic.Linq.Expressions
             IEnumerable<Expression> groupBy,
             bool isDistinct,
             Expression take,
-            Expression skip)
+            Expression skip,
+            bool isCte)
             : this(collection, type, table, columns)
         {
             IsDistinct = isDistinct;
+            IsCte = isCte;
             Where = where;
 
             OrderBy = orderBy as ReadOnlyCollection<DbOrderByDeclaration>;
@@ -144,7 +146,7 @@ namespace SubSonic.Linq.Expressions
                 throw Error.ArgumentNull(nameof(select));
             }
 
-            return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, where ?? select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip);
+            return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, where ?? select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip, select.IsCte);
         }
 
         public static DbExpression DbSelect(DbSelectExpression select, Expression take, Expression skip)
@@ -170,7 +172,7 @@ namespace SubSonic.Linq.Expressions
                         int pageNumber = ((int)_skip.Value) / pageSize;
 
                         return new DbSelectPageExpression(
-                            new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, null, null),
+                            new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, null, null, select.IsCte),
                             pageNumber,
                             pageSize
                             );
@@ -178,7 +180,7 @@ namespace SubSonic.Linq.Expressions
                 }
             }
             
-            return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, take, skip);
+            return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, take, skip, select.IsCte);
         }
 
         public static DbExpression DbSelect(DbSelectExpression select, DbJoinExpression join)
@@ -202,7 +204,7 @@ namespace SubSonic.Linq.Expressions
 
             dbTable.Joins.Add(join);
 
-            return new DbSelectExpression(select.QueryObject, select.Type, dbTable, select.Columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip);
+            return new DbSelectExpression(select.QueryObject, select.Type, dbTable, select.Columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip, select.IsCte);
         }
     }
 }

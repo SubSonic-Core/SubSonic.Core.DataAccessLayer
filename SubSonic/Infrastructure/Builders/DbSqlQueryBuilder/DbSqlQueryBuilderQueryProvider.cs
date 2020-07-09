@@ -1,20 +1,18 @@
-﻿using System;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Collections;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Data.Common;
-using System.Globalization;
-using Microsoft.Extensions.Logging;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace SubSonic.Infrastructure.Builders
 {
-    using Logging;
+    using Collections;
+    using Linq;
     using Linq.Expressions;
-    using System.Threading.Tasks;
-    using SubSonic.Linq;
+    using Logging;
 
     public partial class DbSqlQueryBuilder
     {
@@ -60,21 +58,21 @@ namespace SubSonic.Infrastructure.Builders
                         {
                             Scope.Connection.Open();
 
-                            using (DbDataReader reader = Scope.Database.ExecuteReader(dbQuery))
+                            if (isEntityModel)
                             {
-                                while (reader.Read())
+                                using (DbDataReader reader = Scope.Database.ExecuteReader(dbQuery))
                                 {
-                                    if (isEntityModel)
+                                    while (reader.Read())
                                     {
                                         DbContext.Current.ChangeTracking.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
                                     }
-                                    else
-                                    {
-                                        if (CmdBehavior == CommandBehavior.SingleRow)
-                                        {
-                                            return Scalar<TResult>(reader);
-                                        }
-                                    }
+                                }
+                            }
+                            else if (CmdBehavior == CommandBehavior.SingleRow)
+                            {
+                                if (Scope.Database.ExecuteScalar(dbQuery) is TResult result)
+                                {
+                                    return result;
                                 }
                             }
                         }
@@ -161,21 +159,11 @@ namespace SubSonic.Infrastructure.Builders
             throw new NotSupportedException(expression.ToString());
         }
 
-        private TResult Scalar<TResult>(IDataRecord reader)
-        {
-            if (reader.FieldCount > 1)
-            {
-                throw new InvalidOperationException();
-            }
-
-            return (TResult)Convert.ChangeType(reader[0], typeof(TResult), CultureInfo.CurrentCulture);
-        }
-
         public object Execute(Expression expression)
         {
             if (expression is null)
             {
-                throw new ArgumentNullException(nameof(expression));
+                throw Error.ArgumentNull(nameof(expression));
             }
 
             if (expression is DbExpression query)
@@ -192,18 +180,22 @@ namespace SubSonic.Infrastructure.Builders
 
                         Scope.Connection.Open();
 
-                        using (DbDataReader reader = Scope.Database.ExecuteReader(dbQuery))
+                        if (isEntityModel)
                         {
-                            if (reader.HasRows)
+                            using (DbDataReader reader = Scope.Database.ExecuteReader(dbQuery))
                             {
-                                while (reader.Read())
+                                if (reader.HasRows)
                                 {
-                                    if (isEntityModel)
+                                    while (reader.Read())
                                     {
                                         DbContext.Current.ChangeTracking.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
                                     }
                                 }
                             }
+                        }
+                        else if (CmdBehavior == CommandBehavior.SingleRow)
+                        {
+                            return Scope.Database.ExecuteScalar(dbQuery);
                         }
 
                         if (isEntityModel)

@@ -9,7 +9,7 @@ namespace SubSonic.Extensions.Test.MockDbClient
 {
     public class MockDbConnection : DbConnection
     {
-        IMockCommandExecution exec;
+        readonly IMockCommandExecution exec;
         ConnectionState state;
         internal MockDbConnection(IMockCommandExecution exec)
         {
@@ -38,8 +38,10 @@ namespace SubSonic.Extensions.Test.MockDbClient
 
         protected override DbCommand CreateDbCommand()
         {
-            var cmd = new MockDbCommand(exec);
-            cmd.Connection = this;
+            var cmd = new MockDbCommand(exec)
+            {
+                Connection = this
+            };
             return cmd;
         }
 

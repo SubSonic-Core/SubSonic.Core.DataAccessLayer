@@ -8,6 +8,7 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Infrastructure
 {
+    using Collections;
     using Schema;
     using Data.DynamicProxies;
     using Infrastructure.Factory;

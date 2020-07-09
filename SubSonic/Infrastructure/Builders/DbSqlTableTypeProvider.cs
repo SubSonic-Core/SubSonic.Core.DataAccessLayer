@@ -4,9 +4,12 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SubSonic.Infrastructure.Builders
 {
+    using Collections;
     using Linq;
     using Linq.Expressions;
     using Logging;
@@ -90,7 +93,7 @@ namespace SubSonic.Infrastructure.Builders
                     typeof(IQueryable<>).MakeGenericType(property.PropertyType),
                     select.From,
                     select.Columns.Where(x => x.PropertyName.Equals(property.PropertyName, StringComparison.CurrentCulture)),
-                    select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip);
+                    select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip, select.IsCte);
             }
 
             throw new NotSupportedException();
@@ -130,14 +133,44 @@ namespace SubSonic.Infrastructure.Builders
             }
         }
 
+        public async Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
+        {
+            if (expression is null)
+            {
+                throw Error.ArgumentNull(nameof(expression));
+            }
+
+            throw Error.NotImplemented();
+        }
+
+        public async Task<object> ExecuteAsync(Expression expression, CancellationToken cancellationToken)
+        {
+            if (expression is null)
+            {
+                throw Error.ArgumentNull(nameof(expression));
+            }
+
+            throw Error.NotImplemented();
+        }
+
         public object Execute(Expression expression)
         {
-            throw new NotImplementedException();
+            if (expression is null)
+            {
+                throw Error.ArgumentNull(nameof(expression));
+            }
+
+            throw Error.NotImplemented();
         }
 
         public TResult Execute<TResult>(Expression expression)
         {
-            throw new NotImplementedException();
+            if (expression is null)
+            {
+                throw Error.ArgumentNull(nameof(expression));
+            }
+
+            throw Error.NotImplemented();
         }
 
         public IDbPagedQuery ToPagedQuery(Expression expression, int size = 20)

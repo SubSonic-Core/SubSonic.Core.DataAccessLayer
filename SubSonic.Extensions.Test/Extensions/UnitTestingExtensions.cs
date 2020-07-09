@@ -177,7 +177,7 @@ namespace SubSonic.Extensions.Test
             }
         }
 
-        public static void AddCommandBehavior<TResult>(this DbProviderFactory factory, string command, Func<DbCommand, TResult> result)
+        public static void AddCommandBehavior(this DbProviderFactory factory, string command, Func<DbCommand, object> result)
         {
             if (factory is null)
             {

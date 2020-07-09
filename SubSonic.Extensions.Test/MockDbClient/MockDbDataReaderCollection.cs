@@ -149,7 +149,7 @@ namespace SubSonic.Extensions.Test.MockDbClient
 
         public override bool HasRows
         {
-            get { return inner.HasRows; }
+            get { return inner?.HasRows ?? false; }
         }
 
         public override bool IsClosed

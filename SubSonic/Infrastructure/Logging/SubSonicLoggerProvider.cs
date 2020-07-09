@@ -6,7 +6,7 @@ using System.Text;
 
 namespace SubSonic.Infrastructure.Logging
 {
-    class SubSonicLoggerProvider
+    public class SubSonicLoggerProvider
         : ILoggerProvider
     {
         private readonly ConcurrentDictionary<string, ILogger> _loggers;

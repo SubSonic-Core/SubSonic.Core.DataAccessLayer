@@ -4,31 +4,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace SubSonic.Infrastructure
+namespace SubSonic.Collections
 {
-    using Builders;
+    using Infrastructure.Builders;
+    using Interfaces;
     using Linq.Expressions;
-    using Logging;
-    using Schema;
+    using Infrastructure.Logging;
+    using Infrastructure.Schema;
 
-    public class SubSonicTableTypeCollection<TElement>
-        : SubSonicTableTypeCollection
-        , ISubSonicCollection<TElement>
+    public sealed partial class SubSonicCollection<TEntity>
+        : SubSonicCollection
+        , ISubSonicCollection<TEntity>
     {
-        public SubSonicTableTypeCollection(string name)
-            : base(name, typeof(TElement))
+        public SubSonicCollection()
+            : base(typeof(TEntity))
         {
 
         }
 
-        public SubSonicTableTypeCollection(string name, IQueryProvider provider, Expression expression)
-            : base(name, typeof(TElement), provider, expression)
+        public SubSonicCollection(IQueryProvider provider, Expression expression)
+            : base(typeof(TEntity), provider, expression)
         {
 
         }
 
-        public SubSonicTableTypeCollection(string name, IQueryProvider provider, Expression expression, IEnumerable<TElement> enumerable)
-            : base(name, typeof(TElement), provider, expression, enumerable)
+        public SubSonicCollection(IQueryProvider provider, Expression expression, IEnumerable<TEntity> enumerable)
+            : base(typeof(TEntity), provider, expression, enumerable)
         {
 
         }
@@ -36,7 +37,7 @@ namespace SubSonic.Infrastructure
         #region ICollection<> Implementation
         public void Clear()
         {
-            if (TableData is ICollection<TElement> data)
+            if (TableData is ICollection<TEntity> data)
             {
                 data.Clear();
             }
@@ -45,10 +46,9 @@ namespace SubSonic.Infrastructure
                 throw new NotSupportedException();
             }
         }
-
-        public void Add(TElement element)
+        public void Add(TEntity element)
         {
-            if (TableData is ICollection<TElement> data)
+            if (TableData is ICollection<TEntity> data)
             {
                 if (!IsReadOnly)
                 {
@@ -61,20 +61,20 @@ namespace SubSonic.Infrastructure
             }
         }
 
-        public void AddRange(IEnumerable<TElement> elements)
+        public void AddRange(IEnumerable<TEntity> elements)
         {
             if (!(elements is null))
             {
-                foreach (TElement element in elements)
+                foreach (TEntity element in elements)
                 {
                     Add(element);
                 }
             }
         }
 
-        public bool Remove(TElement element)
+        public bool Remove(TEntity element)
         {
-            if (TableData is ICollection<TElement> data)
+            if (TableData is ICollection<TEntity> data)
             {
                 return data.Remove(element);
             }
@@ -84,9 +84,9 @@ namespace SubSonic.Infrastructure
             }
         }
 
-        public bool Contains(TElement element)
+        public bool Contains(TEntity element)
         {
-            if (TableData is ICollection<TElement> data)
+            if (TableData is ICollection<TEntity> data)
             {
                 return data.Contains(element);
             }
@@ -96,9 +96,9 @@ namespace SubSonic.Infrastructure
             }
         }
 
-        public void CopyTo(TElement[] elements, int startAt)
+        public void CopyTo(TEntity[] elements, int startAt)
         {
-            if (TableData is ICollection<TElement> data)
+            if (TableData is ICollection<TEntity> data)
             {
                 data.Select(x => x).ToArray().CopyTo(elements, startAt);
             }
@@ -107,10 +107,16 @@ namespace SubSonic.Infrastructure
                 throw new NotSupportedException();
             }
         }
-        IEnumerator<TElement> IEnumerable<TElement>.GetEnumerator()
+
+        IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()
         {
-            if (TableData is ICollection<TElement> data)
+            if (TableData is ICollection<TEntity> data)
             {
+                if (!IsLoaded)
+                {
+                    Load();
+                }
+
                 return data.GetEnumerator();
             }
             else
@@ -118,49 +124,48 @@ namespace SubSonic.Infrastructure
                 throw new NotSupportedException();
             }
         }
-        #endregion        
+        #endregion
     }
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1010:Collections should implement generic interface", Justification = "Generic Class that inherits from this one addresses the generic interface")]
-    public class SubSonicTableTypeCollection
+    public class SubSonicCollection
         : ISubSonicCollection
     {
-        public SubSonicTableTypeCollection(string name, Type elementType)
-        {
-            if (name.IsNullOrEmpty())
-            {
-                throw new ArgumentNullException(nameof(name));
-            }
+        protected bool IsLoaded { get; set; }
 
-            Name = name;
+        public SubSonicCollection(Type elementType)
+        {
             ElementType = elementType ?? throw new ArgumentNullException(nameof(elementType));
             TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(elementType));
 
             if (DbContext.DbModel.TryGetEntityModel(elementType, out IDbEntityModel model))
             {
                 Model = model;
-                Expression = DbExpression.DbSelect(this, GetType(), model.GetTableType(name));
-                Provider = new DbSqlTableTypeProvider(name, ElementType, DbContext.ServiceProvider.GetService<ISubSonicLogger>());
+                Expression = DbExpression.DbSelect(this, GetType(), Model.Table);
+                Provider = new DbSqlQueryBuilder(ElementType, DbContext.ServiceProvider.GetService<ISubSonicLogger>());
+            }
+            else
+            {
+                Expression = Expression.Constant(this);
             }
         }
-
-        public SubSonicTableTypeCollection(string name, Type elementType, IQueryProvider provider, Expression expression)
-            : this(name, elementType)
+        public SubSonicCollection(Type elementType, IQueryProvider provider, Expression expression)
+            : this(elementType)
         {
-
             Expression = expression ?? throw new ArgumentNullException(nameof(expression));
-            Provider = provider ?? throw new ArgumentNullException(nameof(provider));
+            Provider = provider ?? new DbSqlQueryBuilder(ElementType, DbContext.ServiceProvider.GetService<ISubSonicLogger>());
         }
 
-        public SubSonicTableTypeCollection(string name, Type elementType, IQueryProvider provider, Expression expression, IEnumerable elements)
-            : this(name, elementType, provider, expression)
+        public SubSonicCollection(Type elementType, IQueryProvider provider, Expression expression, IEnumerable elements)
+            : this(elementType, provider, expression)
         {
             TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(elementType), elements);
+            IsLoaded = true;
         }
 
-        public string Name { get; }
+        protected IDbEntityModel Model { get; }
 
-        public IDbEntityModel Model { get; }
+        protected IEnumerable TableData { get; private set; }
 
         public Type ElementType { get; }
 
@@ -168,13 +173,13 @@ namespace SubSonic.Infrastructure
 
         public IQueryProvider Provider { get; }
 
-        protected IEnumerable TableData { get; private set; }
-
-        public IQueryable Load()
+        public virtual IQueryable Load()
         {
             if (Provider.Execute(Expression) is IEnumerable elements)
             {
                 TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(ElementType), elements);
+
+                IsLoaded = true;
             }
 
             return this;
@@ -185,8 +190,14 @@ namespace SubSonic.Infrastructure
         public bool IsReadOnly => false;
         public IEnumerator GetEnumerator()
         {
+            if (!IsLoaded)
+            {
+                Load();
+            }
+
             return TableData.GetEnumerator();
         }
         #endregion
+
     }
 }

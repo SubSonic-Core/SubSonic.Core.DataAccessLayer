@@ -2,16 +2,20 @@
 using SubSonic.Infrastructure;
 using System;
 using System.Reflection;
-using System.Resources;
 using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("SubSonic.Extensions.Test", AllInternalsVisible = true)]
-[assembly: InternalsVisibleTo("SubSonic.Extensions.SqlServer", AllInternalsVisible = true)]
-[assembly: InternalsVisibleTo("SubSonic.Tests", AllInternalsVisible = true)]
+[assembly: InternalsVisibleTo(@"SubSonic.Extensions.Test, PublicKey=
+0024000004800000940000000602000000240000525341310004000001000100754c177654d80bd8f61f259da8b891ed72cc003e5bbe17828908490c5af8edaf9ecfb0c4564987334a7b92559823275cec4d314d3b172760f83f1b08688fd66588b6673f29f860ff367d616541e49b85e609bf0255ab722a2cb8080abaf15931d509423acea0c79b57df9772b634c5a3bdc0e299fd0a6aaa21739c1b8be49ebd", AllInternalsVisible = true)]
+[assembly: InternalsVisibleTo(@"SubSonic.Extensions.SqlServer, PublicKey=
+0024000004800000940000000602000000240000525341310004000001000100754c177654d80bd8f61f259da8b891ed72cc003e5bbe17828908490c5af8edaf9ecfb0c4564987334a7b92559823275cec4d314d3b172760f83f1b08688fd66588b6673f29f860ff367d616541e49b85e609bf0255ab722a2cb8080abaf15931d509423acea0c79b57df9772b634c5a3bdc0e299fd0a6aaa21739c1b8be49ebd", AllInternalsVisible = true)]
+[assembly: InternalsVisibleTo(@"SubSonic.Tests, PublicKey=
+0024000004800000940000000602000000240000525341310004000001000100754c177654d80bd8f61f259da8b891ed72cc003e5bbe17828908490c5af8edaf9ecfb0c4564987334a7b92559823275cec4d314d3b172760f83f1b08688fd66588b6673f29f860ff367d616541e49b85e609bf0255ab722a2cb8080abaf15931d509423acea0c79b57df9772b634c5a3bdc0e299fd0a6aaa21739c1b8be49ebd", AllInternalsVisible = true)]
 
 namespace SubSonic
 {
+    using Collections;
     using Linq;
+
     public partial class DbContext
         : IDisposable, IInfrastructure<IServiceProvider>
     {
@@ -36,7 +40,7 @@ namespace SubSonic
         {
             foreach(PropertyInfo info in GetType().GetProperties())
             {
-                if(!info.PropertyType.IsGenericType || info.PropertyType.GetGenericTypeDefinition() != typeof(DbSetCollection<>))
+                if(!info.PropertyType.IsGenericType || info.PropertyType.GetGenericTypeDefinition() != typeof(ISubSonicDbSetCollection<>))
                 {
                     continue;
                 }

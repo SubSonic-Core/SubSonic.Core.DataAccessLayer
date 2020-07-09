@@ -1,23 +1,26 @@
-﻿using SubSonic.Infrastructure;
+﻿using Microsoft.Win32.SafeHandles;
+using SubSonic.Infrastructure;
 using SubSonic.Infrastructure.Schema;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
+using System.Text;
 
-[assembly: InternalsVisibleTo("SubSonic.DynamicProxies")]
+[assembly: InternalsVisibleTo("SubSonic.DynamicProxies, PublicKey=0024000004800000940000000602000000240000525341310004000001000100290cde84efb341cb2ce91d1e881e9d927bdf6f825f1165ead25ce4881956c0f3c07d6194fb35f09c9aff40946aad571dcdc19a2a040e3a59060aca1dc0a999d081577e3fb1e325115db0794a78082e098da60ab34249388e6cad907ddae1e1b40489b815e9b3cb28e10942ffa651bbf4833611fd201afe5c05c4d27c241be2a9")]
 
 namespace SubSonic.Data.DynamicProxies
 {
     public static class DynamicProxy
     {
         private readonly static Dictionary<string, DynamicProxyWrapper> DynamicProxyCache = new Dictionary<string, DynamicProxyWrapper>();
+        private static ModuleBuilder ModuleBuilder = GetModuleBuilder();
 
-        private readonly static AssemblyName assemblyName = new AssemblyName("SubSonic.DynamicProxies");
-        private readonly static AssemblyBuilder DynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
-        private static ModuleBuilder ModuleBuilder = DynamicAssembly.DefineDynamicModule("DynamicProxiesTypeGenerator");
+        public static Assembly DynamicAssembly => ModuleBuilder.Assembly;
 
         public static TEntity CreateProxyInstanceOf<TEntity>(DbContext dbContext)
         {
@@ -90,12 +93,70 @@ namespace SubSonic.Data.DynamicProxies
             return GetProxyWrapper(baseType);
         }
 
+        private static StrongNameKeyPair GetStrongNameKeyPair()
+        {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            string 
+                assemblyName = assembly.GetName().Name,
+                privateKeyFileForDynamicProxy = $"{assemblyName.Substring(0, assemblyName.IndexOf(".", StringComparison.Ordinal))}.DynamicProxy.pfx";
+
+            using (var resource = assembly.GetManifestResourceStream(privateKeyFileForDynamicProxy))
+            using (var reader = new BinaryReader(resource))
+            {
+                var data = new byte[resource.Length];
+
+                data = reader.ReadBytes(data.Length);
+
+                return new StrongNameKeyPair(data);
+            }
+        }
+
+        private static byte[] GetPublicKey()
+        {
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            string
+                assemblyName = assembly.GetName().Name,
+                publicKeyFileForDynamicProxy = $"{assemblyName.Substring(0, assemblyName.IndexOf(".", StringComparison.Ordinal))}.DynamicProxy.PublicKey.pfx";
+
+            using (var resource = assembly.GetManifestResourceStream(publicKeyFileForDynamicProxy))
+            using (var reader = new BinaryReader(resource))
+            {
+                var data = new byte[resource.Length];
+
+                data = reader.ReadBytes(data.Length);
+
+                return data;
+            }
+        }
+
+        internal static ModuleBuilder GetModuleBuilder()
+        {
+            if (ModuleBuilder is null)
+            {
+                AssemblyName assemblyName = new AssemblyName("SubSonic.DynamicProxies");
+
+                StrongNameKeyPair kp = GetStrongNameKeyPair();
+
+                assemblyName.KeyPair = kp;
+                assemblyName.SetPublicKey(GetPublicKey());
+                
+
+                AssemblyBuilder DynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(
+                    assemblyName,
+                    AssemblyBuilderAccess.Run);
+
+                ModuleBuilder = DynamicAssembly.DefineDynamicModule("DynamicProxiesTypeGenerator");
+            }
+
+            return ModuleBuilder;
+        }
+
         internal static Type BuildDerivedTypeFrom<TEntity>(DbContext dbContext)
         {
             Type baseType = typeof(TEntity);
 
             DynamicProxyBuilder<TEntity> proxyBuilder = new DynamicProxyBuilder<TEntity>(ModuleBuilder.DefineType(
-                $"{assemblyName.FullName}.{baseType.Name}",
+                $"{DynamicAssembly.FullName}.{baseType.Name}",
                 TypeAttributes.Public | TypeAttributes.Class | TypeAttributes.AutoClass | TypeAttributes.AnsiClass | TypeAttributes.BeforeFieldInit | TypeAttributes.AutoLayout,
                 baseType, new[] { typeof(IEntityProxy<>).MakeGenericType(baseType), typeof(IEntityProxy) }), baseType, dbContext);
 
@@ -103,3 +164,4 @@ namespace SubSonic.Data.DynamicProxies
         }            
     }
 }
+

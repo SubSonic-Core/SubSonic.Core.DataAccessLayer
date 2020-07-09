@@ -13,6 +13,7 @@ namespace SubSonic.Infrastructure
     using Logging;
     using Schema;
     using System.Linq;
+    using System.Threading;
     using System.Threading.Tasks;
 
     public class DbDatabase
@@ -34,6 +35,8 @@ namespace SubSonic.Infrastructure
             this.queryProvider = queryProvider ?? throw new ArgumentNullException(nameof(queryProvider));
         }
 
+        
+
         public DbProviderFactory Instance => dbProvider;
 
         #region connections
@@ -47,7 +50,7 @@ namespace SubSonic.Infrastructure
             {
                 if (value.IsNull())
                 {
-                    dBSharedConnection.IsNotNull(Con => Con.Dispose());
+                    dBSharedConnection?.Dispose();
                     dBSharedConnection = null;
                 }
                 else
@@ -71,6 +74,8 @@ namespace SubSonic.Infrastructure
             return CurrentSharedConnection;
         }
 
+        
+
         internal DbConnection CreateConnection()
         {
             DbConnection connection = dbProvider.CreateConnection();
@@ -85,7 +90,7 @@ namespace SubSonic.Infrastructure
 
         internal void ResetSharedConnection()
         {
-            CurrentSharedConnection.IsNotNull(Con => Con.Dispose());
+            CurrentSharedConnection?.Dispose();
         }
         #endregion
 
@@ -205,7 +210,18 @@ namespace SubSonic.Infrastructure
 
                     cmd.Connection.Open();
 
-                    IEnumerable<TEntity> results = cmd.ExecuteReader().ReadData<TEntity>();
+                    IEnumerable<TEntity> results = Array.Empty<TEntity>();
+
+                    if (!db.IsNonQuery)
+                    {
+                        results = cmd.ExecuteReader().ReadData<TEntity>();
+                    }
+                    else
+                    {
+                        int cnt = cmd.ExecuteNonQuery();
+
+                        logger.LogInformation($"{cnt} record(s) affected.");
+                    }
 
                     cmd.Parameters.ApplyOutputParameters(procedure);
 
@@ -239,6 +255,34 @@ namespace SubSonic.Infrastructure
             }
         }
 
+        public async Task<DbDataReader> ExecuteReaderAsync(IDbQuery dbQuery, CancellationToken cancellationToken)
+        {
+            if (dbQuery is null)
+            {
+                throw Error.ArgumentNull(nameof(dbQuery));
+            }
+
+            using (AutomaticConnectionScope Scope = GetConnectionScope())
+            using (DbCommand cmd = GetCommand(Scope, dbQuery))
+            using (var perf = logger.Start(GetType(), $"{nameof(ExecuteReaderAsync)}"))
+            {
+                logger.LogTrace(dbQuery.Sql);
+
+                try
+                {
+                    return await cmd
+                        .ExecuteReaderAsync(dbQuery.Behavior, cancellationToken)
+                        .ConfigureAwait(false);
+                }
+                catch (DataException ex)
+                {
+                    logger.LogCritical(ex, ex.Message);
+
+                    throw;
+                }
+            }
+        }
+
         public DbDataReader ExecuteReader(string sql, IEnumerable<SubSonicParameter> parameters)
         {
             using (AutomaticConnectionScope Scope = GetConnectionScope())
@@ -268,6 +312,60 @@ namespace SubSonic.Infrastructure
                 }
                 catch(DataException ex)
                 { 
+                    logger.LogCritical(ex, ex.Message);
+
+                    throw;
+                }
+            }
+        }
+
+        public object ExecuteScalar(IDbQuery dbQuery)
+        {
+            if (dbQuery is null)
+            {
+                throw Error.ArgumentNull(nameof(dbQuery));
+            }
+
+            using (AutomaticConnectionScope Scope = GetConnectionScope())
+            using (DbCommand cmd = GetCommand(Scope, dbQuery))
+            using (var perf = logger.Start(GetType(), $"{nameof(ExecuteScalar)}"))
+            {
+                logger.LogTrace(dbQuery.Sql);
+
+                try
+                {
+                    return cmd.ExecuteScalar();
+                }
+                catch (DataException ex)
+                {
+                    logger.LogCritical(ex, ex.Message);
+
+                    throw;
+                }
+            }
+        }
+
+        public async Task<object> ExecuteScalarAsync(IDbQuery dbQuery, CancellationToken cancellationToken)
+        {
+            if (dbQuery is null)
+            {
+                throw Error.ArgumentNull(nameof(dbQuery));
+            }
+
+            using (AutomaticConnectionScope Scope = GetConnectionScope())
+            using (DbCommand cmd = GetCommand(Scope, dbQuery))
+            using (var perf = logger.Start(GetType(), $"{nameof(ExecuteScalarAsync)}"))
+            {
+                logger.LogTrace(dbQuery.Sql);
+
+                try
+                {
+                    return await cmd
+                        .ExecuteScalarAsync(cancellationToken)
+                        .ConfigureAwait(false);
+                }
+                catch (DataException ex)
+                {
                     logger.LogCritical(ex, ex.Message);
 
                     throw;

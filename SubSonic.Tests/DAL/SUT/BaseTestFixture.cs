@@ -84,7 +84,7 @@ namespace SubSonic.Tests.DAL.SUT
                 new Person() { ID = 1, FirstName = "Kara", FamilyName = "Danvers", FullName = "Danvers, Kara" },
                 new Person() { ID = 2, FirstName = "Clark", FamilyName = "Kent", FullName = "Kent, Clark" },
                 new Person() { ID = 3, FirstName = "First", FamilyName = "Last", FullName = "Last, First" },
-                new Person() { ID = 4, FirstName = "First", FamilyName = "Last", FullName = "Last, First" }
+                new Person() { ID = 4, FirstName = "First", FamilyName = "Last", MiddleInitial = "A", FullName = "Last, First A." }
             };
         }
 

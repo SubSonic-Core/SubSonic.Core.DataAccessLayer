@@ -13,6 +13,7 @@ namespace SubSonic.Infrastructure.Builders
     using Infrastructure.Schema;
     using SysLinq = System.Linq;
     using System.Diagnostics;
+    using System.Net.Security;
 
     public partial class DbSqlQueryBuilder
     {
@@ -23,11 +24,108 @@ namespace SubSonic.Infrastructure.Builders
         #endregion
 
         #region Build Select
+        public Expression BuildSelect(MethodCallExpression call)
+        {
+            if (!(call is null))
+            {
+                DbExpression query = null;
+                LambdaExpression 
+                    predicate = null,
+                    predicate1 = null,
+                    predicate2 = null;
+
+                foreach(Expression argument in call.Arguments)
+                {
+                    if (argument is DbExpression _query)
+                    {
+                        query = _query;
+                    }
+                    else if (argument is UnaryExpression _unary)
+                    {
+                        if (_unary.Operand is LambdaExpression _predicate)
+                        {
+                            predicate2 = _predicate;
+                        }
+                    }
+                }
+
+                MethodInfo method = null;
+
+                if (query is DbSelectExpression _select)
+                {
+                    predicate1 = GetPredicateFromWhere(_select.Where, out method);
+                }
+                else if (query is DbSelectPageExpression _paged)
+                {
+                    predicate1 = GetPredicateFromWhere(_paged.Select.Where, out method);
+                }
+
+                if (!(predicate1 is null) && !(predicate2 is null))
+                {
+                    predicate = Expression.Lambda(
+                                    predicate1.Type,
+                                    Expression.AndAlso(predicate1.Body, predicate2.Body),
+                                    predicate1.Parameters.ToArray());
+                }
+                else
+                {
+                    predicate = predicate1 ?? predicate2;
+                }
+
+                if (!(predicate is null))
+                {
+                    method = method ?? typeof(Queryable).GetGenericMethod(nameof(Queryable.Where), new[] { DbTable.Type, predicate.GetType() });
+
+                    if (query is DbSelectExpression select)
+                    {
+                        return DbExpression.DbSelect(select,
+                            DbWherePredicateBuilder.GetWhereTranslation(
+                                DbExpression.DbWhere(method, new Expression[] { query, predicate })));
+                    }
+                    else if (query is DbSelectPageExpression paged)
+                    {
+                        return DbExpression.DbPagedSelect(
+                            DbExpression.DbSelect(paged.Select,
+                                DbWherePredicateBuilder.GetWhereTranslation(
+                                    DbExpression.DbWhere(method, new Expression[] { query, predicate }))),
+                            paged.PageNumber, paged.PageSize);
+                    }
+                    else
+                    {
+                        throw Error.NotImplemented();
+                    }
+                }
+                else
+                {
+                    return query;
+                }
+            }
+
+            return call;
+        }
+
+        private LambdaExpression GetPredicateFromWhere(Expression where, out MethodInfo method)
+        {
+            method = null;
+
+            if (where is DbWhereExpression _where)
+            {
+                method = _where.Method;
+
+                if (_where.GetArgument(1) is LambdaExpression predicate)
+                {
+                    return predicate;
+                }
+            }
+
+            return null;
+        }
+
         public Expression BuildSelect(Expression select, Expression where)
         {
             if (select is DbSelectExpression _select)
             {
-                return new DbSelectExpression(_select.QueryObject, _select.Type, _select.From, _select.Columns, where ?? _select.Where, _select.OrderBy, _select.GroupBy, _select.IsDistinct, _select.Take, _select.Skip);
+                return new DbSelectExpression(_select.QueryObject, _select.Type, _select.From, _select.Columns, where ?? _select.Where, _select.OrderBy, _select.GroupBy, _select.IsDistinct, _select.Take, _select.Skip, _select.IsCte);
             }
 
             throw new NotSupportedException();
@@ -37,7 +135,7 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (expression is DbSelectExpression select)
             {
-                return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, isDistinct, select.Take, select.Skip);
+                return new DbSelectExpression(select.QueryObject, select.Type, select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, isDistinct, select.Take, select.Skip, select.IsCte);
             }
 
             throw new NotSupportedException();
@@ -71,7 +169,7 @@ namespace SubSonic.Infrastructure.Builders
                     typeof(SysLinq.IQueryable<>).MakeGenericType(property.PropertyType),
                     select.From,
                     select.Columns.Where(x => x.PropertyName.Equals(property.PropertyName, StringComparison.CurrentCulture)), 
-                    select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip);
+                    select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip, select.IsCte);
             }
 
             throw new NotSupportedException();
@@ -81,7 +179,7 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (expression is DbSelectExpression select)
             {
-                return new DbSelectExpression(select.QueryObject, select.Type, select.From, columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip);
+                return new DbSelectExpression(select.QueryObject, select.Type, select.From, columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip, select.IsCte);
             }
 
             return expression;

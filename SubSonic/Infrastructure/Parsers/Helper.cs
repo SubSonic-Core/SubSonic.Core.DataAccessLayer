@@ -36,6 +36,13 @@ namespace SubSonic.Infrastructure.Parsers
             return attribute.QualifiedName;
         }
 
+        internal bool IsNonQuery(Type procedureType)
+        {
+            var attribute = procedureType.GetCustomAttribute<DbStoredProcedureAttribute>();
+
+            return attribute.IsNonQuery;
+        }
+
         public bool IsUserDefinedTableParameter(PropertyInfo propertyInfo)
         {
             Type collectionType = GetCollectionType(propertyInfo.PropertyType);

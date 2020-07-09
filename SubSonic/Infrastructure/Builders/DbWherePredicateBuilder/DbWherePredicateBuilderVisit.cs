@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Linq;
 
 namespace SubSonic.Infrastructure.Builders
 {
+    using Collections;
     using Linq;
     using Linq.Expressions;
-    using System.Net.Http.Headers;
 
     public partial class DbWherePredicateBuilder
     {

@@ -59,6 +59,11 @@ namespace SubSonic
             return type.GetInterface(typeof(IEnumerable).FullName).IsNotNull();
         }
 
+        public static bool IsAsyncEnumerable(this Type type)
+        {
+            return type.IsGenericType && type.IsAssignableFrom(typeof(IAsyncEnumerable<>).MakeGenericType(type.GenericTypeArguments));
+        }
+
         public static bool IsNullableType(this Type type)
         {
             return (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>));

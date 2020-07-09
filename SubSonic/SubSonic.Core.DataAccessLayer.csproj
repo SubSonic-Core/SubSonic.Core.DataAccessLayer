@@ -9,7 +9,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageTags>DAL;SqlServer;C#;.NetFramework;.NetCore;</PackageTags>
-    <Version>4.1.0-alpha.4</Version>
+    <Version>4.1.0-alpha.5</Version>
     <PackageId>SubSonic.Core.DAL</PackageId>
     <Company>SubSonic-Core</Company>
     <PackageProjectUrl>https://github.com/SubSonic-Core/SubSonic/wiki</PackageProjectUrl>
@@ -22,6 +22,9 @@
     <PackageLicenseFile>LICENSE.MD</PackageLicenseFile>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <AssemblyName>SubSonic.Core.DataAccessLayer</AssemblyName>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>SubSonicStrongName.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>false</DelaySign>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Platform)'=='AnyCPU'">
@@ -37,6 +40,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="DynamicProxy.pfx" />
+    <None Remove="DynamicProxy.PublicKey.pfx" />
+    <None Remove="DynamicProxy.PublicKey.snk" />
+    <None Remove="DynamicProxy.snk" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="DynamicProxy.pfx" />
+    <EmbeddedResource Include="DynamicProxy.PublicKey.pfx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AsyncEnumerator" Version="4.0.2" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -88,6 +104,10 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Infrastructure\Attributes\Binding\" />
   </ItemGroup>
 
 </Project>

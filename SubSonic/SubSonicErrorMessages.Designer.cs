@@ -106,6 +106,15 @@ namespace SubSonic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to previous continuation does not equal callback!.
+        /// </summary>
+        internal static string ErrorPreviousContinuation {
+            get {
+                return ResourceManager.GetString("ErrorPreviousContinuation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Expected expression of type DbTableExpression..
         /// </summary>
         internal static string ExpectedDbTableExpression {
@@ -147,6 +156,15 @@ namespace SubSonic {
         internal static string MissingServiceCollectionException {
             get {
                 return ResourceManager.GetString("MissingServiceCollectionException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Multiple continuations detected..
+        /// </summary>
+        internal static string MultipleContinuations {
+            get {
+                return ResourceManager.GetString("MultipleContinuations", resourceCulture);
             }
         }
         
