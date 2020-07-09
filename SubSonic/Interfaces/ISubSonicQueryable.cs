@@ -1,15 +1,14 @@
-﻿using SubSonic.Interfaces;
-using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
-using System.Text;
 
 namespace SubSonic
 {
+    using Interfaces;
+
     public interface ISubSonicDbSetCollection<TEntity>
         : ISubSonicCollection<TEntity>
+        , ISubSonicDbSetCollection
     {
         bool Delete(TEntity entity);
         IQueryable<TEntity> FindByID(object[] keyData, params string[] keyNames);
@@ -17,11 +16,7 @@ namespace SubSonic
     }
     
     public interface ISubSonicCollection<TEntity>
-#if NETSTANDARD
-        : ISubSonicCollection, IOrderedQueryable<TEntity>, IQueryable<TEntity>, IEnumerable<TEntity>, IAsyncSubSonicQueryable<TEntity>, IQueryable, IEnumerable, ICollection<TEntity>
-#else
-        : ISubSonicCollection, IOrderedQueryable<TEntity>, IQueryable<TEntity>, IEnumerable<TEntity>, IQueryable, IEnumerable, ICollection<TEntity>
-#endif
+        : ISubSonicCollection, IAsyncSubSonicQueryable<TEntity>, IOrderedQueryable<TEntity>, IQueryable<TEntity>, IEnumerable<TEntity>, IQueryable, IEnumerable, ICollection<TEntity>
     {
         void AddRange(IEnumerable<TEntity> entities);
     }

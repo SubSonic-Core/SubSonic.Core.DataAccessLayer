@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace SubSonic.Data.Caching
 {
+    using Collections;
     using Infrastructure;
     using Infrastructure.Logging;
     using Infrastructure.Schema;

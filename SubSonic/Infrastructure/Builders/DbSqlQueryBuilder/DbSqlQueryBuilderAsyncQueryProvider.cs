@@ -82,7 +82,10 @@ namespace SubSonic.Infrastructure.Builders
             }
             else if (expression is MethodCallExpression call)
             {
-                if (!call.Type.GenericTypeArguments[0].IsEnumerable())
+                Type callType = call.Type.GenericTypeArguments[0];
+
+                if (!(callType.IsEnumerable() ||
+                      callType.IsAsyncEnumerable()))
                 {
                     IEnumerable<TResult> result = await ExecuteAsync<IEnumerable<TResult>>(BuildSelect(call), cancellationToken).ConfigureAwait(true);
 

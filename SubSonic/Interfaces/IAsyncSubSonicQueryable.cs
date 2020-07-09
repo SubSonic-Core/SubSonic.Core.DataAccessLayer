@@ -8,11 +8,12 @@ namespace SubSonic.Interfaces
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
     public interface IAsyncSubSonicQueryable<out TEntity>
-        : IQueryable, IEnumerable<TEntity>, IAsyncEnumerable<TEntity>
+        : IAsyncEnumerable<TEntity>
+        , IQueryable<TEntity>
     {
         /// <summary>
         /// 
         /// </summary>
-        IAsyncSubSonicQueryProvider AsyncProvider { get; }
+        IAsyncSubSonicQueryProvider ProviderAsync { get; }
     }
 }

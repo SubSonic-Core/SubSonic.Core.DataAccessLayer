@@ -2,7 +2,6 @@
 using SubSonic.Infrastructure;
 using System;
 using System.Reflection;
-using System.Resources;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("SubSonic.Extensions.Test", AllInternalsVisible = true)]
@@ -11,7 +10,9 @@ using System.Runtime.CompilerServices;
 
 namespace SubSonic
 {
+    using Collections;
     using Linq;
+
     public partial class DbContext
         : IDisposable, IInfrastructure<IServiceProvider>
     {
@@ -36,7 +37,7 @@ namespace SubSonic
         {
             foreach(PropertyInfo info in GetType().GetProperties())
             {
-                if(!info.PropertyType.IsGenericType || info.PropertyType.GetGenericTypeDefinition() != typeof(DbSetCollection<>))
+                if(!info.PropertyType.IsGenericType || info.PropertyType.GetGenericTypeDefinition() != typeof(ISubSonicDbSetCollection<>))
                 {
                     continue;
                 }

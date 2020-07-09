@@ -39,7 +39,7 @@ namespace SubSonic.Tests.DAL.Builders
 
             public Type Type => typeof(TEntity);
 
-            public Type DbSetType => typeof(DbSetCollection<>).MakeGenericType(Type);
+            public Type DbSetType => typeof(ISubSonicDbSetCollection<>).MakeGenericType(Type);
 
             public Expression Predicate { get; }
 
@@ -77,7 +77,7 @@ namespace SubSonic.Tests.DAL.Builders
 
                     where.Type.Should().Be(typeof(bool));
 
-                    where.GetArgument(0).Type.Should().Be(@case.DbSetType);
+                    where.GetArgument(0).Type.GetInterface(@case.DbSetType.Name).Should().NotBeNull();
 
                     where.Expression.Should().NotBeNull();
                 }

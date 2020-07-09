@@ -6,6 +6,7 @@ using System.Reflection;
 
 namespace SubSonic.Infrastructure.Builders
 {
+    using Collections;
     using Linq;
     using Linq.Expressions;
     using Logging;

@@ -61,12 +61,9 @@ WHERE ([{0}].[ID] = @id_1)";
 
             Context.RealEstateProperties.Add(property);
 
-            IEntityProxy<RealEstateProperty> proxy = (IEntityProxy<RealEstateProperty>)Context.RealEstateProperties.AsEnumerable().ElementAt(0);
+            IEntityProxy<RealEstateProperty> proxy = Context.ChangeTracking.GetCacheFor<RealEstateProperty>().Single(x => x.IsNew);
 
-            proxy.IsNew.Should().BeTrue();
-            proxy.Data.HasParallelPowerGeneration.Should().Be(property.HasParallelPowerGeneration);
-            proxy.Data.StatusID.Should().Be(property.StatusID);
-            property.Should().BeEquivalentTo(proxy.Data);
+            proxy.Data.Should().BeEquivalentTo(property);
         }
 
         [Test]

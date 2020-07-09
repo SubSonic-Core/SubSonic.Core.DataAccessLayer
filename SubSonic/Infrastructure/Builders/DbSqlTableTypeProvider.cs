@@ -4,15 +4,16 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SubSonic.Infrastructure.Builders
 {
+    using Collections;
     using Linq;
     using Linq.Expressions;
     using Logging;
     using Schema;
-    using System.Threading;
 
     public class DbSqlTableTypeProvider
         : ISubSonicQueryProvider

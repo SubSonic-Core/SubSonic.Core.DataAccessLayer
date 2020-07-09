@@ -26,6 +26,8 @@ namespace SubSonic.Tests.DAL
             string
                 people_all = @"SELECT [T1].[ID], [T1].[FirstName], [T1].[MiddleInitial], [T1].[FamilyName], [T1].[FullName]
 FROM [dbo].[Person] AS [T1]",
+                people_all_count = @"SELECT COUNT([T1].[ID])
+FROM [dbo].[Person] AS [T1]",
                 people_equal = @"SELECT [T1].[ID], [T1].[FirstName], [T1].[MiddleInitial], [T1].[FamilyName], [T1].[FullName]
 FROM [dbo].[Person] AS [T1]
 WHERE ([T1].[ID] = @id_1)",
@@ -37,6 +39,7 @@ FROM [dbo].[Person] AS [T1]
 WHERE ([T1].[ID] < @id_1)";
 
             Context.Database.Instance.AddCommandBehavior(people_all, cmd => People.ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(people_all_count, cmd => People.Count());
             Context.Database.Instance.AddCommandBehavior(people_greater_than, cmd => People.Where(x => x.ID > cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
             Context.Database.Instance.AddCommandBehavior(people_equal, cmd => People.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
             Context.Database.Instance.AddCommandBehavior(people_less_than, cmd => People.Where(x => x.ID < cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
@@ -46,7 +49,7 @@ WHERE ([T1].[ID] < @id_1)";
         public async Task ShouldBeAbleToGetSingleAsync()
         {
             Person person  = await Context.People.Where(x => x.ID == 1)
-                .AsAsyncSubSonicQueryable()
+                .AsAsyncEnumerable()
                 .SingleAsync();
 
             person.ID.Should().Be(1);
@@ -58,7 +61,7 @@ WHERE ([T1].[ID] < @id_1)";
             FluentActions.Invoking(async () =>
             {
                 await Context.People.Where(x => x.ID > 0)
-                  .AsAsyncSubSonicQueryable()
+                  .AsAsyncEnumerable()
                   .SingleAsync();
             }).Should().Throw<InvalidOperationException>();
         }
@@ -69,7 +72,7 @@ WHERE ([T1].[ID] < @id_1)";
             FluentActions.Invoking(async () =>
             {
                 await Context.People.Where(x => x.ID == -1)
-                .AsAsyncSubSonicQueryable()
+                .AsAsyncEnumerable()
                 .SingleAsync();
             }).Should().Throw<InvalidOperationException>();
         }
@@ -78,7 +81,7 @@ WHERE ([T1].[ID] < @id_1)";
         public async Task ShouldBeAbleToGetSingleOrDefaultAsync()
         {
             Person person = await Context.People.Where(x => x.ID == 1)
-                .AsAsyncSubSonicQueryable()
+                .AsAsyncEnumerable()
                 .SingleOrDefaultAsync();
 
             person.ID.Should().Be(1);
@@ -90,7 +93,7 @@ WHERE ([T1].[ID] < @id_1)";
             FluentActions.Invoking(async () =>
             {
                 Person person = await Context.People.Where(x => x.ID == -1)
-                .AsAsyncSubSonicQueryable()
+                .AsAsyncEnumerable()
                 .SingleOrDefaultAsync();
 
                 person.Should().BeNull();
@@ -102,7 +105,7 @@ WHERE ([T1].[ID] < @id_1)";
         public async Task ShouldBeAbleToGetFirstAsync()
         {
             Person person = await Context.People.Where(x => x.ID > 0)
-                .AsAsyncSubSonicQueryable()
+                .AsAsyncEnumerable()
                 .FirstAsync();
 
             person.ID.Should().Be(1);
@@ -114,7 +117,7 @@ WHERE ([T1].[ID] < @id_1)";
             FluentActions.Invoking(async () =>
             {
                 await Context.People.Where(x => x.ID < 1)
-                .AsAsyncSubSonicQueryable()
+                .AsAsyncEnumerable()
                 .FirstAsync();
             }).Should().Throw<InvalidOperationException>();
         }
@@ -123,7 +126,7 @@ WHERE ([T1].[ID] < @id_1)";
         public async Task ShouldBeAbleToGetFirstOrDefaultAsync()
         {
             Person person = await Context.People.Where(x => x.ID > 2)
-                .AsAsyncSubSonicQueryable()
+                .AsAsyncEnumerable()
                 .FirstOrDefaultAsync();
 
             person.ID.Should().Be(3);
@@ -135,7 +138,7 @@ WHERE ([T1].[ID] < @id_1)";
             FluentActions.Invoking(async () =>
             {
                 Person person = await Context.People.Where(x => x.ID < 1)
-                .AsAsyncSubSonicQueryable()
+                .AsAsyncEnumerable()
                 .FirstOrDefaultAsync();
 
                 person.Should().BeNull();
@@ -150,13 +153,13 @@ WHERE ([T1].[ID] < @id_1)";
             {
                 var cts = new CancellationTokenSource();
 
-                var people = Context.People
-                .AsAsyncSubSonicQueryable()
+                var people = await Context.People
+                .AsAsyncEnumerable()
                 .LoadAsync(cts.Token);
 
                 int cnt = 0;
 
-                await foreach(Person person in people.Result
+                await foreach(Person person in people
                     .WithCancellation(cts.Token)
                     .ConfigureAwait(true))
                 {
@@ -167,7 +170,7 @@ WHERE ([T1].[ID] < @id_1)";
                     cnt++;
                 }
 
-                cnt.Should().Be(Context.People.Count);
+                cnt.Should().Be(Context.People.Count());
 
             }).Should().NotThrow();
 
