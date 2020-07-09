@@ -40,15 +40,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="DynamicProxy.pfx" />
-    <None Remove="DynamicProxy.PublicKey.pfx" />
     <None Remove="DynamicProxy.PublicKey.snk" />
     <None Remove="DynamicProxy.snk" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="DynamicProxy.pfx" />
-    <EmbeddedResource Include="DynamicProxy.PublicKey.pfx" />
+    <None Remove="SubSonicStrongName.pfx" />
+    <None Remove="temp.txt" />
   </ItemGroup>
 
   <ItemGroup>
