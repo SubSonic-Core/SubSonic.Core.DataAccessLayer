@@ -27,6 +27,6 @@ namespace SubSonic.Extensions.Test.Models
         [ForeignKey(nameof(RealEstatePropertyID))]
         public virtual RealEstateProperty RealEstateProperty { get;set;}
 
-        public virtual ICollection<Renter> Renters { get; set; }
+        public virtual ISubSonicCollection<Renter> Renters { get; set; }
     }
 }

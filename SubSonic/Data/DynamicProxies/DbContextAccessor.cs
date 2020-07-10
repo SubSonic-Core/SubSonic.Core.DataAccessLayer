@@ -25,7 +25,7 @@ namespace SubSonic.Data.DynamicProxies
 
         private DbContext DbContext { get; }
 
-        public DbModel Model => DbContext.Model;
+        public DbSchemaModel Model => DbContext.Model;
 
         public TProperty LoadProperty<TEntity, TProperty>(TEntity entity, PropertyInfo info) 
             where TEntity : class

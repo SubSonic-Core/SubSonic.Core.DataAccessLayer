@@ -19,33 +19,8 @@ namespace SubSonic.Tests.DAL
         [Order(0)]
         public void ShouldBeAbleToInsertOnePersonRecordWithNoUDTT()
         {
-            string expected_cmd = @"INSERT INTO [dbo].[Person]
-OUTPUT INSERTED.* INTO @output
-VALUES
-	(@FirstName, @MiddleInitial, @FamilyName)";
-
             Models.Person person = GetFakePerson.Generate();
-
-            Context.Database.Instance.AddCommandBehavior(expected_cmd, cmd =>
-            {
-                Models.Person data = new Models.Person()
-                {
-                    FamilyName = cmd.Parameters["@FamilyName"].Value.ToString(),
-                    FirstName = cmd.Parameters["@FirstName"].Value.ToString(),
-                    MiddleInitial = cmd.Parameters["@MiddleInitial"].Value.IsNotNull(x => x.ToString())
-                };
-
-                People.Add(data);
-                
-                data.ID = People.Count;
-
-                data.FullName = String.Format("{0}, {1}{2}",
-                    data.FamilyName, data.FirstName,
-                    string.IsNullOrEmpty(data.MiddleInitial?.Trim()) ? "" : $" {data.MiddleInitial}.");
-
-                return new[] { data }.ToDataTable();
-            });
-
+            
             Context.People.Add(person);
 
             Context.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(1);
@@ -187,33 +162,6 @@ VALUES
                 new Models.Person(){ FirstName = "First_4", FamilyName = "Last_4", FullName = "First_4 Last_4" }
             };
 
-            Context.Database.Instance.AddCommandBehavior(expected_cmd, cmd =>
-            {
-                cmd.Parameters["@MiddleInitial"].DbType.Should().Be(DbType.AnsiString);
-
-                Models.Person[] _persons = new[]
-                {
-                    new Models.Person()
-                    {
-                        FamilyName = cmd.Parameters["@FamilyName"].Value.ToString(),
-                        FirstName = cmd.Parameters["@FirstName"].Value.ToString(),
-                        MiddleInitial = cmd.Parameters["@MiddleInitial"].Value.IsNotNull(x => x.ToString())
-                    }
-                };
-
-                foreach (var person in _persons)
-                {
-                    People.Add(person);
-
-                    person.ID = People.Count;
-                    person.FullName = String.Format("{0}, {1}{2}",
-                        person.FamilyName, person.FirstName,
-                        person.MiddleInitial.IsNotNullOrEmpty() ? $" {person.MiddleInitial}." : "");
-                }
-
-                return _persons.ToDataTable();
-            });
-
             Context.People.AddRange(people);
 
             Context.ChangeTracking.SelectMany(x => x.Value).Count(x => x.IsNew).Should().Be(3);
@@ -329,17 +277,6 @@ FROM @input";
                 original = new Models.Renter[renters.Length];
 
             renters.CopyTo(original, 0);
-
-            //if (!withUDTT)
-            //{
-            //    // ubunto and windows format dates very differently
-            //    for (int i = 0; i < renters.Length; i++)
-            //    {
-            //        expected = expected
-            //            .Replace($"[StartDate_{i}]", renters[i].StartDate.ToString())
-            //            .Replace($"[EndDate_{i}]", renters[i].EndDate.ToString());
-            //    }
-            //}
 
             Context.Database.Instance.AddCommandBehavior(expected, cmd =>
             {

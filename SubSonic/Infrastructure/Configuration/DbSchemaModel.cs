@@ -8,11 +8,14 @@ namespace SubSonic.Infrastructure
     using Linq;
     using Schema;
 
-    public class DbModel
+    /// <summary>
+    /// SubSonic Schema Model
+    /// </summary>
+    public class DbSchemaModel
     {
         private readonly DbContext dbContext;
 
-        public DbModel(DbContext dbContext)
+        public DbSchemaModel(DbContext dbContext)
         {
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
 

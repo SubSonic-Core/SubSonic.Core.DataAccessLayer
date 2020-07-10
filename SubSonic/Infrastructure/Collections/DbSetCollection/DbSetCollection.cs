@@ -86,7 +86,7 @@ namespace SubSonic.Collections
                 object navigation = model.EntityModelType.GetProperty(property.PropertyName).GetValue(item);
 
                 if (!(navigation is null) && 
-                    !(navigation is IEntityProxy))
+                    !(navigation is IEntityProxy && !((IEntityProxy)navigation).IsNew))
                 {
                     DbContext.Set(property.PropertyType).Add(navigation);
                 }

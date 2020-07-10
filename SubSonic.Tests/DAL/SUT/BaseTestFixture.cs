@@ -30,13 +30,20 @@ namespace SubSonic.Tests.DAL.SUT
         {
             get
             {
-                return new Bogus.Faker<Person>()
+                return new SubSonicFaker<Person>()
+                    .UseDbContext()
                     .RuleFor(person => person.ID, set => 0)
                     .RuleFor(person => person.FirstName, set => set.PickRandom(DataSeed.Person.FirstNames))
                     .RuleFor(person => person.MiddleInitial, set => set.PickRandom(DataSeed.Person.MiddleInitial))
                     .RuleFor(person => person.FamilyName, set => set.PickRandom(DataSeed.Person.FamilyNames))
                     .RuleFor(person => person.FullName, set => null)
-                    .RuleFor(person => person.Renters, set => new HashSet<Renter>());
+                    .FinishWith((faker, person) =>
+                    {
+                        if (person is IEntityProxy proxy)
+                        {
+                            proxy.IsDirty = false;
+                        }
+                    });
             }
         }
 
@@ -46,6 +53,8 @@ namespace SubSonic.Tests.DAL.SUT
             Context.ChangeTracking.Flush();
 
             Context.Instance.GetService<DbProviderFactory, SubSonicMockDbClient>().ClearBehaviors();
+
+            SetInsertBehaviors();
 
             Statuses = new List<Status>()
             {
@@ -86,6 +95,35 @@ namespace SubSonic.Tests.DAL.SUT
                 new Person() { ID = 3, FirstName = "First", FamilyName = "Last", FullName = "Last, First" },
                 new Person() { ID = 4, FirstName = "First", FamilyName = "Last", MiddleInitial = "A", FullName = "Last, First A." }
             };
+        }
+
+        private void SetInsertBehaviors()
+        {
+            string 
+                insert_person = @"INSERT INTO [dbo].[Person]
+OUTPUT INSERTED.* INTO @output
+VALUES
+	(@FirstName, @MiddleInitial, @FamilyName)";
+
+            Context.Database.Instance.AddCommandBehavior(insert_person, cmd =>
+            {
+                Person data = new Person()
+                {
+                    FamilyName = cmd.Parameters["@FamilyName"].Value.ToString(),
+                    FirstName = cmd.Parameters["@FirstName"].Value.ToString(),
+                    MiddleInitial = cmd.Parameters["@MiddleInitial"].Value.IsNotNull(x => x.ToString())
+                };
+
+                People.Add(data);
+
+                data.ID = People.Count;
+
+                data.FullName = String.Format("{0}, {1}{2}",
+                    data.FamilyName, data.FirstName,
+                    string.IsNullOrEmpty(data.MiddleInitial?.Trim()) ? "" : $" {data.MiddleInitial}.");
+
+                return new[] { data }.ToDataTable();
+            });
         }
 
         protected IEnumerable<Status> Statuses { get; set; }

@@ -31,14 +31,33 @@ namespace SubSonic.Data.DynamicProxies
 
             DynamicProxyWrapper proxy = GetProxyWrapper<TEntity>(dbContext);
 
+            TEntity entity;
+
             if (dbContext.Options.EnableProxyGeneration && proxy.IsElegibleForProxy)
             {
-                return (TEntity)Activator.CreateInstance(proxy.Type, new DbContextAccessor(dbContext));
+                entity = (TEntity)Activator.CreateInstance(proxy.Type, new DbContextAccessor(dbContext));
             }
             else
             {
-                return Activator.CreateInstance<TEntity>();
+                entity = Activator.CreateInstance<TEntity>();
             }
+
+            if (entity is IEntityProxy<TEntity> _entity)
+            {
+                _entity.IsNew = true;
+            }            
+
+            return entity;
+        }
+
+        public static TEntity MapInstanceOf<TEntity>(TEntity source, TEntity proxy)
+        {
+            if (!(source.IsNull() == null))
+            {
+                proxy.Map(source);
+            }
+
+            return proxy;
         }
 
         public static TEntity MapInstanceOf<TEntity>(DbContext context, IEntityProxy<TEntity> instance)
