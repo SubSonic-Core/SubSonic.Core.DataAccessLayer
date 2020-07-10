@@ -56,6 +56,14 @@ WHERE ([T1].[ID] < @id_1)";
         }
 
         [Test]
+        public async Task ShouldBeAbleToGetSingleAsyncWithPredicate()
+        {
+            Person person = await Context.People.SingleAsync(x => x.ID == 1);
+
+            person.ID.Should().Be(1);
+        }
+
+        [Test]
         public void ShouldBeAbleToThrowWhenSingleAsyncHasMoreThanOne()
         {
             FluentActions.Invoking(async () =>
@@ -63,7 +71,44 @@ WHERE ([T1].[ID] < @id_1)";
                 await Context.People.Where(x => x.ID > 0)
                   .AsAsyncEnumerable()
                   .SingleAsync();
-            }).Should().Throw<InvalidOperationException>();
+            }).Should()
+                .Throw<InvalidOperationException>()
+                .WithMessage(SubSonicErrorMessages.MethodFoundMoreThanOneResult.Format(nameof(SubSonicAsyncQueryable.SingleAsync))); ;
+        }
+
+        [Test]
+        public void ShouldBeAbleToThrowWhenSingleOrDefaultAsyncHasMoreThanOne()
+        {
+            FluentActions.Invoking(async () =>
+            {
+                await Context.People.Where(x => x.ID > 0)
+                  .AsAsyncEnumerable()
+                  .SingleOrDefaultAsync();
+            }).Should()
+                .Throw<InvalidOperationException>()
+                .WithMessage(SubSonicErrorMessages.MethodFoundMoreThanOneResult.Format(nameof(SubSonicAsyncQueryable.SingleOrDefaultAsync))); ;
+        }
+
+        [Test]
+        public void ShouldBeAbleToThrowWhenSingleAsyncHasMoreThanOneWithPredicate()
+        {
+            FluentActions.Invoking(async () =>
+            {
+                await Context.People.SingleAsync(x => x.ID > 0);
+            }).Should()
+                .Throw<InvalidOperationException>()
+                .WithMessage(SubSonicErrorMessages.MethodFoundMoreThanOneResult.Format(nameof(SubSonicAsyncQueryable.SingleAsync))); ;
+        }
+
+        [Test]
+        public void ShouldBeAbleToThrowWhenSingleOrDefaultAsyncHasMoreThanOneWithPredicate()
+        {
+            FluentActions.Invoking(async () =>
+            {
+                await Context.People.SingleOrDefaultAsync(x => x.ID > 0);
+            }).Should()
+                .Throw<InvalidOperationException>()
+                .WithMessage(SubSonicErrorMessages.MethodFoundMoreThanOneResult.Format(nameof(SubSonicAsyncQueryable.SingleOrDefaultAsync))); ;
         }
 
         [Test]
@@ -74,7 +119,20 @@ WHERE ([T1].[ID] < @id_1)";
                 await Context.People.Where(x => x.ID == -1)
                 .AsAsyncEnumerable()
                 .SingleAsync();
-            }).Should().Throw<InvalidOperationException>();
+            }).Should()
+                .Throw<InvalidOperationException>()
+                .WithMessage(SubSonicErrorMessages.MethodDoesNotAllowNullValue.Format(nameof(SubSonicAsyncQueryable.SingleAsync)));
+        }
+
+        [Test]
+        public void ShouldBeAbleToThrowSingleAsyncOnNullWithPredicate()
+        {
+            FluentActions.Invoking(async () =>
+            {
+                await Context.People.SingleAsync(x => x.ID == -1);
+            }).Should()
+                .Throw<InvalidOperationException>()
+                .WithMessage(SubSonicErrorMessages.MethodDoesNotAllowNullValue.Format(nameof(SubSonicAsyncQueryable.SingleAsync)));
         }
 
         [Test]
@@ -83,6 +141,14 @@ WHERE ([T1].[ID] < @id_1)";
             Person person = await Context.People.Where(x => x.ID == 1)
                 .AsAsyncEnumerable()
                 .SingleOrDefaultAsync();
+
+            person.ID.Should().Be(1);
+        }
+
+        [Test]
+        public async Task ShouldBeAbleToGetSingleOrDefaultAsyncWithPredicate()
+        {
+            Person person = await Context.People.SingleOrDefaultAsync(x => x.ID == 1);
 
             person.ID.Should().Be(1);
         }
@@ -102,11 +168,31 @@ WHERE ([T1].[ID] < @id_1)";
         }
 
         [Test]
+        public void ShouldBeAbleToNotThrowSingleOrDefaultAsyncOnNullWithPredicate()
+        {
+            FluentActions.Invoking(async () =>
+            {
+                Person person = await Context.People.SingleOrDefaultAsync(x => x.ID == -1);
+
+                person.Should().BeNull();
+
+            }).Should().NotThrow();
+        }
+
+        [Test]
         public async Task ShouldBeAbleToGetFirstAsync()
         {
             Person person = await Context.People.Where(x => x.ID > 0)
                 .AsAsyncEnumerable()
                 .FirstAsync();
+
+            person.ID.Should().Be(1);
+        }
+
+        [Test]
+        public async Task ShouldBeAbleToGetFirstAsyncWithPredicate()
+        {
+            Person person = await Context.People.FirstAsync(x => x.ID > 0);
 
             person.ID.Should().Be(1);
         }
@@ -119,7 +205,21 @@ WHERE ([T1].[ID] < @id_1)";
                 await Context.People.Where(x => x.ID < 1)
                 .AsAsyncEnumerable()
                 .FirstAsync();
-            }).Should().Throw<InvalidOperationException>();
+            })
+                .Should()
+                .Throw<InvalidOperationException>()
+                .WithMessage(SubSonicErrorMessages.MethodDoesNotAllowNullValue.Format(nameof(SubSonicAsyncQueryable.FirstAsync)));
+        }
+
+        [Test]
+        public void ShouldBeAbleToThrowFirstAsyncOnNullWithPredicate()
+        {
+            FluentActions.Invoking(async () =>
+            {
+                await Context.People.FirstAsync(x => x.ID < 1);
+            }).Should()
+                .Throw<InvalidOperationException>()
+                .WithMessage(SubSonicErrorMessages.MethodDoesNotAllowNullValue.Format(nameof(SubSonicAsyncQueryable.FirstAsync))); ;
         }
 
         [Test]
@@ -133,13 +233,19 @@ WHERE ([T1].[ID] < @id_1)";
         }
 
         [Test]
-        public void ShouldBeAbleToNotThrowFirstOrDefaultAsyncOnNull()
+        public async Task ShouldBeAbleToGetFirstOrDefaultAsyncWithPredicate()
+        {
+            Person person = await Context.People.FirstOrDefaultAsync(x => x.ID > 2);
+
+            person.ID.Should().Be(3);
+        }
+
+        [Test]
+        public void ShouldBeAbleToNotThrowFirstOrDefaultAsyncOnNullWithPredicate()
         {
             FluentActions.Invoking(async () =>
             {
-                Person person = await Context.People.Where(x => x.ID < 1)
-                .AsAsyncEnumerable()
-                .FirstOrDefaultAsync();
+                Person person = await Context.People.FirstOrDefaultAsync(x => x.ID < 1);
 
                 person.Should().BeNull();
 
@@ -153,11 +259,10 @@ WHERE ([T1].[ID] < @id_1)";
             {
                 var cts = new CancellationTokenSource();
 
-                var people = await Context.People
-                .AsAsyncEnumerable()
-                .LoadAsync(cts.Token);
-
                 int cnt = 0;
+
+#if NETCOREAPP2_2 || NETCOREAPP2_1 || NETCOREAPP2_0
+                var people = await Context.People.LoadAsync(cts.Token);
 
                 await foreach(Person person in people
                     .WithCancellation(cts.Token)
@@ -169,6 +274,16 @@ WHERE ([T1].[ID] < @id_1)";
 
                     cnt++;
                 }
+#elif NETCOREAPP3_0 || NETCOREAPP3_1
+                await foreach(var person in Context.People.LoadAsync(cts.Token))
+                {
+                    person.FullName.Should().Be(String.Format("{0}, {1}{2}",
+                        person.FamilyName, person.FirstName,
+                        string.IsNullOrEmpty(person.MiddleInitial?.Trim()) ? "" : $" {person.MiddleInitial}."));
+
+                    cnt++;
+                }
+#endif
 
                 cnt.Should().Be(Context.People.Count());
 

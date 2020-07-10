@@ -141,6 +141,15 @@
   <data name="ExpressionNotSupported" xml:space="preserve">
     <value>Expression Method {0} is not supported.</value>
   </data>
+  <data name="MethodDoesNotAllowNullValue" xml:space="preserve">
+    <value>{0} method does not allow null value to be returned.</value>
+  </data>
+  <data name="MethodFoundMoreThanOneResult" xml:space="preserve">
+    <value>{0} found more than it expected to find.</value>
+  </data>
+  <data name="MethodNotSupported" xml:space="preserve">
+    <value>{0} method is not supported.</value>
+  </data>
   <data name="MissingInterfaceImplementation" xml:space="preserve">
     <value>{0} does not implement the {1} interface.</value>
   </data>

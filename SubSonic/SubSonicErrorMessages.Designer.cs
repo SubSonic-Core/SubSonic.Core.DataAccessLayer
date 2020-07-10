@@ -133,6 +133,33 @@ namespace SubSonic {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} method does not allow null value to be returned..
+        /// </summary>
+        internal static string MethodDoesNotAllowNullValue {
+            get {
+                return ResourceManager.GetString("MethodDoesNotAllowNullValue", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} found more than it expected to find..
+        /// </summary>
+        internal static string MethodFoundMoreThanOneResult {
+            get {
+                return ResourceManager.GetString("MethodFoundMoreThanOneResult", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} method is not supported..
+        /// </summary>
+        internal static string MethodNotSupported {
+            get {
+                return ResourceManager.GetString("MethodNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} does not implement the {1} interface..
         /// </summary>
         internal static string MissingInterfaceImplementation {

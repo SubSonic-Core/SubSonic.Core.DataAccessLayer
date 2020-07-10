@@ -14,7 +14,7 @@ namespace SubSonic.Linq
 {
     using Collections;
     using Interfaces;
-    
+    using System.Runtime.CompilerServices;
 
     public static class SubSonicAsyncQueryable
     { 
@@ -42,18 +42,15 @@ namespace SubSonic.Linq
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
 #if NETSTANDARD2_1
-        public static async Task<TSource> SingleAsync<TSource>([NotNull] this IAsyncEnumerable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Contract.Requires(!(source is null), $"Parameter {nameof(source)} cannot be null");
-            Contract.EndContractBlock();
+        public static Task<TSource> SingleAsync<TSource>([NotNull] this IAsyncEnumerable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
 #elif NETSTANDARD2_0
-        public static async Task<TSource> SingleAsync<TSource>(this IAsyncEnumerable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TSource> SingleAsync<TSource>(this IAsyncEnumerable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
+#endif
         {
             if (source is null)
             {
                 throw Error.ArgumentNull(nameof(source));
             }
-#endif
             MethodInfo method = typeof(SubSonicAsyncQueryable).GetGenericMethod(nameof(SingleAsync),
                 new[] {
                     typeof(IAsyncEnumerable<>).MakeGenericType(typeof(TSource)),
@@ -62,9 +59,13 @@ namespace SubSonic.Linq
 
             if (source is IAsyncSubSonicQueryable<TSource> _source)
             {
-                return await _source.ProviderAsync
-                    .ExecuteAsync<TSource>(Expression.Call(method, new[] { _source.Expression, Expression.Constant(cancellationToken) }), cancellationToken)
-                    .ConfigureAwait(false);
+#if NETSTANDARD2_1
+                return _source.ProviderAsync
+                    .ExecuteMethodAsync<TSource>(Expression.Call(method, new[] { _source.Expression, Expression.Constant(cancellationToken) }), cancellationToken);
+#elif NETSTANDARD2_0
+                return _source.ProviderAsync
+                    .ExecuteAsync<TSource>(Expression.Call(method, new[] { _source.Expression, Expression.Constant(cancellationToken) }), cancellationToken);
+#endif
             }
 
             throw Error.NotSupported($"{source}");
@@ -79,13 +80,10 @@ namespace SubSonic.Linq
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
 #if NETSTANDARD2_1
-        public static async Task<TSource> SingleAsync<TSource>([NotNull] this IAsyncEnumerable<TSource> source, [NotNull] Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Contract.Requires(!(source is null), $"Parameter {nameof(source)} cannot be null.");
-            Contract.Requires(!(predicate is null), $"Parameter {nameof(predicate)} cannot be null.");
-            Contract.EndContractBlock();
+        public static Task<TSource> SingleAsync<TSource>([NotNull] this IAsyncEnumerable<TSource> source, [NotNull] Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
 #elif NETSTANDARD2_0
-        public static async Task<TSource> SingleAsync<TSource>(this IAsyncEnumerable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TSource> SingleAsync<TSource>(this IAsyncEnumerable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
+#endif
         {
             if (source is null)
             {
@@ -96,7 +94,7 @@ namespace SubSonic.Linq
             {
                 throw Error.ArgumentNull(nameof(predicate));
             }
-#endif
+
             MethodInfo method = typeof(SubSonicAsyncQueryable).GetGenericMethod(nameof(SingleAsync), 
                 new[] {
                     typeof(IAsyncEnumerable<>).MakeGenericType(typeof(TSource)),
@@ -106,9 +104,13 @@ namespace SubSonic.Linq
 
             if (source is IAsyncSubSonicQueryable<TSource> _source)
             {
-                return await _source.ProviderAsync
-                    .ExecuteAsync<TSource>(Expression.Call(method, new[] { _source.Expression, predicate, Expression.Constant(cancellationToken) }), cancellationToken)
-                    .ConfigureAwait(false);
+#if NETSTANDARD2_1
+                return _source.ProviderAsync
+                    .ExecuteMethodAsync<TSource>(Expression.Call(method, new[] { _source.Expression, predicate, Expression.Constant(cancellationToken) }), cancellationToken);
+#elif NETSTANDARD2_0
+                return _source.ProviderAsync
+                    .ExecuteAsync<TSource>(Expression.Call(method, new[] { _source.Expression, predicate, Expression.Constant(cancellationToken) }), cancellationToken);
+#endif
             }
 
             throw Error.NotSupported($"{source}");
@@ -121,18 +123,16 @@ namespace SubSonic.Linq
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
 #if NETSTANDARD2_1
-        public static async Task<TSource> SingleOrDefaultAsync<TSource>([NotNull] this IAsyncEnumerable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Contract.Requires(!(source is null), $"Parameter {nameof(source)} cannot be null");
-            Contract.EndContractBlock();
+        public static Task<TSource> SingleOrDefaultAsync<TSource>([NotNull] this IAsyncEnumerable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
 #elif NETSTANDARD2_0
-        public static async Task<TSource> SingleOrDefaultAsync<TSource>(this IAsyncEnumerable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TSource> SingleOrDefaultAsync<TSource>(this IAsyncEnumerable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
+#endif
         {
             if (source is null)
             {
                 throw Error.ArgumentNull(nameof(source));
             }
-#endif
+
             MethodInfo method = typeof(SubSonicAsyncQueryable).GetGenericMethod(nameof(SingleOrDefaultAsync),
                 new[] {
                     typeof(IAsyncEnumerable<>).MakeGenericType(typeof(TSource)),
@@ -141,9 +141,13 @@ namespace SubSonic.Linq
 
             if (source is IAsyncSubSonicQueryable<TSource> _source)
             {
-                return await _source.ProviderAsync
-                .ExecuteAsync<TSource>(Expression.Call(method, new[] { _source.Expression, Expression.Constant(cancellationToken) }), cancellationToken)
-                .ConfigureAwait(false);
+#if NETSTANDARD2_1
+                return _source.ProviderAsync
+                    .ExecuteMethodAsync<TSource>(Expression.Call(method, new[] { _source.Expression, Expression.Constant(cancellationToken) }), cancellationToken);
+#elif NETSTANDARD2_0
+                return _source.ProviderAsync
+                    .ExecuteAsync<TSource>(Expression.Call(method, new[] { _source.Expression, Expression.Constant(cancellationToken) }), cancellationToken);
+#endif
             }
 
             throw Error.NotSupported($"{source}");
@@ -157,13 +161,10 @@ namespace SubSonic.Linq
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
 #if NETSTANDARD2_1
-        public static async Task<TSource> SingleOrDefaultAsync<TSource>([NotNull] this IAsyncEnumerable<TSource> source, [NotNull] Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Contract.Requires(!(source is null), $"Parameter {nameof(source)} cannot be null.");
-            Contract.Requires(!(predicate is null), $"Parameter {nameof(predicate)} cannot be null.");
-            Contract.EndContractBlock();
+        public static Task<TSource> SingleOrDefaultAsync<TSource>([NotNull] this IAsyncEnumerable<TSource> source, [NotNull] Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
 #elif NETSTANDARD2_0
-        public static async Task<TSource> SingleOrDefaultAsync<TSource>(this IAsyncEnumerable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TSource> SingleOrDefaultAsync<TSource>(this IAsyncEnumerable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
+#endif
         {
             if (source is null)
             {
@@ -174,7 +175,7 @@ namespace SubSonic.Linq
             {
                 throw Error.ArgumentNull(nameof(predicate));
             }
-#endif
+
             MethodInfo method = typeof(SubSonicAsyncQueryable).GetGenericMethod(nameof(SingleOrDefaultAsync),
                 new[] {
                     typeof(IAsyncEnumerable<>).MakeGenericType(typeof(TSource)),
@@ -184,9 +185,13 @@ namespace SubSonic.Linq
 
             if (source is IAsyncSubSonicQueryable<TSource> _source)
             {
-                return await _source.ProviderAsync
-                .ExecuteAsync<TSource>(Expression.Call(method, new[] { _source.Expression, predicate, Expression.Constant(cancellationToken) }), cancellationToken)
-                .ConfigureAwait(false);
+#if NETSTANDARD2_1
+                return _source.ProviderAsync
+                    .ExecuteMethodAsync<TSource>(Expression.Call(method, new[] { _source.Expression, predicate, Expression.Constant(cancellationToken) }), cancellationToken);
+#elif NETSTANDARD2_0
+                return _source.ProviderAsync
+                    .ExecuteAsync<TSource>(Expression.Call(method, new[] { _source.Expression, predicate, Expression.Constant(cancellationToken) }), cancellationToken);
+#endif
             }
 
             throw Error.NotSupported($"{source}");
@@ -195,34 +200,36 @@ namespace SubSonic.Linq
         /// <summary>
         /// 
         /// </summary>
-        /// <typeparam name="TSource"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
         /// <param name="source"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
 #if NETSTANDARD2_1
-        public static async Task<TSource> FirstAsync<TSource>([NotNull] this IAsyncEnumerable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Contract.Requires(!(source is null), $"Parameter {nameof(source)} cannot be null");
-            Contract.EndContractBlock();
+        public static Task<TResult> FirstAsync<TResult>([NotNull] this IAsyncEnumerable<TResult> source, CancellationToken cancellationToken = default(CancellationToken))
 #elif NETSTANDARD2_0
-        public static async Task<TSource> FirstAsync<TSource>(this IAsyncEnumerable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TResult> FirstAsync<TResult>(this IAsyncEnumerable<TResult> source, CancellationToken cancellationToken = default(CancellationToken))
+#endif
         {
             if (source is null)
             {
                 throw Error.ArgumentNull(nameof(source));
             }
-#endif
+
             MethodInfo method = typeof(SubSonicAsyncQueryable).GetGenericMethod(nameof(FirstAsync),
                 new[] {
-                    typeof(IAsyncEnumerable<>).MakeGenericType(typeof(TSource)),
+                    typeof(IAsyncEnumerable<>).MakeGenericType(typeof(TResult)),
                     typeof(CancellationToken)
                 });
 
-            if (source is IAsyncSubSonicQueryable<TSource> _source)
+            if (source is IAsyncSubSonicQueryable<TResult> _source)
             {
-                return await _source.ProviderAsync
-                    .ExecuteAsync<TSource>(Expression.Call(method, new[] { _source.Expression, Expression.Constant(cancellationToken) }), cancellationToken)
-                    .ConfigureAwait(false);
+#if NETSTANDARD2_1
+                return _source.ProviderAsync
+                    .ExecuteMethodAsync<TResult>(Expression.Call(method, new[] { _source.Expression, Expression.Constant(cancellationToken) }), cancellationToken);
+#elif NETSTANDARD2_0
+                return _source.ProviderAsync
+                    .ExecuteAsync<TResult>(Expression.Call(method, new[] { _source.Expression, Expression.Constant(cancellationToken) }), cancellationToken);
+#endif
             }
 
             throw Error.NotSupported($"{source}");
@@ -236,13 +243,10 @@ namespace SubSonic.Linq
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
 #if NETSTANDARD2_1
-        public static async Task<TSource> FirstAsync<TSource>([NotNull] this IAsyncEnumerable<TSource> source, [NotNull] Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Contract.Requires(!(source is null), $"Parameter {nameof(source)} cannot be null.");
-            Contract.Requires(!(predicate is null), $"Parameter {nameof(predicate)} cannot be null.");
-            Contract.EndContractBlock();
+        public static Task<TSource> FirstAsync<TSource>([NotNull] this IAsyncEnumerable<TSource> source, [NotNull] Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
 #elif NETSTANDARD2_0
-        public static async Task<TSource> FirstAsync<TSource>(this IAsyncEnumerable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TSource> FirstAsync<TSource>(this IAsyncEnumerable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
+#endif
         {
             if (source is null)
             {
@@ -253,7 +257,7 @@ namespace SubSonic.Linq
             {
                 throw Error.ArgumentNull(nameof(predicate));
             }
-#endif
+
             MethodInfo method = typeof(SubSonicAsyncQueryable).GetGenericMethod(nameof(FirstAsync),
                 new[] {
                     typeof(IAsyncEnumerable<>).MakeGenericType(typeof(TSource)),
@@ -263,9 +267,13 @@ namespace SubSonic.Linq
 
             if (source is IAsyncSubSonicQueryable<TSource> _source)
             {
-                return await _source.ProviderAsync
-                    .ExecuteAsync<TSource>(Expression.Call(method, new[] { _source.Expression, predicate, Expression.Constant(cancellationToken) }), cancellationToken)
-                    .ConfigureAwait(false);
+#if NETSTANDARD2_1
+                return _source.ProviderAsync
+                    .ExecuteMethodAsync<TSource>(Expression.Call(method, new[] { _source.Expression, predicate, Expression.Constant(cancellationToken) }), cancellationToken);
+#elif NETSTANDARD2_0
+                return _source.ProviderAsync
+                    .ExecuteAsync<TSource>(Expression.Call(method, new[] { _source.Expression, predicate, Expression.Constant(cancellationToken) }), cancellationToken);
+#endif
             }
 
             throw Error.NotSupported($"{source}");
@@ -278,18 +286,16 @@ namespace SubSonic.Linq
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
 #if NETSTANDARD2_1
-        public static async Task<TSource> FirstOrDefaultAsync<TSource>([NotNull] this IAsyncEnumerable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Contract.Requires(!(source is null), $"Parameter {nameof(source)} cannot be null");
-            Contract.EndContractBlock();
+        public static Task<TSource> FirstOrDefaultAsync<TSource>([NotNull] this IAsyncEnumerable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
 #elif NETSTANDARD2_0
-        public static async Task<TSource> FirstOrDefaultAsync<TSource>(this IAsyncEnumerable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TSource> FirstOrDefaultAsync<TSource>(this IAsyncEnumerable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
+#endif
         {
             if (source is null)
             {
                 throw Error.ArgumentNull(nameof(source));
             }
-#endif
+
             MethodInfo method = typeof(SubSonicAsyncQueryable).GetGenericMethod(nameof(FirstOrDefaultAsync),
                 new[] {
                     typeof(IAsyncEnumerable<>).MakeGenericType(typeof(TSource)),
@@ -298,9 +304,13 @@ namespace SubSonic.Linq
 
             if (source is IAsyncSubSonicQueryable<TSource> _source)
             {
-                return await _source.ProviderAsync
-                    .ExecuteAsync<TSource>(Expression.Call(method, new[] { _source.Expression, Expression.Constant(cancellationToken) }), cancellationToken)
-                    .ConfigureAwait(false);
+#if NETSTANDARD2_1
+                return _source.ProviderAsync
+                    .ExecuteMethodAsync<TSource>(Expression.Call(method, new[] { _source.Expression, Expression.Constant(cancellationToken) }), cancellationToken);
+#elif NETSTANDARD2_0
+                return _source.ProviderAsync
+                    .ExecuteAsync<TSource>(Expression.Call(method, new[] { _source.Expression, Expression.Constant(cancellationToken) }), cancellationToken);
+#endif
             }
 
             throw Error.NotSupported($"{source}");
@@ -314,13 +324,10 @@ namespace SubSonic.Linq
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
 #if NETSTANDARD2_1
-        public static async Task<TSource> FirstOrDefaultAsync<TSource>([NotNull] this IAsyncEnumerable<TSource> source, [NotNull] Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Contract.Requires(!(source is null), $"Parameter {nameof(source)} cannot be null.");
-            Contract.Requires(!(predicate is null), $"Parameter {nameof(predicate)} cannot be null.");
-            Contract.EndContractBlock();
+        public static Task<TSource> FirstOrDefaultAsync<TSource>([NotNull] this IAsyncEnumerable<TSource> source, [NotNull] Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
 #elif NETSTANDARD2_0
-        public static async Task<TSource> FirstOrDefaultAsync<TSource>(this IAsyncEnumerable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TSource> FirstOrDefaultAsync<TSource>(this IAsyncEnumerable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
+#endif
         {
             if (source is null)
             {
@@ -331,7 +338,7 @@ namespace SubSonic.Linq
             {
                 throw Error.ArgumentNull(nameof(predicate));
             }
-#endif
+
             MethodInfo method = typeof(SubSonicAsyncQueryable).GetGenericMethod(nameof(FirstOrDefaultAsync),
                 new[] {
                     typeof(IAsyncEnumerable<>).MakeGenericType(typeof(TSource)),
@@ -341,9 +348,13 @@ namespace SubSonic.Linq
 
             if (source is IAsyncSubSonicQueryable<TSource> _source)
             {
-                return await _source.ProviderAsync
-                    .ExecuteAsync<TSource>(Expression.Call(method, new[] { _source.Expression, predicate, Expression.Constant(cancellationToken) }), cancellationToken)
-                    .ConfigureAwait(false);
+#if NETSTANDARD2_1
+                return _source.ProviderAsync
+                    .ExecuteMethodAsync<TSource>(Expression.Call(method, new[] { _source.Expression, predicate, Expression.Constant(cancellationToken) }), cancellationToken);
+#elif NETSTANDARD2_0
+                return _source.ProviderAsync
+                    .ExecuteAsync<TSource>(Expression.Call(method, new[] { _source.Expression, predicate, Expression.Constant(cancellationToken) }), cancellationToken);
+#endif
             }
 
             throw Error.NotSupported($"{source}");
@@ -351,34 +362,35 @@ namespace SubSonic.Linq
         /// <summary>
         /// 
         /// </summary>
-        /// <typeparam name="TSource"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
         /// <param name="source"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
 #if NETSTANDARD2_1
-        public static async Task<IAsyncEnumerable<TSource>> LoadAsync<TSource>([NotNull] this IAsyncEnumerable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            Contract.Requires(!(source is null), $"Parameter {nameof(source)} cannot be null.");
-            Contract.EndContractBlock();
+        public static IAsyncEnumerable<TResult> LoadAsync<TResult>([NotNull] this IAsyncEnumerable<TResult> source, CancellationToken cancellationToken = default(CancellationToken))
 #elif NETSTANDARD2_0
-        public static async Task<IAsyncEnumerable<TSource>> LoadAsync<TSource>(this IAsyncEnumerable<TSource> source, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<IAsyncEnumerable<TResult>> LoadAsync<TResult>(this IAsyncEnumerable<TResult> source, CancellationToken cancellationToken = default(CancellationToken))
+#endif
         {
             if (source is null)
             {
                 throw Error.ArgumentNull(nameof(source));
             }
-#endif
+
             MethodInfo method = typeof(SubSonicAsyncQueryable).GetGenericMethod(nameof(LoadAsync),
                 new[] {
-                    typeof(IAsyncEnumerable<>).MakeGenericType(typeof(TSource)),
+                    typeof(IAsyncEnumerable<>).MakeGenericType(typeof(TResult)),
                     typeof(CancellationToken)
                 });
 
-            if (source is IAsyncSubSonicQueryable<TSource> _source)
+            if (source is IAsyncSubSonicQueryable<TResult> _source)
             {
-                return await _source.ProviderAsync
-                    .ExecuteAsync<IAsyncEnumerable<TSource>>(Expression.Call(method, new[] { _source.Expression, Expression.Constant(cancellationToken) }), cancellationToken)
-                    .ConfigureAwait(false);
+                return _source.ProviderAsync
+#if NETSTANDARD2_1
+                    .ExecuteLoadAsync<TResult>(Expression.Call(method, new[] { _source.Expression, Expression.Constant(cancellationToken) }), cancellationToken);
+#elif NETSTANDARD2_0
+                    .ExecuteAsync<IAsyncEnumerable<TResult>>(Expression.Call(method, new[] { _source.Expression, Expression.Constant(cancellationToken) }), cancellationToken);
+#endif
             }
 
             throw Error.NotSupported($"{source}");

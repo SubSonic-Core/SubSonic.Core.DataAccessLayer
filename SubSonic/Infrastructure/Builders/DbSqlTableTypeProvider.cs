@@ -5,6 +5,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
+#if NETSTANDARD2_1
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+#endif
 using System.Threading.Tasks;
 
 namespace SubSonic.Infrastructure.Builders
@@ -14,6 +18,7 @@ namespace SubSonic.Infrastructure.Builders
     using Linq.Expressions;
     using Logging;
     using Schema;
+    
 
     public class DbSqlTableTypeProvider
         : ISubSonicQueryProvider
@@ -132,7 +137,7 @@ namespace SubSonic.Infrastructure.Builders
                 return new SubSonicTableTypeCollection<TElement>(tableTypeName, this, expression);
             }
         }
-
+#if NETSTANDARD2_0
         public async Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
         {
             if (expression is null)
@@ -152,7 +157,42 @@ namespace SubSonic.Infrastructure.Builders
 
             throw Error.NotImplemented();
         }
+#elif NETSTANDARD2_1
+        public async Task<TResult> ExecuteMethodAsync<TResult>([NotNull] MethodCallExpression expression, [NotNull] CancellationToken cancellationToken)
+        {
+            throw Error.NotImplemented();
+        }
 
+        public async IAsyncEnumerable<TResult> ExecuteLoadAsync<TResult>([NotNull] MethodCallExpression expression, [EnumeratorCancellation] CancellationToken cancellationToken)
+        {
+            if (expression is null)
+            {
+                throw Error.ArgumentNull(nameof(expression));
+            }
+
+            yield return default;
+        }
+
+        public async IAsyncEnumerable<TResult> ExecuteAsync<TResult>([NotNull] Expression expression, [EnumeratorCancellation] CancellationToken cancellationToken)
+        {
+            if (expression is null)
+            {
+                throw Error.ArgumentNull(nameof(expression));
+            }
+
+            yield return default;
+        }
+
+        public async IAsyncEnumerable<object> ExecuteAsync([NotNull] Expression expression, [EnumeratorCancellation] CancellationToken cancellationToken)
+        {
+            if (expression is null)
+            {
+                throw Error.ArgumentNull(nameof(expression));
+            }
+
+            yield return default;
+        }
+#endif
         public object Execute(Expression expression)
         {
             if (expression is null)

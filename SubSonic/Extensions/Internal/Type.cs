@@ -216,9 +216,14 @@ namespace SubSonic
                         test = info.MakeGenericMethod(types[0]);
                     }
 
-                    bool match = true;
-
                     ParameterInfo[] parameters = test.GetParameters();
+
+                    if (parameters.Length != types.Length)
+                    {
+                        continue;
+                    }
+
+                    bool match = true;
 
                     for (int i = 0, cnt = types.Length; i < cnt; i++)
                     {
