@@ -13,6 +13,7 @@ namespace SubSonic.Infrastructure.Builders
     using Linq;
     using Linq.Expressions;
     using Logging;
+    using System.Globalization;
 
     public partial class DbSqlQueryBuilder
     {
@@ -146,10 +147,20 @@ namespace SubSonic.Infrastructure.Builders
                 {
                     if (BuildSelect(dbSelect, where) is DbSelectExpression select)
                     {
-                        return Execute<TResult>(DbExpression.DbSelectAggregate(select, new[]
+                        TResult result = Execute<TResult>(DbExpression.DbSelectAggregate(select, new[]
                         {
                             DbExpression.DbAggregate(typeof(TResult), AggregateType.Count, select.Columns.First(x => x.Property.IsPrimaryKey).Expression)
                         }));
+
+                        if (select.Take is ConstantExpression take)
+                        {
+                            if (result.IsIntGreaterThan(take.Value))
+                            {
+                                return (TResult)Convert.ChangeType(take.Value, typeof(TResult), CultureInfo.InvariantCulture);
+                            }
+                        }
+
+                        return result;
                     }
                 }
                 

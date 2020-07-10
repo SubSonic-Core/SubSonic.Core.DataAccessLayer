@@ -11,7 +11,6 @@ namespace SubSonic.Linq.Expressions
     public class DbSelectAggregateExpression
         : DbConstantExpression
     {
-        private readonly DbSelectExpression select;
         protected internal DbSelectAggregateExpression(DbSelectExpression select, IEnumerable<DbExpression> columns)
             : base(
                   select.IsNullThrowArgumentNull(nameof(select)).QueryObject,
@@ -25,18 +24,20 @@ namespace SubSonic.Linq.Expressions
 
             Columns = new ReadOnlyCollection<DbExpression>(columns.ToList());
 
-            this.select = select;
+            Select = select;
         }
+
+        public DbSelectExpression Select { get; }
 
         public ReadOnlyCollection<DbExpression> Columns { get; }
 
-        public bool IsCte => select.IsCte;
+        public bool IsCte => Select.IsCte;
 
-        public DbTableExpression From => select.From;
+        public DbTableExpression From => Select.From;
 
-        public Expression Where => select.Where;
+        public Expression Where => Select.Where;
 
-        public ReadOnlyCollection<Expression> GroupBy => select.GroupBy;
+        public ReadOnlyCollection<Expression> GroupBy => Select.GroupBy;
 
         public string QueryText
         {

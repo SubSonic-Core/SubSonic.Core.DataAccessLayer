@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SubSonic.Infrastructure
@@ -10,8 +12,8 @@ namespace SubSonic.Infrastructure
         : IConnectionScope
         , IDisposable
     {
-        [ThreadStatic]
-        private static Stack<SharedDbConnectionScope> __instances;
+        //[ThreadStatic]
+        private static Dictionary<int, Stack<SharedDbConnectionScope>> __db_instances;
 
         private readonly DbDatabase dbDatabase;
 
@@ -19,13 +21,22 @@ namespace SubSonic.Infrastructure
         {
             this.dbDatabase = dbDatabase ?? throw new ArgumentNullException(nameof(dbDatabase));
             this.dbDatabase.InitializeSharedConnection();
+            this.threadId = Thread.CurrentThread.ManagedThreadId;
 
-            if (__instances == null)
+            if (__db_instances == null)
             {
-                __instances = new Stack<SharedDbConnectionScope>();
+                __db_instances = new Dictionary<int, Stack<SharedDbConnectionScope>>();
             }
-            __instances.Push(this);
+
+            if (!__db_instances.ContainsKey(threadId))
+            {
+                __db_instances[threadId] = new Stack<SharedDbConnectionScope>();
+            }
+
+            __db_instances[threadId].Push(this);
         }
+
+        private readonly int threadId;
 
         public DbConnection Connection => dbDatabase.CurrentSharedConnection;
 
@@ -41,11 +52,18 @@ namespace SubSonic.Infrastructure
             {
                 if (disposing)
                 {
-                    __instances?.Pop();
+                    SharedDbConnectionScope scope = __db_instances[threadId].Pop();
 
-                    if(__instances?.Count == 0)
+                    Debug.Assert(scope.dbDatabase.CurrentSharedConnection.State == System.Data.ConnectionState.Closed, "open connection is being disposed.");
+
+                    if (__db_instances[threadId]?.Count == 0)
                     {
-                        this.dbDatabase.ResetSharedConnection();
+                        __db_instances.Remove(threadId);
+                    }
+
+                    if (__db_instances.Count == 0)
+                    {
+                        scope.dbDatabase.ResetSharedConnection();
                     }
 
                     disposedValue = true;

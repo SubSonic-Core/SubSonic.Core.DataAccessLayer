@@ -63,6 +63,7 @@ namespace SubSonic.Infrastructure
 
         private static void DBSharedConnection_Disposed(object sender, EventArgs e)
         {
+            dBSharedConnection?.Close();
             dBSharedConnection = null;
         }
 
@@ -270,6 +271,11 @@ namespace SubSonic.Infrastructure
 
                 try
                 {
+                    if (Scope.Connection.State != ConnectionState.Open)
+                    {
+                        Scope.Connection.Open();
+                    }
+
                     return await cmd
                         .ExecuteReaderAsync(dbQuery.Behavior, cancellationToken)
                         .ConfigureAwait(false);
@@ -279,6 +285,10 @@ namespace SubSonic.Infrastructure
                     logger.LogCritical(ex, ex.Message);
 
                     throw;
+                }
+                finally
+                {
+
                 }
             }
         }
