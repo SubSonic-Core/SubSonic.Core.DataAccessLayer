@@ -33,7 +33,6 @@ namespace SubSonic.Tests.DAL.DbModels
                 .RuleFor(p => p.FamilyName, x => x.PickRandom(DataSeed.Person.FamilyNames))
                 .RuleFor(p => p.FirstName, x => x.PickRandom(DataSeed.Person.FirstNames))
                 .RuleFor(p => p.MiddleInitial, x => x.PickRandom(DataSeed.Person.MiddleInitial))
-                .RuleFor(p => p.Renters, x => new HashSet<Models.Renter>())
                 .RuleFor(p => p.FullName, x => string.Empty);
 
             Context.People.AddRange(people.Generate(count));

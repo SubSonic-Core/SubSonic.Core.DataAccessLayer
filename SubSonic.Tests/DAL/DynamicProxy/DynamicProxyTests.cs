@@ -10,6 +10,7 @@ namespace SubSonic.Tests.DAL
 {
     using Extensions.Test;
     using Linq;
+    using SubSonic.Collections;
     using SUT;
 
     [TestFixture]
@@ -199,9 +200,93 @@ WHERE ([{0}].[ID] = 1)".Format("T1");
         {
             RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(Context);
 
-            instance.Units = new HashSet<Unit>(new[] { DynamicProxy.CreateProxyInstanceOf<Unit>(Context) });
+            instance.Units = new SubSonicCollection<Unit>(new[] { DynamicProxy.CreateProxyInstanceOf<Unit>(Context) });
+
+            instance.Units = new SubSonicCollection<Unit>()
+            {
+                DynamicProxy.CreateProxyInstanceOf<Unit>(Context)
+            };
 
             instance.Units.Should().NotBeNull();
+        }
+
+        [Test]
+        public void ProxyInitializationViaContext()
+        {
+            RealEstateProperty instance = Context.NewEntity<RealEstateProperty>();
+
+            ((IEntityProxy)instance).IsNew.Should().BeTrue();
+        }
+
+        private static IEnumerable<RealEstateProperty> ProxyInitializationViaContextSource()
+        {
+            yield return null;
+            yield return new RealEstateProperty() { ID = 0, StatusID = 1, HasParallelPowerGeneration = true };
+        }
+
+        [Test]
+        [TestCaseSource(nameof(ProxyInitializationViaContextSource))]
+        public void ProxyInitializationViaContext(RealEstateProperty source)
+        {
+            RealEstateProperty instance = Context.NewEntityFrom(source);
+
+            ((IEntityProxy)instance).IsNew.Should().BeTrue();
+            ((IEntityProxy)instance).IsDirty.Should().BeFalse();
+
+            IDbQuery query = null;
+
+            FluentActions.Invoking(() =>
+            {
+                if (instance.Units.Provider is ISubSonicQueryProvider provider)
+                {
+                    query = provider.ToQuery(instance.Units.Expression);
+                }
+            }).Should().NotThrow();
+
+            query.Sql.Should().Be(@"SELECT [T1].[ID], [T1].[Bedrooms] AS [NumberOfBedrooms], [T1].[StatusID], [T1].[RealEstatePropertyID]
+FROM [dbo].[Unit] AS [T1]
+WHERE ([T1].[RealEstatePropertyID] = @realestatepropertyid_1)");
+            query.Parameters.Get("@realestatepropertyid_1").GetValue<int>().Should().Be(instance.ID);
+        }
+
+        [Test]
+        public void ProxyInitializationViaContextSavedToDb()
+        {
+            Person instance = GetFakePerson.Generate();
+
+            ((IEntityProxy)instance).IsNew.Should().BeTrue();
+            ((IEntityProxy)instance).IsDirty.Should().BeFalse();
+
+            IDbQuery query = null;
+
+            FluentActions.Invoking(() =>
+            {
+                if (instance.Renters.Provider is ISubSonicQueryProvider provider)
+                {
+                    query = provider.ToQuery(instance.Renters.Expression);
+                }
+            }).Should().NotThrow();
+
+            query.Sql.Should().Be(@"SELECT [T1].[PersonID], [T1].[UnitID], [T1].[Rent], [T1].[StartDate], [T1].[EndDate]
+FROM [dbo].[Renter] AS [T1]
+WHERE ([T1].[PersonID] = @personid_1)");
+            query.Parameters.Get("@personid_1").GetValue<int>().Should().Be(instance.ID);
+
+            Context.People.Add(instance);
+
+            Context.SaveChanges();
+
+            instance.ID.Should().NotBe(0);
+
+            FluentActions.Invoking(() =>
+            {
+                if (instance.Renters.Provider is ISubSonicQueryProvider provider)
+                {
+                    query = provider.ToQuery(instance.Renters.Expression);
+                }
+            }).Should().NotThrow();
+
+            query.Parameters.Get("@personid_1").GetValue<int>().Should().Be(instance.ID);
         }
     }
 }

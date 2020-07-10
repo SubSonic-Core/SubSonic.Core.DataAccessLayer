@@ -11,7 +11,7 @@ namespace SubSonic.Infrastructure
         {
         }
 
-        internal Action<DbModel> PreLoadHandler { get; set; }
+        internal Action<DbSchemaModel> PreLoadHandler { get; set; }
 
         public bool EnableProxyGeneration { get; internal set; }
         public bool SupportUnicode { get; internal set; }

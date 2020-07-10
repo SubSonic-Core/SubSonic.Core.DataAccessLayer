@@ -1,4 +1,5 @@
-﻿using SubSonic.Infrastructure;
+﻿using SubSonic.Collections;
+using SubSonic.Infrastructure;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -12,11 +13,6 @@ namespace SubSonic.Extensions.Test.Models
     [DbCommandQuery(DbQueryType.Insert, typeof(InsertRealEstateProperty))]
     public class RealEstateProperty
     {
-        public RealEstateProperty()
-        {
-            Units = new HashSet<Unit>();
-        }
-
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
@@ -30,6 +26,6 @@ namespace SubSonic.Extensions.Test.Models
 
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2227:Collection properties should be read only", Justification = "<Pending>")]
-        public virtual ICollection<Unit> Units { get; set; }
+        public virtual ISubSonicCollection<Unit> Units { get; set; }
     }
 }

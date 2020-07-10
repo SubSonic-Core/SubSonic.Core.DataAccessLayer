@@ -22,7 +22,7 @@ namespace SubSonic
         protected DbContext()
         {
             Options = new DbContextOptions();
-            Model = new DbModel(this);
+            Model = new DbSchemaModel(this);
 
             Initialize();            
         }

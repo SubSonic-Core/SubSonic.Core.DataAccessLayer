@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SubSonic.Collections;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -27,7 +28,7 @@ namespace SubSonic.Extensions.Test.Models
         [MaxLength(104)]
         public string FullName { get; set; }
 
-        public virtual ICollection<Renter> Renters { get; set; }
+        public virtual ISubSonicCollection<Renter> Renters { get; set; }
 
         public override string ToString() => FullName;
     }
