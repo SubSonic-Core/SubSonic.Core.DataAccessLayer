@@ -99,9 +99,11 @@ namespace SubSonic.Data.DynamicProxies
             {
                 AssemblyName
                     executingName = Assembly.GetExecutingAssembly().GetName(),
-                    assemblyName = new AssemblyName("SubSonic.DynamicProxies");
+                    assemblyName = new AssemblyName("SubSonic.DynamicProxies")
+                    {
+                        KeyPair = executingName.KeyPair
+                    };
 
-                assemblyName.KeyPair = executingName.KeyPair;
                 assemblyName.SetPublicKey(executingName.GetPublicKey());
                 
                 AssemblyBuilder DynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(
