@@ -5,6 +5,8 @@ using System.Threading;
 namespace SubSonic.Collections
 {
     using Interfaces;
+    using System.Runtime.CompilerServices;
+    using System.Threading.Tasks;
 
     public sealed partial class SubSonicCollection<TEntity>
         : IAsyncSubSonicQueryable<TEntity>
@@ -22,6 +24,7 @@ namespace SubSonic.Collections
             }
         }
 
+#if NETSTANDARD2_0
         IAsyncEnumerator<TEntity> IAsyncEnumerable<TEntity>.GetAsyncEnumerator(CancellationToken cancellationToken)
         {
             return new AsyncEnumerable<TEntity>(async (yield) =>
@@ -32,5 +35,14 @@ namespace SubSonic.Collections
                 }
             }).GetAsyncEnumerator(cancellationToken);
         }
+#elif NETSTANDARD2_1
+        async IAsyncEnumerator<TEntity> IAsyncEnumerable<TEntity>.GetAsyncEnumerator(CancellationToken cancellationToken)
+        {
+            await foreach(TEntity entity in this.WithCancellation(cancellationToken))
+            {
+                yield return entity;
+            }
+        }
+#endif
     }
 }

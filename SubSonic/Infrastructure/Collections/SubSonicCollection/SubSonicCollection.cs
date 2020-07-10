@@ -11,6 +11,7 @@ namespace SubSonic.Collections
     using Linq.Expressions;
     using Infrastructure.Logging;
     using Infrastructure.Schema;
+    using SubSonic.Infrastructure;
 
     public sealed partial class SubSonicCollection<TEntity>
         : SubSonicCollection
@@ -18,6 +19,12 @@ namespace SubSonic.Collections
     {
         public SubSonicCollection()
             : base(typeof(TEntity))
+        {
+
+        }
+
+        public SubSonicCollection(IEnumerable<TEntity> entities)
+            : base(typeof(TEntity), DbContext.ServiceProvider.GetService<ISubSonicQueryProvider<TEntity>>(), null, entities)
         {
 
         }
@@ -152,7 +159,7 @@ namespace SubSonic.Collections
         public SubSonicCollection(Type elementType, IQueryProvider provider, Expression expression)
             : this(elementType)
         {
-            Expression = expression ?? throw new ArgumentNullException(nameof(expression));
+            Expression = expression ?? DbExpression.DbSelect(this, GetType(), Model.Table);
             Provider = provider ?? new DbSqlQueryBuilder(ElementType, DbContext.ServiceProvider.GetService<ISubSonicLogger>());
         }
 

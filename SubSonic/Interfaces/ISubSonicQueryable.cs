@@ -18,6 +18,11 @@ namespace SubSonic
     public interface ISubSonicCollection<TEntity>
         : ISubSonicCollection, IAsyncSubSonicQueryable<TEntity>, IOrderedQueryable<TEntity>, IQueryable<TEntity>, IEnumerable<TEntity>, IQueryable, IEnumerable, ICollection<TEntity>
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        new int Count { get; }
+
         void AddRange(IEnumerable<TEntity> entities);
     }
 
