@@ -80,10 +80,7 @@ namespace SubSonic.Infrastructure.Builders
                     {
                         dbQuery.CleanUpParameters();
 
-                        if (!(Scope.Connection is null))
-                        {
-                            Scope.Connection.Close();
-                        }
+                        Scope.Connection.Close();
                     }
                 }
             }
@@ -217,7 +214,7 @@ namespace SubSonic.Infrastructure.Builders
                 throw Error.ArgumentNull(nameof(query));
             }
 
-            using SharedDbConnectionScope Scope = DbContext.ServiceProvider.GetService<SharedDbConnectionScope>();
+            using SharedDbConnectionScope Scope = DbContext.Current.UseSharedDbConnection();
             IDbQuery dbQuery = ToQuery(query);
 
             Type elementType = query.Type.GetQualifiedType();
@@ -226,8 +223,6 @@ namespace SubSonic.Infrastructure.Builders
 
             try
             {
-                await Scope.Connection.OpenAsync(cancellationToken)
-                            .ConfigureAwait(false);
                 if (isEntityModel)
                 {
                     using (DbDataReader reader = await Scope.Database
@@ -259,13 +254,11 @@ namespace SubSonic.Infrastructure.Builders
             }
             finally
             {
-                if (Scope.Connection != null)
-                {
-                    await Scope.Connection
-                        .CloseAsync()
-                        .ConfigureAwait(false);
-                }
-
+#if NETSTANDARD2_1
+                await Scope.Connection.CloseAsync().ConfigureAwait(true);
+#else
+                Scope.Connection.Close();
+#endif
                 dbQuery.CleanUpParameters();
             }
         }

@@ -14,6 +14,18 @@ namespace SubSonic
     /// </remarks>
     internal static partial class InternalExtensions
     {
+        public static bool IsIntGreaterThan(this object left, object right)
+        {
+            if (left is int _left)
+            {
+                if (right is int _right)
+                {
+                   return _left > _right;
+                }
+            }
+
+            return false;
+        }
         public static bool IsOfType<TType>(this object source)
         {
             return IsOfType(source, typeof(TType));

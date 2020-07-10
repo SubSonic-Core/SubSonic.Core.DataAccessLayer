@@ -20,11 +20,11 @@ namespace SubSonic.Linq.Expressions.Structure
             {
                 if (disposing)
                 {
-                    __instances.Pop();
+                    __formatter_instances.Pop();
 
-                    if(__instances.Count == 0)
+                    if(__formatter_instances.Count == 0)
                     {
-                        __instances = null;
+                        __formatter_instances = null;
                     }
                 }
 

@@ -22,7 +22,7 @@ namespace SubSonic.Linq.Expressions.Structure
         : DbExpressionVisitor
     {
         [ThreadStatic]
-        private static Stack<TSqlFormatter> __instances;
+        private static Stack<TSqlFormatter> __formatter_instances;
         private int depth = 0;
         private readonly TextWriter writer;
         private readonly ISqlContext context;
@@ -49,15 +49,15 @@ namespace SubSonic.Linq.Expressions.Structure
             this.context = context ?? throw new ArgumentNullException(nameof(context));
             this.provider = context.Provider ?? throw new InvalidOperationException();
 
-            if (__instances is null)
+            if (__formatter_instances is null)
             {
-                __instances = new Stack<TSqlFormatter>();
+                __formatter_instances = new Stack<TSqlFormatter>();
             }
 
-            __instances.Push(this);
+            __formatter_instances.Push(this);
         }
 
-        protected static int IndentationWidth => __instances.Count;
+        protected static int IndentationWidth => __formatter_instances.Count;
 
         protected bool IsNested { get; set; } = false;
 
