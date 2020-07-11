@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace SubSonic.Infrastructure.Builders
 {
+    using Infrastructure.Schema;
     using Linq;
     using Linq.Expressions;
-    using Infrastructure.Schema;
-    using SysLinq = System.Linq;
-    using System.Diagnostics;
-    using System.Net.Security;
 
     public partial class DbSqlQueryBuilder
     {
@@ -166,7 +163,7 @@ namespace SubSonic.Infrastructure.Builders
             {
                 return new DbSelectExpression(
                     select.QueryObject, 
-                    typeof(SysLinq.IQueryable<>).MakeGenericType(property.PropertyType),
+                    typeof(IQueryable<>).MakeGenericType(property.PropertyType),
                     select.From,
                     select.Columns.Where(x => x.PropertyName.Equals(property.PropertyName, StringComparison.CurrentCulture)), 
                     select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip, select.IsCte);
@@ -270,7 +267,7 @@ namespace SubSonic.Infrastructure.Builders
             }
         }
 
-        public Expression BuildLogicalIn(Expression body, PropertyInfo property, SysLinq.IQueryable queryable, DbGroupOperator @group)
+        public Expression BuildLogicalIn(Expression body, PropertyInfo property, IQueryable queryable, DbGroupOperator @group)
         {
             if (property.IsNull())
             {

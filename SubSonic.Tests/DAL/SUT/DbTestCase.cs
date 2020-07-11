@@ -7,9 +7,7 @@ using System.Linq.Expressions;
 namespace SubSonic.Tests.DAL
 {
     using Extensions.Test;
-    using Infrastructure;
     using Infrastructure.Schema;
-    using SysLinq = System.Linq;
 
     public class DbTestCase<TModel>
         : IDbTestCase
