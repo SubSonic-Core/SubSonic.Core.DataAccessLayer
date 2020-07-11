@@ -117,7 +117,10 @@ FROM [dbo].[Person] AS [T1]
 WHERE ([T1].[ID] > @id_1)",
                 people_less_than = @"SELECT [T1].[ID], [T1].[FirstName], [T1].[MiddleInitial], [T1].[FamilyName], [T1].[FullName]
 FROM [dbo].[Person] AS [T1]
-WHERE ([T1].[ID] < @id_1)";
+WHERE ([T1].[ID] < @id_1)",
+                renter_byperson = @"SELECT [T1].[PersonID], [T1].[UnitID], [T1].[Rent], [T1].[StartDate], [T1].[EndDate]
+FROM [dbo].[Renter] AS [T1]
+WHERE ([T1].[PersonID] == @personid_1)";
 
             Context.Database.Instance.AddCommandBehavior(people_all, cmd => People.ToDataTable());
             Context.Database.Instance.AddCommandBehavior(people_all_count, cmd => People.Count());
@@ -125,6 +128,8 @@ WHERE ([T1].[ID] < @id_1)";
             Context.Database.Instance.AddCommandBehavior(people_greater_than, cmd => People.Where(x => x.ID > cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
             Context.Database.Instance.AddCommandBehavior(people_equal, cmd => People.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
             Context.Database.Instance.AddCommandBehavior(people_less_than, cmd => People.Where(x => x.ID < cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
+
+            Context.Database.Instance.AddCommandBehavior(renter_byperson, cmd => Renters.Where(x => x.PersonID == cmd.Parameters["@personid_1"].GetValue<int>()).ToDataTable());
         }
 
         protected virtual void SetInsertBehaviors()

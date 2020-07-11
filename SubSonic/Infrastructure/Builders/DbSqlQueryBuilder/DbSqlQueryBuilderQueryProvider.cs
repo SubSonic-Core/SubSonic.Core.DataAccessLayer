@@ -91,7 +91,7 @@ namespace SubSonic.Infrastructure.Builders
                     throw Error.InvalidOperation($"Method {call.Method.Name} expects data.");
                 }
             }
-            else if (call.Method.Name.In(nameof(Queryable.Count), nameof(Queryable.LongCount), nameof(Queryable.Min), nameof(Queryable.Max)))
+            else if (call.Method.Name.In(nameof(Queryable.Count), nameof(Queryable.LongCount), nameof(Queryable.Min), nameof(Queryable.Max), nameof(Queryable.Sum), nameof(Queryable.Average)))
             {
                 if (BuildSelect(dbSelect, where) is DbSelectExpression select)
                 {
