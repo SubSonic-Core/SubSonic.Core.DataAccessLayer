@@ -33,6 +33,104 @@ namespace SubSonic.Infrastructure.Builders
             return new SubSonicCollection<TEntity>(this, BuildQuery(expression));
         }
 
+        public TResult ExecuteMethod<TResult>(MethodCallExpression call)
+        {
+            if (call is null)
+            {
+                throw Error.ArgumentNull(nameof(call));
+            }
+
+            DbSelectExpression dbSelect = null;
+            Expression where = null;
+
+            for (int i = 0, n = call.Arguments.Count; i < n; i++)
+            {
+                if (call.Arguments[i] is DbSelectExpression select)
+                {
+                    dbSelect = select;
+                }
+                else if (call.Arguments[i] is UnaryExpression unary)
+                {
+                    if (unary.Operand is LambdaExpression lambda)
+                    {
+                        switch (lambda.Body.NodeType)
+                        {
+                            case ExpressionType.MemberAccess:
+                                dbSelect = (DbSelectExpression)BuildSelect(dbSelect, dbSelect.Columns.Where(x => x.PropertyName.Equals(lambda.GetProperty().Name, StringComparison.Ordinal)));
+                                break;
+                            default:
+                                where = BuildWhere(dbSelect, lambda);
+                                break;
+                        }
+                    }
+                }
+            }
+
+            if (call.Method.Name.In(nameof(Queryable.Single), nameof(Queryable.SingleOrDefault), nameof(Queryable.First), nameof(Queryable.FirstOrDefault)))
+            {
+                object result = Execute<TResult>(BuildSelect(dbSelect, where));
+
+                if (result is TResult matched)
+                {
+                    return matched;
+                }
+                else if (result is IEnumerable<TResult> enumerable)
+                {
+                    return enumerable.Any() ? enumerable.ElementAt(0) : default(TResult);
+                }
+#if NETSTANDARD2_0
+                else if (call.Method.Name.Contains("Default"))
+#elif NETSTANDARD2_1
+                else if (call.Method.Name.Contains("Default", StringComparison.CurrentCulture))
+#endif
+                {
+                    return default(TResult);
+                }
+                else
+                {
+                    throw Error.InvalidOperation($"Method {call.Method.Name} expects data.");
+                }
+            }
+            else if (call.Method.Name.In(nameof(Queryable.Count), nameof(Queryable.LongCount), nameof(Queryable.Min), nameof(Queryable.Max), nameof(Queryable.Sum), nameof(Queryable.Average)))
+            {
+                if (BuildSelect(dbSelect, where) is DbSelectExpression select)
+                {
+                    if (!Enum.TryParse<AggregateType>(call.Method.Name, out AggregateType aggregateType))
+                    {
+                        throw Error.NotSupported(SubSonicErrorMessages.MethodNotSupported.Format(call.Method.Name));
+                    }
+
+                    Expression argument = null;
+
+                    if (select.Columns.Count > 1)
+                    {
+                        argument = select.Columns.First(x => x.Property.IsPrimaryKey).Expression;
+                    }
+                    else
+                    {
+                        argument = select.Columns.Single().Expression;
+                    }
+
+                    TResult result = Execute<TResult>(DbExpression.DbSelectAggregate(select, new[]
+                    {
+                            DbExpression.DbAggregate(typeof(TResult), aggregateType, argument)
+                    }));
+
+                    if (select.Take is ConstantExpression take)
+                    {
+                        if (result.IsIntGreaterThan(take.Value))
+                        {
+                            return (TResult)Convert.ChangeType(take.Value, typeof(TResult), CultureInfo.InvariantCulture);
+                        }
+                    }
+
+                    return result;
+                }
+            }
+
+            throw Error.NotSupported(SubSonicErrorMessages.ExpressionNotSupported.Format(call.Method.Name));
+        }
+
         public TResult Execute<TResult>(Expression expression)
         {
             if (expression is null)
@@ -40,7 +138,11 @@ namespace SubSonic.Infrastructure.Builders
                 throw new ArgumentNullException(nameof(expression));
             }
 
-            if (expression is DbExpression query)
+            if (expression is MethodCallExpression call)
+            {   // execution request originates from the System.Linq namespace
+                return ExecuteMethod<TResult>(call);
+            }
+            else if (expression is DbExpression query)
             {   // execution request is from the subsonic namespace
                 using (SharedDbConnectionScope Scope = DbContext.ServiceProvider.GetService<SharedDbConnectionScope>())
                 {
@@ -96,75 +198,6 @@ namespace SubSonic.Infrastructure.Builders
                         return default(TResult);
                     }
                 }
-            }
-            else if (expression is MethodCallExpression call)
-            {   // execution request originates from the System.Linq namespace
-
-                DbSelectExpression dbSelect = null;
-                Expression where = null;
-
-                for (int i = 0, n = call.Arguments.Count; i < n; i++)
-                {
-                    if (call.Arguments[i] is DbSelectExpression select)
-                    {
-                        dbSelect = select;
-                    }
-                    else if (call.Arguments[i] is UnaryExpression unary)
-                    {
-                        if (unary.Operand is LambdaExpression lambda)
-                        {
-                            where = BuildWhere(dbSelect, lambda);
-                        }
-                    }
-                }
-
-                if (call.Method.Name.In(nameof(Queryable.Single), nameof(Queryable.SingleOrDefault), nameof(Queryable.First), nameof(Queryable.FirstOrDefault)))
-                {
-                    object result = Execute<TResult>(BuildSelect(dbSelect, where));
-
-                    if (result is TResult matched)
-                    {
-                        return matched;
-                    }
-                    else if (result is IEnumerable<TResult> enumerable)
-                    {
-                        return enumerable.Any() ? enumerable.ElementAt(0) : default(TResult);
-                    }
-#if NETSTANDARD2_0
-                    else if (call.Method.Name.Contains("Default"))
-#elif NETSTANDARD2_1
-                    else if (call.Method.Name.Contains("Default", StringComparison.CurrentCulture))
-#endif
-                    {
-                        return default(TResult);
-                    }
-                    else
-                    {
-                        throw Error.InvalidOperation($"Method {call.Method.Name} expects data.");
-                    }
-                }
-                else if (call.Method.Name.In(nameof(Queryable.Count)))
-                {
-                    if (BuildSelect(dbSelect, where) is DbSelectExpression select)
-                    {
-                        TResult result = Execute<TResult>(DbExpression.DbSelectAggregate(select, new[]
-                        {
-                            DbExpression.DbAggregate(typeof(TResult), AggregateType.Count, select.Columns.First(x => x.Property.IsPrimaryKey).Expression)
-                        }));
-
-                        if (select.Take is ConstantExpression take)
-                        {
-                            if (result.IsIntGreaterThan(take.Value))
-                            {
-                                return (TResult)Convert.ChangeType(take.Value, typeof(TResult), CultureInfo.InvariantCulture);
-                            }
-                        }
-
-                        return result;
-                    }
-                }
-                
-                throw Error.NotSupported(SubSonicErrorMessages.ExpressionNotSupported.Format(call.Method.Name));
             }
 
             throw new NotSupportedException(expression.ToString());

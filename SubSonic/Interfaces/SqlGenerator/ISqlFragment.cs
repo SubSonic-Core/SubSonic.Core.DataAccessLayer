@@ -54,6 +54,7 @@ namespace SubSonic.Infrastructure.SqlGenerator
         string RIGHT_PARENTHESIS { get; }
         string QOUTE { get; }
         string COUNT { get; }
+        string COUNTBIG { get; }
         string MIN { get; }
         string AVG { get; }
         string MAX { get; }

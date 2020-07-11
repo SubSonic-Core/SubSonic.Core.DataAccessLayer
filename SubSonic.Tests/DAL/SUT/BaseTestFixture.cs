@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 
 namespace SubSonic.Tests.DAL.SUT
 {
@@ -56,6 +57,8 @@ namespace SubSonic.Tests.DAL.SUT
 
             SetInsertBehaviors();
 
+            SetSelectBehaviors();
+
             Statuses = new List<Status>()
             {
                 new Status() { ID = 1, Name = "Vacant", IsAvailableStatus = true },
@@ -73,11 +76,11 @@ namespace SubSonic.Tests.DAL.SUT
 
             Renters = new List<Renter>()
             {
-                new Renter() { PersonID = 1, UnitID = 1, StartDate = new DateTime(1980, 01, 01), EndDate = new DateTime(1990, 02, 28) },
-                new Renter() { PersonID = 2, UnitID = 1, StartDate = new DateTime(1990, 03, 01) },
-                new Renter() { PersonID = 3, UnitID = 2, StartDate = new DateTime(1980, 03, 01), EndDate = new DateTime(2000, 01, 01) },
-                new Renter() { PersonID = 1, UnitID = 3, StartDate = new DateTime(1990, 03, 01) },
-                new Renter() { PersonID = 4, UnitID = 4, StartDate = new DateTime(2000, 01, 01) }
+                new Renter() { PersonID = 1, UnitID = 1, Rent = 100M, StartDate = new DateTime(1980, 01, 01), EndDate = new DateTime(1990, 02, 28) },
+                new Renter() { PersonID = 2, UnitID = 1, Rent = 150M, StartDate = new DateTime(1990, 03, 01) },
+                new Renter() { PersonID = 3, UnitID = 2, Rent = 200M, StartDate = new DateTime(1980, 03, 01), EndDate = new DateTime(2000, 01, 01) },
+                new Renter() { PersonID = 1, UnitID = 3, Rent = 250M, StartDate = new DateTime(1990, 03, 01) },
+                new Renter() { PersonID = 4, UnitID = 4, Rent = 300M, StartDate = new DateTime(2000, 01, 01) }
             };
 
             RealEstateProperties = new List<RealEstateProperty>()
@@ -97,7 +100,39 @@ namespace SubSonic.Tests.DAL.SUT
             };
         }
 
-        private void SetInsertBehaviors()
+        protected virtual void SetSelectBehaviors()
+        {
+            string
+                people_all = @"SELECT [T1].[ID], [T1].[FirstName], [T1].[MiddleInitial], [T1].[FamilyName], [T1].[FullName]
+FROM [dbo].[Person] AS [T1]",
+                people_all_count = @"SELECT COUNT([T1].[ID])
+FROM [dbo].[Person] AS [T1]",
+                people_all_long_count = @"SELECT COUNT_BIG([T1].[ID])
+FROM [dbo].[Person] AS [T1]",
+                people_equal = @"SELECT [T1].[ID], [T1].[FirstName], [T1].[MiddleInitial], [T1].[FamilyName], [T1].[FullName]
+FROM [dbo].[Person] AS [T1]
+WHERE ([T1].[ID] = @id_1)",
+                people_greater_than = @"SELECT [T1].[ID], [T1].[FirstName], [T1].[MiddleInitial], [T1].[FamilyName], [T1].[FullName]
+FROM [dbo].[Person] AS [T1]
+WHERE ([T1].[ID] > @id_1)",
+                people_less_than = @"SELECT [T1].[ID], [T1].[FirstName], [T1].[MiddleInitial], [T1].[FamilyName], [T1].[FullName]
+FROM [dbo].[Person] AS [T1]
+WHERE ([T1].[ID] < @id_1)",
+                renter_byperson = @"SELECT [T1].[PersonID], [T1].[UnitID], [T1].[Rent], [T1].[StartDate], [T1].[EndDate]
+FROM [dbo].[Renter] AS [T1]
+WHERE ([T1].[PersonID] == @personid_1)";
+
+            Context.Database.Instance.AddCommandBehavior(people_all, cmd => People.ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(people_all_count, cmd => People.Count());
+            Context.Database.Instance.AddCommandBehavior(people_all_long_count, cmd => People.LongCount());
+            Context.Database.Instance.AddCommandBehavior(people_greater_than, cmd => People.Where(x => x.ID > cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(people_equal, cmd => People.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(people_less_than, cmd => People.Where(x => x.ID < cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
+
+            Context.Database.Instance.AddCommandBehavior(renter_byperson, cmd => Renters.Where(x => x.PersonID == cmd.Parameters["@personid_1"].GetValue<int>()).ToDataTable());
+        }
+
+        protected virtual void SetInsertBehaviors()
         {
             string 
                 insert_person = @"INSERT INTO [dbo].[Person]
