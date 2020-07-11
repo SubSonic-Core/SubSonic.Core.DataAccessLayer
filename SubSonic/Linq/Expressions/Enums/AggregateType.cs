@@ -7,6 +7,7 @@ namespace SubSonic.Linq.Expressions
     public enum AggregateType
     {
         Count,
+        LongCount,
         Min,
         Max,
         Sum,

@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 
 namespace SubSonic.Tests.DAL.SUT
 {
@@ -56,6 +57,8 @@ namespace SubSonic.Tests.DAL.SUT
 
             SetInsertBehaviors();
 
+            SetSelectBehaviors();
+
             Statuses = new List<Status>()
             {
                 new Status() { ID = 1, Name = "Vacant", IsAvailableStatus = true },
@@ -97,7 +100,34 @@ namespace SubSonic.Tests.DAL.SUT
             };
         }
 
-        private void SetInsertBehaviors()
+        protected virtual void SetSelectBehaviors()
+        {
+            string
+                people_all = @"SELECT [T1].[ID], [T1].[FirstName], [T1].[MiddleInitial], [T1].[FamilyName], [T1].[FullName]
+FROM [dbo].[Person] AS [T1]",
+                people_all_count = @"SELECT COUNT([T1].[ID])
+FROM [dbo].[Person] AS [T1]",
+                people_all_long_count = @"SELECT COUNT_BIG([T1].[ID])
+FROM [dbo].[Person] AS [T1]",
+                people_equal = @"SELECT [T1].[ID], [T1].[FirstName], [T1].[MiddleInitial], [T1].[FamilyName], [T1].[FullName]
+FROM [dbo].[Person] AS [T1]
+WHERE ([T1].[ID] = @id_1)",
+                people_greater_than = @"SELECT [T1].[ID], [T1].[FirstName], [T1].[MiddleInitial], [T1].[FamilyName], [T1].[FullName]
+FROM [dbo].[Person] AS [T1]
+WHERE ([T1].[ID] > @id_1)",
+                people_less_than = @"SELECT [T1].[ID], [T1].[FirstName], [T1].[MiddleInitial], [T1].[FamilyName], [T1].[FullName]
+FROM [dbo].[Person] AS [T1]
+WHERE ([T1].[ID] < @id_1)";
+
+            Context.Database.Instance.AddCommandBehavior(people_all, cmd => People.ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(people_all_count, cmd => People.Count());
+            Context.Database.Instance.AddCommandBehavior(people_all_long_count, cmd => People.LongCount());
+            Context.Database.Instance.AddCommandBehavior(people_greater_than, cmd => People.Where(x => x.ID > cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(people_equal, cmd => People.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(people_less_than, cmd => People.Where(x => x.ID < cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
+        }
+
+        protected virtual void SetInsertBehaviors()
         {
             string 
                 insert_person = @"INSERT INTO [dbo].[Person]

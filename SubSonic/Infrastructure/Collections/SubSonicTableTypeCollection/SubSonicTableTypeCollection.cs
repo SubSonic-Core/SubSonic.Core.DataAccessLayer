@@ -12,45 +12,32 @@ namespace SubSonic.Collections
     using Infrastructure.Logging;
     using Infrastructure.Schema;
 
-    public sealed partial class SubSonicTableTypeCollection<TElement>
+    public sealed partial class SubSonicTableTypeCollection<TEntity>
         : SubSonicTableTypeCollection
-        , ISubSonicCollection<TElement>
+        , ISubSonicCollection<TEntity>
     {
         public SubSonicTableTypeCollection(string name)
-            : base(name, typeof(TElement))
+            : base(name, typeof(TEntity))
         {
 
         }
 
         public SubSonicTableTypeCollection(string name, IQueryProvider provider, Expression expression)
-            : base(name, typeof(TElement), provider, expression)
+            : base(name, typeof(TEntity), provider, expression)
         {
 
         }
 
-        public SubSonicTableTypeCollection(string name, IQueryProvider provider, Expression expression, IEnumerable<TElement> enumerable)
-            : base(name, typeof(TElement), provider, expression, enumerable)
+        public SubSonicTableTypeCollection(string name, IQueryProvider provider, Expression expression, IEnumerable<TEntity> enumerable)
+            : base(name, typeof(TEntity), provider, expression, enumerable)
         {
 
-        }
-
-        public IAsyncSubSonicQueryProvider AsyncProvider
-        {
-            get
-            {
-                if (Provider is IAsyncSubSonicQueryProvider provider)
-                {
-                    return provider;
-                }
-
-                return null;
-            }
         }
 
         #region ICollection<> Implementation
         public void Clear()
         {
-            if (TableData is ICollection<TElement> data)
+            if (TableData is ICollection<TEntity> data)
             {
                 data.Clear();
             }
@@ -60,9 +47,9 @@ namespace SubSonic.Collections
             }
         }
 
-        public void Add(TElement element)
+        public void Add(TEntity element)
         {
-            if (TableData is ICollection<TElement> data)
+            if (TableData is ICollection<TEntity> data)
             {
                 if (!IsReadOnly)
                 {
@@ -75,20 +62,20 @@ namespace SubSonic.Collections
             }
         }
 
-        public void AddRange(IEnumerable<TElement> elements)
+        public void AddRange(IEnumerable<TEntity> elements)
         {
             if (!(elements is null))
             {
-                foreach (TElement element in elements)
+                foreach (TEntity element in elements)
                 {
                     Add(element);
                 }
             }
         }
 
-        public bool Remove(TElement element)
+        public bool Remove(TEntity element)
         {
-            if (TableData is ICollection<TElement> data)
+            if (TableData is ICollection<TEntity> data)
             {
                 return data.Remove(element);
             }
@@ -98,9 +85,9 @@ namespace SubSonic.Collections
             }
         }
 
-        public bool Contains(TElement element)
+        public bool Contains(TEntity element)
         {
-            if (TableData is ICollection<TElement> data)
+            if (TableData is ICollection<TEntity> data)
             {
                 return data.Contains(element);
             }
@@ -110,9 +97,9 @@ namespace SubSonic.Collections
             }
         }
 
-        public void CopyTo(TElement[] elements, int startAt)
+        public void CopyTo(TEntity[] elements, int startAt)
         {
-            if (TableData is ICollection<TElement> data)
+            if (TableData is ICollection<TEntity> data)
             {
                 data.Select(x => x).ToArray().CopyTo(elements, startAt);
             }
@@ -121,9 +108,9 @@ namespace SubSonic.Collections
                 throw new NotSupportedException();
             }
         }
-        IEnumerator<TElement> IEnumerable<TElement>.GetEnumerator()
+        IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()
         {
-            if (TableData is ICollection<TElement> data)
+            if (TableData is ICollection<TEntity> data)
             {
                 return data.GetEnumerator();
             }
@@ -139,6 +126,11 @@ namespace SubSonic.Collections
     public class SubSonicTableTypeCollection
         : ISubSonicCollection
     {
+        /// <summary>
+        /// get a new instance of a table type collection <see cref="SubSonicTableTypeCollection"/>
+        /// </summary>
+        /// <param name="name">the name of the table type</param>
+        /// <param name="elementType">clr type of the table type</param>
         public SubSonicTableTypeCollection(string name, Type elementType)
         {
             if (name.IsNullOrEmpty())
@@ -158,15 +150,30 @@ namespace SubSonic.Collections
             }
         }
 
+        /// <summary>
+        /// get a new instance of a table type collection <see cref="SubSonicTableTypeCollection"/>
+        /// </summary>
+        /// <param name="name">the name of the table type</param>
+        /// <param name="elementType">clr type of the table type</param>
+        /// <param name="provider">the query provider <see cref="IQueryProvider"/></param>
+        /// <param name="expression">the <see cref="DbExpression"> representing the query</param>
         public SubSonicTableTypeCollection(string name, Type elementType, IQueryProvider provider, Expression expression)
             : this(name, elementType)
         {
-
-            Expression = expression ?? throw new ArgumentNullException(nameof(expression));
+            Expression = expression ?? DbExpression.DbSelect(this, GetType(), Model.GetTableType(name));
             Provider = provider ?? throw new ArgumentNullException(nameof(provider));
         }
 
-        public SubSonicTableTypeCollection(string name, Type elementType, IQueryProvider provider, Expression expression, IEnumerable elements)
+        /// <summary>
+        /// get a new instance of a table type collection <see cref="SubSonicTableTypeCollection"/>
+        /// </summary>
+        /// <param name="name">the name of the table type</param>
+        /// <param name="elementType">clr type of the table type</param>
+        /// <param name="provider">the query provider <see cref="IQueryProvider"/></param>
+        /// <param name="expression">the <see cref="DbExpression"> representing the query</param>
+        /// <param name="elements"><see cref="IEnumerable" /> of elements of <see cref="ElementType"/></param>
+        public SubSonicTableTypeCollection(string name, Type elementType, IQueryProvider provider, Expression expression,
+                                           IEnumerable elements)
             : this(name, elementType, provider, expression)
         {
             TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(elementType), elements);
