@@ -245,6 +245,7 @@ namespace SubSonic.Linq.Expressions.Structure
             switch (aggregateType)
             {
                 case AggregateType.Count: return context.Fragments.COUNT;
+                case AggregateType.LongCount: return context.Fragments.COUNTBIG;
                 case AggregateType.Min: return context.Fragments.MIN;
                 case AggregateType.Max: return context.Fragments.MAX;
                 case AggregateType.Sum: return context.Fragments.SUM;

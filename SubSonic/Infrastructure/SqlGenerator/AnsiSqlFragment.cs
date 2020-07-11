@@ -61,6 +61,7 @@ namespace SubSonic.Infrastructure.SqlGenerator
         public virtual string RIGHT_PARENTHESIS => ")";
         public virtual string QOUTE => "'";
         public virtual string COUNT => "COUNT";
+        public virtual string COUNTBIG => "COUNT_BIG";
         public virtual string MIN => "MIN";
         public virtual string MAX => "MAX";
         public virtual string AVG => "AVG";
