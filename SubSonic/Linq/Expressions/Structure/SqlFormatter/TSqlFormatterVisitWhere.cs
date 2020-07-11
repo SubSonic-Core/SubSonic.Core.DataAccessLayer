@@ -29,12 +29,12 @@ namespace SubSonic.Linq.Expressions.Structure
                 if (((DbExpressionType)where.NodeType) == DbExpressionType.Where && !IsPredicate(where.Expression))
                 {
                     Write(Fragments.LEFT_PARENTHESIS);
-                    base.VisitWhere(where);
+                    Visit(where.Expression);
                     Write($"{Fragments.RIGHT_PARENTHESIS} <> 0");
                 }
                 else
                 {
-                    base.VisitWhere(where);
+                    Visit(where.Expression);
                 }
 
                 if (((DbExpressionType)where.NodeType).In(DbExpressionType.Exists, DbExpressionType.NotExists))

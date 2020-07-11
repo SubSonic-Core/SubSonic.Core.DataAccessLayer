@@ -9,7 +9,7 @@ namespace SubSonic.Linq.Expressions.Structure
 {
     using Infrastructure;
 
-    public abstract partial class DbExpressionVisitor
+    public abstract class DbExpressionVisitor
         : ExpressionVisitor
     {
         protected static readonly char[] splitters = new char[] { '\n', '\r' };
@@ -116,6 +116,11 @@ namespace SubSonic.Linq.Expressions.Structure
         }
 
         protected internal virtual DbExpression VisitExpression(DbExpression expression)
+        {
+            throw Error.NotImplemented();
+        }
+
+        protected internal virtual Expression VisitWhere(DbWhereExpression where)
         {
             throw Error.NotImplemented();
         }
