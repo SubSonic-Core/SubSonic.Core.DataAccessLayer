@@ -190,7 +190,7 @@ namespace SubSonic.Infrastructure.Builders
             return result;
         }
 
-        public IAsyncEnumerable<TResult> ExecuteLoadAsync<TResult>([NotNull] MethodCallExpression call, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<TResult> ExecuteLoadAsync<TResult>([NotNull] MethodCallExpression call, CancellationToken cancellationToken = default)
         {
             if (call is null)
             {
@@ -254,11 +254,8 @@ namespace SubSonic.Infrastructure.Builders
             }
             finally
             {
-#if NETSTANDARD2_1
                 await Scope.Connection.CloseAsync().ConfigureAwait(true);
-#else
-                Scope.Connection.Close();
-#endif
+
                 dbQuery.CleanUpParameters();
             }
         }
