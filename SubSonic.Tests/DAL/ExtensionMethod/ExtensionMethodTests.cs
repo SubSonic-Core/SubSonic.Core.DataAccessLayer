@@ -10,10 +10,24 @@ using System.Threading.Tasks;
 
 namespace SubSonic.Tests.DAL.ExtensionMethod
 {
+    using Extensions.Test;
+
     [TestFixture]
     public class ExtensionMethodTests
         : BaseTestFixture
     {
+        protected override void SetSelectBehaviors()
+        {
+            base.SetSelectBehaviors();
+
+            string
+                person_min = @"SELECT MIN([T1].[ID])
+FROM [dbo].[Person] AS [T1]";
+
+            Context.Database.Instance.AddCommandBehavior(person_min, cmd => People.Min(x => x.ID));
+        }
+
+
         [Test]
         public void TheCountMethodIsSupported()
         {
@@ -24,6 +38,12 @@ namespace SubSonic.Tests.DAL.ExtensionMethod
         public void TheLongCountMethodIsSupported()
         {
             Context.People.LongCount().Should().BeGreaterThan(0).And.IsOfType<long>();
+        }
+
+        [Test]
+        public void TheMinMethodIsSupported()
+        {
+            Context.People.Min(x => x.ID).Should().Be(1);
         }
     }
 }

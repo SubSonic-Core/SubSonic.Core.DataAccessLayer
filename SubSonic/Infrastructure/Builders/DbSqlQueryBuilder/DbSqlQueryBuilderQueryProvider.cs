@@ -53,7 +53,15 @@ namespace SubSonic.Infrastructure.Builders
                 {
                     if (unary.Operand is LambdaExpression lambda)
                     {
-                        where = BuildWhere(dbSelect, lambda);
+                        switch (lambda.Body.NodeType)
+                        {
+                            case ExpressionType.MemberAccess:
+                                dbSelect = (DbSelectExpression)BuildSelect(dbSelect, dbSelect.Columns.Where(x => x.PropertyName.Equals(lambda.GetProperty().Name, StringComparison.Ordinal)));
+                                break;
+                            default:
+                                where = BuildWhere(dbSelect, lambda);
+                                break;
+                        }
                     }
                 }
             }
@@ -83,7 +91,7 @@ namespace SubSonic.Infrastructure.Builders
                     throw Error.InvalidOperation($"Method {call.Method.Name} expects data.");
                 }
             }
-            else if (call.Method.Name.In(nameof(Queryable.Count), nameof(Queryable.LongCount)))
+            else if (call.Method.Name.In(nameof(Queryable.Count), nameof(Queryable.LongCount), nameof(Queryable.Min)))
             {
                 if (BuildSelect(dbSelect, where) is DbSelectExpression select)
                 {
@@ -92,9 +100,20 @@ namespace SubSonic.Infrastructure.Builders
                         throw Error.NotSupported(SubSonicErrorMessages.MethodNotSupported.Format(call.Method.Name));
                     }
 
+                    Expression argument = null;
+
+                    if (select.Columns.Count > 1)
+                    {
+                        argument = select.Columns.First(x => x.Property.IsPrimaryKey).Expression;
+                    }
+                    else
+                    {
+                        argument = select.Columns.Single().Expression;
+                    }
+
                     TResult result = Execute<TResult>(DbExpression.DbSelectAggregate(select, new[]
                     {
-                            DbExpression.DbAggregate(typeof(TResult), aggregateType, select.Columns.First(x => x.Property.IsPrimaryKey).Expression)
+                            DbExpression.DbAggregate(typeof(TResult), aggregateType, argument)
                     }));
 
                     if (select.Take is ConstantExpression take)

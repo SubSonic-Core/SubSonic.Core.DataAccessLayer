@@ -76,11 +76,11 @@ namespace SubSonic.Tests.DAL.SUT
 
             Renters = new List<Renter>()
             {
-                new Renter() { PersonID = 1, UnitID = 1, StartDate = new DateTime(1980, 01, 01), EndDate = new DateTime(1990, 02, 28) },
-                new Renter() { PersonID = 2, UnitID = 1, StartDate = new DateTime(1990, 03, 01) },
-                new Renter() { PersonID = 3, UnitID = 2, StartDate = new DateTime(1980, 03, 01), EndDate = new DateTime(2000, 01, 01) },
-                new Renter() { PersonID = 1, UnitID = 3, StartDate = new DateTime(1990, 03, 01) },
-                new Renter() { PersonID = 4, UnitID = 4, StartDate = new DateTime(2000, 01, 01) }
+                new Renter() { PersonID = 1, UnitID = 1, Rent = 100M, StartDate = new DateTime(1980, 01, 01), EndDate = new DateTime(1990, 02, 28) },
+                new Renter() { PersonID = 2, UnitID = 1, Rent = 150M, StartDate = new DateTime(1990, 03, 01) },
+                new Renter() { PersonID = 3, UnitID = 2, Rent = 200M, StartDate = new DateTime(1980, 03, 01), EndDate = new DateTime(2000, 01, 01) },
+                new Renter() { PersonID = 1, UnitID = 3, Rent = 250M, StartDate = new DateTime(1990, 03, 01) },
+                new Renter() { PersonID = 4, UnitID = 4, Rent = 300M, StartDate = new DateTime(2000, 01, 01) }
             };
 
             RealEstateProperties = new List<RealEstateProperty>()
