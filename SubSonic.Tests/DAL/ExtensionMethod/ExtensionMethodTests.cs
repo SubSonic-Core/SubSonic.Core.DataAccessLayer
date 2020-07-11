@@ -22,8 +22,11 @@ namespace SubSonic.Tests.DAL.ExtensionMethod
 
             string
                 person_min = @"SELECT MIN([T1].[ID])
+FROM [dbo].[Person] AS [T1]",
+                person_max = @"SELECT MAX([T1].[ID])
 FROM [dbo].[Person] AS [T1]";
 
+            Context.Database.Instance.AddCommandBehavior(person_max, cmd => People.Max(x => x.ID));
             Context.Database.Instance.AddCommandBehavior(person_min, cmd => People.Min(x => x.ID));
         }
 
@@ -44,6 +47,12 @@ FROM [dbo].[Person] AS [T1]";
         public void TheMinMethodIsSupported()
         {
             Context.People.Min(x => x.ID).Should().Be(1);
+        }
+
+        [Test]
+        public void TheMaxMethodIsSupported()
+        {
+            Context.People.Max(x => x.ID).Should().Be(People.Count);
         }
     }
 }
