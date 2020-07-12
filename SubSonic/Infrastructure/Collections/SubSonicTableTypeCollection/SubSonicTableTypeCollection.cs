@@ -142,11 +142,11 @@ namespace SubSonic.Collections
             ElementType = elementType ?? throw new ArgumentNullException(nameof(elementType));
             TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(elementType));
 
-            if (DbContext.DbModel.TryGetEntityModel(elementType, out IDbEntityModel model))
+            if (SubSonicContext.DbModel.TryGetEntityModel(elementType, out IDbEntityModel model))
             {
                 Model = model;
                 Expression = DbExpression.DbSelect(this, GetType(), model.GetTableType(name));
-                Provider = new DbSqlTableTypeProvider(name, ElementType, DbContext.ServiceProvider.GetService<ISubSonicLogger>());
+                Provider = new DbSqlTableTypeProvider(name, ElementType, SubSonicContext.ServiceProvider.GetService<ISubSonicLogger>());
             }
         }
 

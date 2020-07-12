@@ -24,7 +24,7 @@ namespace SubSonic.Collections
         }
 
         public SubSonicCollection(IEnumerable<TEntity> entities)
-            : base(typeof(TEntity), DbContext.ServiceProvider.GetService<ISubSonicQueryProvider<TEntity>>(), null, entities)
+            : base(typeof(TEntity), SubSonicContext.ServiceProvider.GetService<ISubSonicQueryProvider<TEntity>>(), null, entities)
         {
 
         }
@@ -145,11 +145,11 @@ namespace SubSonic.Collections
             ElementType = elementType ?? throw new ArgumentNullException(nameof(elementType));
             TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(elementType));
 
-            if (DbContext.DbModel.TryGetEntityModel(elementType, out IDbEntityModel model))
+            if (SubSonicContext.DbModel.TryGetEntityModel(elementType, out IDbEntityModel model))
             {
                 Model = model;
                 Expression = DbExpression.DbSelect(this, GetType(), Model.Table);
-                Provider = new DbSqlQueryBuilder(ElementType, DbContext.ServiceProvider.GetService<ISubSonicLogger>());
+                Provider = new DbSqlQueryBuilder(ElementType, SubSonicContext.ServiceProvider.GetService<ISubSonicLogger>());
             }
             else
             {
@@ -160,7 +160,7 @@ namespace SubSonic.Collections
             : this(elementType)
         {
             Expression = expression ?? DbExpression.DbSelect(this, GetType(), Model.Table);
-            Provider = provider ?? new DbSqlQueryBuilder(ElementType, DbContext.ServiceProvider.GetService<ISubSonicLogger>());
+            Provider = provider ?? new DbSqlQueryBuilder(ElementType, SubSonicContext.ServiceProvider.GetService<ISubSonicLogger>());
         }
 
         public SubSonicCollection(Type elementType, IQueryProvider provider, Expression expression, IEnumerable elements)

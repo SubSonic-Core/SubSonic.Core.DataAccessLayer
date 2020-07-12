@@ -14,13 +14,13 @@ namespace SubSonic.Infrastructure
     using Infrastructure.Factory;
     using Data.Caching;
 
-    internal static class DbConfigureExtensions
+    internal static class SubSonicConfigureExtensions
     {
-        public static void SetupIOC(this DbContext context, IServiceCollection services, DbContextOptions options)
+        public static void SetupIOC(this SubSonicContext context, IServiceCollection services, SubSonicContextOptions options)
         {
             services
                     .AddScoped(typeof(ISubSonicLogger<>), typeof(SubSonicLogger<>))
-                    .AddScoped(typeof(ISubSonicLogger), typeof(SubSonicLogger<DbContext>))
+                    .AddScoped(typeof(ISubSonicLogger), typeof(SubSonicLogger<SubSonicContext>))
                     .AddSingleton(context)
                     .AddSingleton(new ChangeTrackerCollection())
                     .AddTransient(provider => DbProviderFactories.GetFactory(options.DbProviderInvariantName))
@@ -46,7 +46,7 @@ namespace SubSonic.Infrastructure
             Expression.Lambda(query).Compile().DynamicInvoke();
         }
 
-        public static void PreCompile(this DbContext context)
+        public static void PreCompile(this SubSonicContext context)
         {
             foreach (IDbEntityModel model in context.Model.EntityModels)
             {

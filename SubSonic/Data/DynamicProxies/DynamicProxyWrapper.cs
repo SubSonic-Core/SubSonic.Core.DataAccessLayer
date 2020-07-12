@@ -8,7 +8,7 @@ namespace SubSonic.Data.DynamicProxies
     public class DynamicProxyWrapper<TEntity>
         : DynamicProxyWrapper
     {
-        internal DynamicProxyWrapper(DbContext dbContext) 
+        internal DynamicProxyWrapper(SubSonicContext dbContext) 
             : base(typeof(TEntity), dbContext)
         {
         }
@@ -29,7 +29,7 @@ namespace SubSonic.Data.DynamicProxies
 
     public abstract class DynamicProxyWrapper
     {
-        internal DynamicProxyWrapper(Type baseType, DbContext dbContext)
+        internal DynamicProxyWrapper(Type baseType, SubSonicContext dbContext)
         {
             BaseType = baseType ?? throw new ArgumentNullException(nameof(baseType));
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
@@ -37,7 +37,7 @@ namespace SubSonic.Data.DynamicProxies
         
         protected Type BaseType { get; }
 
-        protected DbContext DbContext { get; }
+        protected SubSonicContext DbContext { get; }
 
         public bool IsElegibleForProxy => DbContext.Options.EnableProxyGeneration;
 

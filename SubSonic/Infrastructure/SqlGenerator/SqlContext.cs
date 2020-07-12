@@ -23,7 +23,7 @@ namespace SubSonic.Infrastructure.SqlGenerator
         {
             get
             {
-                DbProviderFactory factory = DbContext.ServiceProvider.GetService<DbProviderFactory>();
+                DbProviderFactory factory = SubSonicContext.ServiceProvider.GetService<DbProviderFactory>();
 
                 if (factory is SubSonicDbProvider provider)
                 {

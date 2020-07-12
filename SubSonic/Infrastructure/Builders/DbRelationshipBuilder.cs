@@ -24,7 +24,7 @@ namespace SubSonic.Infrastructure
                 throw new ArgumentNullException(nameof(selector));
             }
 
-            DbContext.DbModel.GetEntityModel<TRelatedEntity>().IncrementObjectGraphWeight();
+            SubSonicContext.DbModel.GetEntityModel<TRelatedEntity>().IncrementObjectGraphWeight();
 
             return new DbNavigationPropertyBuilder<TEntity, TRelatedEntity>(nameof(HasMany));
         }

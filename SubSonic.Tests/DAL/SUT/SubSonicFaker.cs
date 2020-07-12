@@ -11,7 +11,7 @@ namespace SubSonic.Tests.DAL.SUT
     {
         public SubSonicFaker<TEntity> UseDbContext()
         {
-            if (base.CustomInstantiator(f => DbContext.Current.NewEntity<TEntity>()) is SubSonicFaker<TEntity> faker)
+            if (base.CustomInstantiator(f => SubSonicContext.Current.NewEntity<TEntity>()) is SubSonicFaker<TEntity> faker)
             {
                 return faker;
             }

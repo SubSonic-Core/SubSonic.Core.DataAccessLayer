@@ -70,7 +70,7 @@ namespace SubSonic.Infrastructure.Schema
 
         public void IncrementObjectGraphWeight()
         {
-            if (!DbContext.Current.IsDbModelReadOnly)
+            if (!SubSonicContext.Current.IsDbModelReadOnly)
             {
                 ObjectGraphWeight++;
             }

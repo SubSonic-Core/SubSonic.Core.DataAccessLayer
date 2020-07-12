@@ -8,8 +8,8 @@ namespace SubSonic.Infrastructure
 {
     public class DbContextOptionsBuilder
     {
-        private readonly DbContext dbContext;
-        private readonly DbContextOptions options;
+        private readonly SubSonicContext dbContext;
+        private readonly SubSonicContextOptions options;
 
         private bool isDirtyServiceProvider = false;
 
@@ -37,7 +37,7 @@ namespace SubSonic.Infrastructure
             public const string WorkstationID = "Workstation  ID";
         }
 
-        public DbContextOptionsBuilder(DbContext dbContext, DbContextOptions options)
+        public DbContextOptionsBuilder(SubSonicContext dbContext, SubSonicContextOptions options)
         {
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             this.options = options ?? throw new ArgumentNullException(nameof(options));
@@ -45,11 +45,11 @@ namespace SubSonic.Infrastructure
             this.options.EnableProxyGeneration = true;
         }
 
-        public DbContextOptions Options => options;
+        public SubSonicContextOptions Options => options;
 
         public IServiceProvider ServiceProvider => dbContext.Instance;
 
-        public DbContextOptionsBuilder SetConnectionStringBuilder(Action<DbConnectionStringBuilder, DbContextOptions> connection)
+        public DbContextOptionsBuilder SetConnectionStringBuilder(Action<DbConnectionStringBuilder, SubSonicContextOptions> connection)
         {
             dbContext.GetConnectionString = (builder, options) =>
             {
@@ -148,7 +148,7 @@ namespace SubSonic.Infrastructure
 
             if (!isDirtyServiceProvider)
             {
-                DbContext.ServiceProvider = provider;
+                SubSonicContext.ServiceProvider = provider;
             }
         }
     }

@@ -80,7 +80,7 @@ namespace SubSonic.Infrastructure
                 throw new InvalidOperationException();
             }
 
-            return Value.GetType().GetDbType(DbContext.DbOptions.SupportUnicode);
+            return Value.GetType().GetDbType(SubSonicContext.DbOptions.SupportUnicode);
         }
 
         protected virtual void OnInitialize()

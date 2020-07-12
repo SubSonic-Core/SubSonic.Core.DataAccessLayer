@@ -80,7 +80,7 @@ EXEC @{0} = {2} {3}",
                 object value;
                 if (oInfo.IsUserDefinedTable)
                 {
-                    if (DbContext.DbModel.TryGetEntityModel(oInfo.PropertyInfo.PropertyType.GetQualifiedType(), out model))
+                    if (SubSonicContext.DbModel.TryGetEntityModel(oInfo.PropertyInfo.PropertyType.GetQualifiedType(), out model))
                     {
                         value = helper.GetUserDefinedTableValue(model, oInfo.PropertyInfo, procedure);
                     }
@@ -111,7 +111,7 @@ EXEC @{0} = {2} {3}",
         private static DbParameter CreateParameter(string name, object value, bool mandatory, int size,
                                            bool isUserDefinedTableParameter, string udtType, ParameterDirection direction)
         {
-            if (DbContext.ServiceProvider.GetService<DbProviderFactory>() is SubSonicDbProvider client)
+            if (SubSonicContext.ServiceProvider.GetService<DbProviderFactory>() is SubSonicDbProvider client)
             {
                 return client.CreateParameter(name, value, mandatory, size, isUserDefinedTableParameter, udtType, direction);
             }

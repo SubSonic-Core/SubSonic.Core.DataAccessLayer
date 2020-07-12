@@ -34,7 +34,7 @@ namespace SubSonic.Infrastructure
 
         public IEnumerable<string> RelatedKeys { get; private set; }
 
-        public IDbRelationshipMap RelationshipMap => new DbRelationshipMap(RelationshipType, DbContext.DbModel.GetEntityModel(LookupEntityType), DbContext.DbModel.GetEntityModel(RelatedEntityType), RelatedKeys.ToArray());
+        public IDbRelationshipMap RelationshipMap => new DbRelationshipMap(RelationshipType, SubSonicContext.DbModel.GetEntityModel(LookupEntityType), SubSonicContext.DbModel.GetEntityModel(RelatedEntityType), RelatedKeys.ToArray());
 
         public DbNavigationPropertyBuilder<TEntity, TRelatedEntity> WithOne(Expression<Func<TRelatedEntity, TEntity>> selector = null)
         {

@@ -32,9 +32,9 @@ namespace SubSonic.Tests.DAL
             this.selector = selector;
         }
 
-        public IDbEntityModel EntityModel => DbContext.DbModel.GetEntityModel<TModel>();
+        public IDbEntityModel EntityModel => SubSonicContext.DbModel.GetEntityModel<TModel>();
 
-        public ISubSonicCollection DataSet => DbContext.Current.Set<TModel>();
+        public ISubSonicCollection DataSet => SubSonicContext.Current.Set<TModel>();
 
         public bool UseDefinedTableType { get; }
 

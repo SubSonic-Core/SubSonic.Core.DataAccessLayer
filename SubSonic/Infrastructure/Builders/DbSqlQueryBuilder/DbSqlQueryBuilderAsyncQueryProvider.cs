@@ -37,7 +37,7 @@ namespace SubSonic.Infrastructure.Builders
 
             if (expression is DbExpression query)
             {
-                using (SharedDbConnectionScope Scope = DbContext.ServiceProvider.GetService<SharedDbConnectionScope>())
+                using (SharedDbConnectionScope Scope = SubSonicContext.ServiceProvider.GetService<SharedDbConnectionScope>())
                 {
                     IDbQuery dbQuery = ToQuery(query);
 
@@ -48,7 +48,7 @@ namespace SubSonic.Infrastructure.Builders
 
                         Type elementType = query.Type.GetQualifiedType();
 
-                        bool isEntityModel = DbContext.DbModel.IsEntityModelRegistered(elementType);
+                        bool isEntityModel = SubSonicContext.DbModel.IsEntityModelRegistered(elementType);
 
                         if (isEntityModel)
                         {
@@ -60,12 +60,12 @@ namespace SubSonic.Infrastructure.Builders
                                 {
                                     while (await reader.ReadAsync().ConfigureAwait(false))
                                     {
-                                        DbContext.Current.ChangeTracking.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
+                                        SubSonicContext.Current.ChangeTracking.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
                                     }
                                 }
                             }
 
-                            @return = DbContext.Current.ChangeTracking.Where<TResult>(elementType, this, query);
+                            @return = SubSonicContext.Current.ChangeTracking.Where<TResult>(elementType, this, query);
                         }
                         else
                         {
@@ -214,12 +214,12 @@ namespace SubSonic.Infrastructure.Builders
                 throw Error.ArgumentNull(nameof(query));
             }
 
-            using SharedDbConnectionScope Scope = DbContext.Current.UseSharedDbConnection();
+            using SharedDbConnectionScope Scope = SubSonicContext.Current.UseSharedDbConnection();
             IDbQuery dbQuery = ToQuery(query);
 
             Type elementType = query.Type.GetQualifiedType();
 
-            bool isEntityModel = DbContext.DbModel.IsEntityModelRegistered(elementType);
+            bool isEntityModel = SubSonicContext.DbModel.IsEntityModelRegistered(elementType);
 
             try
             {
@@ -235,7 +235,7 @@ namespace SubSonic.Infrastructure.Builders
                             {
                                 if (reader.ActivateAndLoadInstanceOf(elementType) is TResult entity)
                                 {
-                                    DbContext.Current.ChangeTracking.Add(elementType, entity);
+                                    SubSonicContext.Current.ChangeTracking.Add(elementType, entity);
 
                                     yield return entity;
                                 }

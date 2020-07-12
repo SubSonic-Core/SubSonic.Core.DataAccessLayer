@@ -10,7 +10,7 @@ namespace SubSonic
     {
         public static object LoadInstanceOf(this IDataRecord data, object entity)
         {
-            IDbEntityModel model = DbContext.DbModel.GetEntityModel(entity.GetType());
+            IDbEntityModel model = SubSonicContext.DbModel.GetEntityModel(entity.GetType());
 
             foreach (IDbEntityProperty property in model.Properties)
             {
@@ -49,11 +49,11 @@ namespace SubSonic
 
             object entity = null;
 
-            if (DbContext.DbOptions.EnableProxyGeneration)
+            if (SubSonicContext.DbOptions.EnableProxyGeneration)
             {
                 DynamicProxyWrapper wrapper = DynamicProxy.GetProxyWrapper(entityType);
 
-                entity = Activator.CreateInstance(wrapper.Type, DbContext.ServiceProvider.GetService<DbContextAccessor>());
+                entity = Activator.CreateInstance(wrapper.Type, SubSonicContext.ServiceProvider.GetService<DbContextAccessor>());
             }
             else
             {

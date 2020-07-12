@@ -50,7 +50,7 @@ namespace SubSonic.Data.Caching
     public class Entity
         : IEntityProxy
     {
-        internal DbContextAccessor Accessor => new DbContextAccessor(DbContext.Current);
+        internal DbContextAccessor Accessor => new DbContextAccessor(SubSonicContext.Current);
 
         public Entity(object data)
         {
@@ -77,7 +77,7 @@ namespace SubSonic.Data.Caching
         {
             get
             {
-                return DbContext.DbModel.GetEntityModel(Proxy.IsNotNull() ? Type.BaseType : Type);
+                return SubSonicContext.DbModel.GetEntityModel(Proxy.IsNotNull() ? Type.BaseType : Type);
             }
         }
 

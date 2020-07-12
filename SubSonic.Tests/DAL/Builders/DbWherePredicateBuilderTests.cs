@@ -50,7 +50,7 @@ namespace SubSonic.Tests.DAL.Builders
                     MethodInfo method = typeof(Queryable).GetGenericMethod(nameof(Queryable.Where), new[] { DbSetType, Predicate.GetType() });
 
                     return DbExpression.DbWhere(method, new[] { 
-                        DbContext.Current.Set<TEntity>()?.Expression, 
+                        SubSonicContext.Current.Set<TEntity>()?.Expression, 
                         Predicate });
                 }
             }

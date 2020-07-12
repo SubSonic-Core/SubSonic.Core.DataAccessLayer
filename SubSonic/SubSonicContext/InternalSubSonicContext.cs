@@ -10,12 +10,12 @@ using System.Text;
 
 namespace SubSonic
 {
-    public partial class DbContext
+    public partial class SubSonicContext
     {
-        internal static DbSchemaModel DbModel => ServiceProvider.GetService<DbContext>().IsNotNull(Ctx => Ctx.Model);
-        internal static DbContextOptions DbOptions => ServiceProvider.GetService<DbContext>().IsNotNull(Ctx => Ctx.Options);
+        internal static SubSonicSchemaModel DbModel => ServiceProvider.GetService<SubSonicContext>().IsNotNull(Ctx => Ctx.Model);
+        internal static SubSonicContextOptions DbOptions => ServiceProvider.GetService<SubSonicContext>().IsNotNull(Ctx => Ctx.Options);
         internal static IServiceProvider ServiceProvider { get; set; }
-        internal Func<DbConnectionStringBuilder, DbContextOptions, string> GetConnectionString { get; set; }
+        internal Func<DbConnectionStringBuilder, SubSonicContextOptions, string> GetConnectionString { get; set; }
 
         protected internal static object CreateObject(Type type)
         {

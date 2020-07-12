@@ -144,16 +144,16 @@ namespace SubSonic.Infrastructure.Builders
             }
             else if (expression is DbExpression query)
             {   // execution request is from the subsonic namespace
-                using (SharedDbConnectionScope Scope = DbContext.ServiceProvider.GetService<SharedDbConnectionScope>())
+                using (SharedDbConnectionScope Scope = SubSonicContext.ServiceProvider.GetService<SharedDbConnectionScope>())
                 {
                     CmdBehavior = typeof(TResult).IsEnumerable() ? CommandBehavior.Default : CommandBehavior.SingleRow;
 
                     Type elementType = typeof(TResult).GetQualifiedType();
 
-                    bool isEntityModel = DbContext.DbModel.IsEntityModelRegistered(elementType);
+                    bool isEntityModel = SubSonicContext.DbModel.IsEntityModelRegistered(elementType);
 
                     if (!isEntityModel ||
-                        DbContext.Current.ChangeTracking.Count(elementType, query) == 0)
+                        SubSonicContext.Current.ChangeTracking.Count(elementType, query) == 0)
                     {
                         IDbQuery dbQuery = ToQuery(query);
 
@@ -167,7 +167,7 @@ namespace SubSonic.Infrastructure.Builders
                                 {
                                     while (reader.Read())
                                     {
-                                        DbContext.Current.ChangeTracking.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
+                                        SubSonicContext.Current.ChangeTracking.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
                                     }
                                 }
                             }
@@ -189,7 +189,7 @@ namespace SubSonic.Infrastructure.Builders
 
                     if (isEntityModel)
                     {
-                        return DbContext.Current.ChangeTracking.Where<TResult>(elementType, this, query);
+                        return SubSonicContext.Current.ChangeTracking.Where<TResult>(elementType, this, query);
                     }
                     else
                     {
@@ -212,7 +212,7 @@ namespace SubSonic.Infrastructure.Builders
 
             if (expression is DbExpression query)
             {
-                using (SharedDbConnectionScope Scope = DbContext.ServiceProvider.GetService<SharedDbConnectionScope>())
+                using (SharedDbConnectionScope Scope = SubSonicContext.ServiceProvider.GetService<SharedDbConnectionScope>())
                 {
                     IDbQuery dbQuery = ToQuery(query);
 
@@ -220,7 +220,7 @@ namespace SubSonic.Infrastructure.Builders
                     {
                         Type elementType = query.Type.GetQualifiedType();
 
-                        bool isEntityModel = DbContext.DbModel.IsEntityModelRegistered(elementType);
+                        bool isEntityModel = SubSonicContext.DbModel.IsEntityModelRegistered(elementType);
 
                         Scope.Connection.Open();
 
@@ -232,7 +232,7 @@ namespace SubSonic.Infrastructure.Builders
                                 {
                                     while (reader.Read())
                                     {
-                                        DbContext.Current.ChangeTracking.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
+                                        SubSonicContext.Current.ChangeTracking.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
                                     }
                                 }
                             }
@@ -244,7 +244,7 @@ namespace SubSonic.Infrastructure.Builders
 
                         if (isEntityModel)
                         {
-                            return DbContext.Current.ChangeTracking.Where(elementType, this, query);
+                            return SubSonicContext.Current.ChangeTracking.Where(elementType, this, query);
                         }
                         else
                         {

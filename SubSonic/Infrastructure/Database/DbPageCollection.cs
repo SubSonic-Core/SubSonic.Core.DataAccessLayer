@@ -55,7 +55,7 @@ namespace SubSonic.Infrastructure
             {
                 try
                 {
-                    if (DbContext.Current.Database.ExecuteAdapter(pagedQuery, data))
+                    if (SubSonicContext.Current.Database.ExecuteAdapter(pagedQuery, data))
                     {
                         foreach (DataTable table in data.Tables)
                         {
@@ -75,7 +75,7 @@ namespace SubSonic.Infrastructure
                                     proxy.IsDeleted = false;
                                 }
 
-                                DbContext.Current.ChangeTracking.Add(typeof(TEntity), entity);
+                                SubSonicContext.Current.ChangeTracking.Add(typeof(TEntity), entity);
                             });
                         }
                     }

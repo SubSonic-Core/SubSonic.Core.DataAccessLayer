@@ -11,14 +11,14 @@ namespace SubSonic.Infrastructure
 
     public class DbModelBuilder
     {
-        private readonly DbSchemaModel model;
+        private readonly SubSonicSchemaModel model;
 
         internal static class DataAccessProperties
         {
             public const string CorrelationID = "CorrelationID";
         }
 
-        public DbModelBuilder(DbSchemaModel model)
+        public DbModelBuilder(SubSonicSchemaModel model)
         {
             this.model = model ?? throw new ArgumentNullException(nameof(model));
         }

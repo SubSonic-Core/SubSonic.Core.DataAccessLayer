@@ -31,9 +31,9 @@ namespace SubSonic.Infrastructure.Builders
         {
             this.tableTypeName = tableTypeName ?? throw new ArgumentNullException(nameof(tableTypeName));
             this.elementType = elementType ?? throw new ArgumentNullException(nameof(elementType));
-            this.logger = logger ?? DbContext.ServiceProvider.GetService<ISubSonicLogger<DbSqlTableTypeProvider>>();
+            this.logger = logger ?? SubSonicContext.ServiceProvider.GetService<ISubSonicLogger<DbSqlTableTypeProvider>>();
 
-            if (DbContext.DbModel.TryGetEntityModel(elementType.GetQualifiedType(), out IDbEntityModel model))
+            if (SubSonicContext.DbModel.TryGetEntityModel(elementType.GetQualifiedType(), out IDbEntityModel model))
             {
                 DbEntity = model;
                 DbTable = DbEntity.GetTableType(tableTypeName);

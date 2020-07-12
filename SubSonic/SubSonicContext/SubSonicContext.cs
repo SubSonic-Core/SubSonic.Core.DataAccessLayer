@@ -16,13 +16,13 @@ namespace SubSonic
     using Collections;
     using Linq;
 
-    public partial class DbContext
+    public partial class SubSonicContext
         : IDisposable, IInfrastructure<IServiceProvider>
     {
-        protected DbContext()
+        protected SubSonicContext()
         {
-            Options = new DbContextOptions();
-            Model = new DbSchemaModel(this);
+            Options = new SubSonicContextOptions();
+            Model = new SubSonicSchemaModel(this);
 
             Initialize();            
         }

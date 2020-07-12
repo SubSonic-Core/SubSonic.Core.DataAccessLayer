@@ -11,11 +11,11 @@ namespace SubSonic.Infrastructure
     /// <summary>
     /// SubSonic Schema Model
     /// </summary>
-    public class DbSchemaModel
+    public class SubSonicSchemaModel
     {
-        private readonly DbContext dbContext;
+        private readonly SubSonicContext dbContext;
 
-        public DbSchemaModel(DbContext dbContext)
+        public SubSonicSchemaModel(SubSonicContext dbContext)
         {
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
 

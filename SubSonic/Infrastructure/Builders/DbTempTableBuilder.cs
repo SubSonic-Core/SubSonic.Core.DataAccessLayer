@@ -20,7 +20,7 @@ namespace SubSonic.Infrastructure
         private const string drop_template = "DROP TABLE {0};";
 
         public DbTempTableBuilder(IDbEntityModel model)
-            : base(DbContext.ServiceProvider.GetService<ISqlQueryProvider>())
+            : base(SubSonicContext.ServiceProvider.GetService<ISqlQueryProvider>())
         {
             _model = model ?? throw new ArgumentNullException(nameof(model));
         }

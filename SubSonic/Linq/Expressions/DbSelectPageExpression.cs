@@ -57,7 +57,7 @@ namespace SubSonic.Linq.Expressions
         {
             get
             {
-                DbProviderFactory provider = DbContext.ServiceProvider.GetService<DbProviderFactory>();
+                DbProviderFactory provider = SubSonicContext.ServiceProvider.GetService<DbProviderFactory>();
 
                 if (provider is SubSonicDbProvider subsonic)
                 {

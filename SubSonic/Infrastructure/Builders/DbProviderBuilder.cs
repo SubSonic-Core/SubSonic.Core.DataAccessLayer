@@ -57,7 +57,7 @@ namespace SubSonic.Infrastructure
         {
             get
             {
-                if (DbContext.ServiceProvider.GetService<DbProviderFactory>() is SubSonicDbProvider client)
+                if (SubSonicContext.ServiceProvider.GetService<DbProviderFactory>() is SubSonicDbProvider client)
                 {
                     return client;
                 }

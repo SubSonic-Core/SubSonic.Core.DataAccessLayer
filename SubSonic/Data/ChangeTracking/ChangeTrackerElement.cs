@@ -30,7 +30,7 @@ namespace SubSonic.Data.Caching
             Cache = new ObservableCollection<IEntityProxy<TEntity>>();
         }
 
-        DbDatabase Database => DbContext.Current.Database;
+        DbDatabase Database => SubSonicContext.Current.Database;
 
         public ICollection<IEntityProxy<TEntity>> Entities { get; }
 

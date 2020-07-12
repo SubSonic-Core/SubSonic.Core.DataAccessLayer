@@ -54,13 +54,13 @@ END;";
         private readonly IDbEntityModel _model;
 
         public DbUserDefinedTableBuilder(IEnumerable data)
-            : base(DbContext.ServiceProvider.GetService<ISqlQueryProvider>())
+            : base(SubSonicContext.ServiceProvider.GetService<ISqlQueryProvider>())
         {
             _data = data ?? throw new ArgumentNullException(nameof(data));
         }
 
         public DbUserDefinedTableBuilder(IDbEntityModel model)
-            : base(DbContext.ServiceProvider.GetService<ISqlQueryProvider>())
+            : base(SubSonicContext.ServiceProvider.GetService<ISqlQueryProvider>())
         {
             _model = model ?? throw new ArgumentNullException(nameof(model));
             _type = model.EntityModelType;

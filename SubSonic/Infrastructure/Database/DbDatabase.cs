@@ -23,11 +23,11 @@ namespace SubSonic.Infrastructure
         private static DbConnection dBSharedConnection;
 
         private readonly ISubSonicLogger<DbDatabase> logger;
-        private readonly DbContext dbContext;
+        private readonly SubSonicContext dbContext;
         private readonly DbProviderFactory dbProvider;
         private readonly ISqlQueryProvider queryProvider;
 
-        public DbDatabase(ISubSonicLogger<DbDatabase> logger, DbContext dbContext, DbProviderFactory dbProvider, ISqlQueryProvider queryProvider)
+        public DbDatabase(ISubSonicLogger<DbDatabase> logger, SubSonicContext dbContext, DbProviderFactory dbProvider, ISqlQueryProvider queryProvider)
         {
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));

@@ -5,13 +5,13 @@ using System.Text;
 
 namespace SubSonic.Infrastructure
 {
-    public class DbContextOptions
+    public class SubSonicContextOptions
     {
-        public DbContextOptions()
+        public SubSonicContextOptions()
         {
         }
 
-        internal Action<DbSchemaModel> PreLoadHandler { get; set; }
+        internal Action<SubSonicSchemaModel> PreLoadHandler { get; set; }
 
         public bool EnableProxyGeneration { get; internal set; }
         public bool SupportUnicode { get; internal set; }

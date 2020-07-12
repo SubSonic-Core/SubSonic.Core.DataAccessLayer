@@ -133,7 +133,7 @@ namespace SubSonic.Extensions.Test
                 throw new ArgumentNullException(nameof(source));
             }
 
-            if (DbContext.DbModel.TryGetEntityModel<TEntity>(out IDbEntityModel model))
+            if (SubSonicContext.DbModel.TryGetEntityModel<TEntity>(out IDbEntityModel model))
             {
                 using (DataTableBuilder builder = new DataTableBuilder(model.ToDataTable()))
                 {
@@ -257,7 +257,7 @@ namespace SubSonic.Extensions.Test
             return new AlteredState<TSource, TActual>(source, state);
         }
 
-        public static void UpdateProviders(this DbContext dbContext, string dbProviderInvariantName, string sqlQueryProviderInvariantName = null)
+        public static void UpdateProviders(this SubSonicContext dbContext, string dbProviderInvariantName, string sqlQueryProviderInvariantName = null)
         {
             if (dbContext is null)
             {
@@ -279,7 +279,7 @@ namespace SubSonic.Extensions.Test
             dbContext.Options.SetDbProviderInvariantName(dbProviderInvariantName);
             dbContext.Options.SetSqlQueryProviderInvariantName(sqlQueryProviderInvariantName);
         }
-        public static void UpdateConnectionString(this DbContext dbContext, Action<DbConnectionStringBuilder, DbContextOptions> config)
+        public static void UpdateConnectionString(this SubSonicContext dbContext, Action<DbConnectionStringBuilder, SubSonicContextOptions> config)
         {
             if (dbContext is null)
             {

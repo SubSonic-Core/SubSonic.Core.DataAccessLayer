@@ -9,7 +9,7 @@ using Models = SubSonic.Extensions.Test.Models;
 namespace SubSonic.Tests.DAL.SUT
 {
     public class TestDbContext
-        : SubSonic.DbContext
+        : SubSonic.SubSonicContext
     {
         public TestDbContext()
             : base()

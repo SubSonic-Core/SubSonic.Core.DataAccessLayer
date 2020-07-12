@@ -44,7 +44,7 @@ namespace SubSonic.Collections
         {
         }
 
-        private DbContext DbContext => DbContext.ServiceProvider.GetService<DbContext>();
+        private SubSonicContext DbContext => SubSonicContext.ServiceProvider.GetService<SubSonicContext>();
 
         public Type ElementType => typeof(TEntity);
 

@@ -14,15 +14,15 @@ namespace SubSonic
     /// <summary>
     /// SubSonic Context
     /// </summary>
-    public partial class DbContext
+    public partial class SubSonicContext
     {
-        public DbContextOptions Options { get; }
+        public SubSonicContextOptions Options { get; }
 
-        public DbSchemaModel Model { get; }
+        public SubSonicSchemaModel Model { get; }
 
         public bool IsDbModelReadOnly { get; private set; }
 
-        public static DbContext Current => ServiceProvider.GetService<DbContext>();
+        public static SubSonicContext Current => ServiceProvider.GetService<SubSonicContext>();
 
         public ISubSonicDbSetCollection Set(Type entity)
         {
@@ -52,9 +52,9 @@ namespace SubSonic
         }
 
         /// <summary>
-        /// Instanciate a new proxy <see cref="DynamicProxy.CreateProxyInstanceOf{TEntity}(DbContext)"/>
+        /// Instanciate a new proxy <see cref="DynamicProxy.CreateProxyInstanceOf{TEntity}(SubSonicContext)"/>
         /// </summary>
-        /// <typeparam name="TEntity">registered type of <see cref="DbEntityModel"> in the <see cref="DbSchemaModel"></typeparam>
+        /// <typeparam name="TEntity">registered type of <see cref="DbEntityModel"> in the <see cref="SubSonicSchemaModel"></typeparam>
         /// <returns><see cref="DynamicProxy"/> sub class of <see cref="{TEntity}"></returns>
         public TEntity NewEntity<TEntity>()
         {
@@ -62,7 +62,7 @@ namespace SubSonic
         }
 
         /// <summary>
-        /// Instanciate a new proxy <see cref="DynamicProxy.CreateProxyInstanceOf{TEntity}(DbContext)"/>
+        /// Instanciate a new proxy <see cref="DynamicProxy.CreateProxyInstanceOf{TEntity}(SubSonicContext)"/>
         /// </summary>
         /// <typeparam name="TEntity">registered type of <see cref="DbEntityModel"></typeparam>
         /// <param name="entity">instanciated model to be mapped into a proxy</param>

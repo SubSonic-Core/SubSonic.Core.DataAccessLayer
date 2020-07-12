@@ -66,9 +66,9 @@ namespace SubSonic.Infrastructure.SqlGenerator
         /// <returns></returns>
         string GenerateColumnAttributes(IDbEntityProperty entityProperty);
 
-        IDbEntityModel GetEntityModelFromDbContext(DbContext dbContext, string tableName);
+        IDbEntityModel GetEntityModelFromDbContext(SubSonicContext dbContext, string tableName);
 
-        string[] GetTableList(DbContext dbContext);
+        string[] GetTableList(SubSonicContext dbContext);
 
         DbType GetDbType(string sqlType);
 

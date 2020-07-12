@@ -18,14 +18,14 @@ namespace SubSonic.Data.DynamicProxies
     /// </remarks>
     internal class DbContextAccessor
     {
-        public DbContextAccessor(DbContext dbContext)
+        public DbContextAccessor(SubSonicContext dbContext)
         {
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
-        private DbContext DbContext { get; }
+        private SubSonicContext DbContext { get; }
 
-        public DbSchemaModel Model => DbContext.Model;
+        public SubSonicSchemaModel Model => DbContext.Model;
 
         public TProperty LoadProperty<TEntity, TProperty>(TEntity entity, PropertyInfo info) 
             where TEntity : class
