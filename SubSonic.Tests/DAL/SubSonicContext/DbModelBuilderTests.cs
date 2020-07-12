@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace SubSonic.Tests.DAL
 {
     [TestFixture]
-    public partial class DbContextTests
+    public partial class SubSonicContextTests
     {
         [Test]
         public void RealEstatePropertyModelHasRelationships()

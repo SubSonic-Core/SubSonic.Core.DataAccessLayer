@@ -15,7 +15,7 @@ namespace SubSonic.Tests.DAL
     using SubSonic.Data.Caching;
     using Models = Extensions.Test.Models;
 
-    public partial class DbContextTests
+    public partial class SubSonicContextTests
     {
         private static IEnumerable<IDbTestCase> UpdateTestCases()
         {

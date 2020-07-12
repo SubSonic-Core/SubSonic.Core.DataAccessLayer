@@ -24,14 +24,14 @@ namespace SubSonic
 
         public static SubSonicContext Current => ServiceProvider.GetService<SubSonicContext>();
 
-        public ISubSonicDbSetCollection Set(Type entity)
+        public ISubSonicSetCollection Set(Type entity)
         {
             if (entity is null)
             {
                 throw new ArgumentNullException(nameof(entity));
             }
 
-            if (Instance.GetService(typeof(ISubSonicDbSetCollection<>).MakeGenericType(entity)) is ISubSonicDbSetCollection set)
+            if (Instance.GetService(typeof(ISubSonicSetCollection<>).MakeGenericType(entity)) is ISubSonicSetCollection set)
             {
                 return set;
             }
@@ -39,10 +39,10 @@ namespace SubSonic
             throw new NotSupportedException();
         }
 
-        public ISubSonicDbSetCollection<TEntity> Set<TEntity>()
+        public ISubSonicSetCollection<TEntity> Set<TEntity>()
             where TEntity : class
         {
-            if (Set(typeof(TEntity)) is ISubSonicDbSetCollection<TEntity> set)
+            if (Set(typeof(TEntity)) is ISubSonicSetCollection<TEntity> set)
             {
                 return set;
             }

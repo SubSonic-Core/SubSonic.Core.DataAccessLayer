@@ -14,7 +14,7 @@ namespace SubSonic.Tests.DAL.DbSetCollection
     using SUT;
 
     [TestFixture]
-    public class DbSetCollectionTests
+    public class SubSonicSetCollectionTests
         : BaseTestFixture
     {
         public override void SetupTestFixture()

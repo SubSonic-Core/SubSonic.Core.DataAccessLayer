@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace SubSonic.Collections
 {
-    public sealed partial class DbSetCollection<TEntity>
+    public sealed partial class SubSonicSetCollection<TEntity>
         : IEnumerator<TEntity>
         where TEntity: class
     {

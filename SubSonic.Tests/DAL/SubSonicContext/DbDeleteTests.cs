@@ -14,7 +14,7 @@ namespace SubSonic.Tests.DAL
     using Linq;
     using Models = Extensions.Test.Models;
 
-    public partial class DbContextTests
+    public partial class SubSonicContextTests
     {
         const string expected_delete_udtt = @"DELETE FROM {0}
 WHERE ([{1}].[ID] IN (SELECT [ID] FROM @input))";

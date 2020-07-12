@@ -17,16 +17,16 @@ namespace SubSonic.Collections
     using Linq;
     using Linq.Expressions;
 
-    public sealed partial class DbSetCollection<TEntity>
-        : ISubSonicDbSetCollection<TEntity>
-        , ISubSonicDbSetCollection
+    public sealed partial class SubSonicSetCollection<TEntity>
+        : ISubSonicSetCollection<TEntity>
+        , ISubSonicSetCollection
     {
         private readonly IDbEntityModel model;
         private readonly ICollection<IEntityProxy<TEntity>> dataset;
 
         private bool isLoaded = false;
 
-        public DbSetCollection(ISubSonicQueryProvider<TEntity> provider)
+        public SubSonicSetCollection(ISubSonicQueryProvider<TEntity> provider)
         {
             Provider = provider ?? throw new ArgumentNullException(nameof(provider));
 
@@ -66,7 +66,7 @@ namespace SubSonic.Collections
         }
 
         #region ICollection<TEntity> Implementation
-        void ISubSonicDbSetCollection.Add(object entity)
+        void ISubSonicSetCollection.Add(object entity)
         {
             if (entity is TEntity item)
             {

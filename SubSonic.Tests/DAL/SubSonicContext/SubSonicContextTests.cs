@@ -15,7 +15,7 @@ namespace SubSonic.Tests.DAL
     using Models = Extensions.Test.Models;
 
     [TestFixture]
-    public partial class DbContextTests
+    public partial class SubSonicContextTests
         : BaseTestFixture
     {
         public override void SetupTestFixture()

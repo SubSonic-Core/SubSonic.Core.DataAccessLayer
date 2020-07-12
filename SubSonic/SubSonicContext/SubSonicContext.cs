@@ -40,7 +40,7 @@ namespace SubSonic
         {
             foreach(PropertyInfo info in GetType().GetProperties())
             {
-                if(!info.PropertyType.IsGenericType || info.PropertyType.GetGenericTypeDefinition() != typeof(ISubSonicDbSetCollection<>))
+                if(!info.PropertyType.IsGenericType || info.PropertyType.GetGenericTypeDefinition() != typeof(ISubSonicSetCollection<>))
                 {
                     continue;
                 }

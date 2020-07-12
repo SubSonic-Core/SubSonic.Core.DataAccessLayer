@@ -17,15 +17,15 @@ namespace SubSonic.Tests.DAL.SUT
 
         }
 
-        public ISubSonicDbSetCollection<Models.RealEstateProperty> RealEstateProperties { get; private set; }
+        public ISubSonicSetCollection<Models.RealEstateProperty> RealEstateProperties { get; private set; }
 
-        public ISubSonicDbSetCollection<Models.Status> Statuses { get; private set; }
+        public ISubSonicSetCollection<Models.Status> Statuses { get; private set; }
 
-        public ISubSonicDbSetCollection<Models.Unit> Units { get; private set; }
+        public ISubSonicSetCollection<Models.Unit> Units { get; private set; }
 
-        public ISubSonicDbSetCollection<Models.Renter> Renters { get; private set; }
+        public ISubSonicSetCollection<Models.Renter> Renters { get; private set; }
 
-        public ISubSonicDbSetCollection<Models.Person> People { get; private set; }
+        public ISubSonicSetCollection<Models.Person> People { get; private set; }
 
         protected override void OnDbConfiguring(DbContextOptionsBuilder config)
         {

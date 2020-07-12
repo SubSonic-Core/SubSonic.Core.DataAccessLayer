@@ -39,7 +39,7 @@ namespace SubSonic.Tests.DAL.Builders
 
             public Type Type => typeof(TEntity);
 
-            public Type DbSetType => typeof(ISubSonicDbSetCollection<>).MakeGenericType(Type);
+            public Type DbSetType => typeof(ISubSonicSetCollection<>).MakeGenericType(Type);
 
             public Expression Predicate { get; }
 

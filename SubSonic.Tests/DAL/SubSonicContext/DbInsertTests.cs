@@ -13,7 +13,7 @@ namespace SubSonic.Tests.DAL
     using System.Data.Common;
     using Models = Extensions.Test.Models;
 
-    public partial class DbContextTests
+    public partial class SubSonicContextTests
     {
         [Test]
         [Order(0)]

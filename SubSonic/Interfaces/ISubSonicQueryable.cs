@@ -6,9 +6,9 @@ namespace SubSonic
 {
     using Interfaces;
 
-    public interface ISubSonicDbSetCollection<TEntity>
+    public interface ISubSonicSetCollection<TEntity>
         : ISubSonicCollection<TEntity>
-        , ISubSonicDbSetCollection
+        , ISubSonicSetCollection
     {
         bool Delete(TEntity entity);
         IQueryable<TEntity> FindByID(object[] keyData, params string[] keyNames);
@@ -26,7 +26,7 @@ namespace SubSonic
         void AddRange(IEnumerable<TEntity> entities);
     }
 
-    public interface ISubSonicDbSetCollection
+    public interface ISubSonicSetCollection
     {
         void Add(object entity);
     }
