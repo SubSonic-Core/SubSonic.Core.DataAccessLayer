@@ -236,28 +236,55 @@ namespace SubSonic.Infrastructure.Builders
         {
             if (node.IsNotNull())
             {
-                switch (node.NodeType)
+                if (node.Expression is MemberExpression member)
                 {
-                    case ExpressionType.MemberAccess:
-                        if (node.Member is PropertyInfo pi)
-                        {
-                            propertyInfo = pi;
-
-                            return GetDbColumnExpression(pi);
-                        }
-                        else if (node.Member is FieldInfo fi)
-                        {
-                            if (node.Expression is ConstantExpression constant)
-                            {
-                                return GetNamedExpression(fi, fi.GetValue(constant.Value));
-                            }
-
-                            throw new NotSupportedException();
-                        }
-                        break;
+                    if (member.Expression is ConstantExpression value)
+                    {
+                        return VisitMemberExtended(node);
+                    }
+                    else
+                    {
+                        VisitMember(member);
+                    }
+                }
+                else
+                {
+                    return VisitMemberExtended(node);
                 }
             }
+
             return base.VisitMember(node);
+        }
+
+        protected Expression VisitMemberExtended(MemberExpression node)
+        {
+            if (node is null)
+            {
+                throw Error.ArgumentNull(nameof(node));
+            }
+
+            switch (node.NodeType)
+            {
+                case ExpressionType.MemberAccess:
+                    if (node.Member is PropertyInfo pi)
+                    {
+                        propertyInfo = pi;
+
+                        return GetDbColumnExpression(pi);
+                    }
+                    else if (node.Member is FieldInfo fi)
+                    {
+                        if (node.Expression is ConstantExpression constant)
+                        {
+                            return GetNamedExpression(fi, fi.GetValue(constant.Value));
+                        }
+
+                        throw new NotSupportedException();
+                    }
+                    break;                    
+            }
+
+            return node;
         }
 
         protected override Expression VisitNewArray(NewArrayExpression node)

@@ -78,7 +78,14 @@ namespace SubSonic.Linq.Expressions.Structure
                 }
                 else
                 {
-                    this.Visit(value);
+                    if (value is MemberExpression member)
+                    {
+                        this.VisitMember(member);
+                    }
+                    else
+                    {
+                        this.Visit(value);
+                    }
                 }
             }
             return value;

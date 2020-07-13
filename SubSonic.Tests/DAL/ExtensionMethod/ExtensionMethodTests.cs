@@ -14,7 +14,7 @@ namespace SubSonic.Tests.DAL.ExtensionMethod
     using SubSonic.Extensions.Test.Models;
 
     [TestFixture]
-    public class ExtensionMethodTests
+    public partial class ExtensionMethodTests
         : BaseTestFixture
     {
         protected override void SetSelectBehaviors()

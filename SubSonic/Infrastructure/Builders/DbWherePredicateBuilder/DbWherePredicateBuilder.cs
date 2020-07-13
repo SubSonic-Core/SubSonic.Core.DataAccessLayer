@@ -302,7 +302,7 @@ namespace SubSonic.Infrastructure.Builders
                     parameters.Add(whereType, new SubSonicParameter($"@{name}", value, property));
                 }
 
-                constant = Expression.Constant(Convert.ChangeType(value, info.PropertyType.GetUnderlyingType(), CultureInfo.CurrentCulture), info.PropertyType.GetUnderlyingType());
+                constant = Expression.Constant(value, value.GetType());
             }
             else
             {

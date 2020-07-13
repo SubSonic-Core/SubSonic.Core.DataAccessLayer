@@ -510,10 +510,20 @@ namespace SubSonic.Linq.Expressions.Structure
                         }
                         Write(") - 1)");
                         return;
-                    case "Trim":
+                    case nameof(string.Trim):
                         Write("RTRIM(LTRIM(");
                         Visit(method.Object);
                         Write("))");
+                        return;
+                    case nameof(string.TrimEnd):
+                        Write("RTRIM(");
+                        Visit(method.Object);
+                        Write(")");
+                        return;
+                    case nameof(string.TrimStart):
+                        Write("LTRIM(");
+                        Visit(method.Object);
+                        Write(")");
                         return;
                     default:
                         ThrowMethodNotSupported(info);

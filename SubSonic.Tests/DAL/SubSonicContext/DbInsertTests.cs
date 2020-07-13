@@ -27,7 +27,7 @@ namespace SubSonic.Tests.DAL
 
             Context.SaveChanges().Should().BeTrue();
 
-            person.ID.Should().Be(5);
+            person.ID.Should().Be(personId);
             person.FullName.Should().Be(String.Format("{0}, {1}{2}",
                     person.FamilyName, person.FirstName,
                     string.IsNullOrEmpty(person.MiddleInitial?.Trim()) ? "" : $" {person.MiddleInitial}."));
@@ -69,7 +69,7 @@ FROM @input";
 
                         People.Add(data);
 
-                        data.ID = People.Count;
+                        data.ID = ++personId;
 
                         data.FullName = String.Format("{0}, {1}{2}",
                             data.FamilyName, data.FirstName,
@@ -87,7 +87,7 @@ FROM @input";
 
                 Context.SaveChanges().Should().BeTrue();
 
-                person.ID.Should().Be(5);
+                person.ID.Should().Be(personId);
                 person.FullName.Should().Be("Last_1, First_1 M.");
             }
 
@@ -176,11 +176,11 @@ VALUES
                 .Should()
                 .Be(people.Length);
 
-            people[0].ID.Should().Be(5);
+            people[0].ID.Should().Be(51);
             people[0].FullName.Should().Be("Last_2, First_2 M.");
-            people[1].ID.Should().Be(6);
+            people[1].ID.Should().Be(52);
             people[1].FullName.Should().Be("Last_3, First_3");
-            people[2].ID.Should().Be(7);
+            people[2].ID.Should().Be(53);
             people[2].FullName.Should().Be("Last_4, First_4");
         }
 
