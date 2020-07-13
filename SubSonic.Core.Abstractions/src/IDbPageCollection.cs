@@ -4,12 +4,16 @@ namespace SubSonic
 {
     public interface IDbPageCollection<out TEntity>
         : IEnumerable<TEntity>
+        , IAsyncEnumerable<TEntity>
     {
         int PageSize { get; }
         int PageNumber { get; set; }
         int PageCount { get; }
         int RecordCount { get; set; }
-
+        /// <summary>
+        /// Get the page collection with iterator
+        /// </summary>
+        /// <returns></returns>
         IDbPagesCollection<TEntity> GetPages();
 
         /// <summary>

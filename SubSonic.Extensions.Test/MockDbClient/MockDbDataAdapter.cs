@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data.Common;
+using System.Data;
 
 namespace SubSonic.Extensions.Test.MockDbClient
 {
@@ -20,6 +21,11 @@ namespace SubSonic.Extensions.Test.MockDbClient
             UpdateCommand = provider.CreateCommand();
             InsertCommand = provider.CreateCommand();
             DeleteCommand = provider.CreateCommand();
+        }
+
+        public override int Fill(DataSet dataSet)
+        {
+            return base.Fill(dataSet);
         }
     }
 }

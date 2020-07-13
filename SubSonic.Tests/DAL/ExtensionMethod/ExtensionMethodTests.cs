@@ -28,7 +28,23 @@ FROM [dbo].[Renter] AS [T1]
 WHERE ([T1].[PersonID] = @personid_1)",
                 renter_avg = @"SELECT AVG([T1].[Rent])
 FROM [dbo].[Renter] AS [T1]
-WHERE ([T1].[PersonID] = @personid_1)";
+WHERE ([T1].[PersonID] = @personid_1)",
+                people_page_count_all = @"SELECT COUNT([T1].[ID]) [RECORDCOUNT]
+FROM [dbo].[Person] AS [T1]",
+                people_paged =
+@"WITH page AS
+(
+	SELECT [T1].[ID]
+	FROM [dbo].[Person] AS [T1]
+	ORDER BY [T1].[ID]
+	OFFSET @PageSize * (@PageNumber - 1) ROWS
+	FETCH NEXT @PageSize ROWS ONLY
+)
+SELECT [T1].[ID], [T1].[FirstName], [T1].[MiddleInitial], [T1].[FamilyName], [T1].[FullName]
+FROM [dbo].[Person] AS [T1]
+	INNER JOIN page
+		ON ([page].[ID] = [T1].[ID])
+OPTION (RECOMPILE)";
 
             string
                 property_count_all = @"SELECT COUNT([T1].[ID]) [RECORDCOUNT]
@@ -47,6 +63,39 @@ FROM [dbo].[RealEstateProperty] AS [T1]
 	INNER JOIN page
 		ON ([page].[ID] = [T1].[ID])
 OPTION (RECOMPILE)";
+
+            Context.Database.Instance.AddCommandBehavior(people_page_count_all, (cmd) =>
+            {
+                using (DataTableBuilder table = new DataTableBuilder())
+                {
+                    table
+                    .AddColumn("RECORDCOUNT", typeof(int))
+                    .AddRow(People.Count());
+
+                    return table.DataTable;
+                }
+            });
+            Context.Database.Instance.AddCommandBehavior(people_paged, (cmd) =>
+            {
+                int size = 0, page = 0;
+
+                foreach (DbParameter parameter in cmd.Parameters)
+                {
+                    if (parameter.ParameterName.Contains("PageSize"))
+                    {
+                        size = (int)parameter.Value;
+                    }
+                    else if (parameter.ParameterName.Contains("PageNumber"))
+                    {
+                        page = (int)parameter.Value;
+                    }
+                }
+
+                return People
+                    .Skip(size * (page - 1))
+                    .Take(size)
+                    .ToDataTable();
+            });
 
             Context.Database.Instance.AddCommandBehavior(property_count_all, (cmd) =>
             {

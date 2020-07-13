@@ -6,6 +6,8 @@ using System.Data;
 using System.Data.Common;
 using System.Globalization;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SubSonic
 {
@@ -102,6 +104,26 @@ namespace SubSonic
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+#if NETSTANDARD2_0
+        public IAsyncEnumerator<TEntity> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        {
+            return new Dasync.Collections.AsyncEnumerable<TEntity>(async yield =>
+            {
+                foreach (TEntity entity in this)
+                {
+                    await yield.ReturnAsync(entity).ConfigureAwait(false);
+                }
+            }).GetAsyncEnumerator(cancellationToken);
+#elif NETSTANDARD2_1
+        public async IAsyncEnumerator<TEntity> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        {
+            await foreach(TEntity entity in this.WithCancellation(cancellationToken))
+            {
+                yield return entity;
+            }
+#endif
         }
     }
 }

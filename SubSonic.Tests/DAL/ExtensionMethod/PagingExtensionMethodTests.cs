@@ -6,6 +6,8 @@ using System.Linq;
 namespace SubSonic.Tests.DAL.ExtensionMethod
 {
     using Linq;
+    using SubSonic.Extensions.Test.Models;
+    using System.Threading.Tasks;
     using Models = Extensions.Test.Models;
 
 
@@ -76,6 +78,26 @@ namespace SubSonic.Tests.DAL.ExtensionMethod
 
             enumerated.Should().BeTrue();
             collection.PageCount.Should().Be(pageCount).And.Be(cnt);
+        }
+
+        [Test]
+        public async Task ShouldBeAbleToEnumeratePagedDataAsync()
+        {
+            int
+                recordCount = People.Count(),
+                pageSize = 10,
+                pageCount = (int)Math.Ceiling((decimal)recordCount / pageSize),
+                count = 0;
+
+            foreach (var page in Context.People.ToPagedCollection(pageSize).GetPages())
+            {
+                await foreach(Person person in page)
+                {
+                    count++;
+                }
+            }
+
+            count.Should().Be(recordCount);
         }
     }
 }
