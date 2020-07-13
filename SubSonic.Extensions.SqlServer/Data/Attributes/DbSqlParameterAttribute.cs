@@ -1,4 +1,4 @@
-﻿using SubSonic.Infrastructure;
+﻿using SubSonic;
 using System.Data;
 
 namespace SubSonic.Extensions.SqlServer

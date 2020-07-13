@@ -14,8 +14,7 @@ namespace SubSonic
 {
     using Linq;
     using Data.DynamicProxies;
-    using Infrastructure;
-    using Infrastructure.Schema;
+    using Schema;
 
     public static partial class SubSonicExtensions
     {

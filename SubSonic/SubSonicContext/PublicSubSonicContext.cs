@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Data;
-
-using System.Collections.Generic;
 
 namespace SubSonic
 {
-    using Infrastructure;
-    using Infrastructure.Schema;
-    using Linq;
+    using Schema;
     using SubSonic.Data.Caching;
     using SubSonic.Data.DynamicProxies;
 

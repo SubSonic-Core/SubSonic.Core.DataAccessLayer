@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SubSonic.Infrastructure.Schema
+namespace SubSonic.Schema
 {
     using Linq.Expressions;
     public interface IDbEntityModel

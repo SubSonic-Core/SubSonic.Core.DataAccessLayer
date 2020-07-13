@@ -5,7 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 
-namespace SubSonic.Infrastructure
+namespace SubSonic
 {
     public interface ISubSonicQueryProvider<out TEntity>
         : ISubSonicQueryProvider

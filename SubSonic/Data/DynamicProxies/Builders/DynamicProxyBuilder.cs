@@ -8,9 +8,8 @@ using System.Threading.Tasks;
 
 namespace SubSonic.Data.DynamicProxies
 {
-    using Infrastructure;
-    using Infrastructure.Schema;
     using Linq;
+    using Schema;
 
     public delegate void Proxy();
 

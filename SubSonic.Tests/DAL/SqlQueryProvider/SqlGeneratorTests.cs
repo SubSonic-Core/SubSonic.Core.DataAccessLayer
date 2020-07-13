@@ -11,8 +11,8 @@ namespace SubSonic.Tests.DAL.SqlQueryProvider
     using Data.DynamicProxies;
     using Extensions.Test;
     using Extensions.Test.Models;
-    using Infrastructure;
-    using Infrastructure.Logging;
+    
+    using Logging;
     using Linq;
     using Linq.Expressions;
     using Tests.DAL.SUT;

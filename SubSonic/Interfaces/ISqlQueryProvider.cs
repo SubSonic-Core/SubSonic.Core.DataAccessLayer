@@ -1,10 +1,10 @@
-﻿using SubSonic.Infrastructure.Schema;
-using SubSonic.Infrastructure.SqlGenerator;
+﻿using SubSonic.Schema;
+using SubSonic.SqlGenerator;
 using System.Data;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace SubSonic.Infrastructure
+namespace SubSonic
 {
     public interface ISqlQueryProvider
         : ISqlGenerator

@@ -3,7 +3,7 @@ using NUnit.Framework;
 using SubSonic.Extensions.Test;
 using SubSonic.Extensions.Test.MockDbClient;
 using SubSonic.Extensions.Test.Models;
-using SubSonic.Infrastructure.Logging;
+using SubSonic.Logging;
 using System;
 using System.Collections;
 using System.Collections.Generic;

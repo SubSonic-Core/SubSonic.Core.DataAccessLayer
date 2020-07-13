@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SubSonic.Extensions.Test.Models
 {
-    using Infrastructure;
-
     [Table(nameof(Unit))]
     [DbUserDefinedTableType(nameof(Unit))]
     public class Unit

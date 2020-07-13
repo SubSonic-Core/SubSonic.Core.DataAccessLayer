@@ -1,7 +1,7 @@
 ﻿using SubSonic.Data.Caching;
 using SubSonic.Data.DynamicProxies;
-using SubSonic.Infrastructure;
-using SubSonic.Infrastructure.Factory;
+using SubSonic;
+using SubSonic.Factory;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;

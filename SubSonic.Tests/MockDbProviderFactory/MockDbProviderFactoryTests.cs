@@ -56,7 +56,7 @@ namespace SubSonic.Tests.MockDbProviderFactory
             DbProviderFactory factory = null;
 
 #if NETFRAMEWORK
-            factory = Infrastructure.DbProviderFactories.GetFactory(SetUpMockDb.ProviderInvariantName);
+            factory = DbProviderFactories.GetFactory(SetUpMockDb.ProviderInvariantName);
 #else
             factory = DbProviderFactories.GetFactory(SetUpMockDb.ProviderInvariantName);
 #endif
@@ -159,7 +159,7 @@ namespace SubSonic.Tests.MockDbProviderFactory
             DbProviderFactory factory = null;
 
 #if NETFRAMEWORK
-            factory = Infrastructure.DbProviderFactories.GetFactory(SetUpMockDb.ProviderInvariantName) as MockDbClientFactory;
+            factory = DbProviderFactories.GetFactory(SetUpMockDb.ProviderInvariantName) as MockDbClientFactory;
 #else
             factory = DbProviderFactories.GetFactory(SetUpMockDb.ProviderInvariantName) as MockDbClientFactory;
 #endif

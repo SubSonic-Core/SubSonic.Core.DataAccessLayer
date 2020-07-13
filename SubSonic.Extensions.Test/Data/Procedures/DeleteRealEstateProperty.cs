@@ -1,5 +1,5 @@
 ﻿using SubSonic.Extensions.SqlServer;
-using SubSonic.Infrastructure;
+using SubSonic;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;

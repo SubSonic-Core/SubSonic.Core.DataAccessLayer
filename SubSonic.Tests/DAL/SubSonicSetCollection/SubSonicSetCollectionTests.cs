@@ -10,7 +10,7 @@ namespace SubSonic.Tests.DAL.DbSetCollection
     using Data.DynamicProxies;
     using Extensions.Test;
     using Extensions.Test.Models;
-    using Infrastructure;
+    
     using SUT;
 
     [TestFixture]

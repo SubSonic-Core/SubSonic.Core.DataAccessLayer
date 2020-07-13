@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 using SubSonic.Extensions.Test.Models;
-using SubSonic.Infrastructure.Schema;
+using SubSonic.Schema;
 using System;
 using System.Collections;
 using System.Collections.Generic;

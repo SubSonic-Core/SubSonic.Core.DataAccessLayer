@@ -8,14 +8,13 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
+using System.Reflection;
 
 namespace SubSonic.Tests.DAL.Builders
 {
     using Linq.Expressions;
-    using Infrastructure.Builders;
+    using SubSonic.Builders;
     using Models = Extensions.Test.Models;
-    using System.Reflection;
-    using SubSonic.Infrastructure;
 
     [TestFixture]
     public class DbWherePredicateBuilderTests

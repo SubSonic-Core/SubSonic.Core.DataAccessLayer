@@ -6,6 +6,6 @@ namespace SubSonic
 {
     public interface IDbNavigationPropertyBuilder
     {
-        Infrastructure.Schema.IDbRelationshipMap RelationshipMap { get; }
+        Schema.IDbRelationshipMap RelationshipMap { get; }
     }
 }

@@ -1,4 +1,4 @@
-﻿using SubSonic.Infrastructure.Schema;
+﻿using SubSonic.Schema;
 using SubSonic.Linq.Expressions.Alias;
 using System;
 using System.Collections.Generic;

@@ -8,9 +8,8 @@ namespace SubSonic.Extensions.Test
 {
     using Data.Builders;
     using Extensions.Test.MockDbClient.Syntax;
-    using Infrastructure;
-    using Infrastructure.Schema;
     using Linq;
+    using Schema;
     using System.Globalization;
 
     public static partial class SubSonicTestExtensions

@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 using SubSonic.Extensions.Test;
-using SubSonic.Infrastructure;
+using SubSonic;
 using System.Data.Common;
 using System.Linq;
 using System.Data;

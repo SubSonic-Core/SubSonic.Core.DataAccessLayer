@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SubSonic.Infrastructure.Schema
+namespace SubSonic.Schema
 {
     using Linq.Expressions;
     using System.Data;

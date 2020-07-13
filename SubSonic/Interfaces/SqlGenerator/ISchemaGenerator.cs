@@ -1,11 +1,9 @@
-﻿using SubSonic.Infrastructure.Schema;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Text;
+﻿using System.Data;
 
-namespace SubSonic.Infrastructure.SqlGenerator
+namespace SubSonic.SqlGenerator
 {
+    using Schema;
+
     public interface ISchemaGenerator
     {
         /// <summary>

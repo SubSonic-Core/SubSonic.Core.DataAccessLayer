@@ -1,19 +1,15 @@
-﻿using SubSonic.Data.DynamicProxies;
-using SubSonic.Infrastructure;
-using SubSonic.Infrastructure.Schema;
-using System.Linq;
+﻿using SubSonic;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SubSonic.Data.Caching
 {
-    using Linq;
-    using Infrastructure;
-    using Infrastructure.Schema;
     using Data.DynamicProxies;
+    using Linq;
+    using Schema;
 
     public class Entity<TEntity>
         : Entity

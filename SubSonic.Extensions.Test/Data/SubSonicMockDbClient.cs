@@ -1,9 +1,9 @@
 ﻿using SubSonic.Extensions.SqlServer;
 using SubSonic.Extensions.Test.MockDbClient;
 using SubSonic.Extensions.Test.MockDbClient.Syntax;
-using SubSonic.Infrastructure;
-using SubSonic.Infrastructure.Factory;
-using SubSonic.Infrastructure.Schema;
+using SubSonic;
+using SubSonic.Factory;
+using SubSonic.Schema;
 using System;
 using System.ComponentModel;
 using System.Data;

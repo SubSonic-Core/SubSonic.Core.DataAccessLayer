@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using SubSonic.Infrastructure;
+using SubSonic;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;

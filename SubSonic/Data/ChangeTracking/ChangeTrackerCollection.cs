@@ -9,8 +9,7 @@ using System.Text;
 
 namespace SubSonic.Data.Caching
 {
-    using Infrastructure;
-    using Infrastructure.Logging;
+    using Logging;
     using Linq;
 
     public class ChangeTrackerCollection

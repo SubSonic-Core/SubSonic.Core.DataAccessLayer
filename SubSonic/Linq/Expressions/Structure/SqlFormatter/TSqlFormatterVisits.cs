@@ -12,7 +12,7 @@ using System.Text;
 namespace SubSonic.Linq.Expressions.Structure
 {
     using Alias;
-    using Infrastructure.SqlGenerator;
+    using SqlGenerator;
     using System.Reflection;
 
     public partial class TSqlFormatter

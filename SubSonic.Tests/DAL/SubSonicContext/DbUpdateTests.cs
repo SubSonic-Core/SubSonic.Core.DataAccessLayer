@@ -9,8 +9,8 @@ using System.Data.Common;
 namespace SubSonic.Tests.DAL
 {
     using Extensions.Test;
-    using Infrastructure;
-    using Infrastructure.Schema;
+    
+    using Schema;
     using Linq;
     using SubSonic.Data.Caching;
     using Models = Extensions.Test.Models;

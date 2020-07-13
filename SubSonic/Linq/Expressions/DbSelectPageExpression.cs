@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
-    using Infrastructure.Factory;
+    using Factory;
     using Structure;
 
     /// <summary>

@@ -3,7 +3,6 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
-    using Infrastructure;
     using Structure;
 
     public class DbBetweenExpression : DbExpression

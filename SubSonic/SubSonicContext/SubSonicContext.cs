@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using SubSonic.Infrastructure;
+using SubSonic;
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;

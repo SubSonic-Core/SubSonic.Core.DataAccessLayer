@@ -1,4 +1,4 @@
-﻿using SubSonic.Infrastructure.Schema;
+﻿using SubSonic.Schema;
 using System.Collections.Generic;
 using System.Data;
 

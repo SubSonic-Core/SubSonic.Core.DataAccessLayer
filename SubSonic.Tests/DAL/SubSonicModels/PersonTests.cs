@@ -10,8 +10,8 @@ using FluentAssertions;
 
 namespace SubSonic.Tests.DAL.DbModels
 {
-    using Infrastructure.Schema;
-    using Infrastructure;
+    using Schema;
+    
     using Extensions.Test;
     using Models = Extensions.Test.Models;
     using System.Data.Common;

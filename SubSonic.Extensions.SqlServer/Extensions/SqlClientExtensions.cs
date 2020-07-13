@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Text;
+using System.Data.Common;
 
 namespace SubSonic.Extensions.SqlServer
 {
-    using Infrastructure;
-    using System.Data;
-    using System.Data.Common;
+    
 
     public static partial class SqlServerExtensions
     {

@@ -12,8 +12,8 @@ using Microsoft.Extensions.Logging;
 namespace SubSonic.Tests.DAL.TempTable
 {
     using FluentAssertions;
-    using Infrastructure;
-    using Infrastructure.Logging;    
+    
+    using Logging;    
 
     [TestFixture]
     public class TempTableTests

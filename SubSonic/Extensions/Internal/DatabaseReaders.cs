@@ -1,6 +1,6 @@
 ﻿using SubSonic.Data.DynamicProxies;
-using SubSonic.Infrastructure;
-using SubSonic.Infrastructure.Schema;
+using SubSonic;
+using SubSonic.Schema;
 using System;
 using System.Data;
 

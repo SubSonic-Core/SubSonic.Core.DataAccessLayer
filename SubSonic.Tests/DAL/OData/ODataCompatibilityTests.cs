@@ -4,15 +4,15 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NUnit.Framework;
 using System.Linq;
+using System.Linq.Expressions;
 using Models = SubSonic.Extensions.Test.Models;
 
 namespace SubSonic.Tests.DAL.OData
 {
-    using Infrastructure;
-    using Infrastructure.Logging;
     using Linq.Expressions;
+    using Logging;
     using System;
-    using System.Linq.Expressions;
+
 
     [TestFixture]
     public class ODataCompatibilityTests

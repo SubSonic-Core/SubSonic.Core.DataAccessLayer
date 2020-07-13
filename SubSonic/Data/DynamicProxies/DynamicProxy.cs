@@ -1,6 +1,6 @@
 ﻿using Microsoft.Win32.SafeHandles;
-using SubSonic.Infrastructure;
-using SubSonic.Infrastructure.Schema;
+using SubSonic;
+using SubSonic.Schema;
 using System;
 using System.Collections.Generic;
 using System.Data;

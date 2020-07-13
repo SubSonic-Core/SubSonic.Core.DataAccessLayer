@@ -1,15 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Data;
+using System.Data.Common;
 using System.Data.SqlClient;
 
 namespace SubSonic.Extensions.SqlServer
 {
-    using Infrastructure;
-    using Infrastructure.Factory;
-    using SubSonic.Infrastructure.Schema;
-    using System.Data.Common;
+    using Factory;
+    using Schema;
+
 
     public class SubSonicSqlClient
         : SubSonicDbProvider<SqlClientFactory>

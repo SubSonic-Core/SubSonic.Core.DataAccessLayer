@@ -9751,11 +9751,11 @@
         </member>
         <member name="T:Microsoft.AspNet.OData.Routing.ODataActionSelector">
             <summary>
-            An implementation of <see cref="T:Microsoft.AspNetCore.Mvc.Infrastructure.IActionSelector"/> that uses the server's OData routing conventions
+            An implementation of <see cref="T:Microsoft.AspNetCore.Mvc.IActionSelector"/> that uses the server's OData routing conventions
             to select an action for OData requests.
             </summary>
         </member>
-        <member name="M:Microsoft.AspNet.OData.Routing.ODataActionSelector.#ctor(Microsoft.AspNetCore.Mvc.Infrastructure.IActionDescriptorCollectionProvider,Microsoft.AspNetCore.Mvc.Internal.ActionConstraintCache,Microsoft.Extensions.Logging.ILoggerFactory)">
+        <member name="M:Microsoft.AspNet.OData.Routing.ODataActionSelector.#ctor(Microsoft.AspNetCore.Mvc.IActionDescriptorCollectionProvider,Microsoft.AspNetCore.Mvc.Internal.ActionConstraintCache,Microsoft.Extensions.Logging.ILoggerFactory)">
             <summary>
             Initializes a new instance of the <see cref="T:Microsoft.AspNet.OData.Routing.ODataActionSelector" /> class.
             </summary>

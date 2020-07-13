@@ -1,5 +1,5 @@
 ﻿using SubSonic.Collections;
-using SubSonic.Infrastructure;
+using SubSonic;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;

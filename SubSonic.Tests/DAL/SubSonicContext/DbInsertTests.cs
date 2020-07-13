@@ -7,8 +7,8 @@ using System.Collections.Generic;
 namespace SubSonic.Tests.DAL
 {
     using Extensions.Test;
-    using SubSonic.Infrastructure;
-    using SubSonic.Infrastructure.Schema;
+    using SubSonic;
+    using SubSonic.Schema;
     using System.Data;
     using System.Data.Common;
     using Models = Extensions.Test.Models;

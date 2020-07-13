@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using SubSonic.Data.DynamicProxies;
 using SubSonic.Extensions.Test.Models;
-using SubSonic.Infrastructure;
+using SubSonic;
 using System.Collections.Generic;
 using System.Linq;
 

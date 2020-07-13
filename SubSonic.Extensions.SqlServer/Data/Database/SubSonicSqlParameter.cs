@@ -1,5 +1,5 @@
-﻿using SubSonic.Infrastructure;
-using SubSonic.Infrastructure.Schema;
+﻿using SubSonic;
+using SubSonic.Schema;
 using System.Data;
 
 namespace SubSonic.Extensions.SqlServer
