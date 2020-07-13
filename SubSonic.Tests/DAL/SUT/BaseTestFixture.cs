@@ -32,6 +32,8 @@ namespace SubSonic.Tests.DAL.SUT
 
         protected int personId;
 
+        protected int propertyId;
+
         protected Bogus.Faker<Person> GetFakePerson
         {
             get
@@ -53,6 +55,22 @@ namespace SubSonic.Tests.DAL.SUT
             }
         }
 
+        protected Bogus.Faker<RealEstateProperty> GetFakeProperty
+        {
+            get => new SubSonicFaker<RealEstateProperty>()
+                    .UseDbContext()
+                    .RuleFor(property => property.ID, set => ++propertyId)
+                    .RuleFor(property => property.StatusID, set => set.PickRandom(Statuses.Select(x => x.ID)))
+                    .RuleFor(property => property.HasParallelPowerGeneration, set => set.PickRandom(true, false))
+                    .FinishWith((faker, property) =>
+                    {
+                        if (property is IEntityProxy proxy)
+                        {
+                            proxy.IsDirty = false;
+                        }
+                    });
+        }
+
         [SetUp]
         public virtual void SetupTestFixture()
         {
@@ -71,6 +89,10 @@ namespace SubSonic.Tests.DAL.SUT
                 new Status() { ID = 3, Name = "Occupied", IsAvailableStatus = false },
             };
 
+            People = new List<Person>(GetFakePerson.Generate(50));
+
+            RealEstateProperties = new List<RealEstateProperty>(GetFakeProperty.Generate(10));
+
             Units = new List<Unit>()
             {
                 new Unit() { ID = 1, RealEstatePropertyID = 1, StatusID = 1, NumberOfBedrooms = 1 },
@@ -88,21 +110,13 @@ namespace SubSonic.Tests.DAL.SUT
                 new Renter() { PersonID = 4, UnitID = 4, Rent = 300M, StartDate = new DateTime(2000, 01, 01) }
             };
 
-            RealEstateProperties = new List<RealEstateProperty>()
-            {
-                new RealEstateProperty() { ID = 1, StatusID = 1, HasParallelPowerGeneration = true },
-                new RealEstateProperty() { ID = 2, StatusID = 3, HasParallelPowerGeneration = false },
-                new RealEstateProperty() { ID = 3, StatusID = 2, HasParallelPowerGeneration = true },
-                new RealEstateProperty() { ID = 4, StatusID = 2, HasParallelPowerGeneration = false },
-            };
-
-            People = new List<Person>(GetFakePerson.Generate(50));
         }
 
         [TearDown]
         public virtual void TearDownTestFixture()
         {
             personId = 0;
+            propertyId = 0;
         }
 
         protected virtual void SetSelectBehaviors()

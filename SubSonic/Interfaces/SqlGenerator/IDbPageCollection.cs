@@ -20,5 +20,10 @@ namespace SubSonic
         /// <param name="number">page number to retrieve</param>
         /// <returns></returns>
         IEnumerable<TEntity> GetRecordsForPage(int number);
+        /// <summary>
+        /// Get the entities for the current page;
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<TEntity> GetRecordsForPage();
     }
 }
