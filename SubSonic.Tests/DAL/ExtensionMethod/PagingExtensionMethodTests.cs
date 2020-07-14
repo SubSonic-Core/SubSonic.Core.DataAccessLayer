@@ -87,17 +87,21 @@ namespace SubSonic.Tests.DAL.ExtensionMethod
                 recordCount = People.Count(),
                 pageSize = 10,
                 pageCount = (int)Math.Ceiling((decimal)recordCount / pageSize),
-                count = 0;
+                cnt = 0, 
+                pageCnt = 0;
 
             foreach (var page in Context.People.ToPagedCollection(pageSize).GetPages())
             {
-                await foreach(Person person in page)
+                pageCnt++;
+
+                await foreach (Person person in page)
                 {
-                    count++;
+                    cnt++;
                 }
             }
 
-            count.Should().Be(recordCount);
+            pageCnt.Should().Be(pageCount);
+            cnt.Should().Be(recordCount);
         }
     }
 }

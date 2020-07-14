@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -107,7 +108,7 @@ namespace SubSonic
         }
 
 #if NETSTANDARD2_0
-        public IAsyncEnumerator<TEntity> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        IAsyncEnumerator<TEntity> IAsyncEnumerable<TEntity>.GetAsyncEnumerator(CancellationToken cancellationToken)
         {
             return new Dasync.Collections.AsyncEnumerable<TEntity>(async yield =>
             {
@@ -116,14 +117,15 @@ namespace SubSonic
                     await yield.ReturnAsync(entity).ConfigureAwait(false);
                 }
             }).GetAsyncEnumerator(cancellationToken);
+        }
 #elif NETSTANDARD2_1
-        public async IAsyncEnumerator<TEntity> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        async IAsyncEnumerator<TEntity> IAsyncEnumerable<TEntity>.GetAsyncEnumerator(CancellationToken cancellationToken)
         {
-            await foreach(TEntity entity in this.WithCancellation(cancellationToken))
+            foreach(TEntity entity in this)
             {
                 yield return entity;
             }
-#endif
         }
+#endif
     }
 }

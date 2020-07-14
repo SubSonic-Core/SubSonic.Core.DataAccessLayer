@@ -6,6 +6,8 @@
     <Authors>Kenneth Carter</Authors>
     <Version>4.1.0-alpha.1</Version>
     <SignAssembly>true</SignAssembly>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <AssemblyOriginatorKeyFile>SubSonicStrongName.snk</AssemblyOriginatorKeyFile>
     <PackageLicenseFile>LICENSE.MD</PackageLicenseFile>
   </PropertyGroup>
