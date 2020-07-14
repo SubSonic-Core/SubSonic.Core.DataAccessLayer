@@ -42,4 +42,4 @@ jobs:
     - name: Create Packages
       run: dotnet pack --configuration Release 
     - name: Publish Package
-      run: dotnet publish -p:PublishDir=.\publish
+      run: dotnet publish -p:PublishDir=.\publish -f netstandard2.0
