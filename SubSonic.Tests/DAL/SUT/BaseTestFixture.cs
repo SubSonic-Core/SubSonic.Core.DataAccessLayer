@@ -1,13 +1,16 @@
-﻿using NUnit.Framework;
+﻿using Dasync.Collections;
+using NUnit.Framework;
 using SubSonic.Extensions.Test;
 using SubSonic.Extensions.Test.MockDbClient;
 using SubSonic.Extensions.Test.Models;
-using SubSonic.Infrastructure.Logging;
+using SubSonic.Logging;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SubSonic.Tests.DAL.SUT
 {
@@ -27,13 +30,17 @@ namespace SubSonic.Tests.DAL.SUT
             }
         }
 
+        protected int personId;
+
+        protected int propertyId;
+
         protected Bogus.Faker<Person> GetFakePerson
         {
             get
             {
                 return new SubSonicFaker<Person>()
                     .UseDbContext()
-                    .RuleFor(person => person.ID, set => 0)
+                    .RuleFor(person => person.ID, set => ++personId)
                     .RuleFor(person => person.FirstName, set => set.PickRandom(DataSeed.Person.FirstNames))
                     .RuleFor(person => person.MiddleInitial, set => set.PickRandom(DataSeed.Person.MiddleInitial))
                     .RuleFor(person => person.FamilyName, set => set.PickRandom(DataSeed.Person.FamilyNames))
@@ -46,6 +53,22 @@ namespace SubSonic.Tests.DAL.SUT
                         }
                     });
             }
+        }
+
+        protected Bogus.Faker<RealEstateProperty> GetFakeProperty
+        {
+            get => new SubSonicFaker<RealEstateProperty>()
+                    .UseDbContext()
+                    .RuleFor(property => property.ID, set => ++propertyId)
+                    .RuleFor(property => property.StatusID, set => set.PickRandom(Statuses.Select(x => x.ID)))
+                    .RuleFor(property => property.HasParallelPowerGeneration, set => set.PickRandom(true, false))
+                    .FinishWith((faker, property) =>
+                    {
+                        if (property is IEntityProxy proxy)
+                        {
+                            proxy.IsDirty = false;
+                        }
+                    });
         }
 
         [SetUp]
@@ -66,6 +89,10 @@ namespace SubSonic.Tests.DAL.SUT
                 new Status() { ID = 3, Name = "Occupied", IsAvailableStatus = false },
             };
 
+            People = new List<Person>(GetFakePerson.Generate(50));
+
+            RealEstateProperties = new List<RealEstateProperty>(GetFakeProperty.Generate(10));
+
             Units = new List<Unit>()
             {
                 new Unit() { ID = 1, RealEstatePropertyID = 1, StatusID = 1, NumberOfBedrooms = 1 },
@@ -83,21 +110,13 @@ namespace SubSonic.Tests.DAL.SUT
                 new Renter() { PersonID = 4, UnitID = 4, Rent = 300M, StartDate = new DateTime(2000, 01, 01) }
             };
 
-            RealEstateProperties = new List<RealEstateProperty>()
-            {
-                new RealEstateProperty() { ID = 1, StatusID = 1, HasParallelPowerGeneration = true },
-                new RealEstateProperty() { ID = 2, StatusID = 3, HasParallelPowerGeneration = false },
-                new RealEstateProperty() { ID = 3, StatusID = 2, HasParallelPowerGeneration = true },
-                new RealEstateProperty() { ID = 4, StatusID = 2, HasParallelPowerGeneration = false },
-            };
+        }
 
-            People = new List<Person>()
-            { 
-                new Person() { ID = 1, FirstName = "Kara", FamilyName = "Danvers", FullName = "Danvers, Kara" },
-                new Person() { ID = 2, FirstName = "Clark", FamilyName = "Kent", FullName = "Kent, Clark" },
-                new Person() { ID = 3, FirstName = "First", FamilyName = "Last", FullName = "Last, First" },
-                new Person() { ID = 4, FirstName = "First", FamilyName = "Last", MiddleInitial = "A", FullName = "Last, First A." }
-            };
+        [TearDown]
+        public virtual void TearDownTestFixture()
+        {
+            personId = 0;
+            propertyId = 0;
         }
 
         protected virtual void SetSelectBehaviors()
@@ -122,14 +141,34 @@ WHERE ([T1].[ID] < @id_1)",
 FROM [dbo].[Renter] AS [T1]
 WHERE ([T1].[PersonID] == @personid_1)";
 
-            Context.Database.Instance.AddCommandBehavior(people_all, cmd => People.ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(people_all, cmd => BuildDataTable(People));
             Context.Database.Instance.AddCommandBehavior(people_all_count, cmd => People.Count());
             Context.Database.Instance.AddCommandBehavior(people_all_long_count, cmd => People.LongCount());
-            Context.Database.Instance.AddCommandBehavior(people_greater_than, cmd => People.Where(x => x.ID > cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
-            Context.Database.Instance.AddCommandBehavior(people_equal, cmd => People.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
-            Context.Database.Instance.AddCommandBehavior(people_less_than, cmd => People.Where(x => x.ID < cmd.Parameters["@id_1"].GetValue<int>()).ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(people_greater_than, cmd => BuildDataTable(People.Where(x => x.ID > cmd.Parameters["@id_1"].GetValue<int>())));
+            Context.Database.Instance.AddCommandBehavior(people_equal, cmd => BuildDataTable(People.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>())));
+            Context.Database.Instance.AddCommandBehavior(people_less_than, cmd => BuildDataTable(People.Where(x => x.ID < cmd.Parameters["@id_1"].GetValue<int>())));
 
-            Context.Database.Instance.AddCommandBehavior(renter_byperson, cmd => Renters.Where(x => x.PersonID == cmd.Parameters["@personid_1"].GetValue<int>()).ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(renter_byperson, cmd => BuildDataTable(Renters.Where(x => x.PersonID == cmd.Parameters["@personid_1"].GetValue<int>())));
+        }
+
+        protected DataTable BuildDataTable<TEntity>(IEnumerable<TEntity> entities)
+        {
+            if (typeof(TEntity) == typeof(Person))
+            {
+                //foreach (TEntity entity in entities)
+                Parallel.ForEach(entities, entity =>
+                {
+                    if (entity is Person person)
+                    {
+                        person.FullName = String.Format("{0}, {1}{2}",
+                            person.FamilyName, person.FirstName,
+                            string.IsNullOrEmpty(person.MiddleInitial?.Trim()) ? "" : $" {person.MiddleInitial}.");
+                    }
+                }
+                );
+            }
+
+            return entities.ToDataTable();
         }
 
         protected virtual void SetInsertBehaviors()

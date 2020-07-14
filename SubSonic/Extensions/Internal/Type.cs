@@ -2,13 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-using System.Text;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace SubSonic
 {
-    using Infrastructure;
     using Linq;
 
     internal static partial class InternalExtensions

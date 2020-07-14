@@ -1,11 +1,9 @@
-﻿using SubSonic.Infrastructure.Schema;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Text;
+﻿using System.Data;
 
-namespace SubSonic.Infrastructure.SqlGenerator
+namespace SubSonic.SqlGenerator
 {
+    using Schema;
+
     public interface ISchemaGenerator
     {
         /// <summary>
@@ -66,9 +64,9 @@ namespace SubSonic.Infrastructure.SqlGenerator
         /// <returns></returns>
         string GenerateColumnAttributes(IDbEntityProperty entityProperty);
 
-        IDbEntityModel GetEntityModelFromDbContext(DbContext dbContext, string tableName);
+        IDbEntityModel GetEntityModelFromDbContext(SubSonicContext dbContext, string tableName);
 
-        string[] GetTableList(DbContext dbContext);
+        string[] GetTableList(SubSonicContext dbContext);
 
         DbType GetDbType(string sqlType);
 

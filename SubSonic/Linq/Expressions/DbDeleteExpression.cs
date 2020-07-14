@@ -43,7 +43,7 @@ namespace SubSonic.Linq.Expressions
 
         public override string ToString()
         {
-            return DbContext.GenerateSqlFor(this);
+            return SubSonicContext.GenerateSqlFor(this);
         }
     }
 

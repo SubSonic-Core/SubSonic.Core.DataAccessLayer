@@ -2,7 +2,7 @@
 using System.Data;
 using System.Linq;
 
-namespace SubSonic.Infrastructure
+namespace SubSonic
 {
     using Extensions.SqlServer;
     using Linq;

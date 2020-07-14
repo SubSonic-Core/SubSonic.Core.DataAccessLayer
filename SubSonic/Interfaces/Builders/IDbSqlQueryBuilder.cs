@@ -1,14 +1,14 @@
-﻿using SubSonic.Infrastructure.Schema;
-using SubSonic.Interfaces;
-using SubSonic.Linq.Expressions;
-using System;
+﻿using SubSonic.Linq.Expressions;
+using SubSonic.Schema;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace SubSonic.Infrastructure
+namespace SubSonic
 {
+    using Linq;
+
     public interface ISubSonicQueryProvider
         : IQueryProvider, IAsyncSubSonicQueryProvider
     {

@@ -12,7 +12,7 @@ using System.Text;
 namespace SubSonic.Linq.Expressions.Structure
 {
     using Alias;
-    using Infrastructure.SqlGenerator;
+    using SqlGenerator;
     using System.Reflection;
 
     public partial class TSqlFormatter
@@ -78,7 +78,14 @@ namespace SubSonic.Linq.Expressions.Structure
                 }
                 else
                 {
-                    this.Visit(value);
+                    if (value is MemberExpression member)
+                    {
+                        this.VisitMember(member);
+                    }
+                    else
+                    {
+                        this.Visit(value);
+                    }
                 }
             }
             return value;

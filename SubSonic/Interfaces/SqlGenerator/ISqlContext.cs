@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace SubSonic.Infrastructure.SqlGenerator
+namespace SubSonic.SqlGenerator
 {
     using Factory;
 

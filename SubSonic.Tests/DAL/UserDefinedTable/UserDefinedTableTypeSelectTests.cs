@@ -13,11 +13,11 @@ using System.Reflection;
 namespace SubSonic.Tests.DAL.UserDefinedTable
 {
     using Tests.DAL.SUT;
-    using Infrastructure.Logging;
-    using Infrastructure;
+    using Logging;
+    
     using Data.Caching;
     using Extensions.Test;
-    using Infrastructure.Schema;
+    using Schema;
     using Linq.Expressions;
     using Models = Extensions.Test.Models;
 

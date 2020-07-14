@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
-    using Infrastructure.Factory;
+    using Factory;
     using Structure;
 
     /// <summary>
@@ -57,7 +57,7 @@ namespace SubSonic.Linq.Expressions
         {
             get
             {
-                DbProviderFactory provider = DbContext.ServiceProvider.GetService<DbProviderFactory>();
+                DbProviderFactory provider = SubSonicContext.ServiceProvider.GetService<DbProviderFactory>();
 
                 if (provider is SubSonicDbProvider subsonic)
                 {

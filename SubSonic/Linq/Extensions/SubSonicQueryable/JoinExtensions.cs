@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
+﻿using System.Linq;
 
 namespace SubSonic.Linq
 {
     using Expressions;
-    using Infrastructure;
 
     public static partial class SubSonicQueryable
     {

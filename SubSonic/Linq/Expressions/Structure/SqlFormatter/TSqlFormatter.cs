@@ -14,8 +14,8 @@ using System.Text;
 namespace SubSonic.Linq.Expressions.Structure
 {
     using Alias;
-    using Infrastructure.SqlGenerator;
-    using Infrastructure.Factory;
+    using SqlGenerator;
+    using Factory;
 
 
     public partial class TSqlFormatter

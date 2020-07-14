@@ -14,8 +14,7 @@ namespace SubSonic
 {
     using Linq;
     using Data.DynamicProxies;
-    using Infrastructure;
-    using Infrastructure.Schema;
+    using Schema;
 
     public static partial class SubSonicExtensions
     {
@@ -225,7 +224,7 @@ namespace SubSonic
 
             if (reader.HasRows)
             {
-                IDbEntityModel model = DbContext.DbModel.GetEntityModel<TEntity>();
+                IDbEntityModel model = SubSonicContext.DbModel.GetEntityModel<TEntity>();
 
                 while (reader.Read())
                 {
@@ -246,7 +245,7 @@ namespace SubSonic
                 throw new ArgumentNullException(nameof(model));
             }
 
-            TEntity item = DynamicProxy.CreateProxyInstanceOf<TEntity>(DbContext.Current);
+            TEntity item = DynamicProxy.CreateProxyInstanceOf<TEntity>(SubSonicContext.Current);
 
             foreach (IDbEntityProperty property in model.Properties)
             //Parallel.ForEach(model.Properties, property =>
@@ -294,7 +293,7 @@ namespace SubSonic
 
             if (reader.HasRows)
             {
-                IDbEntityModel model = DbContext.DbModel.GetEntityModel<TEntity>();
+                IDbEntityModel model = SubSonicContext.DbModel.GetEntityModel<TEntity>();
 
                 while (reader.Read())
                 {
@@ -325,7 +324,7 @@ namespace SubSonic
 
             if (reader.HasRows)
             {
-                IDbEntityModel model = DbContext.DbModel.GetEntityModel<TEntity>();
+                IDbEntityModel model = SubSonicContext.DbModel.GetEntityModel<TEntity>();
 
                 while (reader.Read())
                 {

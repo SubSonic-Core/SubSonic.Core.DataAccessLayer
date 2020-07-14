@@ -31,7 +31,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 default:
                     if (exp is DbExpression)
                     {
-                        Write(DbContext.GenerateSqlFor(exp));
+                        Write(SubSonicContext.GenerateSqlFor(exp));
                         return exp;
                     }
                     else
@@ -118,7 +118,7 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             if (expression.IsNotNull())
             {
-                Write(DbContext.GenerateSqlFor(expression));
+                Write(SubSonicContext.GenerateSqlFor(expression));
             }
 
             return expression;

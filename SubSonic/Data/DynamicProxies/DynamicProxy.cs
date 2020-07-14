@@ -1,6 +1,6 @@
 ﻿using Microsoft.Win32.SafeHandles;
-using SubSonic.Infrastructure;
-using SubSonic.Infrastructure.Schema;
+using SubSonic;
+using SubSonic.Schema;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -22,7 +22,7 @@ namespace SubSonic.Data.DynamicProxies
 
         public static Assembly DynamicAssembly => ModuleBuilder.Assembly;
 
-        public static TEntity CreateProxyInstanceOf<TEntity>(DbContext dbContext)
+        public static TEntity CreateProxyInstanceOf<TEntity>(SubSonicContext dbContext)
         {
             if (dbContext is null)
             {
@@ -60,7 +60,7 @@ namespace SubSonic.Data.DynamicProxies
             return proxy;
         }
 
-        public static TEntity MapInstanceOf<TEntity>(DbContext context, IEntityProxy<TEntity> instance)
+        public static TEntity MapInstanceOf<TEntity>(SubSonicContext context, IEntityProxy<TEntity> instance)
         {
             if (context is null)
             {
@@ -100,7 +100,7 @@ namespace SubSonic.Data.DynamicProxies
             return DynamicProxyCache[proxyType.FullName];
         }
 
-        public static DynamicProxyWrapper GetProxyWrapper<TEntity>(DbContext dbContext)
+        public static DynamicProxyWrapper GetProxyWrapper<TEntity>(SubSonicContext dbContext)
         {
             Type baseType = typeof(TEntity);
 
@@ -135,7 +135,7 @@ namespace SubSonic.Data.DynamicProxies
             return ModuleBuilder;
         }
 
-        internal static Type BuildDerivedTypeFrom<TEntity>(DbContext dbContext)
+        internal static Type BuildDerivedTypeFrom<TEntity>(SubSonicContext dbContext)
         {
             Type baseType = typeof(TEntity);
 

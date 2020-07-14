@@ -6,10 +6,8 @@ using System.Linq.Expressions;
 namespace SubSonic.Linq
 {
     using Expressions;
-    using Infrastructure;
-    using SubSonic.Infrastructure.Builders;
-    using SubSonic.Infrastructure.Schema;
-    using System.Diagnostics;
+    using SubSonic.Builders;
+    using SubSonic.Schema;
     using System.Reflection;
 
     public static partial class SubSonicQueryable

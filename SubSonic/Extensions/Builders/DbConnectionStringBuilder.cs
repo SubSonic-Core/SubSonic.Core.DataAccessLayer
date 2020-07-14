@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data.Common;
-using System.Text;
 
 namespace SubSonic.Extensions
 {
-    using Infrastructure;
     public static partial class BuilderExtensions
     {
         public static DbConnectionStringBuilder SetAsync(this DbConnectionStringBuilder builder, bool enabled = false)

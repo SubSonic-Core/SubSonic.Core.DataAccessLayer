@@ -14,7 +14,7 @@ namespace SubSonic.Tests.MockDbProviderFactory.SUT
         private static DbProviderFactory GetDbProvider()
         {
 #if NETFRAMEWORK
-            return Infrastructure.DbProviderFactories.GetFactory(SetUpMockDb.ProviderInvariantName);
+            return DbProviderFactories.GetFactory(SetUpMockDb.ProviderInvariantName);
 #else
             return DbProviderFactories.GetFactory(SetUpMockDb.ProviderInvariantName);
 #endif

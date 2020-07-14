@@ -1,5 +1,5 @@
-﻿using SubSonic.Infrastructure;
-using SubSonic.Infrastructure.Schema;
+﻿using SubSonic;
+using SubSonic.Schema;
 using System.Data;
 
 namespace SubSonic.Extensions.SqlServer
@@ -10,13 +10,13 @@ namespace SubSonic.Extensions.SqlServer
         public SubSonicSqlParameter(string name, object value)
             : base(name, value)
         {
-            SqlDbType = TypeConvertor.ToSqlDbType(value.GetType(), DbContext.DbOptions.SupportUnicode);
+            SqlDbType = TypeConvertor.ToSqlDbType(value.GetType(), SubSonicContext.DbOptions.SupportUnicode);
         }
 
         public SubSonicSqlParameter(string name, object value, IDbEntityProperty property)
             : base(name, value, property)
         {
-            SqlDbType = TypeConvertor.ToSqlDbType(property.DbType, DbContext.DbOptions.SupportUnicode);
+            SqlDbType = TypeConvertor.ToSqlDbType(property.DbType, SubSonicContext.DbOptions.SupportUnicode);
         }
 
         private SqlDbType sqlDbType;
@@ -31,7 +31,7 @@ namespace SubSonic.Extensions.SqlServer
             {
                 sqlDbType = value;
 
-                DbType = TypeConvertor.ToDbType(value, DbContext.DbOptions.SupportUnicode);
+                DbType = TypeConvertor.ToDbType(value, SubSonicContext.DbOptions.SupportUnicode);
             }
         }
     }

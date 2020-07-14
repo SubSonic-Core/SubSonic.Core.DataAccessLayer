@@ -8,9 +8,8 @@ using System.Threading.Tasks;
 
 namespace SubSonic.Data.DynamicProxies
 {
-    using Infrastructure;
-    using Infrastructure.Schema;
     using Linq;
+    using Schema;
 
     public delegate void Proxy();
 
@@ -18,7 +17,7 @@ namespace SubSonic.Data.DynamicProxies
     {
         private readonly TypeBuilder typeBuilder;
         private readonly Type baseType;
-        private readonly DbContext dbContext;
+        private readonly SubSonicContext dbContext;
 
         private FieldBuilder fieldDbContextAccessor;
         private FieldBuilder fieldIsDirty;
@@ -46,7 +45,7 @@ namespace SubSonic.Data.DynamicProxies
             public static Action<TEntity, IEnumerable<object>> SetKeyData { get; } =
                 (entity, keyData) =>
                 {
-                    string[] keys = DbContext.DbModel
+                    string[] keys = SubSonicContext.DbModel
                         .GetEntityModel<TEntity>()
                         .GetPrimaryKey()
                         .ToArray();
@@ -59,7 +58,7 @@ namespace SubSonic.Data.DynamicProxies
             public static Action<IEntityProxy<TEntity>, IEntityProxy<TEntity>> SetDbComputedProperties { get; } =
                 (entity, fromDb) =>
                 {
-                    IDbEntityModel model = DbContext.DbModel.GetEntityModel<TEntity>();
+                    IDbEntityModel model = SubSonicContext.DbModel.GetEntityModel<TEntity>();
 
                     //foreach (IDbEntityProperty property in model.Properties)
                     Parallel.ForEach(model.Properties, property =>
@@ -80,7 +79,7 @@ namespace SubSonic.Data.DynamicProxies
             public static Action<IEntityProxy<TEntity>> EnsureForeignKeys { get; } =
                 (entity) =>
                 {
-                    IDbEntityModel model = DbContext.DbModel.GetEntityModel<TEntity>();
+                    IDbEntityModel model = SubSonicContext.DbModel.GetEntityModel<TEntity>();
 
                     //foreach (IDbEntityProperty property in model.Properties)
                     Parallel.ForEach(model.Properties, property =>
@@ -99,7 +98,7 @@ namespace SubSonic.Data.DynamicProxies
                 };
         }
 
-        public DynamicProxyBuilder(TypeBuilder typeBuilder, Type baseType, DbContext dbContext)
+        public DynamicProxyBuilder(TypeBuilder typeBuilder, Type baseType, SubSonicContext dbContext)
         {
             this.typeBuilder = typeBuilder ?? throw new ArgumentNullException(nameof(typeBuilder));
             this.baseType = baseType ?? throw new ArgumentNullException(nameof(baseType));

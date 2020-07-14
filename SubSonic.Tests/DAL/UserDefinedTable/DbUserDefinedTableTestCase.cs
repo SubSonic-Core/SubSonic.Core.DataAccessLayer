@@ -1,4 +1,4 @@
-﻿using SubSonic.Infrastructure.Schema;
+﻿using SubSonic.Schema;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -26,7 +26,7 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
         }
 
         public string Name => this.name;
-        public IDbEntityModel Model => DbContext.DbModel.GetEntityModel<TEntity>();
+        public IDbEntityModel Model => SubSonicContext.DbModel.GetEntityModel<TEntity>();
         public DataTable Data
         {
             get

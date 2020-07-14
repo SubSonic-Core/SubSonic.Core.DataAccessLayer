@@ -12,10 +12,6 @@ using System.Threading;
 
 namespace SubSonic.Linq
 {
-    using Collections;
-    using Interfaces;
-    using System.Runtime.CompilerServices;
-
     public static class SubSonicAsyncQueryable
     { 
         /// <summary>

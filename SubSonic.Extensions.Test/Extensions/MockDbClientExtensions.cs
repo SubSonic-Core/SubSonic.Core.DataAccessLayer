@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using SubSonic.Infrastructure;
+using SubSonic;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -54,7 +54,7 @@ namespace SubSonic.Extensions.Test
             return builder;
         }
 
-        public static DbContextOptionsBuilder UseMockDbClient(this DbContextOptionsBuilder builder, Action<DbConnectionStringBuilder, DbContextOptions> config = null)
+        public static DbContextOptionsBuilder UseMockDbClient(this DbContextOptionsBuilder builder, Action<DbConnectionStringBuilder, SubSonicContextOptions> config = null)
         {
             if (builder is null)
             {

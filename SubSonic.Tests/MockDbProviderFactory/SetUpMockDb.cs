@@ -16,7 +16,7 @@ namespace SubSonic.Tests.MockDbProviderFactory
         public void OneTimeSetUp()
         {
 #if NETFRAMEWORK
-            Infrastructure.DbProviderFactories.RegisterFactory(ProviderInvariantName, MockDbProviderFactoryType);
+            DbProviderFactories.RegisterFactory(ProviderInvariantName, MockDbProviderFactoryType);
 #else
             DbProviderFactories.RegisterFactory(ProviderInvariantName, MockDbProviderFactoryType);
 #endif
@@ -26,7 +26,7 @@ namespace SubSonic.Tests.MockDbProviderFactory
         public void OneTimeTearDown()
         {
 #if NETFRAMEWORK
-            Infrastructure.DbProviderFactories.UnregisterFactory(ProviderInvariantName);
+            DbProviderFactories.UnregisterFactory(ProviderInvariantName);
 #else
             DbProviderFactories.UnregisterFactory(ProviderInvariantName);
 #endif

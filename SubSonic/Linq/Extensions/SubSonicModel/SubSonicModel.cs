@@ -4,8 +4,7 @@ using System.Collections.Generic;
 namespace SubSonic.Linq
 {
     using Expressions;
-    using Infrastructure;
-    using Infrastructure.Schema;
+    using Schema;
     using Alias = Expressions.Alias;
 
     public static partial class SubSonicModel

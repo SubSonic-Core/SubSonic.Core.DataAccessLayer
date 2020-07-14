@@ -1,11 +1,8 @@
-﻿using System;
-using System.Data.SqlClient;
+﻿using System.Data.SqlClient;
 
 namespace SubSonic.Extensions.SqlServer
 {
-    using Infrastructure;
-    using Infrastructure.SqlGenerator;
-    using System;
+    using SqlGenerator;
 
     public class SqlServerQueryProvider
         : SqlQueryProvider

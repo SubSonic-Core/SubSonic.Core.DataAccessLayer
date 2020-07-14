@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
-    using Infrastructure.Schema;
+    using Schema;
     public class DbColumnDeclaration
     {
         private readonly IDbEntityProperty property;

@@ -3,10 +3,7 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
-    using Infrastructure;
     using Structure;
-    using SubSonic.Infrastructure.Builders;
-    using System.Collections.Generic;
 
     public abstract partial class DbExpression : Expression
     {

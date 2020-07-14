@@ -1,10 +1,9 @@
-﻿using NUnit.Framework;
+﻿using FluentAssertions;
+using NUnit.Framework;
 using System;
-using FluentAssertions;
 
 namespace SubSonic.Tests.DAL.ObjectGraph
 {
-    using Infrastructure;
     using Extensions.Test;
     using SUT;
     using System.Linq;

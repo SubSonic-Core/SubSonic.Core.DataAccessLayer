@@ -1,12 +1,9 @@
-﻿using SubSonic.Linq.Expressions.Alias;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
-    using Infrastructure;
     using Structure;
     using System;
 
@@ -105,7 +102,7 @@ namespace SubSonic.Linq.Expressions
         public Expression Skip { get; }
         public string QueryText
         {
-            get { return DbContext.GenerateSqlFor(this); }
+            get { return SubSonicContext.GenerateSqlFor(this); }
         }
 
         protected override Expression Accept(ExpressionVisitor visitor)

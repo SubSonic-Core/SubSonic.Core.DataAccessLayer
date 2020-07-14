@@ -4,8 +4,8 @@ using System.Linq.Expressions;
 namespace SubSonic.Linq.Expressions
 {
     using Structure;
-    using SubSonic.Infrastructure;
-    using SubSonic.Infrastructure.Builders;
+    using SubSonic;
+    using SubSonic.Builders;
     using System;
 
     /// <summary>

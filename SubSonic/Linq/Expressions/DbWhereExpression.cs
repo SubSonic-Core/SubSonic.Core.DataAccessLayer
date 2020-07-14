@@ -2,15 +2,13 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.Common;
-using System.Linq.Expressions;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace SubSonic.Linq.Expressions
 {
-    using Interfaces;
-    using Infrastructure.Builders;
-    using Structure;    
+    using Structure;
 
     public class DbWhereExpression
         : DbExpression

@@ -9,8 +9,7 @@ using System.Text;
 
 namespace SubSonic.Data.Caching
 {
-    using Infrastructure;
-    using Infrastructure.Logging;
+    using Logging;
     using Linq;
 
     public class ChangeTrackerCollection
@@ -43,8 +42,8 @@ namespace SubSonic.Data.Caching
             if (!collection.ContainsKey(elementKey))
             {
                 collection.Add(elementKey, new ChangeTrackerElement<TEntity>(
-                    DbContext.DbModel.GetEntityModel<TEntity>(), 
-                    DbContext.ServiceProvider.GetService<ISubSonicLogger<ChangeTrackerElement<TEntity>>>()));
+                    SubSonicContext.DbModel.GetEntityModel<TEntity>(), 
+                    SubSonicContext.ServiceProvider.GetService<ISubSonicLogger<ChangeTrackerElement<TEntity>>>()));
             }
 
             return GetCacheElementFor<TEntity>();
@@ -86,7 +85,7 @@ namespace SubSonic.Data.Caching
 
             if (!result && error_feedback.IsNotNullOrEmpty())
             {
-                var logger = DbContext.ServiceProvider.GetService<ISubSonicLogger<ChangeTrackerCollection>>();
+                var logger = SubSonicContext.ServiceProvider.GetService<ISubSonicLogger<ChangeTrackerCollection>>();
 
                 if (logger.IsNotNull())
                 {

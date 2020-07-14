@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
-    using Infrastructure.Schema;
+    using Schema;
     using SubSonic.Linq.Expressions.Structure;
     using System.Collections;
     using System.Collections.Generic;

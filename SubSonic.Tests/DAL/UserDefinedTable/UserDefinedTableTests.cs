@@ -7,16 +7,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using SubSonic.Infrastructure.Logging;
+using SubSonic.Logging;
 using Models = SubSonic.Extensions.Test.Models;
 
 namespace SubSonic.Tests.DAL.UserDefinedTable
 {
     using FluentAssertions;
-    using Infrastructure;
+    
     using SubSonic.Data.Caching;
     using SubSonic.Extensions.Test;
-    using SubSonic.Infrastructure.Schema;
+    using SubSonic.Schema;
     using SubSonic.Linq.Expressions;
     using System.Data;
     using System.Reflection;

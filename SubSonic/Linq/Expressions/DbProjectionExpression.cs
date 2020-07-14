@@ -31,7 +31,7 @@ namespace SubSonic.Linq.Expressions
         }
         public string QueryText
         {
-            get { return DbContext.GenerateSqlFor(this); }
+            get { return SubSonicContext.GenerateSqlFor(this); }
         }
 
         protected override Expression Accept(ExpressionVisitor visitor)

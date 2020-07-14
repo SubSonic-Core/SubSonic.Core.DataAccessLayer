@@ -6,8 +6,8 @@ using System.Text;
 namespace SubSonic.Linq.Expressions
 {
     using Structure;
-    using SubSonic.Infrastructure;
-    using SubSonic.Infrastructure.Schema;
+    using SubSonic;
+    using SubSonic.Schema;
     using System.Data.Common;
 
     public class DbInsertExpression

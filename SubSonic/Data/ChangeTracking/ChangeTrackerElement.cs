@@ -10,9 +10,8 @@ using System.Threading.Tasks;
 namespace SubSonic.Data.Caching
 {
     using Collections;
-    using Infrastructure;
-    using Infrastructure.Logging;
-    using Infrastructure.Schema;
+    using Logging;
+    using Schema;
     using Linq;
     using Linq.Expressions;
 
@@ -30,7 +29,7 @@ namespace SubSonic.Data.Caching
             Cache = new ObservableCollection<IEntityProxy<TEntity>>();
         }
 
-        DbDatabase Database => DbContext.Current.Database;
+        DbDatabase Database => SubSonicContext.Current.Database;
 
         public ICollection<IEntityProxy<TEntity>> Entities { get; }
 

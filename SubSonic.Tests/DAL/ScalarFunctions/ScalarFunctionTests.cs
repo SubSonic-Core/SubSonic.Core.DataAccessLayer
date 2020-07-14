@@ -7,8 +7,8 @@ using System.Linq.Expressions;
 namespace SubSonic.Tests.DAL.ScalarFunctions
 {
     using Extensions.Test.Data.Functions;
-    using Infrastructure;
-    using Infrastructure.Logging;
+    
+    using Logging;
     using Linq.Expressions;
     using SubSonic.Extensions.Test.Models;
     using SUT;

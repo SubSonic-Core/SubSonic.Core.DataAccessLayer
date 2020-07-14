@@ -5,14 +5,12 @@
 // refactored by Kenneth Carter (c) 2019
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
 namespace SubSonic.Linq.Expressions.Structure
 {
-    using Infrastructure;
-    using Infrastructure.SqlGenerator;
+    using SqlGenerator;
     using System.Globalization;
 
     public partial class TSqlFormatter
@@ -510,10 +508,20 @@ namespace SubSonic.Linq.Expressions.Structure
                         }
                         Write(") - 1)");
                         return;
-                    case "Trim":
+                    case nameof(string.Trim):
                         Write("RTRIM(LTRIM(");
                         Visit(method.Object);
                         Write("))");
+                        return;
+                    case nameof(string.TrimEnd):
+                        Write("RTRIM(");
+                        Visit(method.Object);
+                        Write(")");
+                        return;
+                    case nameof(string.TrimStart):
+                        Write("LTRIM(");
+                        Visit(method.Object);
+                        Write(")");
                         return;
                     default:
                         ThrowMethodNotSupported(info);

@@ -7,7 +7,7 @@ using System.Linq.Expressions;
 namespace SubSonic.Tests.DAL
 {
     using Extensions.Test;
-    using Infrastructure.Schema;
+    using Schema;
 
     public class DbTestCase<TModel>
         : IDbTestCase
@@ -32,9 +32,9 @@ namespace SubSonic.Tests.DAL
             this.selector = selector;
         }
 
-        public IDbEntityModel EntityModel => DbContext.DbModel.GetEntityModel<TModel>();
+        public IDbEntityModel EntityModel => SubSonicContext.DbModel.GetEntityModel<TModel>();
 
-        public ISubSonicCollection DataSet => DbContext.Current.Set<TModel>();
+        public ISubSonicCollection DataSet => SubSonicContext.Current.Set<TModel>();
 
         public bool UseDefinedTableType { get; }
 
@@ -66,7 +66,7 @@ namespace SubSonic.Tests.DAL
 
         public IEntityProxy FindByID(params object[] keyData)
         {
-            if (DataSet is ISubSonicDbSetCollection<TModel> dataSet)
+            if (DataSet is ISubSonicSetCollection<TModel> dataSet)
             {
                 return (IEntityProxy)dataSet.FindByID(keyData);
             }

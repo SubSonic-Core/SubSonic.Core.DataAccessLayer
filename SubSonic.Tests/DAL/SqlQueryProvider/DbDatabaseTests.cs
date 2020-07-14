@@ -13,7 +13,7 @@ using FluentAssertions;
 namespace SubSonic.Tests.DAL.SqlQueryProvider
 {
     
-    using Infrastructure;
+    
     
 
     [TestFixture]

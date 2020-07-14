@@ -8,14 +8,13 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
+using System.Reflection;
 
 namespace SubSonic.Tests.DAL.Builders
 {
     using Linq.Expressions;
-    using Infrastructure.Builders;
+    using SubSonic.Builders;
     using Models = Extensions.Test.Models;
-    using System.Reflection;
-    using SubSonic.Infrastructure;
 
     [TestFixture]
     public class DbWherePredicateBuilderTests
@@ -39,7 +38,7 @@ namespace SubSonic.Tests.DAL.Builders
 
             public Type Type => typeof(TEntity);
 
-            public Type DbSetType => typeof(ISubSonicDbSetCollection<>).MakeGenericType(Type);
+            public Type DbSetType => typeof(ISubSonicSetCollection<>).MakeGenericType(Type);
 
             public Expression Predicate { get; }
 
@@ -50,7 +49,7 @@ namespace SubSonic.Tests.DAL.Builders
                     MethodInfo method = typeof(Queryable).GetGenericMethod(nameof(Queryable.Where), new[] { DbSetType, Predicate.GetType() });
 
                     return DbExpression.DbWhere(method, new[] { 
-                        DbContext.Current.Set<TEntity>()?.Expression, 
+                        SubSonicContext.Current.Set<TEntity>()?.Expression, 
                         Predicate });
                 }
             }

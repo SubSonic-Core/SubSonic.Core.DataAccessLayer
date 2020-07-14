@@ -3,6 +3,7 @@
 //Original code created by Matt Warren: http://iqtoolkit.codeplex.com/Release/ProjectReleases.aspx?ReleaseId=19725
 
 // refactored by Kenneth Carter (c) 2019
+using SubSonic.Data.DynamicProxies;
 using System;
 using System.Globalization;
 using System.Linq;
@@ -13,6 +14,22 @@ namespace SubSonic.Linq.Expressions.Structure
 {
     public partial class TSqlFormatter
     {
+        protected override Expression VisitMember(MemberExpression node)
+        {
+            if (!(node is null))
+            {
+                switch (node.NodeType)
+                {
+                    case ExpressionType.MemberAccess:
+                        return VisitMemberAccess(node);
+                    default:
+                        throw Error.NotImplemented();
+                }
+            }
+
+            return base.VisitMember(node);
+        }
+
         protected virtual Expression VisitMemberAccess(MemberExpression member)
         {
             if(member.IsNotNull())
@@ -26,6 +43,10 @@ namespace SubSonic.Linq.Expressions.Structure
                 else if (new[] { typeof(DateTime), typeof(DateTimeOffset) }.Any(type => type == info.DeclaringType))
                 {
                     VisitDateTimeMembers(info, member.Expression);
+                }
+                else if (SubSonicContext.DbModel.IsEntityModelRegistered(info.DeclaringType))
+                {
+                    Visit(member.Expression);
                 }
                 else
                 {

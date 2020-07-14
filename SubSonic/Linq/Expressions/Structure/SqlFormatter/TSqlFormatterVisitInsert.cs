@@ -5,8 +5,6 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions.Structure
 {
-    using Infrastructure;
-
     public partial class TSqlFormatter
     {
         protected internal override Expression VisitInsert(DbInsertExpression insert)
