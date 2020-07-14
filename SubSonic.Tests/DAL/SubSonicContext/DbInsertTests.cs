@@ -129,7 +129,7 @@ FROM @input";
 
                     Units.Add(data);
 
-                    data.ID = Units.Count;
+                    data.ID = ++unitId;
 
                     return new[] { data }.ToDataTable();
                 }
@@ -143,7 +143,7 @@ FROM @input";
 
             Context.SaveChanges().Should().BeTrue();
 
-            unit.ID.Should().Be(5);
+            unit.ID.Should().Be(unitId);
         }
 
         [Test]
@@ -220,7 +220,7 @@ FROM @input";
                     {
                         Units.Add(_data);
 
-                        _data.ID = Units.Count;
+                        _data.ID = ++unitId;
                     }
 
                     return data.ToDataTable();
@@ -241,8 +241,8 @@ FROM @input";
 
             Context.SaveChanges().Should().BeTrue();
 
-            units[0].ID.Should().Be(5);
-            units[1].ID.Should().Be(6);
+            units[0].ID.Should().Be(26);
+            units[1].ID.Should().Be(27);
         }
 
         const string renter_expected_temp = @"INSERT INTO [dbo].[Renter]

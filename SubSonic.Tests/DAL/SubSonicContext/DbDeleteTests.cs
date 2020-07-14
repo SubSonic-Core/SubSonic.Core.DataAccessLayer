@@ -13,9 +13,46 @@ namespace SubSonic.Tests.DAL
     using Schema;
     using Linq;
     using Models = Extensions.Test.Models;
+    using System.Threading.Tasks;
 
     public partial class SubSonicContextTests
     {
+        protected override void SetDeleteBehaviors()
+        {
+            base.SetDeleteBehaviors();
+
+            string 
+                    person_delete = @"DELETE FROM [dbo].[Person]
+WHERE [ID] IN (@el_1)",
+                    renter_delete = @"DELETE FROM [dbo].[Renter]
+WHERE ([PersonID] IN (@el_1) AND [UnitID] IN (@el_2))";
+
+            Context.Database.Instance.AddCommandBehavior(renter_delete, cmd =>
+            {
+                Models.Renter renter = Renters.Single(x => 
+                    x.PersonID == cmd.Parameters["@el_1"].GetValue<int>() &&
+                    x.UnitID == cmd.Parameters["@el_2"].GetValue<int>());
+
+                Renters.Remove(renter);
+
+                return 1;
+            });
+
+            Context.Database.Instance.AddCommandBehavior(person_delete, cmd =>
+            {
+                Models.Person person = People.Single(x => x.ID == cmd.Parameters["@el_1"].GetValue<int>());
+
+                if(Renters.Any(x => x.PersonID == person.ID))
+                {
+                    throw Error.InvalidOperation($"referencial integrity check!");
+                }
+
+                People.Remove(person);
+
+                return 1;
+            });
+        }
+
         const string expected_delete_udtt = @"DELETE FROM {0}
 WHERE ([{1}].[ID] IN (SELECT [ID] FROM @input))";
 
@@ -152,6 +189,25 @@ WHERE ([PersonID] IN (
             }
 
             return count;
+        }
+
+        [Test]
+        public async Task ShouldBeAbleToDeleteUsingObjectGraph()
+        {
+            foreach(var page in Context.People.ToPagedCollection(10).GetPages())
+            {
+                await foreach(var person in page)
+                {
+                    await foreach(var renter in person.Renters)
+                    {
+                        Context.Renters.Delete(renter);
+                    }
+
+                    Context.People.Delete(person);
+                }
+
+                Context.SaveChanges().Should().BeTrue();
+            }
         }
     }
 }

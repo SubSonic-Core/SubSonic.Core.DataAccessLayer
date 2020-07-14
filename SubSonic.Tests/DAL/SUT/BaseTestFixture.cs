@@ -1,11 +1,10 @@
 ﻿using Dasync.Collections;
 using NUnit.Framework;
 using SubSonic.Extensions.Test;
-using SubSonic.Extensions.Test.MockDbClient;
+using SubSonic.Extensions.Test.Data.Builders;
 using SubSonic.Extensions.Test.Models;
 using SubSonic.Logging;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
@@ -33,6 +32,8 @@ namespace SubSonic.Tests.DAL.SUT
         protected int personId;
 
         protected int propertyId;
+
+        protected int unitId;
 
         protected Bogus.Faker<Person> GetFakePerson
         {
@@ -71,6 +72,40 @@ namespace SubSonic.Tests.DAL.SUT
                     });
         }
 
+        protected Bogus.Faker<Unit> GetFakeUnit
+        {
+            get => new SubSonicFaker<Unit>()
+                .UseDbContext()
+                .RuleFor(unit => unit.ID, set => ++unitId)
+                .RuleFor(unit => unit.RealEstatePropertyID, set => set.PickRandom(RealEstateProperties.Select(x => x.ID)))
+                .RuleFor(unit => unit.NumberOfBedrooms, set => set.PickRandom(1, 2, 3, 4, 5, 6))
+                .RuleFor(unit => unit.StatusID, set => set.PickRandom(Statuses.Select(x => x.ID)))
+                .FinishWith((faker, unit) =>
+                {
+                    if (unit is IEntityProxy proxy)
+                    {
+                        proxy.IsDirty = false;
+                    }
+                });
+        }
+
+        protected Bogus.Faker<Renter> GetFakeRenter
+        {
+            get => new SubSonicFaker<Renter>()
+                .UseDbContext()
+                .RuleFor(renter => renter.PersonID, set => set.PickRandom(People.Select(x => x.ID)))
+                .RuleFor(renter => renter.UnitID, set => set.PickRandom(Units.Select(x => x.ID)))
+                .RuleFor(renter => renter.Rent, set => set.PickRandom(100M, 200M, 300M, 400M, 500M, 600M))
+                .RuleFor(renter => renter.StartDate, set => DateTime.Today)
+                .FinishWith((faker, renter) =>
+                {
+                    if (renter is IEntityProxy proxy)
+                    {
+                        proxy.IsDirty = false;
+                    }
+                });
+        }
+
         [SetUp]
         public virtual void SetupTestFixture()
         {
@@ -81,6 +116,8 @@ namespace SubSonic.Tests.DAL.SUT
             SetInsertBehaviors();
 
             SetSelectBehaviors();
+
+            SetDeleteBehaviors();
 
             Statuses = new List<Status>()
             {
@@ -93,22 +130,9 @@ namespace SubSonic.Tests.DAL.SUT
 
             RealEstateProperties = new List<RealEstateProperty>(GetFakeProperty.Generate(10));
 
-            Units = new List<Unit>()
-            {
-                new Unit() { ID = 1, RealEstatePropertyID = 1, StatusID = 1, NumberOfBedrooms = 1 },
-                new Unit() { ID = 2, RealEstatePropertyID = 1, StatusID = 2, NumberOfBedrooms = 2 },
-                new Unit() { ID = 3, RealEstatePropertyID = 1, StatusID = 3, NumberOfBedrooms = 3 },
-                new Unit() { ID = 4, RealEstatePropertyID = 2, StatusID = 3, NumberOfBedrooms = 2 },
-            };
+            Units = new List<Unit>(GetFakeUnit.Generate(25));
 
-            Renters = new List<Renter>()
-            {
-                new Renter() { PersonID = 1, UnitID = 1, Rent = 100M, StartDate = new DateTime(1980, 01, 01), EndDate = new DateTime(1990, 02, 28) },
-                new Renter() { PersonID = 2, UnitID = 1, Rent = 150M, StartDate = new DateTime(1990, 03, 01) },
-                new Renter() { PersonID = 3, UnitID = 2, Rent = 200M, StartDate = new DateTime(1980, 03, 01), EndDate = new DateTime(2000, 01, 01) },
-                new Renter() { PersonID = 1, UnitID = 3, Rent = 250M, StartDate = new DateTime(1990, 03, 01) },
-                new Renter() { PersonID = 4, UnitID = 4, Rent = 300M, StartDate = new DateTime(2000, 01, 01) }
-            };
+            Renters = new List<Renter>(GetFakeRenter.Generate(50));
 
         }
 
@@ -117,6 +141,12 @@ namespace SubSonic.Tests.DAL.SUT
         {
             personId = 0;
             propertyId = 0;
+            unitId = 0;
+        }
+
+        protected virtual void SetDeleteBehaviors()
+        {
+
         }
 
         protected virtual void SetSelectBehaviors()
@@ -139,7 +169,23 @@ FROM [dbo].[Person] AS [T1]
 WHERE ([T1].[ID] < @id_1)",
                 renter_byperson = @"SELECT [T1].[PersonID], [T1].[UnitID], [T1].[Rent], [T1].[StartDate], [T1].[EndDate]
 FROM [dbo].[Renter] AS [T1]
-WHERE ([T1].[PersonID] == @personid_1)";
+WHERE ([T1].[PersonID] == @personid_1)",
+                people_page_count_all = @"SELECT COUNT([T1].[ID]) [RECORDCOUNT]
+FROM [dbo].[Person] AS [T1]",
+                people_paged =
+@"WITH page AS
+(
+	SELECT [T1].[ID]
+	FROM [dbo].[Person] AS [T1]
+	ORDER BY [T1].[ID]
+	OFFSET @PageSize * (@PageNumber - 1) ROWS
+	FETCH NEXT @PageSize ROWS ONLY
+)
+SELECT [T1].[ID], [T1].[FirstName], [T1].[MiddleInitial], [T1].[FamilyName], [T1].[FullName]
+FROM [dbo].[Person] AS [T1]
+	INNER JOIN page
+		ON ([page].[ID] = [T1].[ID])
+OPTION (RECOMPILE)";
 
             Context.Database.Instance.AddCommandBehavior(people_all, cmd => BuildDataTable(People));
             Context.Database.Instance.AddCommandBehavior(people_all_count, cmd => People.Count());
@@ -149,6 +195,39 @@ WHERE ([T1].[PersonID] == @personid_1)";
             Context.Database.Instance.AddCommandBehavior(people_less_than, cmd => BuildDataTable(People.Where(x => x.ID < cmd.Parameters["@id_1"].GetValue<int>())));
 
             Context.Database.Instance.AddCommandBehavior(renter_byperson, cmd => BuildDataTable(Renters.Where(x => x.PersonID == cmd.Parameters["@personid_1"].GetValue<int>())));
+
+            Context.Database.Instance.AddCommandBehavior(people_page_count_all, (cmd) =>
+            {
+                using (DataTableBuilder table = new DataTableBuilder())
+                {
+                    table
+                    .AddColumn("RECORDCOUNT", typeof(int))
+                    .AddRow(People.Count());
+
+                    return table.DataTable;
+                }
+            });
+            Context.Database.Instance.AddCommandBehavior(people_paged, (cmd) =>
+            {
+                int size = 0, page = 0;
+
+                foreach (DbParameter parameter in cmd.Parameters)
+                {
+                    if (parameter.ParameterName.Contains("PageSize"))
+                    {
+                        size = (int)parameter.Value;
+                    }
+                    else if (parameter.ParameterName.Contains("PageNumber"))
+                    {
+                        page = (int)parameter.Value;
+                    }
+                }
+
+                return People
+                    .Skip(size * (page - 1))
+                    .Take(size)
+                    .ToDataTable();
+            });
         }
 
         protected DataTable BuildDataTable<TEntity>(IEnumerable<TEntity> entities)
