@@ -40,7 +40,7 @@ jobs:
     - name: Unit Testing
       run: dotnet test
     - name: Create Packages
-      run: dotnet pack --configuration Release --output nupkgs -p:PackageVersion=4.1.1
+      run: dotnet pack --configuration Release --output ../nupkgs -p:PackageVersion=4.1.1
     - name: Create Symbols Packages
-      run: dotnet pack --configuration Release --output nupkgs -p:PackageVersion=4.1.1 --include-source --include-symbols
+      run: dotnet pack --output ../nupkgs -p:PackageVersion=4.1.1 --include-source --include-symbols
 
