@@ -47,8 +47,8 @@ jobs:
       run: dotnet test
     - name: Create Packages
       run: dotnet pack --configuration Release --output ../nupkgs -p:PackageVersion=4.1.2 --include-source --include-symbols
+    - name: Set Api Key
+      run: nuget setApiKey "${{secrets.PUBLISH_GITHUB_TOKEN}}"
     - name: Publish to GitHub registry
-      run:
-        nuget setApiKey "${{secrets.PUBLISH_GITHUB_TOKEN}}"
-        dotnet nuget push ../nupkgs/*.* --skip-duplicate --no-symbols false
+      run: dotnet nuget push ../nupkgs/*.* --skip-duplicate --no-symbols false
 
