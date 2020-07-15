@@ -48,5 +48,5 @@ jobs:
     - name: Create Packages
       run: dotnet pack --configuration Release --output ../nupkgs -p:PackageVersion=4.1.2-beta.1 --include-source --include-symbols
     - name: Publish to GitHub registry
-      run: dotnet nuget push -k ${{secrets.PUBLISH_GITHUB_TOKEN}} ../nupkgs/*.nupkg --skip-duplicate
+      run: dotnet nuget push -k ${{secrets.PUBLISH_GITHUB_TOKEN}} -s ../nupkgs --skip-duplicate
 
