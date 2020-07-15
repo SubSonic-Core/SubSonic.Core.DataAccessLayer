@@ -212,7 +212,7 @@ WHERE ([{0}].[ID] = 1)".Format("T1");
             // have yet to hit the db
             instance.Units.Should().BeEmpty();
 
-            instance.ID = 1;
+            instance.ID = Context.Units.First().RealEstatePropertyID;
 
             instance.Units.Should().NotBeEmpty();
         }
