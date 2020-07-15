@@ -40,7 +40,7 @@ jobs:
       with:
         source-url: https://nuget.pkg.github.com/subsonic-core/index.json
       env:
-        NUGET_AUTH_TOKEN: ${{secrets.PUBLISH_GITHUB_TOKEN}}
+        NUGET_AUTH_KEY: ${{secrets.PUBLISH_GITHUB_TOKEN}}
     - name: Build with netcoreapp
       run: dotnet build --configuration Release
     - name: Unit Testing
@@ -49,5 +49,5 @@ jobs:
       run: dotnet pack --configuration Release --output ../nupkgs -p:PackageVersion=4.1.2 --include-source --include-symbols
     - name: Publish to GitHub registry
       run:
-        dotnet nuget push -k "${{secrets.PUBLISH_GITHUB_TOKEN}}"  ../nupkgs/*.* --skip-duplicate --no-symbols false
+        dotnet nuget push ../nupkgs/*.* --skip-duplicate --no-symbols false
 
