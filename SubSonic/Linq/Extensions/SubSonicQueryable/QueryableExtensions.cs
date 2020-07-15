@@ -208,7 +208,66 @@ namespace SubSonic.Linq
                 }
             }
 
-            throw new NotSupportedException();
+            throw Error.NotSupported($"{nameof(WhereNotExists)} not supported on {source}."); ;
+        }
+
+        internal static IQueryable<TSource> WhereByKeyData<TSource>(this IQueryable<TSource> source, DbTableExpression dbTable, IEnumerable<string> keys, IEnumerable<object> keyData)
+        {
+            throw Error.NotImplemented();
+        }
+
+        public static IQueryable<TSource> FindBy<TSource>(this IQueryable<TSource> source, IDbRelationshipMap relationship, IEnumerable<string> keyNames, IEnumerable<object> keyData)
+        {
+            if (source.IsNotNull() && source.IsSubSonicQuerable())
+            {
+                if (source is null)
+                {
+                    throw Error.ArgumentNull(nameof(source));
+                }
+
+                if (relationship is null)
+                {
+                    throw Error.ArgumentNull(nameof(relationship));
+                }
+
+                if (keyNames is null)
+                {
+                    throw Error.ArgumentNull(nameof(keyNames));
+                }
+
+                if (keyData is null)
+                {
+                    throw Error.ArgumentNull(nameof(keyData));
+                }
+
+                if (source.Provider is ISubSonicQueryProvider provider)
+                {
+                    DbTableExpression table = (relationship.IsLookupMapping ? relationship.LookupModel : relationship.ForeignModel).Table;
+
+                    source = source.InnerJoin(table);
+
+                    MethodInfo method = typeof(SubSonicQueryable).GetGenericMethod(nameof(WhereByKeyData), new[] { source.Expression.Type, table.GetType(), keyNames.GetType(), keyData.GetType() });
+
+                    NewArrayExpression
+                        arrayOfKeyNames = Expression.NewArrayInit(
+                                    keyNames.GetType().GetElementType(),
+                                    keyNames.Select(x => Expression.Constant(x))),
+                        arrayOfKeyData = Expression.NewArrayInit(
+                                    typeof(object),
+                                    keyData.Select(x => Expression.Constant(x, typeof(object))));
+
+                    return source.Provider.CreateQuery<TSource>(
+                        provider.BuildSelect(source.Expression,
+                        DbWherePredicateBuilder.GetWhereTranslation(
+                            DbExpression.DbWhere(method, new[] { source.Expression,
+                                table,
+                                arrayOfKeyNames,
+                                arrayOfKeyData
+                            }))));
+                }
+            }
+
+            throw Error.NotSupported($"{nameof(FindBy)} not supported on {source}.");
         }
     }
 }

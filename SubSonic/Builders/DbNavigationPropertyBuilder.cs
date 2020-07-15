@@ -19,6 +19,8 @@ namespace SubSonic
         public DbNavigationPropertyBuilder(string has)
         {
             this.has = has ?? throw new ArgumentNullException(nameof(has));
+
+            this.RelatedEntityType = typeof(TRelatedEntity).GetQualifiedType();
         }
         public DbNavigationPropertyBuilder(string has, string with)
             : this(has)
@@ -34,35 +36,59 @@ namespace SubSonic
 
         public IEnumerable<string> RelatedKeys { get; private set; }
 
-        public IDbRelationshipMap RelationshipMap => new DbRelationshipMap(RelationshipType, SubSonicContext.DbModel.GetEntityModel(LookupEntityType), SubSonicContext.DbModel.GetEntityModel(RelatedEntityType), RelatedKeys.ToArray());
+        public IDbRelationshipMap RelationshipMap => new DbRelationshipMap(
+            RelationshipType,
+            SubSonicContext.DbModel.GetEntityModel(LookupEntityType),
+            SubSonicContext.DbModel.GetEntityModel(RelatedEntityType), 
+            RelatedKeys.ToArray());
 
         public DbNavigationPropertyBuilder<TEntity, TRelatedEntity> WithOne(Expression<Func<TRelatedEntity, TEntity>> selector = null)
         {
+            if (RelatedEntityType is null)
+            {
+                throw Error.InvalidOperation();
+            }
+
             return new DbNavigationPropertyBuilder<TEntity, TRelatedEntity>(has, nameof(WithOne))
             {
-                RelatedEntityType = typeof(TRelatedEntity).GetQualifiedType(),
                 RelatedKeys = (selector is null) ? Array.Empty<string>() : GetForeignKeys(selector.Body)
             };
         }
 
         public DbNavigationPropertyBuilder<TEntity, TRelatedEntity> WithMany(Expression<Func<TRelatedEntity, IEnumerable<TEntity>>> selector = null)
         {
+            if (RelatedEntityType is null)
+            {
+                throw Error.InvalidOperation();
+            }
+
             return new DbNavigationPropertyBuilder<TEntity, TRelatedEntity>(has, nameof(WithMany))
             {
-                RelatedEntityType = typeof(TRelatedEntity).GetQualifiedType(),
-                RelatedKeys = (selector is null) ? Array.Empty<string>() : GetPrimayKeys(selector.Body)
+                LookupEntityType = LookupEntityType,
+                RelatedKeys = (RelatedKeys?.Any() ?? false) ? RelatedKeys : GetPrimayKeys(selector, LookupEntityType)
             };
         }
 
-        public DbNavigationPropertyBuilder<TEntity, TLookupEntity> WithMany<TLookupEntity>(Expression<Func<TRelatedEntity, TLookupEntity>> selector = null)
-            where TLookupEntity : class
+        public DbNavigationPropertyBuilder<TEntity, TRelatedEntity> UsingLookup<TLookupEntity>(Expression<Func<TRelatedEntity, TLookupEntity>> selector)
+            where TLookupEntity: class
         {
-            return new DbNavigationPropertyBuilder<TEntity, TLookupEntity>(has, nameof(WithMany))
+            if (selector is null)
             {
-                LookupEntityType = typeof(TRelatedEntity).GetQualifiedType(),
-                RelatedEntityType = typeof(TLookupEntity).GetQualifiedType(),
-                RelatedKeys = (selector is null) ? Array.Empty<string>() : GetPrimayKeys(selector.Body)
-            };
+                throw Error.ArgumentNull(nameof(selector));
+            }
+
+            if (RelatedEntityType is null)
+            {
+                throw Error.InvalidOperation();
+            }
+
+            Type
+                lookupEntityType = typeof(TLookupEntity).GetQualifiedType();
+
+            LookupEntityType = lookupEntityType;
+            RelatedKeys = GetPrimayKeys(selector, lookupEntityType);
+
+            return this;
         }
 
         private string[] GetForeignKeys(Expression expression)
@@ -74,11 +100,18 @@ namespace SubSonic
             return Array.Empty<string>();
         }
 
-        private string[] GetPrimayKeys(Expression expression)
+        private string[] GetPrimayKeys(Expression expression, Type lookupEntityType)
         {
             if (expression.IsNotNull())
             {
-                return Ext.GetPrimaryKeyName<TRelatedEntity>();
+                if (lookupEntityType is null)
+                {
+                    return Ext.GetPrimaryKeyName<TRelatedEntity>();
+                }
+                else
+                {
+                    return Ext.GetForeignKeyName(lookupEntityType);
+                }
             }
             return Array.Empty<string>();
         }

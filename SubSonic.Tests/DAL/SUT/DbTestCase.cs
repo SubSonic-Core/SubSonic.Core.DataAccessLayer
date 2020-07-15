@@ -50,16 +50,13 @@ namespace SubSonic.Tests.DAL
             throw new NotImplementedException();
         }
 
-        public void Delete(IEnumerable<IEntityProxy> entities)
+        public void Delete(IEntityProxy proxy)
         {
             if (DataSet is ISubSonicCollection<TModel> dataSet)
             {
-                foreach(IEntityProxy proxy in entities)
+                if (proxy is IEntityProxy<TModel> entity)
                 {
-                    if (proxy is IEntityProxy<TModel> entity)
-                    {
-                        dataSet.Remove(entity.Data);
-                    }
+                    dataSet.Remove(entity.Data);
                 }
             }
         }

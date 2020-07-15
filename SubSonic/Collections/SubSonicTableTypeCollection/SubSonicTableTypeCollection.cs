@@ -175,7 +175,14 @@ namespace SubSonic.Collections
                                            IEnumerable elements)
             : this(name, elementType, provider, expression)
         {
-            TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(elementType), elements);
+            if (elements is ISubSonicCollection _elements)
+            {
+                TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(elementType), _elements.ToArray());
+            }
+            else
+            {
+                TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(elementType), elements);
+            }
         }
 
         public string Name { get; }
@@ -189,6 +196,11 @@ namespace SubSonic.Collections
         public IQueryProvider Provider { get; }
 
         protected IEnumerable TableData { get; private set; }
+
+        public virtual IEnumerable ToArray()
+        {
+            throw Error.NotImplemented();
+        }
 
         public IQueryable Load()
         {

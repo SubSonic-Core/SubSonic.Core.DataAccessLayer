@@ -29,6 +29,11 @@ FROM [dbo].[Unit] AS [{0}]",
 @"SELECT [{0}].[ID], [{0}].[Bedrooms] AS [NumberOfBedrooms], [{0}].[StatusID], [{0}].[RealEstatePropertyID]
 FROM [dbo].[Unit] AS [{0}]
 WHERE ([{0}].[RealEstatePropertyID] = @realestatepropertyid_1)",
+                units_by_person_using_renter = @"SELECT [T1].[ID], [T1].[Bedrooms] AS [NumberOfBedrooms], [T1].[StatusID], [T1].[RealEstatePropertyID]
+FROM [dbo].[Unit] AS [T1]
+	INNER JOIN [dbo].[Renter] AS [T2]
+		ON ([T2].[UnitID] = [T1].[ID])
+WHERE ([T2].[PersonID] = @value_1)",
                 property =
 @"SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]
 FROM [dbo].[RealEstateProperty] AS [{0}]
@@ -46,6 +51,15 @@ WHERE ([{0}].[ID] = @id_1)";
             Context.Database.Instance.AddCommandBehavior(units_by_property.Format("T1"), cmd => Units
                 .Where(x => x.RealEstatePropertyID == cmd.Parameters["@realestatepropertyid_1"].GetValue<int>())
                 .ToDataTable());
+            Context.Database.Instance.AddCommandBehavior(units_by_person_using_renter, cmd =>
+            {
+                var unitIds = Renters
+                    .Where(x => x.PersonID == cmd.Parameters["@value_1"].GetValue<int>())
+                    .Select(x => x.UnitID)
+                    .ToArray();
+
+                return BuildDataTable(Units.Where(x => x.ID.In(unitIds)));
+            });
             Context.Database.Instance.AddCommandBehavior(property.Format("T1"), cmd => RealEstateProperties
                 .Where(x =>
                     x.ID == cmd.Parameters["@id_1"].GetValue<int>())
@@ -171,6 +185,14 @@ WHERE ([{0}].[ID] = 1)".Format("T1");
         }
 
         [Test]
+        public void CanLazyLoadCollectionThroughLookupRelationship()
+        {
+            Renter renter = Context.Renters.First();
+
+            renter.Person.Units.Any().Should().BeTrue();
+        }
+
+        [Test]
         public void ProxyCollectionPropertyWillNotBeNullOnGet()
         {
             RealEstateProperty instance = DynamicProxy.CreateProxyInstanceOf<RealEstateProperty>(Context);
@@ -267,7 +289,7 @@ WHERE ([T1].[RealEstatePropertyID] = @realestatepropertyid_1)");
                 }
             }).Should().NotThrow();
 
-            query.Sql.Should().Be(@"SELECT [T1].[PersonID], [T1].[UnitID], [T1].[Rent], [T1].[StartDate], [T1].[EndDate]
+            query.Sql.Should().Be(@"SELECT [T1].[ID], [T1].[PersonID], [T1].[UnitID], [T1].[Rent], [T1].[StartDate], [T1].[EndDate]
 FROM [dbo].[Renter] AS [T1]
 WHERE ([T1].[PersonID] = @personid_1)");
             query.Parameters.Get("@personid_1").GetValue<int>().Should().Be(instance.ID);

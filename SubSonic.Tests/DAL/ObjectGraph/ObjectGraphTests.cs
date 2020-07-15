@@ -49,10 +49,11 @@ VALUES
             Context.Database.Instance.AddCommandBehavior(@"INSERT INTO [dbo].[Renter]
 OUTPUT INSERTED.* INTO @output
 VALUES
-	(@PersonID, @UnitID, @Rent, @StartDate, @EndDate)", cmd =>
+	(@ID, @PersonID, @UnitID, @Rent, @StartDate, @EndDate)", cmd =>
             {
                 Models.Renter renter = new Models.Renter()
                 {
+                    ID = cmd.Parameters[$"@{nameof(Models.Renter.ID)}"].GetValue<int>(),
                     PersonID = cmd.Parameters[$"@{nameof(Models.Renter.PersonID)}"].GetValue<int>(),
                     UnitID = cmd.Parameters[$"@{nameof(Models.Renter.UnitID)}"].GetValue<int>(),
                     Rent = cmd.Parameters[$"@{nameof(Models.Renter.Rent)}"].GetValue<decimal>(),
@@ -75,6 +76,7 @@ VALUES
         {
             Models.Renter renter = new Models.Renter()
             {
+                ID = ++renterId,
                 Person = GetFakePerson.Generate(),
                 Unit = Context.Units.FindByID(4),
                 Rent = 500M,

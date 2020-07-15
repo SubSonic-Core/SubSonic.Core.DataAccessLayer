@@ -31,7 +31,7 @@ namespace SubSonic.Tests.DAL.SUT
         {
             config
                 .ConfigureServiceCollection()
-                .AddLogging((_config) => _config.AddNUnitLogger<TestDbContext>(LogLevel.Debug))
+                .AddLogging((_config) => _config.AddNUnitLogger<TestDbContext>(LogLevel.Trace))
                 .UseMockDbClient((builder, options) =>
                 {
                     builder
@@ -67,7 +67,7 @@ namespace SubSonic.Tests.DAL.SUT
             builder.AddRelationshipFor<Models.Unit>(() =>
                 builder.GetRelationshipFor<Models.Unit>()
                     .HasMany(Model => Model.Renters)
-                    .WithMany(Model => Model.Person));
+                    .WithOne(Model => Model.Unit));
 
             builder.AddRelationshipFor<Models.Unit>(() =>
                 builder.GetRelationshipFor<Models.Unit>()
@@ -77,7 +77,13 @@ namespace SubSonic.Tests.DAL.SUT
             builder.AddRelationshipFor<Models.Person>(() =>
                 builder.GetRelationshipFor<Models.Person>()
                     .HasMany(Model => Model.Renters)
-                    .WithMany(Model => Model.Unit));
+                    .WithOne(Model => Model.Person));
+
+            builder.AddRelationshipFor<Models.Person>(() =>
+                builder.GetRelationshipFor<Models.Person>()
+                    .HasMany(Model => Model.Units)
+                    .UsingLookup(Model => Model.Renters)
+                    .WithMany());
         }
     }
 }

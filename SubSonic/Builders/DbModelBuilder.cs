@@ -82,6 +82,11 @@ namespace SubSonic
                     DbType = info.PropertyType.GetDbType()
                 };
 
+                if (property.EntityPropertyType == DbEntityPropertyType.Navigation)
+                {
+                    property.ForeignKeys = Ext.GetForeignKeyName(info);
+                }
+
                 entity.Properties.Add(property);
             }
 

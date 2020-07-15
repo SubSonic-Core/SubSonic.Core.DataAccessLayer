@@ -30,6 +30,8 @@ namespace SubSonic.Extensions.Test.Models
 
         public virtual ISubSonicCollection<Renter> Renters { get; set; }
 
+        public virtual ISubSonicCollection<Unit> Units { get; set; }
+
         public override string ToString() => FullName;
     }
 }

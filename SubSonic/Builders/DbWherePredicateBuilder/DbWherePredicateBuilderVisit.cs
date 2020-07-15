@@ -14,7 +14,65 @@ namespace SubSonic.Builders
     {
         protected internal override Expression VisitWhere(DbWhereExpression where)
         {
-            Visit(where?.GetArgument(1));
+            if (!(where is null))
+            {
+                if (where.Method.Name.In(nameof(SubSonicQueryable.WhereByKeyData)))
+                {
+                    DbTableExpression dbTable = null;
+                    NewArrayExpression 
+                        keyNames = null, 
+                        keyData = null;
+
+                    foreach(Expression argument in where.Arguments)
+                    {
+                        if (argument is DbTableExpression table)
+                        {
+                            dbTable = table;
+                        }
+                        else if (argument is NewArrayExpression array)
+                        {
+                            if (array.Type == typeof(string[]))
+                            {   // key names
+                                keyNames = array;
+                            }
+                            else if (array.Type == typeof(object[]))
+                            {   // key data
+                                keyData = array;
+                            }
+                        }
+                    }
+
+                    for(int i = 0, n = keyNames.Expressions.Count; i < n; i++)
+                    {
+                        if (keyNames.Expressions[i] is ConstantExpression name)
+                        {
+                            if (keyData.Expressions[i] is ConstantExpression data)
+                            {
+                                if (body is null)
+                                {
+                                    body = GetComparisonExpression(
+                                        dbTable.Columns.Single(x => x.PropertyName.Equals((string)name.Value, StringComparison.Ordinal)).Expression,
+                                        Visit(data),
+                                        DbComparisonOperator.Equal);
+                                }
+                                else
+                                {
+                                    body = GetBodyExpression(body,
+                                        GetComparisonExpression(
+                                            dbTable.Columns.Single(x => x.PropertyName.Equals((string)name.Value, StringComparison.Ordinal)).Expression,
+                                            Visit(data),
+                                            DbComparisonOperator.Equal),
+                                        DbGroupOperator.AndAlso);
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    Visit(where.GetArgument(1));
+                }
+            }
 
             return body;
         }

@@ -48,10 +48,40 @@ namespace SubSonic
             return result.Length == 0 ? new[] { $"{propertyInfo.Name}ID" } : result;
         }
 
+        public static string[] GetForeignKeyName(this Type entityType)
+        {
+            if (entityType is null)
+            {
+                throw new ArgumentNullException(nameof(entityType));
+            }
+
+            string[] result = entityType
+                                .GetProperties()
+                                .SelectMany(property =>
+                                    property.GetCustomAttributes<ForeignKeyAttribute>())
+                                .Where(attribute => attribute.IsNotNull())
+                                .Select(attribute => attribute.Name)
+                                .ToArray();
+
+            System.Diagnostics.Debug.Assert(result.Length > 0);
+
+            return result;
+        }
+
         public static string[] GetPrimaryKeyName<TEntity>()
             where TEntity : class
         {
-            string[] result = typeof(TEntity)
+            return GetPrimaryKeyName(typeof(TEntity));
+        }
+
+        public static string[] GetPrimaryKeyName(Type entityType)            
+        {
+            if (entityType is null)
+            {
+                throw Error.ArgumentNull(nameof(entityType));
+            }
+
+            string[] result = entityType
                                 .GetProperties()
                                 .Where(property => property.GetCustomAttribute<KeyAttribute>().IsNotNull())
                                 .Select(property => property.Name)
@@ -59,6 +89,8 @@ namespace SubSonic
 
             return result.Length == 0 ? new[] { $"ID" } : result;
         }
+
+
 
         public static TType GetValue<TType>(this PropertyInfo source, object value, object[] index = null)
         {

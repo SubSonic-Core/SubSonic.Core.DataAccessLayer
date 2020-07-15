@@ -21,7 +21,7 @@ namespace SubSonic
             return new NotImplementedException();
         }
 
-        public static Exception NotSupported(string message)
+        public static Exception NotSupported(string message = "")
         {
             return new NotSupportedException(message);
         }

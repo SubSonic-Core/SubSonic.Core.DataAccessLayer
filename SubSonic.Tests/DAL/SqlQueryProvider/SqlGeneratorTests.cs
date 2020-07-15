@@ -540,7 +540,7 @@ WHERE (([{0}].[RealEstatePropertyID] = @realestatepropertyid_1) AND ([{0}].[Stat
         public void CanGenerateBetweenDateComparison()
         {
             string expected =
-@"SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
+@"SELECT [{0}].[ID], [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
 FROM [dbo].[Renter] AS [{0}]
 WHERE [{0}].[StartDate] BETWEEN @dt_start_1 AND @dt_end_2".Format("T1");
 
@@ -584,7 +584,7 @@ WHERE [{0}].[StartDate] BETWEEN @dt_start_1 AND @dt_end_2".Format("T1");
         public void CanGenerateNotBetweenDateComparison()
         {
             string expected =
-@"SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
+@"SELECT [{0}].[ID], [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
 FROM [dbo].[Renter] AS [{0}]
 WHERE [{0}].[StartDate] NOT BETWEEN @dt_start_1 AND @dt_end_2".Format("T1");
 
@@ -628,7 +628,7 @@ WHERE [{0}].[StartDate] NOT BETWEEN @dt_start_1 AND @dt_end_2".Format("T1");
         public void CanGenerateForDateBetweenStartAndEndComparison()
         {
             string expected =
-@"SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
+@"SELECT [{0}].[ID], [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
 FROM [dbo].[Renter] AS [{0}]
 WHERE @dt_now_1 BETWEEN [{0}].[StartDate] AND ISNULL([{0}].[EndDate], @dt_default_2)".Format("T1");
 
@@ -672,7 +672,7 @@ WHERE @dt_now_1 BETWEEN [{0}].[StartDate] AND ISNULL([{0}].[EndDate], @dt_defaul
         public void CanGenerateForDateNotBetweenStartAndEndComparison()
         {
             string expected =
-@"SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
+@"SELECT [{0}].[ID], [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
 FROM [dbo].[Renter] AS [{0}]
 WHERE @dt_now_1 NOT BETWEEN [{0}].[StartDate] AND ISNULL([{0}].[EndDate], @dt_default_2)".Format("T1");
 
@@ -751,7 +751,7 @@ FROM [dbo].[Renter] AS [{0}]".Format("T1");
         public void CanGenerateSelectTopSql()
         {
             string expected =
-@"SELECT TOP (1) [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
+@"SELECT TOP (1) [{0}].[ID], [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
 FROM [dbo].[Renter] AS [{0}]".Format("T1");
 
             Expression select = Context
@@ -787,16 +787,16 @@ FROM [dbo].[Renter] AS [{0}]".Format("T1");
             string expected =
 @"WITH page AS
 (
-	SELECT [{0}].[PersonID], [{0}].[UnitID]
+	SELECT [{0}].[ID], [{0}].[PersonID], [{0}].[UnitID]
 	FROM [dbo].[Renter] AS [{0}]
-	ORDER BY [{0}].[PersonID], [{0}].[UnitID]
+	ORDER BY [{0}].[ID], [{0}].[PersonID], [{0}].[UnitID]
 	OFFSET @PageSize * (@PageNumber - 1) ROWS
 	FETCH NEXT @PageSize ROWS ONLY
 )
-SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
+SELECT [{0}].[ID], [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
 FROM [dbo].[Renter] AS [{0}]
 	INNER JOIN page
-		ON (([page].[PersonID] = [{0}].[PersonID]) AND ([page].[UnitID] = [{0}].[UnitID]))
+		ON ((([page].[ID] = [{0}].[ID]) AND ([page].[PersonID] = [{0}].[PersonID])) AND ([page].[UnitID] = [{0}].[UnitID]))
 OPTION (RECOMPILE)".Format("T1");
 
             Expression select = Context

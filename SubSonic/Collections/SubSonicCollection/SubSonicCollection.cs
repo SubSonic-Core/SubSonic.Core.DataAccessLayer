@@ -49,7 +49,7 @@ namespace SubSonic.Collections
             }
             else
             {
-                throw new NotSupportedException();
+                throw Error.NotSupported();
             }
         }
         public void Add(TEntity element)
@@ -63,7 +63,7 @@ namespace SubSonic.Collections
             }
             else
             {
-                throw new NotSupportedException();
+                throw Error.NotSupported(); ;
             }
         }
 
@@ -86,7 +86,7 @@ namespace SubSonic.Collections
             }
             else
             {
-                throw new NotSupportedException();
+                throw Error.NotSupported();
             }
         }
 
@@ -98,7 +98,7 @@ namespace SubSonic.Collections
             }
             else
             {
-                throw new NotSupportedException();
+                throw Error.NotSupported();
             }
         }
 
@@ -110,8 +110,18 @@ namespace SubSonic.Collections
             }
             else
             {
-                throw new NotSupportedException();
+                throw Error.NotSupported();
             }
+        }
+
+        public override IEnumerable ToArray()
+        {
+            if (TableData is ICollection<TEntity> data)
+            {
+                return data.ToArray();
+            }
+
+            throw Error.NotSupported();
         }
 
         IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()
@@ -127,7 +137,7 @@ namespace SubSonic.Collections
             }
             else
             {
-                throw new NotSupportedException();
+                throw Error.NotSupported();
             }
         }
         #endregion
@@ -165,8 +175,16 @@ namespace SubSonic.Collections
         public SubSonicCollection(Type elementType, IQueryProvider provider, Expression expression, IEnumerable elements)
             : this(elementType, provider, expression)
         {
-            TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(elementType), elements);
-            IsLoaded = true;
+            if (elements is ISubSonicCollection _elements)
+            {
+                TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(elementType), _elements.ToArray());
+            }
+            else
+            {
+                TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(elementType), elements);
+            }
+            
+            IsLoaded = IsLoadedCheck(elements);
         }
 
         protected IDbEntityModel Model { get; }
@@ -181,14 +199,31 @@ namespace SubSonic.Collections
 
         public virtual IQueryable Load()
         {
-            if (Provider.Execute(Expression) is IEnumerable elements)
+            if (Provider.Execute(Expression) is ISubSonicCollection elements)
             {
-                TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(ElementType), elements);
+                TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(ElementType), elements.ToArray());
 
                 IsLoaded = true;
             }
 
             return this;
+        }
+
+        public virtual IEnumerable ToArray()
+        {
+            throw Error.NotImplemented();
+        }
+
+        private bool IsLoadedCheck(IEnumerable elements)
+        {
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
+            foreach (object ele in (elements ?? Array.Empty<object>()))
+#pragma warning restore IDE0059 // Unnecessary assignment of a value
+            {
+                return true;
+            }
+
+            return false;
         }
 
         #region ICollection<> Implementation

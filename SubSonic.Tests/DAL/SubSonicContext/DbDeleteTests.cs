@@ -13,9 +13,47 @@ namespace SubSonic.Tests.DAL
     using Schema;
     using Linq;
     using Models = Extensions.Test.Models;
+    using System.Threading.Tasks;
 
     public partial class SubSonicContextTests
     {
+        protected override void SetDeleteBehaviors()
+        {
+            base.SetDeleteBehaviors();
+
+            string 
+                    person_delete = @"DELETE FROM [dbo].[Person]
+WHERE [ID] IN (@el_1)",
+                    renter_delete = @"DELETE FROM [dbo].[Renter]
+WHERE (([ID] IN (@el_1) AND [PersonID] IN (@el_2)) AND [UnitID] IN (@el_3))";
+
+            Context.Database.Instance.AddCommandBehavior(renter_delete, cmd =>
+            {
+                Models.Renter renter = Renters.Single(x => 
+                    x.ID == cmd.Parameters["@el_1"].GetValue<int>() &&
+                    x.PersonID == cmd.Parameters["@el_2"].GetValue<int>() &&
+                    x.UnitID == cmd.Parameters["@el_3"].GetValue<int>());
+
+                Renters.Remove(renter);
+
+                return 1;
+            });
+
+            Context.Database.Instance.AddCommandBehavior(person_delete, cmd =>
+            {
+                Models.Person person = People.Single(x => x.ID == cmd.Parameters["@el_1"].GetValue<int>());
+
+                if(Renters.Any(x => x.PersonID == person.ID))
+                {
+                    throw Error.InvalidOperation($"referencial integrity check!");
+                }
+
+                People.Remove(person);
+
+                return 1;
+            });
+        }
+
         const string expected_delete_udtt = @"DELETE FROM {0}
 WHERE ([{1}].[ID] IN (SELECT [ID] FROM @input))";
 
@@ -28,13 +66,15 @@ WHERE [ID] IN (
 	SELECT [T1].[ID]
 	FROM @input AS [T1])");
             yield return new DbTestCase<Models.Renter>(false, @"DELETE FROM [dbo].[Renter]
-WHERE ([PersonID] IN (@el_1) AND [UnitID] IN (@el_2))");
+WHERE (([ID] IN (@el_1) AND [PersonID] IN (@el_2)) AND [UnitID] IN (@el_3))");
             yield return new DbTestCase<Models.Renter>(true, @"DELETE FROM [dbo].[Renter]
-WHERE ([PersonID] IN (
-	SELECT [T1].[PersonID]
-	FROM @input AS [T1]) AND [UnitID] IN (
-	SELECT [T2].[UnitID]
-	FROM @input AS [T2]))");
+WHERE (([ID] IN (
+	SELECT [T1].[ID]
+	FROM @input AS [T1]) AND [PersonID] IN (
+	SELECT [T2].[PersonID]
+	FROM @input AS [T2])) AND [UnitID] IN (
+	SELECT [T3].[UnitID]
+	FROM @input AS [T3]))");
         }
 
         [Test]
@@ -45,7 +85,11 @@ WHERE ([PersonID] IN (
                 expected = dbTest.FetchAll().Select(x =>
                     x as IEntityProxy);
 
-            dbTest.Count().Should().Be(expected.Count());
+            int
+                before = dbTest.Count(),
+                after = 0;
+
+            before.Should().BeGreaterThan(0).And.Be(expected.Count());
 
             Context.Database.Instance.AddCommandBehavior(dbTest.Expectation, cmd =>
             {
@@ -59,12 +103,28 @@ WHERE ([PersonID] IN (
                 }
             });
 
-            dbTest.Delete(expected);
+            foreach(IEntityProxy proxy in expected)
+            {
+                if (proxy is Models.Person person)
+                {
+                    if (person.Renters.Any())
+                    {
+                        continue;
+                    }
 
-            Context.ChangeTracking
+                    dbTest.Delete(proxy);
+                }
+                else
+                {
+                    dbTest.Delete(proxy);
+                }
+            }
+
+            after = (before - Context.ChangeTracking
                 .SelectMany(x => x.Value)
-                .Count(x => x.IsDeleted)
-                .Should().Be(expected.Count());
+                .Count(x => x.IsDeleted));
+
+            after.Should().BeLessOrEqualTo(before);
 
             if (expected.Count() > 0)
             {
@@ -89,9 +149,9 @@ WHERE ([PersonID] IN (
 
                 Context.Database.Instance.RecievedCommandCount(dbTest.Expectation)
                     .Should()
-                    .Be(dbTest.UseDefinedTableType ? 1 : expected.Count());
+                    .Be(dbTest.UseDefinedTableType ? 1 : (before - after));
 
-                dbTest.Count().Should().Be(0);
+                dbTest.Count().Should().Be(after);
             }
         }
 
@@ -112,9 +172,9 @@ WHERE ([PersonID] IN (
                             else if (expected.ElementAt(0) is Models.Renter)
                             {
                                 Renters.Remove(Renters.Single(x =>
+                                   x.ID == (int)row[nameof(Models.Renter.ID)] &&
                                    x.PersonID == (int)row[nameof(Models.Renter.PersonID)] &&
-                                   x.UnitID == (int)row[nameof(Models.Renter.UnitID)] &&
-                                   x.StartDate == (DateTime)row[nameof(Models.Renter.StartDate)]));
+                                   x.UnitID == (int)row[nameof(Models.Renter.UnitID)]));
                             }
                         }
                     }
@@ -139,8 +199,9 @@ WHERE ([PersonID] IN (
             else if (proxy is Models.Renter)
             {
                 IEnumerable<Models.Renter> deleted = Renters.Where(x =>
-                        x.PersonID == cmd.Parameters["@el_1"].GetValue<int>() &&
-                        x.UnitID == cmd.Parameters["@el_2"].GetValue<int>())
+                        x.ID == cmd.Parameters["@el_1"].GetValue<int>() &&
+                        x.PersonID == cmd.Parameters["@el_2"].GetValue<int>() &&
+                        x.UnitID == cmd.Parameters["@el_3"].GetValue<int>())
                     .ToArray();
 
                 foreach (Models.Renter renter in deleted)
@@ -152,6 +213,25 @@ WHERE ([PersonID] IN (
             }
 
             return count;
+        }
+
+        [Test]
+        public async Task ShouldBeAbleToDeleteUsingObjectGraph()
+        {
+            foreach(var page in Context.People.ToPagedCollection(10).GetPages())
+            {
+                await foreach(var person in page)
+                {
+                    foreach(var renter in person.Renters)
+                    {
+                        Context.Renters.Delete(renter);
+                    }
+
+                    Context.People.Delete(person);
+                }
+
+                Context.SaveChanges().Should().BeTrue();
+            }
         }
     }
 }

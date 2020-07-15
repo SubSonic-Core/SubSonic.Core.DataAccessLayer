@@ -6,6 +6,7 @@ using Ext = SubSonic.SubSonicExtensions;
 namespace SubSonic.Data.DynamicProxies
 {
     using Linq;
+    using SubSonic.Schema;
 
     /// <summary>
     /// 
@@ -127,17 +128,29 @@ namespace SubSonic.Data.DynamicProxies
                 throw new ArgumentNullException(nameof(info));
             }
 
+            IDbRelationshipMap
+                relationship = DbContext.Model.GetRelationshipMapping<TEntity, TProperty>();
+
             string[] 
                 keys = DbContext.Model
                     .GetEntityModel<TEntity>().GetPrimaryKey().ToArray(),
-                foreignKeys = DbContext.Model
-                    .GetRelationshipMapping<TEntity, TProperty>().GetForeignKeys().ToArray();
+                foreignKeys = relationship.GetForeignKeys<TEntity>().ToArray();
             object[] keyData = GetKeyData(entity, keys);
 
-            return DbContext
-                .Set<TProperty>()
-                .FindByID(keyData, foreignKeys)
-                .Load();
+            if (relationship.LookupModel is null)
+            {
+                return DbContext
+                    .Set<TProperty>()
+                    .FindByID(keyData, foreignKeys)
+                    .Load();
+            }
+            else
+            {
+                return DbContext
+                    .Set<TProperty>()
+                    .FindBy(relationship, foreignKeys, keyData)
+                    .Load();
+            }
         }
 
         public object[] GetKeyData<TEntity>(TEntity entity, string[] keys)
