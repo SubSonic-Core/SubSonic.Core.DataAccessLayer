@@ -40,7 +40,7 @@ jobs:
       with:
         source-url: https://nuget.pkg.github.com/subsonic-core/index.json
       env:
-        NUGET_AUTH_KEY: ${{secrets.PUBLISH_GITHUB_TOKEN}}
+        NUGET_AUTH_TOKEN: ${{secrets.PUBLISH_GITHUB_TOKEN}}
     - name: Build with netcoreapp
       run: dotnet build --configuration Release
     - name: Unit Testing
