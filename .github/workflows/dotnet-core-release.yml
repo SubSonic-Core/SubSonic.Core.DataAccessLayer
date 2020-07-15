@@ -49,6 +49,5 @@ jobs:
       run: dotnet pack --configuration Release --output ../nupkgs -p:PackageVersion=4.1.2 --include-source --include-symbols
     - name: Publish to GitHub registry
       run:
-        cd <project>
-        dotnet nuget push ./<project>/nupkgs/*.* --skip-duplicate --no-symbols false
+        dotnet nuget push ./SubSonic/nupkgs/*.* --skip-duplicate --no-symbols false
 
