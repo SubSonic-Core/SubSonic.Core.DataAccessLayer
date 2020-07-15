@@ -35,6 +35,8 @@ namespace SubSonic.Tests.DAL.SUT
 
         protected int unitId;
 
+        protected int renterId;
+
         protected Bogus.Faker<Person> GetFakePerson
         {
             get
@@ -93,6 +95,7 @@ namespace SubSonic.Tests.DAL.SUT
         {
             get => new SubSonicFaker<Renter>()
                 .UseDbContext()
+                .RuleFor(renter => renter.ID, set => ++renterId)
                 .RuleFor(renter => renter.PersonID, set => set.PickRandom(People.Select(x => x.ID)))
                 .RuleFor(renter => renter.UnitID, set => set.PickRandom(Units.Select(x => x.ID)))
                 .RuleFor(renter => renter.Rent, set => set.PickRandom(100M, 200M, 300M, 400M, 500M, 600M))
@@ -142,6 +145,7 @@ namespace SubSonic.Tests.DAL.SUT
             personId = 0;
             propertyId = 0;
             unitId = 0;
+            renterId = 0;
         }
 
         protected virtual void SetDeleteBehaviors()
@@ -167,9 +171,9 @@ WHERE ([T1].[ID] > @id_1)",
                 people_less_than = @"SELECT [T1].[ID], [T1].[FirstName], [T1].[MiddleInitial], [T1].[FamilyName], [T1].[FullName]
 FROM [dbo].[Person] AS [T1]
 WHERE ([T1].[ID] < @id_1)",
-                renter_byperson = @"SELECT [T1].[PersonID], [T1].[UnitID], [T1].[Rent], [T1].[StartDate], [T1].[EndDate]
+                renter_byperson = @"SELECT [T1].[ID], [T1].[PersonID], [T1].[UnitID], [T1].[Rent], [T1].[StartDate], [T1].[EndDate]
 FROM [dbo].[Renter] AS [T1]
-WHERE ([T1].[PersonID] == @personid_1)",
+WHERE ([T1].[PersonID] = @personid_1)",
                 people_page_count_all = @"SELECT COUNT([T1].[ID]) [RECORDCOUNT]
 FROM [dbo].[Person] AS [T1]",
                 people_paged =
@@ -185,16 +189,27 @@ SELECT [T1].[ID], [T1].[FirstName], [T1].[MiddleInitial], [T1].[FamilyName], [T1
 FROM [dbo].[Person] AS [T1]
 	INNER JOIN page
 		ON ([page].[ID] = [T1].[ID])
-OPTION (RECOMPILE)";
+OPTION (RECOMPILE)",
+                renters_all = @"SELECT [T1].[ID], [T1].[PersonID], [T1].[UnitID], [T1].[Rent], [T1].[StartDate], [T1].[EndDate]
+FROM [dbo].[Renter] AS [T1]",
+                renters_all_cnt = @"SELECT COUNT([T1].[ID])
+FROM [dbo].[Renter] AS [T1]";
 
-            Context.Database.Instance.AddCommandBehavior(people_all, cmd => BuildDataTable(People));
-            Context.Database.Instance.AddCommandBehavior(people_all_count, cmd => People.Count());
-            Context.Database.Instance.AddCommandBehavior(people_all_long_count, cmd => People.LongCount());
-            Context.Database.Instance.AddCommandBehavior(people_greater_than, cmd => BuildDataTable(People.Where(x => x.ID > cmd.Parameters["@id_1"].GetValue<int>())));
-            Context.Database.Instance.AddCommandBehavior(people_equal, cmd => BuildDataTable(People.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>())));
-            Context.Database.Instance.AddCommandBehavior(people_less_than, cmd => BuildDataTable(People.Where(x => x.ID < cmd.Parameters["@id_1"].GetValue<int>())));
+            Context.Database.Instance.AddCommandBehavior(people_all, cmd => 
+                BuildDataTable(People));
+            Context.Database.Instance.AddCommandBehavior(people_all_count, cmd => 
+                People.Count());
+            Context.Database.Instance.AddCommandBehavior(people_all_long_count, cmd => 
+                People.LongCount());
+            Context.Database.Instance.AddCommandBehavior(people_greater_than, cmd => 
+                BuildDataTable(People.Where(x => x.ID > cmd.Parameters["@id_1"].GetValue<int>())));
+            Context.Database.Instance.AddCommandBehavior(people_equal, cmd => 
+                BuildDataTable(People.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>())));
+            Context.Database.Instance.AddCommandBehavior(people_less_than, cmd => 
+                BuildDataTable(People.Where(x => x.ID < cmd.Parameters["@id_1"].GetValue<int>())));
 
-            Context.Database.Instance.AddCommandBehavior(renter_byperson, cmd => BuildDataTable(Renters.Where(x => x.PersonID == cmd.Parameters["@personid_1"].GetValue<int>())));
+            Context.Database.Instance.AddCommandBehavior(renter_byperson, cmd => 
+                BuildDataTable(Renters.Where(x => x.PersonID == cmd.Parameters["@personid_1"].GetValue<int>())));
 
             Context.Database.Instance.AddCommandBehavior(people_page_count_all, (cmd) =>
             {
@@ -228,6 +243,11 @@ OPTION (RECOMPILE)";
                     .Take(size)
                     .ToDataTable();
             });
+
+            Context.Database.Instance.AddCommandBehavior(renters_all, cmd =>
+                BuildDataTable(Renters));
+            Context.Database.Instance.AddCommandBehavior(renters_all_cnt, cmd =>
+                Renters.Count());
         }
 
         protected DataTable BuildDataTable<TEntity>(IEnumerable<TEntity> entities)

@@ -198,7 +198,7 @@ namespace SubSonic
             MethodInfo result = null;
 
             foreach (MethodInfo info in type
-                        .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                        .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static)
                         .Where(x =>
                             x.Name.Equals(name, StringComparison.CurrentCulture)))
             {

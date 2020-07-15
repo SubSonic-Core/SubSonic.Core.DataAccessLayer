@@ -33,6 +33,8 @@ namespace SubSonic
     public interface ISubSonicCollection
         : IQueryable, IEnumerable
     {
+        int Count { get; }
+        IEnumerable ToArray();
         IQueryable Load();
     }
 }

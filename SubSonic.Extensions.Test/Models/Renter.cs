@@ -7,6 +7,9 @@ namespace SubSonic.Extensions.Test.Models
     public class Renter
     {
         [Key]
+        public int ID { get; set; }
+
+        [Key]
         public int PersonID { get; set; }
         [Key]
         public int UnitID { get; set; }

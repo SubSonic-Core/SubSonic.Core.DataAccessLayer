@@ -21,7 +21,7 @@ namespace SubSonic.Extensions.Test
 
         void Update(IEnumerable<IEntityProxy> entities);
 
-        void Delete(IEnumerable<IEntityProxy> entities);
+        void Delete(IEntityProxy proxy);
 
         IEntityProxy FindByID(params object[] keyData);
 

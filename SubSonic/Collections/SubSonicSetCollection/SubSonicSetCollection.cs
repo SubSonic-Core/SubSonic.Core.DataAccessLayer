@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Collections;
 
 namespace SubSonic.Collections
 {
@@ -11,6 +12,7 @@ namespace SubSonic.Collections
     using Linq;
     using Linq.Expressions;
     using Schema;
+    
 
     public sealed partial class SubSonicSetCollection<TEntity>
         : ISubSonicSetCollection<TEntity>
@@ -60,6 +62,16 @@ namespace SubSonic.Collections
             }
         }
 
+        public IEnumerable ToArray()
+        {
+            if (Provider.Execute(Expression) is ISubSonicCollection elements)
+            {
+                return elements.ToArray();
+            }
+
+            return Array.Empty<TEntity>();
+        }
+
         #region ICollection<TEntity> Implementation
         void ISubSonicSetCollection.Add(object entity)
         {
@@ -81,7 +93,7 @@ namespace SubSonic.Collections
                 object navigation = model.EntityModelType.GetProperty(property.PropertyName).GetValue(item);
 
                 if (!(navigation is null) && 
-                    !(navigation is IEntityProxy && !((IEntityProxy)navigation).IsNew))
+                    !(navigation is IEntityProxy proxy && !proxy.IsNew))
                 {
                     DbContext.Set(property.PropertyType).Add(navigation);
                 }

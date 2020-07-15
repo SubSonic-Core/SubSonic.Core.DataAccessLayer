@@ -5,6 +5,8 @@ using System.Linq;
 namespace SubSonic.Schema
 {
     using Linq;
+    using System.ComponentModel.DataAnnotations.Schema;
+    using System.Reflection;
 
     public class DbRelationshipMap
         : IDbRelationshipMap
@@ -29,18 +31,38 @@ namespace SubSonic.Schema
             
         }
 
+        public bool IsLookupMapping => !(LookupModel is null);
+
         public DbRelationshipType RelationshipType { get; }
 
         public IDbEntityModel LookupModel { get; }
 
         public IDbEntityModel ForeignModel { get; }
 
-        public IEnumerable<string> GetForeignKeys()
+        public IEnumerable<string> GetForeignKeys<TEntity>()
         {
+            IDbEntityModel EntityModel = SubSonicContext.DbModel.GetEntityModel<TEntity>();
+
             if (RelationshipType == DbRelationshipType.HasManyWithMany)
             {
+                PropertyInfo property = IsLookupMapping 
+                    ? LookupModel.EntityModelType.GetProperty(EntityModel.Name)
+                    : ForeignModel.EntityModelType.GetProperty(ForeignModel.Name);
+
+                string foreignKeyName = null;
+                
+                if (!(property is null) &&
+                    property.GetCustomAttribute<ForeignKeyAttribute>() is ForeignKeyAttribute foreignKeyAttribute)
+                {
+                    foreignKeyName = foreignKeyAttribute.Name;
+                }
+                else
+                {
+                    foreignKeyName = $"{ForeignModel.Name}ID";
+                }
+
                 return foreignKeyNames
-                    .Where(x => !x.StartsWith(ForeignModel.Name, StringComparison.CurrentCultureIgnoreCase))
+                    .Where(x => x.Equals(foreignKeyName, StringComparison.CurrentCultureIgnoreCase))
                     .ToArray();
             }
             else

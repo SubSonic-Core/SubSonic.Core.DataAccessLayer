@@ -248,11 +248,12 @@ FROM @input";
         const string renter_expected_temp = @"INSERT INTO [dbo].[Renter]
 OUTPUT INSERTED.* INTO @output
 VALUES
-	(@PersonID, @UnitID, @Rent, @StartDate, @EndDate)";
+	(@ID, @PersonID, @UnitID, @Rent, @StartDate, @EndDate)";
 
         const string renter_expected_udtt = @"INSERT INTO [dbo].[Renter]
 OUTPUT INSERTED.* INTO @output
 SELECT
+	[ID],
 	[PersonID],
 	[UnitID],
 	[Rent],
@@ -269,10 +270,10 @@ FROM @input";
             Models.Renter[] 
                 renters = new[]
                 {
-                    new Models.Renter(){ PersonID = 1, UnitID = 1, Rent = 450M, StartDate = new DateTime(2019, 1, 1), EndDate = new DateTime(2019, 12, 31) },
-                    new Models.Renter(){ PersonID = 1, UnitID = 1, Rent = 500M, StartDate = new DateTime(2020, 1, 1), EndDate = new DateTime(2020, 12, 31) },
-                    new Models.Renter(){ PersonID = 2, UnitID = 1, Rent = 450M, StartDate = new DateTime(2018, 1, 1), EndDate = new DateTime(2018, 12, 31) },
-                    new Models.Renter(){ PersonID = 2, UnitID = 2, Rent = 600M, StartDate = new DateTime(2019, 1, 1), EndDate = new DateTime(2020, 12, 31) },
+                    new Models.Renter(){ ID = ++renterId, PersonID = 1, UnitID = 1, Rent = 450M, StartDate = new DateTime(2019, 1, 1), EndDate = new DateTime(2019, 12, 31) },
+                    new Models.Renter(){ ID = ++renterId, PersonID = 1, UnitID = 1, Rent = 500M, StartDate = new DateTime(2020, 1, 1), EndDate = new DateTime(2020, 12, 31) },
+                    new Models.Renter(){ ID = ++renterId, PersonID = 2, UnitID = 1, Rent = 450M, StartDate = new DateTime(2018, 1, 1), EndDate = new DateTime(2018, 12, 31) },
+                    new Models.Renter(){ ID = ++renterId, PersonID = 2, UnitID = 2, Rent = 600M, StartDate = new DateTime(2019, 1, 1), EndDate = new DateTime(2020, 12, 31) },
                 }, 
                 original = new Models.Renter[renters.Length];
 
@@ -331,6 +332,7 @@ FROM @input";
         {
             Models.Renter renter = new Models.Renter()
             {
+                ID = (int)cmd.Parameters[$"@ID"].Value,
                 PersonID = (int)cmd.Parameters[$"@PersonID"].Value,
                 UnitID = (int)cmd.Parameters[$"@UnitID"].Value,
                 Rent = (decimal)cmd.Parameters[$"@Rent"].Value,
@@ -355,11 +357,12 @@ FROM @input";
                     {
                         Models.Renter renter = new Models.Renter()
                         {
-                            PersonID = (int)table.Rows[i]["PersonID"],
-                            UnitID = (int)table.Rows[i]["UnitID"],
-                            Rent = (decimal)table.Rows[i]["Rent"],
-                            StartDate = (DateTime)table.Rows[i]["StartDate"],
-                            EndDate = (DateTime)table.Rows[i]["EndDate"]
+                            ID = (int)table.Rows[i][nameof(Models.Renter.ID)],
+                            PersonID = (int)table.Rows[i][nameof(Models.Renter.PersonID)],
+                            UnitID = (int)table.Rows[i][nameof(Models.Renter.UnitID)],
+                            Rent = (decimal)table.Rows[i][nameof(Models.Renter.Rent)],
+                            StartDate = (DateTime)table.Rows[i][nameof(Models.Renter.StartDate)],
+                            EndDate = (DateTime)table.Rows[i][nameof(Models.Renter.EndDate)]
                         };
 
                         renters.Add(renter);

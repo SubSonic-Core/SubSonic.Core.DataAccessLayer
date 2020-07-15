@@ -28,7 +28,7 @@ namespace SubSonic.Tests.DAL.UserDefinedTable
         {
             yield return new DbUserDefinedTableTestCase<Models.Person>("SELECT [{0}].[ID], [{0}].[FirstName], [{0}].[MiddleInitial], [{0}].[FamilyName], [{0}].[FullName]{1}FROM @person AS [{0}]");
             yield return new DbUserDefinedTableTestCase<Models.RealEstateProperty>("SELECT [{0}].[ID], [{0}].[StatusID], [{0}].[HasParallelPowerGeneration]{1}FROM @property AS [{0}]", "property");
-            yield return new DbUserDefinedTableTestCase<Models.Renter>("SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]{1}FROM @renter AS [{0}]");
+            yield return new DbUserDefinedTableTestCase<Models.Renter>("SELECT [{0}].[ID], [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]{1}FROM @renter AS [{0}]");
         }
 
         [Test]

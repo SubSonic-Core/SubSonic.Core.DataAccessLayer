@@ -6,6 +6,7 @@ namespace SubSonic.Linq.Expressions
     using Structure;
     using SubSonic;
     using SubSonic.Builders;
+    using SubSonic.Schema;
     using System;
 
     /// <summary>
@@ -76,7 +77,29 @@ namespace SubSonic.Linq.Expressions
                     }
                     else
                     {
-                        throw new NotImplementedException();
+                        IDbEntityProperty navigation = _right.Model.GetNavigationPropertyFor(_left.Model);
+
+                        string[] 
+                            primary = _left.Model.GetPrimaryKey().ToArray(),
+                            foreign = navigation.ForeignKeys.ToArray();
+
+                        System.Diagnostics.Debug.Assert(primary.Length == foreign.Length);
+
+                        for(int i = 0, n = primary.Length; i < n; i++)
+                        {
+                            DbColumnDeclaration 
+                                left_column = _left.Columns.Single(x => x.PropertyName.Equals(primary[i], StringComparison.Ordinal)),
+                                right_column = _right.Columns.Single(x => x.PropertyName.Equals(foreign[i], StringComparison.Ordinal));
+
+                            if (conditional is null)
+                            {
+                                conditional = DbWherePredicateBuilder.GetComparisonExpression(right_column.Expression, left_column.Expression, DbComparisonOperator.Equal);
+                            }
+                            else
+                            {
+                                conditional = DbWherePredicateBuilder.GetBodyExpression(conditional, DbWherePredicateBuilder.GetComparisonExpression(right_column.Expression, left_column.Expression, DbComparisonOperator.Equal), DbGroupOperator.And);
+                            }
+                        }
                     }
 
                     return conditional;

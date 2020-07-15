@@ -127,6 +127,18 @@ namespace SubSonic.Builders
                     return result;
                 }
             }
+            else if (call.Method.Name.In(nameof(Queryable.Any)))
+            {
+                object entities = Execute(BuildSelect(dbSelect, where));
+                bool result = false;
+
+                if (entities is ISubSonicCollection collection)
+                {
+                    result = collection.Count > 0;
+                }
+
+                return (TResult)Convert.ChangeType(result, typeof(TResult), CultureInfo.InvariantCulture);
+            }
 
             throw Error.NotSupported(SubSonicErrorMessages.ExpressionNotSupported.Format(call.Method.Name));
         }

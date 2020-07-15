@@ -17,6 +17,8 @@ namespace SubSonic.Data.Caching
     {
         private readonly Dictionary<Type, ChangeTrackerElement> collection;
 
+        private DbQueryType dbQueryType;
+
         public ChangeTrackerCollection()
         {
             collection = new Dictionary<Type, ChangeTrackerElement>();
@@ -96,50 +98,46 @@ namespace SubSonic.Data.Caching
             return result;
         }
 
+        private IEnumerable<IEntityProxy> GetEntitiesToOperateOn(KeyValuePair<Type, IEnumerable<IEntityProxy>> set)
+        {
+            switch (dbQueryType)
+            {
+                case DbQueryType.Insert:
+                    return set.Value.Where(x => x.IsNew).ToArray();
+                case DbQueryType.Update:
+                    return set.Value.Where(x => !x.IsNew && x.IsDirty).ToArray();
+                case DbQueryType.Delete:
+                    return set.Value.Where(x => !x.IsNew && x.IsDeleted).ToArray();
+                case DbQueryType.Unknown:
+                    break;
+            }
+
+            throw Error.NotSupported($"{dbQueryType} is not supported.");
+        }
+
         public bool SaveChanges(out string feedback)
         {
             bool success = true;
 
             StringBuilder errors = new StringBuilder();
 
-            foreach (var dataset in this)
+            foreach (DbQueryType queryType in new[] { DbQueryType.Insert, DbQueryType.Update, DbQueryType.Delete })
             {
-                var insert = dataset.Value.Where(x => x.IsNew).ToArray();
-                var update = dataset.Value.Where(x => !x.IsNew && x.IsDirty).ToArray();
-                var delete = dataset.Value.Where(x => !x.IsNew && x.IsDeleted).ToArray();
+                dbQueryType = queryType;
 
-                string error_feedback = "";
-
-                if (insert.Any())
+                foreach (var dataset in this)
                 {
-                    success &= collection[dataset.Key].SaveChanges(DbQueryType.Insert, insert, out error_feedback);
-                    if (!success && error_feedback.IsNotNullOrEmpty())
+                    var data = GetEntitiesToOperateOn(dataset);
+                    
+                    string error_feedback = "";
+
+                    if (data.Any())
                     {
-                        errors.AppendLine(error_feedback);
-
-                        error_feedback = "";
-                    }
-                }
-
-                if (update.Any())
-                {
-                    success &= collection[dataset.Key].SaveChanges(DbQueryType.Update, update, out error_feedback);
-                    if (!success && error_feedback.IsNotNullOrEmpty())
-                    {
-                        errors.AppendLine(error_feedback);
-
-                        error_feedback = "";
-                    }
-                }
-
-                if (delete.Any())
-                {
-                    success &= collection[dataset.Key].SaveChanges(DbQueryType.Delete, delete, out error_feedback);
-                    if (!success && error_feedback.IsNotNullOrEmpty())
-                    {
-                        errors.AppendLine(error_feedback);
-
-                        error_feedback = "";
+                        success &= collection[dataset.Key].SaveChanges(dbQueryType, data, out error_feedback);
+                        if (!success && error_feedback.IsNotNullOrEmpty())
+                        {
+                            errors.AppendLine(error_feedback);
+                        }
                     }
                 }
             }
@@ -174,14 +172,22 @@ namespace SubSonic.Data.Caching
 
         private IEnumerable<KeyValuePair<Type, IEnumerable<IEntityProxy>>> BuildEnumeration()
         {
-            List<KeyValuePair<Type, IEnumerable<IEntityProxy>>> enumeration = new List<KeyValuePair<Type, IEnumerable<IEntityProxy>>>();
-
-            foreach(var element in collection.OrderBy(x => x.Value.Model.ObjectGraphWeight))
+            switch(dbQueryType)
             {
-                enumeration.Add(new KeyValuePair<Type, IEnumerable<IEntityProxy>>(element.Key, element.Value.Select(x => (IEntityProxy)x)));
+                case DbQueryType.Update:
+                case DbQueryType.Insert:
+                    return collection
+                        .OrderBy(x => x.Value.Model.ObjectGraphWeight)
+                        .Select(set => new KeyValuePair<Type, IEnumerable<IEntityProxy>>(set.Key, set.Value.Select(x => (IEntityProxy)x)));
+                case DbQueryType.Delete:
+                    return collection
+                        .OrderByDescending(x => x.Value.Model.ObjectGraphWeight)
+                        .Select(set => new KeyValuePair<Type, IEnumerable<IEntityProxy>>(set.Key, set.Value.Select(x => (IEntityProxy)x)));
+                case DbQueryType.Unknown:
+                    return collection
+                       .Select(set => new KeyValuePair<Type, IEnumerable<IEntityProxy>>(set.Key, set.Value.Select(x => (IEntityProxy)x)));
             }
-
-            return enumeration;
+            throw Error.NotSupported();
         }
 
         public IEnumerator<KeyValuePair<Type, IEnumerable<IEntityProxy>>> GetEnumerator()

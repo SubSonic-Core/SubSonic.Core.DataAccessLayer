@@ -7,6 +7,7 @@ namespace SubSonic.Schema
     using Linq;
     using Linq.Expressions;
     using Schema;
+    using System.Diagnostics;
 
     public class DbEntityModel
         : DbObject
@@ -82,8 +83,12 @@ namespace SubSonic.Schema
             {
                 foreach (IDbRelationshipMap map in RelationshipMaps)
                 {
-                    if (map.ForeignModel.QualifiedName == model.QualifiedName ||
-                        map.LookupModel?.QualifiedName == model.QualifiedName)
+                    if (map.ForeignModel.EntityModelType == EntityModelType)
+                    {   // this mapping does not apply
+                        continue;
+                    }
+
+                    if (map.ForeignModel.QualifiedName == model.QualifiedName)
                     {
                         return map;
                     }
@@ -107,5 +112,30 @@ namespace SubSonic.Schema
             primaryKey = value;
         }
 
+        public IDbEntityProperty GetNavigationPropertyFor(IDbEntityModel model)
+        {
+            IDbEntityProperty result = null;
+
+            if (model is null)
+            {
+                throw Error.ArgumentNull(nameof(model));
+            }
+
+            foreach(IDbEntityProperty property in Properties)
+            {
+                if (property.EntityPropertyType != DbEntityPropertyType.Navigation)
+                {
+                    continue;
+                }
+
+                if (property.PropertyType == model.EntityModelType)
+                {
+                    result = property;
+                    break;
+                }
+            }
+
+            return result;
+        }
     }
 }
