@@ -21,8 +21,8 @@
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
     <PackageReference Include="SubSonic.Core.Abstractions" Version="4.1.2" />
-    <PackageReference Include="SubSonic.Extensions.SqlServer" Version="4.1.0" />
-    <PackageReference Include="SubSonic.Extensions.Test" Version="4.2.0-beta.1" />
+    <PackageReference Include="SubSonic.Extensions.SqlServer" Version="4.2.0" />
+    <PackageReference Include="SubSonic.Extensions.Test" Version="4.2.0" />
   </ItemGroup>
   
   <ItemGroup>

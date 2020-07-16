@@ -142,7 +142,7 @@ EXEC @Result = [dbo].[InsertRealEstateProperty] @Entities = @Entities, @Error = 
             parameter.ParameterName.Should().Be("@Entities");
             parameter.Value.Should().BeOfType<DataTable>();
             parameter.DbType.Should().Be(DbType.Object);
-            ((System.Data.SqlClient.SqlParameter)parameter).SqlDbType.Should().Be(SqlDbType.Structured);
+            ((Microsoft.Data.SqlClient.SqlParameter)parameter).SqlDbType.Should().Be(SqlDbType.Structured);
         }
     }
 }
