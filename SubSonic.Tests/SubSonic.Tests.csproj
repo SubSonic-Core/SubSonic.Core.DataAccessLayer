@@ -24,7 +24,6 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\SubSonic.Extensions.Test\SubSonic.Extensions.Test.csproj" />
     <ProjectReference Include="..\SubSonic\SubSonic.Core.DataAccessLayer.csproj" />
   </ItemGroup>
   
