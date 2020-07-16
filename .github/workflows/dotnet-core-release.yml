@@ -49,7 +49,7 @@ jobs:
     - name: Create Packages
       run: dotnet pack --configuration Release --output ../nupkgs -p:PackageVersion=${{env.VERSION}} --include-source --include-symbols
     - name: Deploy Package GitHub Registry
-      run: dotnet nuget push -k ${{secrets.PUBLISH_GITHUB_TOKEN}} ../nupkgs/*${{env.VERSION}}.nupkg --skip-duplicate
+      run: dotnet nuget push -k ${{secrets.PUBLISH_GITHUB_TOKEN}} ../nupkgs/*.${{env.VERSION}}.nupkg --skip-duplicate
     - name: Deploy Package Nuget
       run: dotnet nuget push -k ${{secrets.NUGET_API_TOKEN}} -s https://www.nuget.org ../nupkgs/*.${{env.VERSION}}.nupkg --skip-duplicate
 
