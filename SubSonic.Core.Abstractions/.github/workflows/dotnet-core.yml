@@ -1,0 +1,36 @@
+name: .NET Core
+
+on:      
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    env:
+      VERSION: 4.1.2
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.101
+    - name: Install dependencies
+      run: dotnet restore
+    - name: Setup private nuget library
+      uses: actions/setup-dotnet@v1
+      with:
+        source-url: https://nuget.pkg.github.com/subsonic-core/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{secrets.PUBLISH_GITHUB_TOKEN}}
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+    - name: Create Packages
+      run: dotnet pack --configuration Release --output ../nupkgs -p:PackageVersion=${{env.VERSION}}
+    - name: Deploy Package GitHub Registry
+      run: dotnet nuget push -k ${{secrets.PUBLISH_GITHUB_TOKEN}} ../nupkgs/*.${{env.VERSION}}.nupkg --skip-duplicate
+      
