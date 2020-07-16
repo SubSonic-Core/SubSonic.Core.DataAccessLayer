@@ -11,16 +11,12 @@ namespace SubSonic.Tests.DAL
     {
         public static TestSubSonicContext DbContext { get; private set; }
 
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
-        {
-            DbContext = new TestSubSonicContext();
-        }
+        public static void SetDbContext() => DbContext = new TestSubSonicContext();
 
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
-            DbContext.Dispose();
+            DbContext?.Dispose();
             DbContext = null;
         }
     }

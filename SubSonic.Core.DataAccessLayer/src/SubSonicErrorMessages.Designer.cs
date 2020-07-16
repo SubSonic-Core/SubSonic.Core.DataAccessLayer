@@ -61,6 +61,15 @@ namespace SubSonic.src {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Ensure that &quot;{0}&quot; is called during the configuration of the SubSonic Context..
+        /// </summary>
+        internal static string ConfigurationInvalid {
+            get {
+                return ResourceManager.GetString("ConfigurationInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to DbExpression must be of {0}..
         /// </summary>
         internal static string DbExpressionMustBeOfType {

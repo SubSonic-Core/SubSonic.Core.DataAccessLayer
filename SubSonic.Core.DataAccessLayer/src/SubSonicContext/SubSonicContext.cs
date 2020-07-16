@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using SubSonic;
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -13,7 +12,7 @@ using System.Runtime.CompilerServices;
 
 namespace SubSonic
 {
-    using Collections;
+    using src;
     using Linq;
 
     public partial class SubSonicContext
@@ -52,6 +51,11 @@ namespace SubSonic
         private void ConfigureSubSonic(DbContextOptionsBuilder builder)
         {
             OnDbConfiguring(builder);
+
+            if (Instance is null)
+            {
+                throw Error.InvalidOperation(SubSonicErrorMessages.ConfigurationInvalid.Format(nameof(DbContextOptionsBuilder.SetServiceProvider)));
+            }
 
             IServiceCollection services = Instance.GetService<IServiceCollection>();
 

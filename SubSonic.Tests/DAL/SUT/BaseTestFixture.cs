@@ -15,7 +15,17 @@ namespace SubSonic.Tests.DAL.SUT
 {
     public class BaseTestFixture
     {
-        protected TestSubSonicContext Context { get => SetUpSubSonic.DbContext; }
+        protected TestSubSonicContext Context
+        {
+            get
+            {
+                if (SetUpSubSonic.DbContext is null)
+                {
+                    SetUpSubSonic.SetDbContext();
+                }
+                return SetUpSubSonic.DbContext;
+            }
+        }
 
         protected ISubSonicLogger Logger { get; set; }
 

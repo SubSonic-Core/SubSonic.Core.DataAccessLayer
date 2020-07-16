@@ -11,6 +11,7 @@ namespace SubSonic.Tests.DAL
 {
     using SubSonic.Extensions.Test.Data.Builders;
     using SubSonic.Linq;
+    using SubSonic.src;
     using SUT;
     using Models = Extensions.Test.Models;
 
