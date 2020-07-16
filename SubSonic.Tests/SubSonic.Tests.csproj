@@ -20,10 +20,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.6.1" />
+    <PackageReference Include="SubSonic.Extensions.SqlServer" Version="4.1.0" />
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\SubSonic.Extensions.SqlServer\SubSonic.Extensions.SqlServer.csproj" />
     <ProjectReference Include="..\SubSonic.Extensions.Test\SubSonic.Extensions.Test.csproj" />
     <ProjectReference Include="..\SubSonic\SubSonic.Core.DataAccessLayer.csproj" />
   </ItemGroup>
