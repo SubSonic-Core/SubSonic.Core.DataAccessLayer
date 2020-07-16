@@ -33,6 +33,12 @@ MockSubSonic Db Client and Factory, primary purpose is for unit testing and faki
 # Features
 <ul>
    <li>Database Context</li>
+   <li>Lazy Loading supports the following relationship types
+      <ul>
+         <li>OneToMany</li>
+         <li>ManyToOne</li>
+         <li>ManyToMany</li>
+      </ul></li>
    <li>Stored Procedure Support</li>
    <li>Scalar Function Mapping</li>
    <li>Db Model mapping of Table and User Defined Data Type</li>
