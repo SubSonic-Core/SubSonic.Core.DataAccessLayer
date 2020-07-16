@@ -259,3 +259,4 @@ SubSonic.Core.Abstractions/
 =======
 SubSonic/SubSonic.Core.Abstractions
 >>>>>>> release/4.1.2-beta.1
+SubSonic.Extensions.SqlServer/
