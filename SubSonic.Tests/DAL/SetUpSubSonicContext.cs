@@ -9,12 +9,12 @@ namespace SubSonic.Tests.DAL
     [SetUpFixture]
     public class SetUpSubSonic
     {
-        public static TestDbContext DbContext { get; private set; }
+        public static TestSubSonicContext DbContext { get; private set; }
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            DbContext = new TestDbContext();
+            DbContext = new TestSubSonicContext();
         }
 
         [OneTimeTearDown]

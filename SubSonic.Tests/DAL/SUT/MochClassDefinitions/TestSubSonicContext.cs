@@ -8,10 +8,10 @@ using Models = SubSonic.Extensions.Test.Models;
 
 namespace SubSonic.Tests.DAL.SUT
 {
-    public class TestDbContext
+    public class TestSubSonicContext
         : SubSonic.SubSonicContext
     {
-        public TestDbContext()
+        public TestSubSonicContext()
             : base()
         {
 
@@ -31,7 +31,7 @@ namespace SubSonic.Tests.DAL.SUT
         {
             config
                 .ConfigureServiceCollection()
-                .AddLogging((_config) => _config.AddNUnitLogger<TestDbContext>(LogLevel.Trace))
+                .AddLogging((_config) => _config.AddNUnitLogger<TestSubSonicContext>(LogLevel.Trace))
                 .UseMockDbClient((builder, options) =>
                 {
                     builder
