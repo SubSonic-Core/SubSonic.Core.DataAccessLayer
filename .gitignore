@@ -254,4 +254,8 @@ _Pvt_Extensions
 # Ignore local nuget sources to force server sources
 SubSonic/MyKey.PublicKeyOnly.snk
 SubSonic/temp.txt
+<<<<<<< HEAD
 SubSonic.Core.Abstractions/
+=======
+SubSonic/SubSonic.Core.Abstractions
+>>>>>>> release/4.1.2-beta.1
