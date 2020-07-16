@@ -65,16 +65,38 @@ namespace SubSonic.Linq
         }
 
         /// <summary>
-        /// 
+        /// Load data from the database
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
-        /// <param name="query"></param>
-        /// <returns></returns>
+        /// <param name="query"><see cref="IQueryable{T}"/></param>
+        /// <returns>returns the data in a <see cref="ISubSonicCollection{TEntity}"/></returns>
         public static IQueryable<TEntity> Load<TEntity>(this IQueryable<TEntity> query)
         {
             if (query is null)
             {
                 throw new ArgumentNullException(nameof(query));
+            }
+
+            return query.Load(false);
+        }
+
+        /// <summary>
+        /// Load data from the database
+        /// </summary>
+        /// <typeparam name="TEntity"></typeparam>
+        /// <param name="query"><see cref="IQueryable{T}"/></param>
+        /// <param name="refresh">if true, clear the collection so the collection can be refreshed from the database.</param>
+        /// <returns>returns the data in a <see cref="ISubSonicCollection{TEntity}"/></returns>
+        public static IQueryable<TEntity> Load<TEntity>(this IQueryable<TEntity> query, bool refresh)
+        {
+            if (query is null)
+            {
+                throw new ArgumentNullException(nameof(query));
+            }
+
+            if (refresh)
+            {
+                throw Error.NotImplemented();
             }
 
             return query.Provider.Execute<IQueryable<TEntity>>(query.Expression);
