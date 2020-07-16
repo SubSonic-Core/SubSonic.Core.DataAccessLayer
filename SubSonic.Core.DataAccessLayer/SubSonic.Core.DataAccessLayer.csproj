@@ -8,7 +8,7 @@
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <PackageTags>DAL;SqlServer;C#;.NetFramework;.NetCore;</PackageTags>
+    <PackageTags>DAL;Database;C#;.NetFramework;.NetCore;</PackageTags>
     <Version>4.1.1</Version>
     <PackageId>SubSonic.Core.DAL</PackageId>
     <Company>SubSonic-Core</Company>

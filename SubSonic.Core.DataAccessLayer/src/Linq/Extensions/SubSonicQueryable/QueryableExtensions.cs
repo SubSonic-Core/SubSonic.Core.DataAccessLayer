@@ -210,9 +210,37 @@ namespace SubSonic.Linq
 
             throw Error.NotSupported($"{nameof(WhereNotExists)} not supported on {source}."); ;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TSource"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="dbTable"></param>
+        /// <param name="keys"></param>
+        /// <param name="keyData"></param>
+        /// <returns></returns>
         internal static IQueryable<TSource> WhereByKeyData<TSource>(this IQueryable<TSource> source, DbTableExpression dbTable, IEnumerable<string> keys, IEnumerable<object> keyData)
         {
+            if (source is null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            if (dbTable is null)
+            {
+                throw new ArgumentNullException(nameof(dbTable));
+            }
+
+            if (keys is null)
+            {
+                throw new ArgumentNullException(nameof(keys));
+            }
+
+            if (keyData is null)
+            {
+                throw new ArgumentNullException(nameof(keyData));
+            }
+
             throw Error.NotImplemented();
         }
 
