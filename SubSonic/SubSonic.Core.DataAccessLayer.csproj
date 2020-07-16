@@ -65,6 +65,21 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="src\Logging\SubSonicLogging.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SubSonicLogging.resx</DependentUpon>
+    </Compile>
+    <Compile Update="src\SubSonicDefaults.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SubSonicDefaults.resx</DependentUpon>
+    </Compile>
+    <Compile Update="src\SubSonicErrorMessages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SubSonicErrorMessages.resx</DependentUpon>
+    </Compile>
     <Compile Update="SubSonicDefaults.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -78,6 +93,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Update="src\Logging\SubSonicLogging.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>SubSonicLogging.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="src\SubSonicDefaults.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>SubSonicDefaults.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="src\SubSonicErrorMessages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>SubSonicErrorMessages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Update="SubSonicDefaults.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>SubSonicDefaults.Designer.cs</LastGenOutput>
