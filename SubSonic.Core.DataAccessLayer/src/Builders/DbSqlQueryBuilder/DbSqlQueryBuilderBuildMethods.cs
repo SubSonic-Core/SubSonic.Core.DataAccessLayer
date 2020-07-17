@@ -12,6 +12,7 @@ namespace SubSonic.Builders
     using Schema;
     using Linq;
     using Linq.Expressions;
+    using System.Threading.Tasks;
 
     public partial class DbSqlQueryBuilder
     {
@@ -562,13 +563,15 @@ namespace SubSonic.Builders
             {
                 List<DbColumnDeclaration> columns = new List<DbColumnDeclaration>();
                 
-                for(int i = 0, n = Member.Bindings.Count; i < n; i++)
+                //for(int i = 0, n = Member.Bindings.Count; i < n; i++)
+                Parallel.For(0, Member.Bindings.Count, (i) =>
                 {
                     if (Member.Bindings[i] is MemberAssignment Binding)
                     {
                         columns.Add(new DbColumnDeclaration(Binding.Member.Name, i, DbExpression.DbColumn(Binding, select)));
                     }
                 }
+                );
 
                 return columns;
             }
