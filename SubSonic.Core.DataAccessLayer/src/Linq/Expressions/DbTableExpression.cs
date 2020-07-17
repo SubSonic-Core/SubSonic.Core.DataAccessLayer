@@ -89,6 +89,23 @@ namespace SubSonic.Linq.Expressions
         {
             return $"T({QualifiedName ?? Type.Name})";
         }
+
+        internal IEnumerable<DbTableExpression> ToTableList()
+        {
+            List<DbTableExpression> tables = new List<DbTableExpression>();
+
+            foreach (DbJoinExpression join in Joins)
+            {
+                if (join.Right is DbTableExpression right)
+                {
+                    tables.Add(right);
+                }
+            }
+
+            tables.Add(this);
+
+            return tables;
+        }
     }
 
     public partial class DbExpression

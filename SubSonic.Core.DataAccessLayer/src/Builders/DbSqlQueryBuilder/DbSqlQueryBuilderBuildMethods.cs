@@ -538,10 +538,42 @@ namespace SubSonic.Builders
                     }
                 }
 
-                return BuildSelect(select, select.Columns.Where(column => column.PropertyName.Equals(selector.GetProperty().Name, StringComparison.CurrentCulture)));
+                IEnumerable<DbColumnDeclaration> columns = null;
+
+                switch (selector.Body.NodeType)
+                {
+                    case ExpressionType.MemberAccess:
+                        columns = select.Columns.Where(column => column.PropertyName.Equals(selector.GetProperty().Name, StringComparison.CurrentCulture));
+                        break;
+                    case ExpressionType.MemberInit:
+                        columns = BuildColumnDeclarationList(selector.Body, select);
+                        break;
+                }
+
+                return BuildSelect(select, columns);
             }
 
             return expression;
+        }
+
+        private IEnumerable<DbColumnDeclaration> BuildColumnDeclarationList(Expression body, DbExpression select)
+        {
+            if (body is MemberInitExpression Member)
+            {
+                List<DbColumnDeclaration> columns = new List<DbColumnDeclaration>();
+                
+                for(int i = 0, n = Member.Bindings.Count; i < n; i++)
+                {
+                    if (Member.Bindings[i] is MemberAssignment Binding)
+                    {
+                        columns.Add(new DbColumnDeclaration(Binding.Member.Name, i, DbExpression.DbColumn(Binding, select)));
+                    }
+                }
+
+                return columns;
+            }
+
+            throw Error.NotSupported();
         }
 
         private Expression BuildSelectWithDistinct(MethodCallExpression expression)

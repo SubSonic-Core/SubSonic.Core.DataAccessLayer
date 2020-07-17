@@ -5,6 +5,9 @@ namespace SubSonic.Linq.Expressions
 {
     using Alias;
     using Structure;
+    using System.Linq;
+    using System.Reflection;
+
     /// <summary>
     /// A custom expression node that represents a reference to a column in a SQL query
     /// </summary>
@@ -88,6 +91,46 @@ namespace SubSonic.Linq.Expressions
         public static DbExpression DbColumn(Type type, TableAlias alias, string name)
         {
             return new DbColumnExpression(type, alias, name);
+        }
+
+        private static Expression BuildColumnExpression(Expression expression, ISubSonicTableProvider tableProvider)
+        {
+            if (expression is MemberExpression member)
+            {
+                DbTableExpression table = null;
+                DbColumnExpression column = null;
+
+                table = tableProvider.Tables.Single(x =>
+                    x.Model.EntityModelType == member.Member.DeclaringType);
+                column = new DbColumnExpression(member.Type, table.Alias, member.Member.Name);
+
+                return column;
+            }
+            else if (expression is MethodCallExpression call)
+            {
+                if (BuildColumnExpression(call.Object, tableProvider) is DbColumnExpression column)
+                {
+                    return Call(column, call.Method, call.Arguments);
+                }
+            }
+
+            throw Error.NotSupported();
+        }
+
+        public static Expression DbColumn(MemberBinding binding, DbExpression select)
+        {
+            if (select is ISubSonicTableProvider provider)
+            {
+                if (binding is MemberAssignment element)
+                {
+                    if (element.Member is MemberInfo info)
+                    {
+                        return BuildColumnExpression(element.Expression, provider);
+                    }
+                }
+            }
+
+            throw Error.NotSupported();
         }
     }
 }
