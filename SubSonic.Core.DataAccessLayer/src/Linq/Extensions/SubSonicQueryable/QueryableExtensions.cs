@@ -294,7 +294,7 @@ namespace SubSonic.Linq
                 {
                     DbTableExpression table = (relationship.IsLookupMapping ? relationship.LookupModel : relationship.ForeignModel).Table;
 
-                    source = source.InnerJoin(table);
+                    source = source.Join(JoinType.InnerJoin, table);
 
                     MethodInfo method = typeof(SubSonicQueryable).GetGenericMethod(nameof(WhereByKeyData), new[] { source.Expression.Type, table.GetType(), keyNames.GetType(), keyData.GetType() });
 

@@ -328,7 +328,18 @@ namespace SubSonic.Builders
                     {
                         propertyInfo = pi;
 
-                        return GetDbColumnExpression(pi);
+                        if (!pi.GetMethod.IsStatic)
+                        {
+                            return GetDbColumnExpression(pi);
+                        }
+                        else if (node.Expression is null)
+                        { 
+                            return GetNamedExpression(pi.GetValue(null));
+                        }
+                        else
+                        {
+                            throw Error.NotImplemented();
+                        }
                     }
                     else if (node.Member is FieldInfo fi)
                     {
@@ -378,7 +389,7 @@ namespace SubSonic.Builders
             {
                 return GetNamedExpression(node.Value, propertyInfo);
             }
-            return base.VisitConstant(node);
+            return node;
         }
 
         protected virtual void BuildLogicalExpression()

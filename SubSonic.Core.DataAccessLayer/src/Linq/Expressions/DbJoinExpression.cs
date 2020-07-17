@@ -77,19 +77,31 @@ namespace SubSonic.Linq.Expressions
                     }
                     else
                     {
-                        IDbEntityProperty navigation = _right.Model.GetNavigationPropertyFor(_left.Model);
+                        IDbRelationshipMap mapping = _right.Model.GetRelationshipWith(_left.Model) ??
+                                                     _left.Model.GetRelationshipWith(_right.Model);
 
                         string[] 
-                            primary = _left.Model.GetPrimaryKey().ToArray(),
-                            foreign = navigation.ForeignKeys.ToArray();
+                            leftKeys = null,
+                            rightKeys = null;
 
-                        System.Diagnostics.Debug.Assert(primary.Length == foreign.Length);
+                        if (_left.Model == mapping.ForeignModel)
+                        {
+                            leftKeys = mapping.GetForeignKeys(_left.Model).ToArray();
+                            rightKeys = _right.Model.GetPrimaryKey().ToArray();
+                        }
+                        else
+                        {
+                            leftKeys = _left.Model.GetPrimaryKey().ToArray();
+                            rightKeys = mapping.GetForeignKeys(_right.Model).ToArray();
+                        }
 
-                        for(int i = 0, n = primary.Length; i < n; i++)
+                        System.Diagnostics.Debug.Assert(leftKeys.Length == rightKeys.Length);
+
+                        for(int i = 0, n = leftKeys.Length; i < n; i++)
                         {
                             DbColumnDeclaration 
-                                left_column = _left.Columns.Single(x => x.PropertyName.Equals(primary[i], StringComparison.Ordinal)),
-                                right_column = _right.Columns.Single(x => x.PropertyName.Equals(foreign[i], StringComparison.Ordinal));
+                                left_column = _left.Columns.Single(x => x.PropertyName.Equals(leftKeys[i], StringComparison.Ordinal)),
+                                right_column = _right.Columns.Single(x => x.PropertyName.Equals(rightKeys[i], StringComparison.Ordinal));
 
                             if (conditional is null)
                             {

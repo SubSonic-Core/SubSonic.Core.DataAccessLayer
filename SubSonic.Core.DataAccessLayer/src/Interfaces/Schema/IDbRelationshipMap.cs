@@ -13,5 +13,6 @@ namespace SubSonic.Schema
         bool IsLookupMapping { get; }
 
         IEnumerable<string> GetForeignKeys<TEntity>();
+        IEnumerable<string> GetForeignKeys(IDbEntityModel entityModel);
     }
 }

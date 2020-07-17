@@ -5,6 +5,7 @@ namespace SubSonic.Linq.Expressions
 {
     using Alias;
     using Structure;
+    using SubSonic.src;
     using System.Linq;
     using System.Reflection;
 
@@ -100,9 +101,17 @@ namespace SubSonic.Linq.Expressions
                 DbTableExpression table = null;
                 DbColumnExpression column = null;
 
-                table = tableProvider.Tables.Single(x =>
-                    x.Model.EntityModelType == member.Member.DeclaringType);
-                column = new DbColumnExpression(member.Type, table.Alias, member.Member.Name);
+                if (tableProvider.Tables.Any(x =>
+                    x.Model.EntityModelType == member.Member.DeclaringType))
+                {
+                    table = tableProvider.Tables.Single(x =>
+                        x.Model.EntityModelType == member.Member.DeclaringType);
+                    column = new DbColumnExpression(member.Type, table.Alias, member.Member.Name);
+                }
+                else
+                {
+                    throw Error.InvalidOperation(SubSonicErrorMessages.MissingTableReferenceFor.Format(member.Member.DeclaringType.Name));
+                }
 
                 return column;
             }

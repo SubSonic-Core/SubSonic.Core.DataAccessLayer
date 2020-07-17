@@ -97,6 +97,21 @@ namespace SubSonic.Linq.Expressions.Structure
                             Write(scalar.QualifiedName);
                         }
                     }
+                    else if (info.DeclaringType.IsNullableType())
+                    {
+                        if (info.Name.Equals(nameof(Nullable<int>.GetValueOrDefault), StringComparison.Ordinal))
+                        {
+                            Write("ISNULL(");
+                            this.Visit(method.Object);
+                            Write($"{Fragments.COMMA} ");
+                            this.Visit(method.Arguments[0]);
+                            Write(Fragments.RIGHT_PARENTHESIS);
+                        }
+                        else
+                        {
+                            throw Error.NotImplemented();
+                        }                        
+                    }
                     else
                     {
                         ThrowMethodNotSupported(info);

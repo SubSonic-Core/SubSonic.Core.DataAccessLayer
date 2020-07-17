@@ -162,6 +162,9 @@
   <data name="MissingServiceCollectionException" xml:space="preserve">
     <value>IServiceCollection is not found in the IOC container.</value>
   </data>
+  <data name="MissingTableReferenceFor" xml:space="preserve">
+    <value>Missing table reference for {0}.</value>
+  </data>
   <data name="MultipleContinuations" xml:space="preserve">
     <value>Multiple continuations detected.</value>
   </data>

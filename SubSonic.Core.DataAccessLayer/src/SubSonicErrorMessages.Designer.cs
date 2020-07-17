@@ -196,6 +196,15 @@ namespace SubSonic.src {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Missing table reference for {0}..
+        /// </summary>
+        internal static string MissingTableReferenceFor {
+            get {
+                return ResourceManager.GetString("MissingTableReferenceFor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Multiple continuations detected..
         /// </summary>
         internal static string MultipleContinuations {

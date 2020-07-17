@@ -5,6 +5,7 @@ using System.Linq;
 namespace SubSonic.Schema
 {
     using Linq;
+    using SubSonic.Data.Caching;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Reflection;
 
@@ -39,18 +40,16 @@ namespace SubSonic.Schema
 
         public IDbEntityModel ForeignModel { get; }
 
-        public IEnumerable<string> GetForeignKeys<TEntity>()
+        public IEnumerable<string> GetForeignKeys(IDbEntityModel entityModel)
         {
-            IDbEntityModel EntityModel = SubSonicContext.DbModel.GetEntityModel<TEntity>();
-
             if (RelationshipType == DbRelationshipType.HasManyWithMany)
             {
-                PropertyInfo property = IsLookupMapping 
-                    ? LookupModel.EntityModelType.GetProperty(EntityModel.Name)
+                PropertyInfo property = IsLookupMapping
+                    ? LookupModel.EntityModelType.GetProperty(entityModel.Name)
                     : ForeignModel.EntityModelType.GetProperty(ForeignModel.Name);
 
                 string foreignKeyName = null;
-                
+
                 if (!(property is null) &&
                     property.GetCustomAttribute<ForeignKeyAttribute>() is ForeignKeyAttribute foreignKeyAttribute)
                 {
@@ -69,6 +68,11 @@ namespace SubSonic.Schema
             {
                 return foreignKeyNames;
             }
+        }
+
+        public IEnumerable<string> GetForeignKeys<TEntity>()
+        {
+            return GetForeignKeys(SubSonicContext.DbModel.GetEntityModel<TEntity>());
         }
     }
 }

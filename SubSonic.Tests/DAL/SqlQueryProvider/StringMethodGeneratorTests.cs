@@ -6,10 +6,8 @@ using System.Linq.Expressions;
 namespace SubSonic.Tests.DAL.SqlQueryProvider
 {
     using Extensions.Test.Models;
-    
-    using Logging;
     using Linq.Expressions;
-    using Microsoft.Extensions.Logging;
+    using Logging;
 
     public partial class SqlQueryProviderTests
     {
