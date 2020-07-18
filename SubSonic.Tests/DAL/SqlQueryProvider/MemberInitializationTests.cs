@@ -23,6 +23,12 @@ namespace SubSonic.Tests.DAL.SqlQueryProvider
             public decimal Rent { get; set; }
         }
 
+        class UnitOfProperty
+        {
+            public bool? HasParallelPowerGeneration { get; internal set; }
+            public string Status { get; internal set; }
+        }
+
         [Test]
         public void MemberInitializationThrowWhenMissingTableReference()
         {
@@ -41,7 +47,46 @@ namespace SubSonic.Tests.DAL.SqlQueryProvider
         }
 
         [Test]
-        public void MemberInitializationTests()
+        public void MemberInitializationWithThenIncludeTests()
+        {
+            string expected = @"SELECT [T1].[HasParallelPowerGeneration], [T2].[Name] AS [Status]
+FROM [dbo].[Unit] AS [T3]
+	INNER JOIN [dbo].[RealEstateProperty] AS [T1]
+		ON ([T1].[ID] = [T3].[RealEstatePropertyID])
+	INNER JOIN [dbo].[Status] AS [T2]
+		ON ([T2].[ID] = [T1].[StatusID])";
+
+            Expression select = Context
+                .Units
+                .Include(x => x.RealEstateProperty)
+                .ThenInclude(x => x.Status)
+                .Select(x => new UnitOfProperty()
+                {
+                    HasParallelPowerGeneration = x.RealEstateProperty.HasParallelPowerGeneration,
+                    Status = x.RealEstateProperty.Status.Name
+                }).Expression;
+
+            IDbQuery query = null;
+
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<Person> builder = Context.Instance.GetService<ISubSonicQueryProvider<Person>>();
+
+                    query = builder.ToQuery(select);
+                }).Should().NotThrow();
+
+                logging.LogInformation(query.Sql);
+            }
+
+            query.Sql.Should().Be(expected);
+        }
+
+        [Test]
+        public void MemberInitializationWithIncludeTests()
         {
             string expected = @"SELECT [T1].[FullName], [T2].[Rent]
 FROM [dbo].[Renter] AS [T2]

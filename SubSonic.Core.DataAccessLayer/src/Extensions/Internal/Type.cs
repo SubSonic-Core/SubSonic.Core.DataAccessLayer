@@ -193,7 +193,7 @@ namespace SubSonic
             return name;
         }
 
-        public static MethodInfo GetGenericMethod(this Type type, string name, Type[] types)
+        public static MethodInfo GetGenericMethod(this Type type, string name, Type[] types, params Type[] parameterTypes)
         {
             MethodInfo result = null;
 
@@ -204,30 +204,21 @@ namespace SubSonic
             {
                 if (info.IsGenericMethod)
                 {
-                    MethodInfo test = null;
-
-                    if (types[0].IsGenericType)
-                    {
-                        test = info.MakeGenericMethod(types[0].GenericTypeArguments[0]);
-                    }
-                    else
-                    {
-                        test = info.MakeGenericMethod(types[0]);
-                    }
+                    MethodInfo test = info.MakeGenericMethod(types);
 
                     ParameterInfo[] parameters = test.GetParameters();
 
-                    if (parameters.Length != types.Length)
+                    if (parameters.Length != parameterTypes.Length)
                     {
                         continue;
                     }
 
                     bool match = true;
 
-                    for (int i = 0, cnt = types.Length; i < cnt; i++)
+                    for (int i = 0, cnt = parameters.Length; i < cnt; i++)
                     {
-                        match &= parameters[i].ParameterType.IsAssignableFrom(types[i]) ||
-                            types[i].IsAssignableFrom(parameters[i].ParameterType);
+                        match &= parameters[i].ParameterType.IsAssignableFrom(parameterTypes[i]) ||
+                            parameterTypes[i].IsAssignableFrom(parameters[i].ParameterType);
                     }
 
                     if (match)

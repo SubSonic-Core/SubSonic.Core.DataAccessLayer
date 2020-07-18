@@ -30,6 +30,8 @@ namespace SubSonic
 
         public DbRelationshipType RelationshipType => (DbRelationshipType)Enum.Parse(typeof(DbRelationshipType), $"{has}{with}");
 
+        public bool IsReciprocated { get; private set; }
+
         public Type RelatedEntityType { get; private set; }
 
         public Type LookupEntityType { get; private set; }
@@ -39,8 +41,9 @@ namespace SubSonic
         public IDbRelationshipMap RelationshipMap => new DbRelationshipMap(
             RelationshipType,
             SubSonicContext.DbModel.GetEntityModel(LookupEntityType),
-            SubSonicContext.DbModel.GetEntityModel(RelatedEntityType), 
-            RelatedKeys.ToArray());
+            SubSonicContext.DbModel.GetEntityModel(RelatedEntityType),
+            RelatedKeys.ToArray(),
+            IsReciprocated);
 
         public DbNavigationPropertyBuilder<TEntity, TRelatedEntity> WithOne(Expression<Func<TRelatedEntity, TEntity>> selector = null)
         {
@@ -51,7 +54,8 @@ namespace SubSonic
 
             return new DbNavigationPropertyBuilder<TEntity, TRelatedEntity>(has, nameof(WithOne))
             {
-                RelatedKeys = (selector is null) ? Array.Empty<string>() : GetForeignKeys(selector.Body)
+                IsReciprocated = !(selector is null),
+                RelatedKeys = (selector is null) ? GetForeignKeys(typeof(TEntity)) : GetForeignKeys(selector.Body)
             };
         }
 
@@ -64,6 +68,7 @@ namespace SubSonic
 
             return new DbNavigationPropertyBuilder<TEntity, TRelatedEntity>(has, nameof(WithMany))
             {
+                IsReciprocated = !(selector is null),
                 LookupEntityType = LookupEntityType,
                 RelatedKeys = (RelatedKeys?.Any() ?? false) ? RelatedKeys : GetPrimayKeys(selector, LookupEntityType)
             };
@@ -91,6 +96,11 @@ namespace SubSonic
             return this;
         }
 
+        private string[] GetForeignKeys(Type type)
+        {
+            return Ext.GetForeignKeyName(type);
+        }
+
         private string[] GetForeignKeys(Expression expression)
         {
             if(expression.IsNotNull())
@@ -110,7 +120,7 @@ namespace SubSonic
                 }
                 else
                 {
-                    return Ext.GetForeignKeyName(lookupEntityType);
+                    return GetForeignKeys(lookupEntityType);
                 }
             }
             return Array.Empty<string>();

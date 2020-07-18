@@ -11,6 +11,7 @@ namespace SubSonic.Schema
         IDbEntityModel ForeignModel { get; }
         IDbEntityModel LookupModel { get; }
         bool IsLookupMapping { get; }
+        bool IsReciprocated { get; }
 
         IEnumerable<string> GetForeignKeys<TEntity>();
         IEnumerable<string> GetForeignKeys(IDbEntityModel entityModel);

@@ -241,6 +241,15 @@ namespace SubSonic.src {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} not implemented correctly..
+        /// </summary>
+        internal static string NotImplementedCorrectly {
+            get {
+                return ResourceManager.GetString("NotImplementedCorrectly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &quot;Referenced an unsupported Type&quot;.
         /// </summary>
         internal static string NotSupportedType {

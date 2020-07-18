@@ -12,7 +12,7 @@ namespace SubSonic.Collections
     using Schema;
     using SubSonic;
 
-    public sealed partial class SubSonicCollection<TEntity>
+    public partial class SubSonicCollection<TEntity>
         : SubSonicCollection
         , ISubSonicCollection<TEntity>
     {
@@ -168,7 +168,15 @@ namespace SubSonic.Collections
         public SubSonicCollection(Type elementType, IQueryProvider provider, Expression expression)
             : this(elementType)
         {
-            Expression = expression ?? DbExpression.DbSelect(this, GetType(), Model.Table);
+            if (expression is DbSelectExpression select)
+            {
+                Expression = new DbSelectExpression(this, GetType(), select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip, select.IsCte);
+            }
+            else
+            {
+                Expression = expression ?? DbExpression.DbSelect(this, GetType(), Model.Table);
+            }
+
             Provider = provider ?? new DbSqlQueryBuilder(ElementType, SubSonicContext.ServiceProvider.GetService<ISubSonicLogger>());
         }
 

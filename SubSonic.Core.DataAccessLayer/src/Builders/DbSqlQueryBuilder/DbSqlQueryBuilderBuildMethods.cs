@@ -73,7 +73,10 @@ namespace SubSonic.Builders
 
                 if (!(predicate is null))
                 {
-                    method = method ?? typeof(Queryable).GetGenericMethod(nameof(Queryable.Where), new[] { DbTable.Type, predicate.GetType() });
+                    method = method ?? typeof(Queryable).GetGenericMethod(nameof(Queryable.Where), 
+                        new[] { DbTable.Type.GenericTypeArguments[0] }, 
+                        DbTable.Type,
+                        predicate.GetType());
 
                     if (query is DbSelectExpression select)
                     {
@@ -198,7 +201,10 @@ namespace SubSonic.Builders
                 throw Error.ArgumentNull(nameof(predicate));
             }
 
-            MethodInfo method = typeof(Queryable).GetGenericMethod(nameof(Queryable.Where), new[] { expression.Type, predicate.GetType() });
+            MethodInfo method = typeof(Queryable).GetGenericMethod(nameof(Queryable.Where),
+                new[] { expression.Type.GenericTypeArguments[0] },
+                expression.Type,
+                predicate.GetType());
 
             return DbWherePredicateBuilder.GetWhereTranslation(
                 DbExpression.DbWhere(method, new Expression[] { expression, predicate }));
@@ -230,9 +236,17 @@ namespace SubSonic.Builders
         {
             if (left is DbSelectExpression select)
             {
-                if (right is DbExpression right_table)
+                return BuildJoin(type, select.From, right);
+            }
+            else if (left is DbSelectPageExpression paged)
+            {
+                return BuildJoin(type, paged.Select, right);
+            }
+            else if (left is DbTableExpression left_table)
+            {
+                if (right is DbTableExpression right_table)
                 {
-                    return DbExpression.DbSelect(select, (DbJoinExpression)DbExpression.DbJoin(type, select.From, right_table));
+                    return DbExpression.DbJoin(type, left_table, right_table);
                 }
             }
 
@@ -283,9 +297,10 @@ namespace SubSonic.Builders
 
             Type constantType = property.PropertyType.GetUnderlyingType();
 
-            MethodInfo method = typeof(SubSonicQueryable).GetGenericMethod(
-                nameof(SubSonicQueryable.In),
-                new[] { constantType, queryable.Expression.Type });
+            MethodInfo method = typeof(SubSonicQueryable).GetGenericMethod(nameof(SubSonicQueryable.In),
+                new[] { constantType }, 
+                constantType, 
+                queryable.Expression.Type);
 
             Expression
                 left = Expression.Property(Parameter, property),
@@ -316,7 +331,7 @@ namespace SubSonic.Builders
 
             MethodInfo method = typeof(SubSonicQueryable).GetGenericMethod(
                 nameof(SubSonicQueryable.In),
-                new[] { constantType, constantType.MakeArrayType() });
+                new[] { constantType }, constantType, constantType.MakeArrayType());
 
             Expression
                 left = Expression.Property(Parameter, property),
@@ -507,6 +522,10 @@ namespace SubSonic.Builders
                     {
                         return BuildSelectWithExpression(call);
                     }
+                    else if (call.Method.IsSupportedIncludable())
+                    {
+                        return BuildIncludable(call);
+                    }
                     else
                     {
                         throw Error.NotSupported(SubSonicErrorMessages.UnSupportedMethodException.Format(call.Method.Name));
@@ -515,6 +534,63 @@ namespace SubSonic.Builders
             }
 
             return expression ?? DbEntity.Table;
+        }
+
+        private Expression BuildIncludable(MethodCallExpression expression)
+        {
+            if (!(expression is null))
+            {
+                DbSelectExpression select = null;
+                LambdaExpression selector = null;
+
+                foreach (var argument in expression.Arguments)
+                {
+                    if (argument is DbSelectExpression _select)
+                    {
+                        select = _select;
+                    }
+                    else if (argument is DbSelectPageExpression _paged)
+                    {
+                        select = _paged.Select;
+                    }
+                    else if (argument is UnaryExpression unary)
+                    {
+                        if (unary.Operand is LambdaExpression lambda)
+                        {
+                            selector = lambda;
+                        }
+                    }
+                }
+
+                DbTableExpression
+                    left  = select.From,
+                    right = SubSonicContext.DbModel.GetEntityModel(selector.GetProperty().PropertyType).Table;
+
+                JoinType joinType = JoinType.InnerJoin;
+
+                if (expression.Method.Name.Equals(nameof(SubSonicQueryable.ThenInclude), StringComparison.Ordinal) ||
+                    expression.Method.Name.Equals(nameof(SubSonicQueryable.ThenIncludeOptional), StringComparison.Ordinal))
+                {
+                    if (select.QueryObject is IIncludableQueryable includable)
+                    {
+                        left = left.ToTableList().Single(x => x.Model.EntityModelType == includable.PropertyType);
+                    }
+                }
+
+                if (expression.Method.Name.Equals(nameof(SubSonicQueryable.IncludeOptional), StringComparison.Ordinal) ||
+                    expression.Method.Name.Equals(nameof(SubSonicQueryable.ThenIncludeOptional), StringComparison.Ordinal))
+                {
+                    joinType = JoinType.LeftOuter;
+                }
+
+                if (BuildJoin(joinType, left, right) is DbJoinExpression join)
+                {
+                    return DbExpression.DbSelect(select, join);
+                }
+
+                throw Error.InvalidOperation();
+            }
+            return expression;
         }
 
         private Expression BuildSelectWithExpression(MethodCallExpression expression)
@@ -690,7 +766,10 @@ namespace SubSonic.Builders
                     }
                 }
 
-                MethodInfo method = typeof(Queryable).GetGenericMethod(nameof(Queryable.Where), new[] { select.Type, where.GetType() });
+                MethodInfo method = typeof(Queryable).GetGenericMethod(nameof(Queryable.Where), 
+                    new[] { select.Type.GenericTypeArguments[0] }, 
+                    select.Type,
+                    where.GetType());
 
                 return DbExpression.DbSelect(
                         select,

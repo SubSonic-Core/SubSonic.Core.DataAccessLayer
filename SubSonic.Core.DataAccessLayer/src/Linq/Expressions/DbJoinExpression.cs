@@ -84,7 +84,7 @@ namespace SubSonic.Linq.Expressions
                             leftKeys = null,
                             rightKeys = null;
 
-                        if (_left.Model == mapping.ForeignModel)
+                        if (_left.Model == mapping.ForeignModel || !mapping.IsReciprocated)
                         {
                             leftKeys = mapping.GetForeignKeys(_left.Model).ToArray();
                             rightKeys = _right.Model.GetPrimaryKey().ToArray();

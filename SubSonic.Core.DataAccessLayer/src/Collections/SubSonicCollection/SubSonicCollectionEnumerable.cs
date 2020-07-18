@@ -6,10 +6,10 @@ namespace SubSonic.Collections
 {
     using System.Threading.Tasks;
 
-    public sealed partial class SubSonicCollection<TEntity>
+    public partial class SubSonicCollection<TEntity>
         : IAsyncSubSonicQueryable<TEntity>
     {
-        IAsyncSubSonicQueryProvider IAsyncSubSonicQueryable<TEntity>.ProviderAsync
+        public IAsyncSubSonicQueryProvider ProviderAsync
         {
             get
             {
@@ -23,7 +23,7 @@ namespace SubSonic.Collections
         }
 
 #if NETSTANDARD2_0
-        IAsyncEnumerator<TEntity> IAsyncEnumerable<TEntity>.GetAsyncEnumerator(CancellationToken cancellationToken)
+        public IAsyncEnumerator<TEntity> GetAsyncEnumerator(CancellationToken cancellationToken)
         {
             return new AsyncEnumerable<TEntity>(async (yield) =>
             {
@@ -34,7 +34,7 @@ namespace SubSonic.Collections
             }).GetAsyncEnumerator(cancellationToken);
         }
 #elif NETSTANDARD2_1
-        async IAsyncEnumerator<TEntity> IAsyncEnumerable<TEntity>.GetAsyncEnumerator(CancellationToken cancellationToken)
+        public async IAsyncEnumerator<TEntity> GetAsyncEnumerator(CancellationToken cancellationToken)
         {
             await foreach(TEntity entity in this.WithCancellation(cancellationToken))
             {

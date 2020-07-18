@@ -18,7 +18,8 @@ namespace SubSonic.Schema
             DbRelationshipType relationshipType,
             IDbEntityModel lookupModel,
             IDbEntityModel foreignModel, 
-            string[] foreignKeyNames)
+            string[] foreignKeyNames,
+            bool isReciprocated)
         {
             if((relationshipType == DbRelationshipType.HasManyWithMany) && (lookupModel is null))
             {
@@ -29,8 +30,11 @@ namespace SubSonic.Schema
             RelationshipType = relationshipType;
             LookupModel = lookupModel;
             ForeignModel = foreignModel ?? throw new ArgumentNullException(nameof(foreignModel));
+            IsReciprocated = isReciprocated;
             
         }
+
+        public bool IsReciprocated { get; }
 
         public bool IsLookupMapping => !(LookupModel is null);
 

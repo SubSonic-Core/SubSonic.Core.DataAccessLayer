@@ -177,6 +177,9 @@
   <data name="NotDecoratedWithStoredProcedureAttribute" xml:space="preserve">
     <value>{0} is not decorated with StoredProcedureAttribute.</value>
   </data>
+  <data name="NotImplementedCorrectly" xml:space="preserve">
+    <value>{0} not implemented correctly.</value>
+  </data>
   <data name="NotSupportedType" xml:space="preserve">
     <value>"Referenced an unsupported Type"</value>
   </data>

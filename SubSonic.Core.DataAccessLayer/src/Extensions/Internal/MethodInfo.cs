@@ -48,5 +48,16 @@ namespace SubSonic
                 info.Name.Equals(nameof(Legacy.Select), StringComparison.CurrentCulture) &&
                 info.GetParameters()[1].ParameterType.IsSubclassOf(typeof(Expression));                   
         }
+
+        public static bool IsSupportedIncludable(this MethodInfo info)
+        {
+            return info.GetParameters().Length > 1 &&
+#if NETSTANDARD2_1
+               info.Name.Contains(nameof(SubSonicQueryable.Include), StringComparison.CurrentCulture) &&
+#elif NETSTANDARD2_0
+               info.Name.Contains(nameof(SubSonicQueryable.Include)) &&
+#endif
+               info.GetParameters()[1].ParameterType.IsSubclassOf(typeof(Expression));
+        }
     }
 }

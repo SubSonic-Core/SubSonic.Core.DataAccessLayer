@@ -15,6 +15,7 @@ namespace SubSonic.Builders
     using Linq.Expressions;
     using Logging;
     using System.Globalization;
+    using SubSonic.src.Collections;
 
     public partial class DbSqlQueryBuilder
     {
