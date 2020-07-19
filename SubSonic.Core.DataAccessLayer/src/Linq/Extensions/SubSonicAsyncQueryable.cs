@@ -46,12 +46,15 @@ namespace SubSonic.Linq
             if (source is null)
             {
                 throw Error.ArgumentNull(nameof(source));
+
             }
+
+            Type sourceType = typeof(TSource);
+
             MethodInfo method = typeof(SubSonicAsyncQueryable).GetGenericMethod(nameof(SingleAsync),
-                new[] {
-                    typeof(IAsyncEnumerable<>).MakeGenericType(typeof(TSource)),
-                    typeof(CancellationToken)
-                });
+                new[] { sourceType },
+                typeof(IAsyncEnumerable<>).MakeGenericType(sourceType),
+                typeof(CancellationToken));
 
             if (source is IAsyncSubSonicQueryable<TSource> _source)
             {
@@ -91,12 +94,13 @@ namespace SubSonic.Linq
                 throw Error.ArgumentNull(nameof(predicate));
             }
 
-            MethodInfo method = typeof(SubSonicAsyncQueryable).GetGenericMethod(nameof(SingleAsync), 
-                new[] {
-                    typeof(IAsyncEnumerable<>).MakeGenericType(typeof(TSource)),
-                    predicate.GetType(),
-                    typeof(CancellationToken)
-                });
+            Type sourceType = typeof(TSource);
+
+            MethodInfo method = typeof(SubSonicAsyncQueryable).GetGenericMethod(nameof(SingleAsync),
+                new[] { sourceType },
+                typeof(IAsyncEnumerable<>).MakeGenericType(sourceType),
+                predicate.GetType(),
+                typeof(CancellationToken));
 
             if (source is IAsyncSubSonicQueryable<TSource> _source)
             {
@@ -129,11 +133,12 @@ namespace SubSonic.Linq
                 throw Error.ArgumentNull(nameof(source));
             }
 
+            Type sourceType = typeof(TSource);
+
             MethodInfo method = typeof(SubSonicAsyncQueryable).GetGenericMethod(nameof(SingleOrDefaultAsync),
-                new[] {
-                    typeof(IAsyncEnumerable<>).MakeGenericType(typeof(TSource)),
-                    typeof(CancellationToken)
-                });
+                new[] { sourceType },
+                typeof(IAsyncEnumerable<>).MakeGenericType(sourceType),
+                typeof(CancellationToken));
 
             if (source is IAsyncSubSonicQueryable<TSource> _source)
             {
@@ -172,12 +177,13 @@ namespace SubSonic.Linq
                 throw Error.ArgumentNull(nameof(predicate));
             }
 
+            Type sourceType = typeof(TSource);
+
             MethodInfo method = typeof(SubSonicAsyncQueryable).GetGenericMethod(nameof(SingleOrDefaultAsync),
-                new[] {
-                    typeof(IAsyncEnumerable<>).MakeGenericType(typeof(TSource)),
-                    predicate.GetType(),
-                    typeof(CancellationToken)
-                });
+                new[] { sourceType },
+                typeof(IAsyncEnumerable<>).MakeGenericType(sourceType),
+                predicate.GetType(),
+                typeof(CancellationToken));
 
             if (source is IAsyncSubSonicQueryable<TSource> _source)
             {
@@ -211,11 +217,12 @@ namespace SubSonic.Linq
                 throw Error.ArgumentNull(nameof(source));
             }
 
+            Type resultType = typeof(TResult);
+
             MethodInfo method = typeof(SubSonicAsyncQueryable).GetGenericMethod(nameof(FirstAsync),
-                new[] {
-                    typeof(IAsyncEnumerable<>).MakeGenericType(typeof(TResult)),
-                    typeof(CancellationToken)
-                });
+                new[] { resultType },
+                typeof(IAsyncEnumerable<>).MakeGenericType(typeof(TResult)),
+                typeof(CancellationToken));
 
             if (source is IAsyncSubSonicQueryable<TResult> _source)
             {
@@ -233,15 +240,15 @@ namespace SubSonic.Linq
         /// <summary>
         /// 
         /// </summary>
-        /// <typeparam name="TSource"></typeparam>
+        /// <typeparam name="TResult"></typeparam>
         /// <param name="source"></param>
         /// <param name="predicate"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
 #if NETSTANDARD2_1
-        public static Task<TSource> FirstAsync<TSource>([NotNull] this IAsyncEnumerable<TSource> source, [NotNull] Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TResult> FirstAsync<TResult>([NotNull] this IAsyncEnumerable<TResult> source, [NotNull] Expression<Func<TResult, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
 #elif NETSTANDARD2_0
-        public static Task<TSource> FirstAsync<TSource>(this IAsyncEnumerable<TSource> source, Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
+        public static Task<TResult> FirstAsync<TResult>(this IAsyncEnumerable<TResult> source, Expression<Func<TResult, bool>> predicate, CancellationToken cancellationToken = default(CancellationToken))
 #endif
         {
             if (source is null)
@@ -254,21 +261,22 @@ namespace SubSonic.Linq
                 throw Error.ArgumentNull(nameof(predicate));
             }
 
-            MethodInfo method = typeof(SubSonicAsyncQueryable).GetGenericMethod(nameof(FirstAsync),
-                new[] {
-                    typeof(IAsyncEnumerable<>).MakeGenericType(typeof(TSource)),
-                    predicate.GetType(),
-                    typeof(CancellationToken)
-                });
+            Type resultType = typeof(TResult);
 
-            if (source is IAsyncSubSonicQueryable<TSource> _source)
+            MethodInfo method = typeof(SubSonicAsyncQueryable).GetGenericMethod(nameof(FirstAsync),
+                new[] { resultType },
+                typeof(IAsyncEnumerable<TResult>),
+                predicate.GetType(),
+                typeof(CancellationToken));
+
+            if (source is IAsyncSubSonicQueryable<TResult> _source)
             {
 #if NETSTANDARD2_1
                 return _source.ProviderAsync
-                    .ExecuteMethodAsync<TSource>(Expression.Call(method, new[] { _source.Expression, predicate, Expression.Constant(cancellationToken) }), cancellationToken);
+                    .ExecuteMethodAsync<TResult>(Expression.Call(method, new[] { _source.Expression, predicate, Expression.Constant(cancellationToken) }), cancellationToken);
 #elif NETSTANDARD2_0
                 return _source.ProviderAsync
-                    .ExecuteAsync<TSource>(Expression.Call(method, new[] { _source.Expression, predicate, Expression.Constant(cancellationToken) }), cancellationToken);
+                    .ExecuteAsync<TResult>(Expression.Call(method, new[] { _source.Expression, predicate, Expression.Constant(cancellationToken) }), cancellationToken);
 #endif
             }
 
@@ -292,11 +300,12 @@ namespace SubSonic.Linq
                 throw Error.ArgumentNull(nameof(source));
             }
 
+            Type sourceType = typeof(TSource);
+
             MethodInfo method = typeof(SubSonicAsyncQueryable).GetGenericMethod(nameof(FirstOrDefaultAsync),
-                new[] {
-                    typeof(IAsyncEnumerable<>).MakeGenericType(typeof(TSource)),
-                    typeof(CancellationToken)
-                });
+                new[] { sourceType },
+                typeof(IAsyncEnumerable<>).MakeGenericType(sourceType),
+                typeof(CancellationToken));
 
             if (source is IAsyncSubSonicQueryable<TSource> _source)
             {
@@ -335,12 +344,13 @@ namespace SubSonic.Linq
                 throw Error.ArgumentNull(nameof(predicate));
             }
 
+            Type sourceType = typeof(TSource);
+
             MethodInfo method = typeof(SubSonicAsyncQueryable).GetGenericMethod(nameof(FirstOrDefaultAsync),
-                new[] {
-                    typeof(IAsyncEnumerable<>).MakeGenericType(typeof(TSource)),
-                    predicate.GetType(),
-                    typeof(CancellationToken)
-                });
+                new[] { sourceType },
+                typeof(IAsyncEnumerable<>).MakeGenericType(sourceType),
+                predicate.GetType(),
+                typeof(CancellationToken));
 
             if (source is IAsyncSubSonicQueryable<TSource> _source)
             {
@@ -373,11 +383,12 @@ namespace SubSonic.Linq
                 throw Error.ArgumentNull(nameof(source));
             }
 
+            Type resultType = typeof(TResult);
+
             MethodInfo method = typeof(SubSonicAsyncQueryable).GetGenericMethod(nameof(LoadAsync),
-                new[] {
-                    typeof(IAsyncEnumerable<>).MakeGenericType(typeof(TResult)),
-                    typeof(CancellationToken)
-                });
+                new[] { resultType },
+                typeof(IAsyncEnumerable<>).MakeGenericType(resultType),
+                typeof(CancellationToken));
 
             if (source is IAsyncSubSonicQueryable<TResult> _source)
             {

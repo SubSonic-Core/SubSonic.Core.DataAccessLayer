@@ -8,6 +8,7 @@ namespace SubSonic
 {
     using Linq;
     using Schema;
+    using SubSonic.src;
     using Ext = SubSonicExtensions;
 
     public class DbNavigationPropertyBuilder<TEntity, TRelatedEntity>
@@ -30,6 +31,8 @@ namespace SubSonic
 
         public DbRelationshipType RelationshipType => (DbRelationshipType)Enum.Parse(typeof(DbRelationshipType), $"{has}{with}");
 
+        public bool IsReciprocated { get; private set; }
+
         public Type RelatedEntityType { get; private set; }
 
         public Type LookupEntityType { get; private set; }
@@ -37,13 +40,17 @@ namespace SubSonic
         public IEnumerable<string> RelatedKeys { get; private set; }
 
         public IDbRelationshipMap RelationshipMap => new DbRelationshipMap(
-            RelationshipType,
-            SubSonicContext.DbModel.GetEntityModel(LookupEntityType),
-            SubSonicContext.DbModel.GetEntityModel(RelatedEntityType), 
-            RelatedKeys.ToArray());
+                        RelationshipType,
+                        SubSonicContext.DbModel.GetEntityModel(LookupEntityType),
+                        SubSonicContext.DbModel.GetEntityModel(RelatedEntityType),
+                        RelatedKeys.ToArray());
 
-        public DbNavigationPropertyBuilder<TEntity, TRelatedEntity> WithOne(Expression<Func<TRelatedEntity, TEntity>> selector = null)
+        public DbNavigationPropertyBuilder<TEntity, TRelatedEntity> WithOne(Expression<Func<TRelatedEntity, TEntity>> selector)
         {
+            if (selector is null)
+            {
+                throw Error.ArgumentNull(nameof(selector));
+            }
             if (RelatedEntityType is null)
             {
                 throw Error.InvalidOperation();
@@ -51,7 +58,20 @@ namespace SubSonic
 
             return new DbNavigationPropertyBuilder<TEntity, TRelatedEntity>(has, nameof(WithOne))
             {
-                RelatedKeys = (selector is null) ? Array.Empty<string>() : GetForeignKeys(selector.Body)
+                RelatedKeys = GetForeignKeys(selector.Body)
+            };
+        }
+
+        public DbNavigationPropertyBuilder<TEntity, TRelatedEntity> WithNone()
+        {
+            if (RelatedEntityType is null)
+            {
+                throw Error.InvalidOperation();
+            }
+
+            return new DbNavigationPropertyBuilder<TEntity, TRelatedEntity>(has, nameof(WithNone))
+            {
+                RelatedKeys = GetForeignKeys(typeof(TEntity))
             };
         }
 
@@ -64,6 +84,7 @@ namespace SubSonic
 
             return new DbNavigationPropertyBuilder<TEntity, TRelatedEntity>(has, nameof(WithMany))
             {
+                IsReciprocated = !(selector is null),
                 LookupEntityType = LookupEntityType,
                 RelatedKeys = (RelatedKeys?.Any() ?? false) ? RelatedKeys : GetPrimayKeys(selector, LookupEntityType)
             };
@@ -91,11 +112,19 @@ namespace SubSonic
             return this;
         }
 
+        private string[] GetForeignKeys(Type type)
+        {
+            return Ext.GetForeignKeyName(type);
+        }
+
         private string[] GetForeignKeys(Expression expression)
         {
-            if(expression.IsNotNull())
+            if(expression is MemberExpression TheMember)
             {
-                return Ext.GetForeignKeyName((PropertyInfo)((MemberExpression)expression).Member);
+                if (TheMember.Member is PropertyInfo property)
+                {
+                    return Ext.GetForeignKeyName(property);
+                }
             }
             return Array.Empty<string>();
         }
@@ -110,7 +139,7 @@ namespace SubSonic
                 }
                 else
                 {
-                    return Ext.GetForeignKeyName(lookupEntityType);
+                    return GetForeignKeys(lookupEntityType);
                 }
             }
             return Array.Empty<string>();

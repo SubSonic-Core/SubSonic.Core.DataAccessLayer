@@ -4,6 +4,7 @@
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "<Pending>")]
     public interface ISqlFragment
     {
+        string COALESCE { get; }
         string NOT { get; }
         string AND { get; }
         string AS { get; }

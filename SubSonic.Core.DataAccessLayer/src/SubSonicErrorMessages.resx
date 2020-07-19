@@ -162,6 +162,9 @@
   <data name="MissingServiceCollectionException" xml:space="preserve">
     <value>IServiceCollection is not found in the IOC container.</value>
   </data>
+  <data name="MissingTableReferenceFor" xml:space="preserve">
+    <value>Missing table reference for {0}.</value>
+  </data>
   <data name="MultipleContinuations" xml:space="preserve">
     <value>Multiple continuations detected.</value>
   </data>
@@ -174,11 +177,17 @@
   <data name="NotDecoratedWithStoredProcedureAttribute" xml:space="preserve">
     <value>{0} is not decorated with StoredProcedureAttribute.</value>
   </data>
+  <data name="NotImplementedCorrectly" xml:space="preserve">
+    <value>{0} not implemented correctly.</value>
+  </data>
   <data name="NotSupportedType" xml:space="preserve">
     <value>"Referenced an unsupported Type"</value>
   </data>
   <data name="ProviderInvariantNameNotRegisteredException" xml:space="preserve">
     <value>Provider "{0}", is not registered in {1}.</value>
+  </data>
+  <data name="RelationshipIsNotSupported" xml:space="preserve">
+    <value>Unknown relationship is defined.</value>
   </data>
   <data name="SelectSourceIsNotValid" xml:space="preserve">
     <value>Select source is not valid type.</value>

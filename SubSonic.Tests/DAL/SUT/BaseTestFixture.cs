@@ -168,9 +168,9 @@ namespace SubSonic.Tests.DAL.SUT
             string
                 people_all = @"SELECT [T1].[ID], [T1].[FirstName], [T1].[MiddleInitial], [T1].[FamilyName], [T1].[FullName]
 FROM [dbo].[Person] AS [T1]",
-                people_all_count = @"SELECT COUNT([T1].[ID])
+                people_all_count = @"SELECT COUNT(*)
 FROM [dbo].[Person] AS [T1]",
-                people_all_long_count = @"SELECT COUNT_BIG([T1].[ID])
+                people_all_long_count = @"SELECT COUNT_BIG(*)
 FROM [dbo].[Person] AS [T1]",
                 people_equal = @"SELECT [T1].[ID], [T1].[FirstName], [T1].[MiddleInitial], [T1].[FamilyName], [T1].[FullName]
 FROM [dbo].[Person] AS [T1]
@@ -202,23 +202,45 @@ FROM [dbo].[Person] AS [T1]
 OPTION (RECOMPILE)",
                 renters_all = @"SELECT [T1].[ID], [T1].[PersonID], [T1].[UnitID], [T1].[Rent], [T1].[StartDate], [T1].[EndDate]
 FROM [dbo].[Renter] AS [T1]",
-                renters_all_cnt = @"SELECT COUNT([T1].[ID])
-FROM [dbo].[Renter] AS [T1]";
+                renters_all_cnt = @"SELECT COUNT(*)
+FROM [dbo].[Renter] AS [T1]",
+                memberInitializedUsingDatasource = @"SELECT [T1].[PersonID], [T2].[FullName], [T1].[Rent], [T1].[UnitID], COALESCE([T3].[HasParallelPowerGeneration], 0) AS [HasParallelPowerGeneration], [T4].[Name] AS [Status]
+FROM [dbo].[Renter] AS [T1]
+	INNER JOIN [dbo].[Unit] AS [T5]
+		ON ([T5].[ID] = [T1].[UnitID])
+	INNER JOIN [dbo].[RealEstateProperty] AS [T3]
+		ON ([T3].[ID] = [T5].[RealEstatePropertyID])
+	INNER JOIN [dbo].[Status] AS [T4]
+		ON ([T4].[ID] = [T3].[StatusID])
+	INNER JOIN [dbo].[Person] AS [T2]
+		ON ([T2].[ID] = [T1].[PersonID])
+WHERE @dt_value_1 BETWEEN [T1].[StartDate] AND COALESCE([T1].[EndDate], @dt_value_2)",
+                memberInitializedUsingDatasourceCount = @"SELECT COUNT(*)
+FROM [dbo].[Renter] AS [T1]
+	INNER JOIN [dbo].[Unit] AS [T2]
+		ON ([T2].[ID] = [T1].[UnitID])
+	INNER JOIN [dbo].[RealEstateProperty] AS [T3]
+		ON ([T3].[ID] = [T2].[RealEstatePropertyID])
+	INNER JOIN [dbo].[Status] AS [T4]
+		ON ([T4].[ID] = [T3].[StatusID])
+	INNER JOIN [dbo].[Person] AS [T5]
+		ON ([T5].[ID] = [T1].[PersonID])
+WHERE @dt_value_1 BETWEEN [T1].[StartDate] AND COALESCE([T1].[EndDate], @dt_value_2)";
 
-            Context.Database.Instance.AddCommandBehavior(people_all, cmd => 
+            Context.Database.Instance.AddCommandBehavior(people_all, cmd =>
                 BuildDataTable(People));
-            Context.Database.Instance.AddCommandBehavior(people_all_count, cmd => 
+            Context.Database.Instance.AddCommandBehavior(people_all_count, cmd =>
                 People.Count());
-            Context.Database.Instance.AddCommandBehavior(people_all_long_count, cmd => 
+            Context.Database.Instance.AddCommandBehavior(people_all_long_count, cmd =>
                 People.LongCount());
-            Context.Database.Instance.AddCommandBehavior(people_greater_than, cmd => 
+            Context.Database.Instance.AddCommandBehavior(people_greater_than, cmd =>
                 BuildDataTable(People.Where(x => x.ID > cmd.Parameters["@id_1"].GetValue<int>())));
-            Context.Database.Instance.AddCommandBehavior(people_equal, cmd => 
+            Context.Database.Instance.AddCommandBehavior(people_equal, cmd =>
                 BuildDataTable(People.Where(x => x.ID == cmd.Parameters["@id_1"].GetValue<int>())));
-            Context.Database.Instance.AddCommandBehavior(people_less_than, cmd => 
+            Context.Database.Instance.AddCommandBehavior(people_less_than, cmd =>
                 BuildDataTable(People.Where(x => x.ID < cmd.Parameters["@id_1"].GetValue<int>())));
 
-            Context.Database.Instance.AddCommandBehavior(renter_byperson, cmd => 
+            Context.Database.Instance.AddCommandBehavior(renter_byperson, cmd =>
                 BuildDataTable(Renters.Where(x => x.PersonID == cmd.Parameters["@personid_1"].GetValue<int>())));
 
             Context.Database.Instance.AddCommandBehavior(people_page_count_all, (cmd) =>
@@ -258,7 +280,48 @@ FROM [dbo].[Renter] AS [T1]";
                 BuildDataTable(Renters));
             Context.Database.Instance.AddCommandBehavior(renters_all_cnt, cmd =>
                 Renters.Count());
+
+            Context.Database.Instance.AddCommandBehavior(memberInitializedUsingDatasource, cmd =>
+            {
+                return BuildDataTable(CurrentRenters.ToList());
+            });
+
+            Context.Database.Instance.AddCommandBehavior(memberInitializedUsingDatasourceCount, cmd =>
+            {
+                return CurrentRenters.Count();
+            });
         }
+
+        protected IEnumerable<RenterView> CurrentRenters => Renters
+                    .Join(People, x => x.PersonID, x => x.ID, (r, p) =>
+                    {
+                        r.Person = p;
+
+                        return r;
+                    })
+                    .Join(Units.Join(RealEstateProperties.Join(Statuses, rep => rep.StatusID, s => s.ID, (rep, s) =>
+                    {
+                        rep.Status = s;
+                        return rep;
+                    }), u => u.RealEstatePropertyID, rep => rep.ID, (u, rep) =>
+                                      {
+                                          u.RealEstateProperty = rep;
+                                          return u;
+                                      }), r => r.UnitID, u => u.ID, (r, u) =>
+                                      {
+                                          r.Unit = u;
+                                          return r;
+                                      })
+            .Where(r => DateTime.Today >= r.StartDate && DateTime.Today <= r.EndDate.GetValueOrDefault(DateTime.Today.AddDays(1)))
+            .Select(x => new RenterView()
+            {
+                FullName = x.Person.FullName,
+                HasParallelPowerGeneration = x.Unit.RealEstateProperty.HasParallelPowerGeneration.GetValueOrDefault(),
+                PersonID = x.PersonID,
+                UnitID = x.UnitID,
+                Status = x.Unit.RealEstateProperty.Status.Name,
+                Rent = x.Rent
+            });
 
         protected DataTable BuildDataTable<TEntity>(IEnumerable<TEntity> entities)
         {
@@ -277,7 +340,9 @@ FROM [dbo].[Renter] AS [T1]";
                 );
             }
 
-            return entities.ToDataTable();
+            DataTable data = entities.ToDataTable();
+
+            return data;
         }
 
         protected virtual void SetInsertBehaviors()

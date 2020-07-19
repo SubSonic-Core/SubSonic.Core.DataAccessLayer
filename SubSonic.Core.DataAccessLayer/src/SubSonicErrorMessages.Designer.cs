@@ -196,6 +196,15 @@ namespace SubSonic.src {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Missing table reference for {0}..
+        /// </summary>
+        internal static string MissingTableReferenceFor {
+            get {
+                return ResourceManager.GetString("MissingTableReferenceFor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Multiple continuations detected..
         /// </summary>
         internal static string MultipleContinuations {
@@ -232,6 +241,15 @@ namespace SubSonic.src {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} not implemented correctly..
+        /// </summary>
+        internal static string NotImplementedCorrectly {
+            get {
+                return ResourceManager.GetString("NotImplementedCorrectly", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &quot;Referenced an unsupported Type&quot;.
         /// </summary>
         internal static string NotSupportedType {
@@ -246,6 +264,15 @@ namespace SubSonic.src {
         internal static string ProviderInvariantNameNotRegisteredException {
             get {
                 return ResourceManager.GetString("ProviderInvariantNameNotRegisteredException", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unknown relationship is defined..
+        /// </summary>
+        internal static string RelationshipIsNotSupported {
+            get {
+                return ResourceManager.GetString("RelationshipIsNotSupported", resourceCulture);
             }
         }
         

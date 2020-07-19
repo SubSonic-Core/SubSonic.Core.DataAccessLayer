@@ -8,6 +8,7 @@ using System;
 
 namespace SubSonic.Linq.Expressions.Structure
 {
+    using System.Collections.Generic;
     using System.Linq;
 
     public partial class TSqlFormatter
@@ -119,20 +120,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 }
                 if (paged.Select.Columns.Count > 0)
                 {
-                    for (int i = 0, n = paged.Select.Columns.Count; i < n; i++)
-                    {
-                        DbColumnDeclaration column = paged.Select.Columns.ElementAt(i);
-                        if (i > 0)
-                        {
-                            Write($"{Fragments.COMMA} ");
-                        }
-                        DbColumnExpression c = this.VisitValue(column.Expression) as DbColumnExpression;
-                        if (!string.IsNullOrEmpty(column.PropertyName) && (c == null || c.Name != column.PropertyName))
-                        {
-                            Write($" {Fragments.AS} ");
-                            Write($"[{column.PropertyName}]");
-                        }
-                    }
+                    WriteColumnList(paged.Select.Columns.OrderBy(x => x.Order));
                 }
                 else
                 {
@@ -163,25 +151,7 @@ namespace SubSonic.Linq.Expressions.Structure
                         this.VisitValue(paged.Select.GroupBy[i]);
                     }
                 }
-                // the join on the CTE will force the order used inside the cte
-                //if (paged.Select.OrderBy != null && paged.Select.OrderBy.Count > 0)
-                //{
-                //    WriteNewLine();
-                //    Write($"{Fragments.ORDER_BY} ");
-                //    for (int i = 0, n = paged.Select.OrderBy.Count; i < n; i++)
-                //    {
-                //        DbOrderByDeclaration exp = paged.Select.OrderBy[i];
-                //        if (i > 0)
-                //        {
-                //            Write($"{Fragments.COMMA} ");
-                //        }
-                //        VisitValue(exp.Expression);
-                //        if (exp.OrderByType != OrderByType.Ascending)
-                //        {
-                //            Write($" {Fragments.DESC}");
-                //        }
-                //    }
-                //}
+                
                 WriteNewLine();
                 Write($"{Fragments.OPTION} {Fragments.LEFT_PARENTHESIS}{Fragments.RECOMPILE}{Fragments.RIGHT_PARENTHESIS}");
             }
@@ -206,20 +176,7 @@ namespace SubSonic.Linq.Expressions.Structure
                 }
                 if (select.Columns.Count > 0)
                 {
-                    for (int i = 0, n = select.Columns.Count; i < n; i++)
-                    {
-                        DbColumnDeclaration column = select.Columns.ElementAt(i);
-                        if (i > 0)
-                        {
-                            Write($"{Fragments.COMMA} ");
-                        }
-                        DbColumnExpression c = this.VisitValue(column.Expression) as DbColumnExpression;
-                        if (!string.IsNullOrEmpty(column.PropertyName) && (c == null || c.Name != column.PropertyName))
-                        {
-                            Write($" {Fragments.AS} ");
-                            Write($"[{column.PropertyName}]");
-                        }
-                    }
+                    WriteColumnList(select.Columns.OrderBy(x => x.Order));
                 }
                 else
                 {
@@ -276,6 +233,27 @@ namespace SubSonic.Linq.Expressions.Structure
                 }
             }
             return select;
+        }
+
+        private void WriteColumnList(IEnumerable<DbColumnDeclaration> columns)
+        {
+            bool first = true;
+
+            foreach (DbColumnDeclaration column in columns)
+            {
+                if (!first)
+                {
+                    Write($"{Fragments.COMMA} ");
+                }
+                DbColumnExpression c = this.VisitValue(column.Expression) as DbColumnExpression;
+                if (!string.IsNullOrEmpty(column.PropertyName) && (c == null || c.Name != column.PropertyName))
+                {
+                    Write($" {Fragments.AS} ");
+                    Write($"[{column.PropertyName}]");
+                }
+
+                first = false;
+            }
         }
     }
 }

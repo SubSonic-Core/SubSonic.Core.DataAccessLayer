@@ -15,6 +15,8 @@ namespace SubSonic.Builders
     using Linq.Expressions;
     using Logging;
     using System.Globalization;
+    using SubSonic.src.Collections;
+    using System.Collections;
 
     public partial class DbSqlQueryBuilder
     {
@@ -104,8 +106,11 @@ namespace SubSonic.Builders
                     Expression argument = null;
 
                     if (select.Columns.Count > 1)
-                    {
-                        argument = select.Columns.First(x => x.Property.IsPrimaryKey).Expression;
+                    {   // if we are count or long count we can use an astrix
+                        if (call.Method.Name.NotIn(nameof(Queryable.Count), nameof(Queryable.LongCount)))
+                        {
+                            argument = select.Columns.First(x => x.Property.IsPrimaryKey).Expression;
+                        }
                     }
                     else
                     {
@@ -184,11 +189,41 @@ namespace SubSonic.Builders
                                     }
                                 }
                             }
+                            else if (CmdBehavior == CommandBehavior.Default)
+                            {
+                                IList result = Activator.CreateInstance(typeof(List<>).MakeGenericType(elementType)) as IList;
+
+                                using (DbDataReader reader = Scope.Database.ExecuteReader(dbQuery))
+                                { 
+                                    if (reader.HasRows)
+                                    {
+                                        while(reader.Read())
+                                        {
+                                            result.Add(reader.ActivateAndLoadInstanceOf(elementType));
+                                        }
+                                    }
+                                }
+
+                                if (result is TResult success)
+                                {
+                                    return success;
+                                }
+                                else
+                                {
+                                    throw Error.NotSupported();
+                                }
+                            }
                             else if (CmdBehavior == CommandBehavior.SingleRow)
                             {
-                                if (Scope.Database.ExecuteScalar(dbQuery) is TResult result)
+                                object result = Scope.Database.ExecuteScalar(dbQuery);
+
+                                if (result is TResult success)
                                 {
-                                    return result;
+                                    return success;
+                                }
+                                else
+                                {
+                                    throw Error.NotSupported();
                                 }
                             }
                         }

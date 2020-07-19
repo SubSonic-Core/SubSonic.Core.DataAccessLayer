@@ -3,6 +3,7 @@ using SubSonic;
 using SubSonic.Schema;
 using System;
 using System.Data;
+using System.Reflection;
 
 namespace SubSonic
 {
@@ -10,27 +11,30 @@ namespace SubSonic
     {
         public static object LoadInstanceOf(this IDataRecord data, object entity)
         {
-            IDbEntityModel model = SubSonicContext.DbModel.GetEntityModel(entity.GetType());
+            Type entityType = entity.GetType();
+            SubSonicContext.DbModel.TryGetEntityModel(entityType, out IDbEntityModel model);
 
-            foreach (IDbEntityProperty property in model.Properties)
+            foreach (PropertyInfo property in entityType.GetProperties())
             {
-                if (property.EntityPropertyType == DbEntityPropertyType.Value)
+                if (model != null && model[property.Name].EntityPropertyType != DbEntityPropertyType.Value)
                 {
-                    object value = data[property.Name];
+                    continue;
+                }
 
-                    if (property.PropertyType.IsAssignableFrom(value.GetType()))
-                    {
-                        model.EntityModelType
-                            .GetProperty(property.PropertyName)
-                            .SetValue(entity, value);
-                    }
+                object value = data[model?[property.Name].Name ?? property.Name];
+
+                if (property.PropertyType.IsAssignableFrom(value.GetType()))
+                {
+                    entityType
+                        .GetProperty(property.Name)
+                        .SetValue(entity, value);
                 }
             }
 
-            if (entity is IEntityProxy)
+            if (entity is IEntityProxy proxy)
             {
-                ((IEntityProxy)entity).IsNew = false;
-                ((IEntityProxy)entity).IsDirty = false;
+                proxy.IsNew = false;
+                proxy.IsDirty = false;
             }
 
             return entity;
@@ -47,9 +51,9 @@ namespace SubSonic
                 throw new ArgumentNullException(nameof(data));
             }
 
-            object entity = null;
-
-            if (SubSonicContext.DbOptions.EnableProxyGeneration)
+            object entity;
+            if (SubSonicContext.DbOptions.EnableProxyGeneration &&
+                SubSonicContext.DbModel.IsEntityModelRegistered(entityType))
             {
                 DynamicProxyWrapper wrapper = DynamicProxy.GetProxyWrapper(entityType);
 

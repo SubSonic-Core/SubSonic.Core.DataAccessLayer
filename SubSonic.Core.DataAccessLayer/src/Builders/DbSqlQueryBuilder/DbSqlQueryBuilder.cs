@@ -151,7 +151,10 @@ namespace SubSonic.Builders
 
             predicate = (LambdaExpression)BuildLambda(logical, LambdaType.Predicate);
 
-            MethodInfo method = typeof(Queryable).GetGenericMethod(nameof(Queryable.Where), new[] { DbTable.Type, predicate.GetType() });
+            MethodInfo method = typeof(Queryable).GetGenericMethod(nameof(Queryable.Where),
+                new[] { DbTable.Type.GenericTypeArguments[0] }, 
+                DbTable.Type,
+                predicate.GetType());
 
             return DbExpression.DbDelete(
                     entities,

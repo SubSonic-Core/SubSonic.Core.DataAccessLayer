@@ -57,7 +57,7 @@ namespace SubSonic.Tests.DAL.SUT
             builder.AddRelationshipFor<Models.RealEstateProperty>(() =>
                 builder.GetRelationshipFor<Models.RealEstateProperty>()
                     .HasOne(Model => Model.Status)
-                    .WithOne());
+                    .WithNone());
 
             builder.AddRelationshipFor<Models.Unit>(() =>
                 builder.GetRelationshipFor<Models.Unit>()
@@ -72,7 +72,7 @@ namespace SubSonic.Tests.DAL.SUT
             builder.AddRelationshipFor<Models.Unit>(() =>
                 builder.GetRelationshipFor<Models.Unit>()
                     .HasOne(Model => Model.Status)
-                    .WithOne());
+                    .WithNone());
 
             builder.AddRelationshipFor<Models.Person>(() =>
                 builder.GetRelationshipFor<Models.Person>()

@@ -97,6 +97,28 @@ namespace SubSonic.Linq.Expressions.Structure
                             Write(scalar.QualifiedName);
                         }
                     }
+                    else if (info.DeclaringType.IsNullableType())
+                    {
+                        if (info.Name.Equals(nameof(Nullable<int>.GetValueOrDefault), StringComparison.Ordinal))
+                        {
+                            Write($"{Fragments.COALESCE}{Fragments.LEFT_PARENTHESIS}");
+                            this.Visit(method.Object);
+                            Write($"{Fragments.COMMA} ");
+                            if (method.Arguments.Count == 1)
+                            {
+                                this.Visit(method.Arguments[0]);
+                            }
+                            else
+                            {
+                                this.Visit(Expression.Constant(Activator.CreateInstance(method.Method.ReturnType)));
+                            }                            
+                            Write(Fragments.RIGHT_PARENTHESIS);
+                        }
+                        else
+                        {
+                            throw Error.NotImplemented();
+                        }                        
+                    }
                     else
                     {
                         ThrowMethodNotSupported(info);

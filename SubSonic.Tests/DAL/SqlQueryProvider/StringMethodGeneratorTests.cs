@@ -6,10 +6,8 @@ using System.Linq.Expressions;
 namespace SubSonic.Tests.DAL.SqlQueryProvider
 {
     using Extensions.Test.Models;
-    
-    using Logging;
     using Linq.Expressions;
-    using Microsoft.Extensions.Logging;
+    using Logging;
 
     public partial class SqlQueryProviderTests
     {
@@ -110,6 +108,40 @@ WHERE (LTRIM([T1].[FullName]) = @fullname_1)";
             Expression select = Context.People
                 .Where(x =>
                     x.FullName.TrimStart() == "Danvers, Kara Z.")
+                .Expression;
+
+            IDbQuery query = null;
+
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<Person> builder = Context.Instance.GetService<ISubSonicQueryProvider<Person>>();
+
+                    query = builder.ToQuery(select);
+                }).Should().NotThrow();
+            }
+
+            query.Sql.Should().Be(expected);
+        }
+
+        [Test]
+        public void StringSelectMethodTrimCanBeUsed()
+        {
+            string expected = @"SELECT [T1].[ID], RTRIM(LTRIM([T1].[FamilyName])) AS [FamilyName], RTRIM(LTRIM([T1].[FirstName])) AS [FirstName], [T1].[MiddleInitial], RTRIM(LTRIM([T1].[FullName])) AS [FullName]
+FROM [dbo].[Person] AS [T1]";
+
+            Expression select = Context.People
+                .Select(x => new Person()
+                {
+                    ID = x.ID,
+                    FamilyName = x.FamilyName.Trim(),
+                    FirstName = x.FirstName.Trim(),
+                    MiddleInitial = x.MiddleInitial,
+                    FullName = x.FullName.Trim()
+                })
                 .Expression;
 
             IDbQuery query = null;

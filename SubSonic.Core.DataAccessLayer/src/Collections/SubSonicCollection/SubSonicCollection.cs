@@ -12,7 +12,7 @@ namespace SubSonic.Collections
     using Schema;
     using SubSonic;
 
-    public sealed partial class SubSonicCollection<TEntity>
+    public partial class SubSonicCollection<TEntity>
         : SubSonicCollection
         , ISubSonicCollection<TEntity>
     {
@@ -126,19 +126,37 @@ namespace SubSonic.Collections
 
         IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()
         {
+            if (!IsLoaded)
+            {
+                Load();
+            }
+
             if (TableData is ICollection<TEntity> data)
             {
-                if (!IsLoaded)
-                {
-                    Load();
-                }
-
                 return data.GetEnumerator();
             }
             else
             {
                 throw Error.NotSupported();
             }
+        }
+
+        public override IQueryable Load()
+        {
+            IEnumerable<TEntity> result = Provider.Execute<IEnumerable<TEntity>>(Expression);
+
+            if (result is ISubSonicCollection elements)
+            {
+                TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(ElementType), elements.ToArray());
+            }
+            else
+            {
+                TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(ElementType), result);
+            }
+
+            IsLoaded = true;
+
+            return this;
         }
         #endregion
     }
@@ -168,7 +186,15 @@ namespace SubSonic.Collections
         public SubSonicCollection(Type elementType, IQueryProvider provider, Expression expression)
             : this(elementType)
         {
-            Expression = expression ?? DbExpression.DbSelect(this, GetType(), Model.Table);
+            if (expression is DbSelectExpression select)
+            {
+                Expression = new DbSelectExpression(this, GetType(), select.From, select.Columns, select.Where, select.OrderBy, select.GroupBy, select.IsDistinct, select.Take, select.Skip, select.IsCte);
+            }
+            else
+            {
+                Expression = expression ?? DbExpression.DbSelect(this, GetType(), Model.Table);
+            }
+
             Provider = provider ?? new DbSqlQueryBuilder(ElementType, SubSonicContext.ServiceProvider.GetService<ISubSonicLogger>());
         }
 
@@ -189,7 +215,7 @@ namespace SubSonic.Collections
 
         protected IDbEntityModel Model { get; }
 
-        protected IEnumerable TableData { get; private set; }
+        protected IEnumerable TableData { get; set; }
 
         public Type ElementType { get; }
 
@@ -199,14 +225,7 @@ namespace SubSonic.Collections
 
         public virtual IQueryable Load()
         {
-            if (Provider.Execute(Expression) is ISubSonicCollection elements)
-            {
-                TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(ElementType), elements.ToArray());
-
-                IsLoaded = true;
-            }
-
-            return this;
+            throw Error.NotImplemented();
         }
 
         public virtual IEnumerable ToArray()

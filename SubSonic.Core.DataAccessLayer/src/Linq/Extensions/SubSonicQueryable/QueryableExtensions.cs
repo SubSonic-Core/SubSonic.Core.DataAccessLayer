@@ -191,7 +191,10 @@ namespace SubSonic.Linq
 
                 if (source.Provider is ISubSonicQueryProvider provider)
                 {
-                    MethodInfo method = typeof(SubSonicQueryable).GetGenericMethod(nameof(WhereExists), new[] { source.Expression.Type, select.GetType() });
+                    MethodInfo method = typeof(SubSonicQueryable).GetGenericMethod(nameof(WhereExists),
+                        new[] { source.Expression.Type.GenericTypeArguments[0] },
+                        source.Expression.Type,
+                        select.GetType());
 
                     return source.Provider.CreateQuery<TSource>(
                         provider.BuildSelect(source.Expression, 
@@ -221,7 +224,10 @@ namespace SubSonic.Linq
 
                 if (source.Provider is ISubSonicQueryProvider provider)
                 {
-                    MethodInfo method = typeof(SubSonicQueryable).GetGenericMethod(nameof(WhereNotExists), new[] { source.Expression.Type, select.GetType() });
+                    MethodInfo method = typeof(SubSonicQueryable).GetGenericMethod(nameof(WhereNotExists),
+                       new[] { source.Expression.Type.GenericTypeArguments[0] },
+                       source.Expression.Type,
+                       select.GetType());
 
                     return source.Provider.CreateQuery<TSource>(
                         provider.BuildSelect(source.Expression,
@@ -294,9 +300,14 @@ namespace SubSonic.Linq
                 {
                     DbTableExpression table = (relationship.IsLookupMapping ? relationship.LookupModel : relationship.ForeignModel).Table;
 
-                    source = source.InnerJoin(table);
+                    source = source.Join(JoinType.InnerJoin, table);
 
-                    MethodInfo method = typeof(SubSonicQueryable).GetGenericMethod(nameof(WhereByKeyData), new[] { source.Expression.Type, table.GetType(), keyNames.GetType(), keyData.GetType() });
+                    MethodInfo method = typeof(SubSonicQueryable).GetGenericMethod(nameof(WhereByKeyData),
+                        new[] { source.Expression.Type.GenericTypeArguments[0] },
+                        source.Expression.Type,
+                        table.GetType(),
+                        keyNames.GetType(),
+                        keyData.GetType());
 
                     NewArrayExpression
                         arrayOfKeyNames = Expression.NewArrayInit(

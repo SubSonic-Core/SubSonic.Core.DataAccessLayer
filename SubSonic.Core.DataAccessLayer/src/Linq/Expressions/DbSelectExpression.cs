@@ -12,6 +12,7 @@ namespace SubSonic.Linq.Expressions
     /// </summary>
     public class DbSelectExpression
         : DbConstantExpression
+        , ISubSonicTableProvider
     {
         protected internal DbSelectExpression(
             object collection,
@@ -100,6 +101,15 @@ namespace SubSonic.Linq.Expressions
         public Expression Take { get; }
 
         public Expression Skip { get; }
+
+        IEnumerable<DbTableExpression> ISubSonicTableProvider.Tables
+        {
+            get
+            {
+                return From.ToTableList();
+            }
+        }
+
         public string QueryText
         {
             get { return SubSonicContext.GenerateSqlFor(this); }

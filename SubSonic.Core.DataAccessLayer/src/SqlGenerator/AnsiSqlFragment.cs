@@ -7,6 +7,7 @@ namespace SubSonic.SqlGenerator
     public class AnsiSqlFragment
         : ISqlFragment
     {
+        public virtual string COALESCE => nameof(COALESCE);
         public virtual string NOT => "NOT";
         public virtual string AND => "AND";
         public virtual string AS => "AS";
