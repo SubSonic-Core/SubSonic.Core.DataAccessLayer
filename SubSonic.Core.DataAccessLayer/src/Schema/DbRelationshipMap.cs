@@ -51,6 +51,11 @@ namespace SubSonic.Schema
         {
             if (RelationshipType == DbRelationshipType.HasManyWithMany)
             {
+                if (entityModel is null)
+                {
+                    throw Error.ArgumentNull(nameof(entityModel));
+                }
+
                 PropertyInfo property = IsLookupMapping
                     ? LookupModel.EntityModelType.GetProperty(entityModel.Name)
                     : ForeignModel.EntityModelType.GetProperty(ForeignModel.Name);

@@ -73,8 +73,12 @@ namespace SubSonic.Builders
 
                 if (!(predicate is null))
                 {
+#if NETSTANDARD2_0
                     method = method ?? typeof(Queryable).GetGenericMethod(nameof(Queryable.Where), 
-                        new[] { DbTable.Type.GenericTypeArguments[0] }, 
+#elif NETSTANDARD2_1
+                    method ??= typeof(Queryable).GetGenericMethod(nameof(Queryable.Where),
+#endif
+                    new[] { DbTable.Type.GenericTypeArguments[0] }, 
                         DbTable.Type,
                         predicate.GetType());
 
@@ -186,9 +190,9 @@ namespace SubSonic.Builders
 
             return expression;
         }
-        #endregion
+#endregion
 
-        #region Build Where
+#region Build Where
         public Expression BuildWhere(DbExpression expression, LambdaExpression predicate)
         {
             if (expression is null)
@@ -229,9 +233,9 @@ namespace SubSonic.Builders
 
             return BuildWhere(expression, predicate);
         }
-        #endregion
+#endregion
 
-        #region Build Joins
+#region Build Joins
         public Expression BuildJoin(JoinType type, Expression left, Expression right)
         {
             if (left is DbSelectExpression select)
@@ -252,9 +256,9 @@ namespace SubSonic.Builders
 
             throw new NotSupportedException();
         }
-        #endregion
+#endregion
 
-        #region Lambda
+#region Lambda
         public Expression BuildLambda(Expression body, LambdaType @call, params string[] properties)
         {
             switch (call)
@@ -370,7 +374,7 @@ namespace SubSonic.Builders
                 return DbWherePredicateBuilder.GetBodyExpression(body, DbWherePredicateBuilder.GetComparisonExpression(left, right, @operator), @group);
             }
         }
-        #endregion
+#endregion
 
         public IDbQuery ToQuery(Expression expression)
         {

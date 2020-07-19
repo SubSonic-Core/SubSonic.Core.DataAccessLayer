@@ -119,9 +119,12 @@ namespace SubSonic
 
         private string[] GetForeignKeys(Expression expression)
         {
-            if(expression.IsNotNull())
+            if(expression is MemberExpression TheMember)
             {
-                return Ext.GetForeignKeyName((PropertyInfo)((MemberExpression)expression).Member);
+                if (TheMember.Member is PropertyInfo property)
+                {
+                    return Ext.GetForeignKeyName(property);
+                }
             }
             return Array.Empty<string>();
         }

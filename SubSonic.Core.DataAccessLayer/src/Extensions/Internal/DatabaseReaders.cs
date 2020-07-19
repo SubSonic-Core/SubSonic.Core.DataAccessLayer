@@ -31,10 +31,10 @@ namespace SubSonic
                 }
             }
 
-            if (entity is IEntityProxy)
+            if (entity is IEntityProxy proxy)
             {
-                ((IEntityProxy)entity).IsNew = false;
-                ((IEntityProxy)entity).IsDirty = false;
+                proxy.IsNew = false;
+                proxy.IsDirty = false;
             }
 
             return entity;
@@ -51,8 +51,7 @@ namespace SubSonic
                 throw new ArgumentNullException(nameof(data));
             }
 
-            object entity = null;
-
+            object entity;
             if (SubSonicContext.DbOptions.EnableProxyGeneration &&
                 SubSonicContext.DbModel.IsEntityModelRegistered(entityType))
             {
