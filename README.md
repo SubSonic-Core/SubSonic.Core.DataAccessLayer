@@ -35,6 +35,7 @@ MockSubSonic Db Client and Factory, primary purpose is for unit testing and faki
    <li>Database Context</li>
    <li>Lazy Loading supports the following relationship types
       <ul>
+         <li>OneToNone</li>
          <li>OneToMany</li>
          <li>ManyToOne</li>
          <li>ManyToMany</li>
@@ -69,7 +70,7 @@ MockSubSonic Db Client and Factory, primary purpose is for unit testing and faki
    <ul>
       <li>overrides virtual navigation and collection properties.</li>
       <li>when navigation property value changes proxy changes the foreign key property to match.</li>
-      <li>proxy implments IEntityProxy<TEntity> which implements Data, KeyData, ModelType, IsDirty, IsNew, IsDeleted</li>
+      <li>proxy implements IEntityProxy<TEntity> which implements Data, KeyData, ModelType, IsDirty, IsNew, IsDeleted</li>
    </ul></li>
 </ul> 
 <br />
