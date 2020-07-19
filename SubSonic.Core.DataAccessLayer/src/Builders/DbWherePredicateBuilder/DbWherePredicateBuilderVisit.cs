@@ -195,7 +195,43 @@ namespace SubSonic.Builders
                     }
                     else
                     {
-                        return base.VisitMethodCall(node);
+                        Expression root = null;
+
+                        if (call.Object is MemberExpression member)
+                        {
+                            if (member.Expression.IsNotNull())
+                            {
+                                root = Visit(member);
+                            }
+                            else if (member.Member is PropertyInfo property &&
+                                     property.GetMethod.IsStatic)
+                            {
+                                root = Expression.Constant(property.GetValue(null));
+                            }
+                        }
+
+                        List<Expression> arguments = new List<Expression>();
+
+                        foreach(var arg in call.Arguments)
+                        {
+                            if (arg is ConstantExpression argConstant)
+                            {
+                                arguments.Add(argConstant);
+                            }
+                            else
+                            {
+                                arguments.Add(Visit(arg));
+                            }
+                        }
+
+                        if (root is ConstantExpression constant)
+                        {
+                           return GetNamedExpression(call.Method.Invoke(constant.Value, GetArrayOfValues(arguments)));
+                        }
+                        else
+                        {
+                            return Expression.Call(root, call.Method, arguments);
+                        }
                     }
 
                     BuildLogicalExpression();
@@ -205,6 +241,18 @@ namespace SubSonic.Builders
             }
             return base.VisitMethodCall(node);
         }
+
+        private object[] GetArrayOfValues(IEnumerable<Expression> expressions) => expressions.Select(x =>
+                                                                                            {
+                                                                                                if (x is ConstantExpression constant)
+                                                                                                {
+                                                                                                    return constant.Value;
+                                                                                                }
+                                                                                                else
+                                                                                                {
+                                                                                                    throw Error.NotImplemented();
+                                                                                                }
+                                                                                            }).ToArray();
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "this data table is cleaned up after the result is back from the db.")]
         protected internal override Expression VisitSelect(DbExpression expression)

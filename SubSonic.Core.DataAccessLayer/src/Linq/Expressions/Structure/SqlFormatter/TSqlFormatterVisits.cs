@@ -70,22 +70,13 @@ namespace SubSonic.Linq.Expressions.Structure
         {
             if (value.IsNotNull())
             {
-                if (IsPredicate(value))
+                if (value is MemberExpression member)
                 {
-                    Write("CASE WHEN (");
-                    this.Visit(value);
-                    Write(") THEN 1 ELSE 0 END");
+                    this.VisitMember(member);
                 }
                 else
                 {
-                    if (value is MemberExpression member)
-                    {
-                        this.VisitMember(member);
-                    }
-                    else
-                    {
-                        this.Visit(value);
-                    }
+                    this.Visit(value);
                 }
             }
             return value;
@@ -135,12 +126,18 @@ namespace SubSonic.Linq.Expressions.Structure
 
         protected override Expression VisitConstant(ConstantExpression c)
         {
-            if (c is null)
+            if (!(c is null))
             {
-                return c;
-            }
 
-            this.WriteValue(c.Value);
+                if (c.Value is bool @bool)
+                {
+                    this.WriteValue(@bool ? 1 : 0);
+                }
+                else
+                {
+                    this.WriteValue(c.Value);
+                }
+            }
 
             return c;
         }

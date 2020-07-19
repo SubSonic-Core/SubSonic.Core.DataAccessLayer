@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace SubSonic.Schema
 {
+    using src;
     using Linq;
     using SubSonic.Data.Caching;
     using System.ComponentModel.DataAnnotations.Schema;
@@ -18,10 +19,14 @@ namespace SubSonic.Schema
             DbRelationshipType relationshipType,
             IDbEntityModel lookupModel,
             IDbEntityModel foreignModel, 
-            string[] foreignKeyNames,
-            bool isReciprocated)
+            string[] foreignKeyNames)
         {
-            if((relationshipType == DbRelationshipType.HasManyWithMany) && (lookupModel is null))
+            if (relationshipType == DbRelationshipType.Unknown)
+            {
+                throw Error.NotSupported(SubSonicErrorMessages.RelationshipIsNotSupported);
+            }
+
+            if ((relationshipType == DbRelationshipType.HasManyWithMany) && (lookupModel is null))
             {
                 throw new ArgumentNullException(nameof(lookupModel));
             }
@@ -29,12 +34,10 @@ namespace SubSonic.Schema
             this.foreignKeyNames = foreignKeyNames ?? throw new ArgumentNullException(nameof(foreignKeyNames));
             RelationshipType = relationshipType;
             LookupModel = lookupModel;
-            ForeignModel = foreignModel ?? throw new ArgumentNullException(nameof(foreignModel));
-            IsReciprocated = isReciprocated;
-            
+            ForeignModel = foreignModel ?? throw new ArgumentNullException(nameof(foreignModel));            
         }
 
-        public bool IsReciprocated { get; }
+        public bool IsReciprocated => RelationshipType.NotIn(DbRelationshipType.HasOneWithNone);
 
         public bool IsLookupMapping => !(LookupModel is null);
 

@@ -140,6 +140,18 @@ namespace SubSonic.Collections
                 throw Error.NotSupported();
             }
         }
+
+        public override IQueryable Load()
+        {
+            if (Provider.Execute<IEnumerable<TEntity>>(Expression) is ISubSonicCollection elements)
+            {
+                TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(ElementType), elements.ToArray());
+
+                IsLoaded = true;
+            }
+
+            return this;
+        }
         #endregion
     }
 
@@ -197,7 +209,7 @@ namespace SubSonic.Collections
 
         protected IDbEntityModel Model { get; }
 
-        protected IEnumerable TableData { get; private set; }
+        protected IEnumerable TableData { get; set; }
 
         public Type ElementType { get; }
 
@@ -207,14 +219,7 @@ namespace SubSonic.Collections
 
         public virtual IQueryable Load()
         {
-            if (Provider.Execute(Expression) is ISubSonicCollection elements)
-            {
-                TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(ElementType), elements.ToArray());
-
-                IsLoaded = true;
-            }
-
-            return this;
+            throw Error.NotImplemented();
         }
 
         public virtual IEnumerable ToArray()

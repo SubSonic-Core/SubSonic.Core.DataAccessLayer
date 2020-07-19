@@ -7,6 +7,7 @@ namespace SubSonic
     public enum DbRelationshipType
     {
         Unknown = 0,
+        HasOneWithNone,
         HasOneWithOne,
         HasManyWithOne,
         HasOneWithMany,

@@ -183,6 +183,10 @@ namespace SubSonic.Linq.Expressions.Structure
                 {
                     Write(context.Fragments.ASTRIX);
                 }
+                else
+                {
+                    throw Error.ArgumentNull(GetAggregateName(aggregate.AggregateType));
+                }
                 Write(context.Fragments.RIGHT_PARENTHESIS);
             }
             return aggregate;

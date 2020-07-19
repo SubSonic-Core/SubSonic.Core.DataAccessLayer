@@ -279,12 +279,21 @@ namespace SubSonic.Builders
             return $"{name}_{parameters[DbExpressionType.Where].IsNotNull(x => x.Count) + 1}".ToLower(CultureInfo.CurrentCulture);
         }
 
-        private Expression GetNamedExpression(object value, PropertyInfo info = null)
+        private Expression GetNamedExpression(object value)
         {
-            string name;
-            ConstantExpression constant;
+            string name = GetName("value", value.GetType());
+
+            parameters.Add(whereType, new SubSonicParameter($"@{name}", value));
+
+            return DbExpression.DbNamedValue(name, Expression.Constant(value));
+        }
+
+        private Expression GetNamedExpression(object value, PropertyInfo info)
+        {
             if (info.IsNotNull())
             {
+                string name;
+
                 DbTableExpression table = GetDbTable(info.DeclaringType);
 
                 IDbEntityProperty property = table.Model[info.Name];
@@ -302,18 +311,10 @@ namespace SubSonic.Builders
                     parameters.Add(whereType, new SubSonicParameter($"@{name}", value, property));
                 }
 
-                constant = Expression.Constant(value, value.GetType());
-            }
-            else
-            {
-                name = GetName("value", value.GetType());
-
-                parameters.Add(whereType, new SubSonicParameter($"@{name}", value));
-
-                constant = Expression.Constant(value);
+                return DbExpression.DbNamedValue(name, Expression.Constant(value, value.GetType()));
             }
 
-            return DbExpression.DbNamedValue(name, constant);
+            return GetNamedExpression(value);
         }
 
         private Expression GetNamedExpression(FieldInfo info, object value)

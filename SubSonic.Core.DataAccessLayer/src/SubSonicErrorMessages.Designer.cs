@@ -268,6 +268,15 @@ namespace SubSonic.src {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unknown relationship is defined..
+        /// </summary>
+        internal static string RelationshipIsNotSupported {
+            get {
+                return ResourceManager.GetString("RelationshipIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Select source is not valid type..
         /// </summary>
         internal static string SelectSourceIsNotValid {

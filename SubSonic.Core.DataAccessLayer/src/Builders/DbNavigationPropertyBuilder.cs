@@ -8,6 +8,7 @@ namespace SubSonic
 {
     using Linq;
     using Schema;
+    using SubSonic.src;
     using Ext = SubSonicExtensions;
 
     public class DbNavigationPropertyBuilder<TEntity, TRelatedEntity>
@@ -39,14 +40,17 @@ namespace SubSonic
         public IEnumerable<string> RelatedKeys { get; private set; }
 
         public IDbRelationshipMap RelationshipMap => new DbRelationshipMap(
-            RelationshipType,
-            SubSonicContext.DbModel.GetEntityModel(LookupEntityType),
-            SubSonicContext.DbModel.GetEntityModel(RelatedEntityType),
-            RelatedKeys.ToArray(),
-            IsReciprocated);
+                        RelationshipType,
+                        SubSonicContext.DbModel.GetEntityModel(LookupEntityType),
+                        SubSonicContext.DbModel.GetEntityModel(RelatedEntityType),
+                        RelatedKeys.ToArray());
 
-        public DbNavigationPropertyBuilder<TEntity, TRelatedEntity> WithOne(Expression<Func<TRelatedEntity, TEntity>> selector = null)
+        public DbNavigationPropertyBuilder<TEntity, TRelatedEntity> WithOne(Expression<Func<TRelatedEntity, TEntity>> selector)
         {
+            if (selector is null)
+            {
+                throw Error.ArgumentNull(nameof(selector));
+            }
             if (RelatedEntityType is null)
             {
                 throw Error.InvalidOperation();
@@ -54,8 +58,20 @@ namespace SubSonic
 
             return new DbNavigationPropertyBuilder<TEntity, TRelatedEntity>(has, nameof(WithOne))
             {
-                IsReciprocated = !(selector is null),
-                RelatedKeys = (selector is null) ? GetForeignKeys(typeof(TEntity)) : GetForeignKeys(selector.Body)
+                RelatedKeys = GetForeignKeys(selector.Body)
+            };
+        }
+
+        public DbNavigationPropertyBuilder<TEntity, TRelatedEntity> WithNone()
+        {
+            if (RelatedEntityType is null)
+            {
+                throw Error.InvalidOperation();
+            }
+
+            return new DbNavigationPropertyBuilder<TEntity, TRelatedEntity>(has, nameof(WithNone))
+            {
+                RelatedKeys = GetForeignKeys(typeof(TEntity))
             };
         }
 

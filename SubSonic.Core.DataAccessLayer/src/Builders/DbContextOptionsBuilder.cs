@@ -139,7 +139,7 @@ namespace SubSonic
             return this;
         }
 
-        public void SetServiceProvider(IServiceProvider provider)
+        public DbContextOptionsBuilder SetServiceProvider(IServiceProvider provider)
         {
             if (provider is null)
             {
@@ -151,7 +151,7 @@ namespace SubSonic
                 SubSonicContext.ServiceProvider = provider;
             }
 
-            //return this;
+            return this;
         }
     }
 }

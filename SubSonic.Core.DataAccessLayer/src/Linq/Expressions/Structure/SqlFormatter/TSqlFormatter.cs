@@ -257,7 +257,7 @@ namespace SubSonic.Linq.Expressions.Structure
 
         private bool RequiresAsteriskWhenNoArgument(AggregateType aggregateType)
         {
-            return aggregateType == AggregateType.Count;
+            return aggregateType == AggregateType.Count || aggregateType == AggregateType.LongCount;
         }
     }
 }

@@ -92,7 +92,7 @@ FROM [dbo].[Unit] AS [T3]
 FROM [dbo].[Renter] AS [T2]
 	INNER JOIN [dbo].[Person] AS [T1]
 		ON ([T1].[ID] = [T2].[PersonID])
-WHERE @dt_value_1 BETWEEN [T2].[StartDate] AND ISNULL([T2].[EndDate], @dt_value_2)";
+WHERE @dt_value_1 BETWEEN [T2].[StartDate] AND COALESCE([T2].[EndDate], @dt_value_2)";
 
             Expression select = Context
                 .Renters

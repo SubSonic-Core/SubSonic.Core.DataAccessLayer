@@ -101,10 +101,17 @@ namespace SubSonic.Linq.Expressions.Structure
                     {
                         if (info.Name.Equals(nameof(Nullable<int>.GetValueOrDefault), StringComparison.Ordinal))
                         {
-                            Write("ISNULL(");
+                            Write($"{Fragments.COALESCE}{Fragments.LEFT_PARENTHESIS}");
                             this.Visit(method.Object);
                             Write($"{Fragments.COMMA} ");
-                            this.Visit(method.Arguments[0]);
+                            if (method.Arguments.Count == 1)
+                            {
+                                this.Visit(method.Arguments[0]);
+                            }
+                            else
+                            {
+                                this.Visit(Expression.Constant(Activator.CreateInstance(method.Method.ReturnType)));
+                            }                            
                             Write(Fragments.RIGHT_PARENTHESIS);
                         }
                         else

@@ -47,15 +47,15 @@ WHERE ([{0}].[ID] = @id_1)",
 FROM [dbo].[RealEstateProperty] AS [{0}]",
                 people_all = @"SELECT [{0}].[ID], [{0}].[FirstName], [{0}].[MiddleInitial], [{0}].[FamilyName], [{0}].[FullName]
 FROM [dbo].[Person] AS [{0}]",
-                people_count = @"SELECT COUNT([{0}].[ID])
+                people_count = @"SELECT COUNT(*)
 FROM [dbo].[Person] AS [{0}]",
                 people_greater_than = @"SELECT [{0}].[ID], [{0}].[FirstName], [{0}].[MiddleInitial], [{0}].[FamilyName], [{0}].[FullName]
 FROM [dbo].[Person] AS [{0}]
 WHERE ([{0}].[ID] > @id_1)",
-                people_greater_than_cnt = @"SELECT COUNT([{0}].[ID])
+                people_greater_than_cnt = @"SELECT COUNT(*)
 FROM [dbo].[Person] AS [{0}]
 WHERE ([{0}].[ID] > @id_1)",
-                person_count = @"SELECT COUNT([{0}].[ID])
+                person_count = @"SELECT COUNT(*)
 FROM [dbo].[Person] AS [{0}]
 WHERE ([{0}].[ID] = @id_1)",
                 renters = @"SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
@@ -63,10 +63,10 @@ FROM [dbo].[Renter] AS [{0}]",
                 renters_filtered = @"SELECT [{0}].[PersonID], [{0}].[UnitID], [{0}].[Rent], [{0}].[StartDate], [{0}].[EndDate]
 FROM [dbo].[Renter] AS [{0}]
 WHERE (([{0}].[PersonID] = @personid_1) AND ([{0}].[UnitID] = @unitid_2))",
-                renters_filtered_count = @"SELECT COUNT([T1].[PersonID])
+                renters_filtered_count = @"SELECT COUNT(*)
 FROM [dbo].[Renter] AS [T1]
 WHERE (([T1].[PersonID] = @personid_1) AND ([T1].[UnitID] = @unitid_2))",
-                renters_count = @"SELECT COUNT([{0}].[PersonID])
+                renters_count = @"SELECT COUNT(*)
 FROM [dbo].[Renter] AS [{0}]",
                 person =
 @"SELECT [{0}].[ID], [{0}].[FirstName], [{0}].[MiddleInitial], [{0}].[FamilyName], [{0}].[FullName]
