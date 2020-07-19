@@ -11,7 +11,7 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     env:
-      VERSION: 4.1.2
+      VERSION: 4.2.0-alpha.1
     strategy:
       matrix:
         os: [ubuntu-latest]
@@ -36,12 +36,6 @@ jobs:
       if: matrix.os != 'windows-latest'
       run: |
         rsync -a ${DOTNET_ROOT/3.1.101/2.2.108}/* $DOTNET_ROOT/
-    - name: Setup private nuget library
-      uses: actions/setup-dotnet@v1
-      with:
-        source-url: https://nuget.pkg.github.com/subsonic-core/index.json
-      env:
-        NUGET_AUTH_TOKEN: ${{secrets.PUBLISH_GITHUB_TOKEN}}
     - name: Build with netcoreapp
       run: dotnet build --configuration Release
     - name: Unit Testing
@@ -50,5 +44,3 @@ jobs:
       run: dotnet pack --configuration Release --output ../nupkgs -p:PackageVersion=${{env.VERSION}} --include-source --include-symbols
     - name: Deploy Package Nuget
       run: dotnet nuget push -k ${{secrets.NUGET_API_TOKEN}} -s https://www.nuget.org ../nupkgs/*.${{env.VERSION}}.nupkg --skip-duplicate
-    - name: Deploy Package GitHub Registry
-      run: dotnet nuget push -k ${{secrets.PUBLISH_GITHUB_TOKEN}} ../nupkgs/*.${{env.VERSION}}.nupkg --skip-duplicate
