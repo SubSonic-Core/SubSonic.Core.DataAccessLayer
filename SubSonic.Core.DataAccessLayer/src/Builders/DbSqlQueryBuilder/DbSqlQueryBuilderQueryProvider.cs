@@ -189,7 +189,7 @@ namespace SubSonic.Builders
                                     }
                                 }
                             }
-                            else if (CmdBehavior == CommandBehavior.SingleRow)
+                            else if (CmdBehavior == CommandBehavior.Default)
                             {
                                 IList result = Activator.CreateInstance(typeof(List<>).MakeGenericType(elementType)) as IList;
 

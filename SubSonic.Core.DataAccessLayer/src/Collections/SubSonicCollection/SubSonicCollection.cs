@@ -126,13 +126,13 @@ namespace SubSonic.Collections
 
         IEnumerator<TEntity> IEnumerable<TEntity>.GetEnumerator()
         {
+            if (!IsLoaded)
+            {
+                Load();
+            }
+
             if (TableData is ICollection<TEntity> data)
             {
-                if (!IsLoaded)
-                {
-                    Load();
-                }
-
                 return data.GetEnumerator();
             }
             else
@@ -143,12 +143,18 @@ namespace SubSonic.Collections
 
         public override IQueryable Load()
         {
-            if (Provider.Execute<IEnumerable<TEntity>>(Expression) is ISubSonicCollection elements)
+            IEnumerable<TEntity> result = Provider.Execute<IEnumerable<TEntity>>(Expression);
+
+            if (result is ISubSonicCollection elements)
             {
                 TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(ElementType), elements.ToArray());
-
-                IsLoaded = true;
             }
+            else
+            {
+                TableData = (IEnumerable)Activator.CreateInstance(typeof(HashSet<>).MakeGenericType(ElementType), result);
+            }
+
+            IsLoaded = true;
 
             return this;
         }

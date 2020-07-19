@@ -283,7 +283,7 @@ WHERE @dt_value_1 BETWEEN [T1].[StartDate] AND COALESCE([T1].[EndDate], @dt_valu
 
             Context.Database.Instance.AddCommandBehavior(memberInitializedUsingDatasource, cmd =>
             {
-                return BuildDataTable(CurrentRenters);
+                return BuildDataTable(CurrentRenters.ToList());
             });
 
             Context.Database.Instance.AddCommandBehavior(memberInitializedUsingDatasourceCount, cmd =>
@@ -340,7 +340,9 @@ WHERE @dt_value_1 BETWEEN [T1].[StartDate] AND COALESCE([T1].[EndDate], @dt_valu
                 );
             }
 
-            return entities.ToDataTable();
+            DataTable data = entities.ToDataTable();
+
+            return data;
         }
 
         protected virtual void SetInsertBehaviors()
