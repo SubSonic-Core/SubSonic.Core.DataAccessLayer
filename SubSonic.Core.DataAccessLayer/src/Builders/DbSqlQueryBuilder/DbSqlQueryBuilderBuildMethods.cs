@@ -626,9 +626,18 @@ namespace SubSonic.Builders
                     case ExpressionType.MemberAccess:
                         if (selector.ReturnType.IsClass)
                         {
-                            DbTableExpression dbTable = select.From.ToTableList().Single(x => x.Type.GenericTypeArguments[0] == selector.ReturnType);
+                            IEnumerable<DbTableExpression> tables = select.From.ToTableList();
 
-                            columns = dbTable.Columns;
+                            if (tables.Any(x => x.Type.GenericTypeArguments[0] == selector.ReturnType))
+                            {
+                                DbTableExpression dbTable = tables.Single(x => x.Type.GenericTypeArguments[0] == selector.ReturnType);
+
+                                columns = dbTable.Columns;
+                            }
+                            else
+                            {
+                                throw Error.InvalidOperation(SubSonicErrorMessages.MissingTableReferenceFor.Format(selector.ReturnType.Name));
+                            }
                         }
                         else
                         {

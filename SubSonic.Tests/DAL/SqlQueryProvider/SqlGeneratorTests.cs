@@ -16,6 +16,7 @@ namespace SubSonic.Tests.DAL.SqlQueryProvider
     using Linq;
     using Linq.Expressions;
     using Tests.DAL.SUT;
+    using SubSonic.src;
 
     [TestFixture]
     public partial class SqlQueryProviderTests
@@ -1091,6 +1092,22 @@ OPTION (RECOMPILE)".Format("T1");
             logging.LogInformation("\n" + query.Sql + "\n");
 
             query.Sql.Should().Be(expected);
+        }
+
+        [Test]
+        public void ThrowMissingReferenceForSelectStatementForIncludedEntityWhenMissingInclude()
+        {
+            FluentActions.Invoking(() =>
+            {
+                Person person = Context.People.First();
+
+                Expression select = person
+                .Renters
+                .Where((Renter) =>
+                    DateTime.Today.Between(Renter.StartDate, Renter.EndDate.GetValueOrDefault(DateTime.Today.AddDays(1))))
+                .Select(x => x.Unit)
+                .Expression;
+            }).Should().Throw<InvalidOperationException>().WithMessage(SubSonicErrorMessages.MissingTableReferenceFor.Format(typeof(Unit).Name));
         }
 
         [Test]
