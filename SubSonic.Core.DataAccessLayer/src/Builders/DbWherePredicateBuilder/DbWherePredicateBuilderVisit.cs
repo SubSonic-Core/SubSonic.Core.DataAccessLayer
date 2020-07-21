@@ -9,6 +9,7 @@ namespace SubSonic.Builders
     using Collections;
     using Linq;
     using Linq.Expressions;
+    using System.Diagnostics;
 
     public partial class DbWherePredicateBuilder
     {
@@ -197,16 +198,32 @@ namespace SubSonic.Builders
                     {
                         Expression root = null;
 
+                        bool shouldBuildSqlMapping = false;
+
                         if (call.Object is MemberExpression member)
                         {
-                            if (member.Expression.IsNotNull())
+                            shouldBuildSqlMapping = member.Expression is ParameterExpression;
+
+                            if (member.Member is FieldInfo field && 
+                                member.Expression is ConstantExpression fieldValue)
                             {
-                                root = Visit(member);
+                                root = CheckValueAgainstType(member.Type, field.GetValue(fieldValue.Value));
+                            }
+                            else if (member.Member is PropertyInfo staticProperty &&
+                                     member.Expression is null)
+                            {   // this use case the property is most likely static
+                                Debug.Assert(staticProperty.GetMethod.IsStatic);
+
+                                root = CheckValueAgainstType(member.Type, staticProperty.GetValue(null));
                             }
                             else if (member.Member is PropertyInfo property &&
-                                     property.GetMethod.IsStatic)
+                                     member.Expression is ConstantExpression propertyValue)
                             {
-                                root = Expression.Constant(property.GetValue(null));
+                                root = CheckValueAgainstType(member.Type, property.GetValue(propertyValue.Value));
+                            }
+                            else if (member.Expression is ParameterExpression parameter)
+                            {
+                                root = Visit(member);
                             }
                         }
 
@@ -224,13 +241,37 @@ namespace SubSonic.Builders
                             }
                         }
 
-                        if (root is ConstantExpression constant)
+                        if (!shouldBuildSqlMapping)
                         {
-                           return GetNamedExpression(call.Method.Invoke(constant.Value, GetArrayOfValues(arguments)));
+                            if(root is ConstantExpression constant)
+                            {
+                                return Expression.Constant(call.Method.Invoke(constant.Value, GetArrayOfValues(arguments)));
+                            } 
+                            else if (root is NewExpression @new)
+                            {
+                                object value = null;
+
+                                if (@new.Type.IsNullableType())
+                                {
+                                    Debug.Assert(@new.Arguments.Count == arguments.Count);
+
+                                    value = @new.Constructor.Invoke(GetArrayOfValues(arguments));    
+                                }
+                                else
+                                {
+                                    value = @new.Constructor.Invoke(GetArrayOfValues(@new.Arguments));
+                                }
+
+                                return GetNamedExpression(call.Method.Invoke(value, GetArrayOfValues(arguments)));
+                            }
+                        }
+                        else if (root is ConstantExpression constant)
+                        {
+                            return GetNamedExpression(call.Method.Invoke(constant.Value, GetArrayOfValues(arguments)));
                         }
                         else
                         {
-                            return Expression.Call(root, call.Method, arguments);
+                            return Expression.Call(root, call.Method, GetArrayOfNamedValues(arguments));
                         }
                     }
 
@@ -242,16 +283,57 @@ namespace SubSonic.Builders
             return base.VisitMethodCall(node);
         }
 
+        private Expression CheckValueAgainstType(Type type, object value)
+        {
+            if (type.IsNullableType())
+            {
+                if (value is null)
+                {
+                    return Expression.New(type.GetConstructor(type.GenericTypeArguments), type.GenericTypeArguments.Select(x => Expression.Constant(Activator.CreateInstance(x), x)));
+                }
+                else
+                {
+                    return Expression.New(type.GetConstructor(type.GenericTypeArguments), Expression.Constant(value));
+                }
+            }
+            else if (value != null &&
+                value.GetType() == type)
+            {
+                return Expression.Constant(value);
+            }
+
+            throw Error.NotSupported();
+        }
+
+        private Expression[] GetArrayOfNamedValues(IEnumerable<Expression> arguments) => arguments.Select(x =>
+                                                                                    { 
+                                                                                        if (x is DbNamedValueExpression existing)
+                                                                                        {
+                                                                                            return existing;
+                                                                                        }
+                                                                                        else if (x is ConstantExpression constant)
+                                                                                        {
+                                                                                            return GetNamedExpression(constant.Value);
+                                                                                        }
+
+                                                                                        throw Error.NotSupported();
+                                                                                    }).ToArray();
+
         private object[] GetArrayOfValues(IEnumerable<Expression> expressions) => expressions.Select(x =>
                                                                                             {
                                                                                                 if (x is ConstantExpression constant)
                                                                                                 {
                                                                                                     return constant.Value;
                                                                                                 }
-                                                                                                else
+                                                                                                else if (x is DbNamedValueExpression named)
                                                                                                 {
-                                                                                                    throw Error.NotImplemented();
+                                                                                                    if (named.Value is ConstantExpression namedConstant)
+                                                                                                    {
+                                                                                                        return namedConstant.Value;
+                                                                                                    }
                                                                                                 }
+
+                                                                                                throw Error.NotSupported();
                                                                                             }).ToArray();
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "this data table is cleaned up after the result is back from the db.")]

@@ -474,6 +474,72 @@ WHERE NOT EXISTS (
         }
 
         [Test]
+        public void WhereCanFigureOutValuesFromNullableNonEntityObjects()
+        {
+            DateTime
+                Start = new DateTime(1985, 01, 01);
+            DateTime?
+                End = null;
+
+            Expression select = Context
+                .Renters
+                .Where(Renter =>
+                    Renter.StartDate.Between(Start, End.GetValueOrDefault(DateTime.Today.AddDays(1))))
+                .Expression;
+
+            IDbQuery query = null;
+
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
+
+                    query = builder.ToQuery(select);
+                }).Should().NotThrow();
+            }
+
+            query.Parameters.Get("@dt_value_2").GetValue<DateTime>().Should().Be(DateTime.Today.AddDays(1));
+        }
+
+        [Test]
+        public void WhereCanFigureOutValuesFromAnonymousNonEntityObjects()
+        {
+            var anon = new
+            {
+                Start = new DateTime(1985, 01, 01),
+                End = DateTime.Today.AddDays(1)
+            };
+
+            Expression select = Context
+                .Renters
+                .Where(Renter =>
+                    Renter.StartDate.Between(anon.Start, anon.End))
+                .Expression;
+
+            IDbQuery query = null;
+
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
+
+                    query = builder.ToQuery(select);
+                }).Should().NotThrow();
+            }
+
+            logging.LogInformation(query.Sql);
+
+            query.Parameters.Get("@dt_startdate_1").GetValue<DateTime>().Should().Be(anon.Start);
+            query.Parameters.Get("@dt_startdate_2").GetValue<DateTime>().Should().Be(anon.End);
+        }
+
+        [Test]
         public void CanMergeMultipleWhereStatements()
         {
             string 

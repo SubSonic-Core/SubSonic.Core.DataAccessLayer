@@ -240,7 +240,7 @@ namespace SubSonic.Builders
             return body;
         }
 
-        private IEnumerable<DbTableExpression> DbTables => __instances.Select(builder => builder.table);
+        private IEnumerable<DbTableExpression> DbTables => __instances.SelectMany(builder => builder.table.ToTableList());
             
         private DbTableExpression GetDbTable(Type type) => DbTables.Single(table =>
                     table.Type.GenericTypeArguments[0] == type || table.Type.GenericTypeArguments[0].IsSubclassOf(type));
