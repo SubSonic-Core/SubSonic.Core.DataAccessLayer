@@ -339,6 +339,21 @@ WHERE @dt_value_1 BETWEEN [T1].[StartDate] AND COALESCE([T1].[EndDate], @dt_valu
                 }
                 );
             }
+            else if (typeof(TEntity) == typeof(RenterView))
+            {
+                Parallel.ForEach(entities, entity =>
+                {
+                    if (entity is RenterView renterView)
+                    {
+                        var person = People.Single(x => x.ID == renterView.PersonID);
+
+                        renterView.FullName = String.Format("{0}, {1}{2}",
+                            person.FamilyName, person.FirstName,
+                            string.IsNullOrEmpty(person.MiddleInitial?.Trim()) ? "" : $" {person.MiddleInitial}.");
+                    }
+                }
+                );
+            }
 
             DataTable data = entities.ToDataTable();
 

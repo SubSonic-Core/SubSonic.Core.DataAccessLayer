@@ -344,9 +344,23 @@ namespace SubSonic.Builders
             {
                 if (node.Expression is MemberExpression member)
                 {
-                    if (member.Expression is ConstantExpression value)
+                    if (member.Expression is ConstantExpression constant)
                     {
-                        return VisitMemberExtended(node);
+                        if (DbTables.Any(x => x.Type.GenericTypeArguments[0] == node.Member.DeclaringType))
+                        {
+                            return VisitMemberExtended(node);
+                        }
+                        else if (member.Member is FieldInfo field)
+                        {
+                            object value = field.GetValue(constant.Value);
+
+                            if (node.Member is PropertyInfo property)
+                            {
+                                value = property.GetValue(value);
+                            }
+
+                            return Visit(Expression.Constant(value));
+                        }
                     }
                     else
                     {

@@ -45,7 +45,9 @@ namespace SubSonic.Tests.DAL.ExtensionMethod
                 {
                     iterated = true;
 
-                    view.FullName.Should().Be(People.Single(x => x.ID == view.PersonID).FullName);
+                    var person = Context.People.Single(x => x.ID == view.PersonID);
+
+                    view.FullName.Should().Be(person.FullName);
                 }
 
                 Context.Database.Instance.RecievedCommand(@"SELECT [T1].[PersonID], [T2].[FullName], [T1].[Rent], [T1].[UnitID], COALESCE([T3].[HasParallelPowerGeneration], 0) AS [HasParallelPowerGeneration], [T4].[Name] AS [Status]

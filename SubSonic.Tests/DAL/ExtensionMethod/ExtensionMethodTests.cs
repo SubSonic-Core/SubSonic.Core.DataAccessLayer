@@ -133,5 +133,11 @@ FROM [dbo].[Renter] AS [T1]";
 
             renter.Person.Renters.Average(x => x.Rent).Should().Be(Renters.Where(x => x.PersonID == renter.PersonID).Average(x => x.Rent));
         }
+
+        [Test]
+        public void TheSingleMethodIsSupported()
+        {
+            Person person = Context.People.Single(x => x.ID == 1);
+        }
     }
 }

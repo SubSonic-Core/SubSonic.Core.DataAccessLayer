@@ -240,11 +240,10 @@ namespace SubSonic.Builders
             return body;
         }
 
-        private static DbTableExpression GetDbTable(Type type) => __instances
-            .Select(builder => 
-                builder.table)
-            .Single(table => 
-                table.Type.GenericTypeArguments[0] == type || table.Type.GenericTypeArguments[0].IsSubclassOf(type));
+        private IEnumerable<DbTableExpression> DbTables => __instances.Select(builder => builder.table);
+            
+        private DbTableExpression GetDbTable(Type type) => DbTables.Single(table =>
+                    table.Type.GenericTypeArguments[0] == type || table.Type.GenericTypeArguments[0].IsSubclassOf(type));
 
         private Expression GetDbColumnExpression(PropertyInfo propertyInfo)
         {
