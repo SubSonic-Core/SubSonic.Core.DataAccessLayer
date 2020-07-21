@@ -1,19 +1,14 @@
 ﻿using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using NUnit.Framework;
+using SubSonic.Extensions.Test;
+using SubSonic.Linq;
+using SubSonic.Logging;
 using System;
 using System.Linq;
 
 namespace SubSonic.Tests.DAL.ExtensionMethod
 {
-    using Linq;
-    using Microsoft.Extensions.Logging;
-    using SubSonic.Extensions.Test;
-    using SubSonic.Extensions.Test.Models;
-    using SubSonic.Logging;
-    using System.Threading.Tasks;
-    using Models = Extensions.Test.Models;
-
-
     public partial class ExtensionMethodTests
     {
         [Test]

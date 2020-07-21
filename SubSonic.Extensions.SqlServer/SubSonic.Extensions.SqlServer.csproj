@@ -29,7 +29,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="2.0.0" />
-    <PackageReference Include="SubSonic.Core.DAL" Version="4.1.1" />
+    <PackageReference Include="SubSonic.Core.DAL" Version="4.1.2" />
   </ItemGroup>
 
   <ItemGroup>

@@ -298,6 +298,23 @@ namespace SubSonic.Data.Caching
             ((IList)Cache).Clear();
         }
 
+        public IEnumerable<IEntityProxy> ToProxyCollection()
+        {
+            IList<IEntityProxy> proxies = new List<IEntityProxy>();
+
+            foreach(IEntityProxy proxy in Cache)
+            {
+                if (proxy is null)
+                {
+                    throw Error.InvalidOperation();
+                }
+
+                proxies.Add(proxy);
+            }
+
+            return proxies;
+        }
+
         public abstract void Add(object record);
 
         public abstract bool Remove(object record);

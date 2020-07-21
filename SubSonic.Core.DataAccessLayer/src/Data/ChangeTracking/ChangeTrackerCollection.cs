@@ -178,14 +178,14 @@ namespace SubSonic.Data.Caching
                 case DbQueryType.Insert:
                     return collection
                         .OrderBy(x => x.Value.Model.ObjectGraphWeight)
-                        .Select(set => new KeyValuePair<Type, IEnumerable<IEntityProxy>>(set.Key, set.Value.Select(x => (IEntityProxy)x)));
+                        .Select(set => new KeyValuePair<Type, IEnumerable<IEntityProxy>>(set.Key, set.Value.ToProxyCollection()));
                 case DbQueryType.Delete:
                     return collection
                         .OrderByDescending(x => x.Value.Model.ObjectGraphWeight)
-                        .Select(set => new KeyValuePair<Type, IEnumerable<IEntityProxy>>(set.Key, set.Value.Select(x => (IEntityProxy)x)));
+                        .Select(set => new KeyValuePair<Type, IEnumerable<IEntityProxy>>(set.Key, set.Value.ToProxyCollection()));
                 case DbQueryType.Unknown:
                     return collection
-                       .Select(set => new KeyValuePair<Type, IEnumerable<IEntityProxy>>(set.Key, set.Value.Select(x => (IEntityProxy)x)));
+                       .Select(set => new KeyValuePair<Type, IEnumerable<IEntityProxy>>(set.Key, set.Value.ToProxyCollection()));
             }
             throw Error.NotSupported();
         }

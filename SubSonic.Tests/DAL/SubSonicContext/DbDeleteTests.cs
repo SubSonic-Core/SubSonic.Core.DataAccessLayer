@@ -81,9 +81,16 @@ WHERE (([ID] IN (
         [TestCaseSource(nameof(DeleteTestCases))]
         public void ShouldBeAbleToDeleteOneOrMoreRecords(IDbTestCase dbTest)
         {
-            IEnumerable<IEntityProxy>
-                expected = dbTest.FetchAll().Select(x =>
-                    x as IEntityProxy);
+            IList<IEntityProxy>
+                expected = new List<IEntityProxy>();
+
+            foreach (IEntityProxy proxy in dbTest.FetchAll())
+            {
+                if (proxy != null)
+                {
+                    expected.Add(proxy);
+                }
+            }
 
             int
                 before = dbTest.Count(),

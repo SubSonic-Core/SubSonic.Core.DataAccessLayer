@@ -34,27 +34,5 @@ namespace SubSonic.Linq
 
             return source;
         }
-
-        public static IEnumerable<TResult> Select<TResult>(this IEnumerable source, Func<object, TResult> selector)
-        {
-            if (source is null)
-            {
-                throw new ArgumentNullException(nameof(source));
-            }
-
-            if (selector is null)
-            {
-                throw new ArgumentNullException(nameof(selector));
-            }
-
-            List<TResult> result = new List<TResult>();
-
-            foreach(object item in source)
-            {
-                result.Add(selector(item));
-            }
-
-            return result;
-        }
     }
 }

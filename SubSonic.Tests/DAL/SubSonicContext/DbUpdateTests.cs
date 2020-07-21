@@ -59,9 +59,16 @@ WHERE (([T1].[PersonID] = @personid_1) AND ([T1].[UnitID] = @unitid_2))", renter
         [TestCaseSource(nameof(UpdateTestCases))]
         public void CanUpdateEntities(IDbTestCase dbTest)
         {
-            IEnumerable<IEntityProxy>
-                expected = dbTest.FetchAll().Select(x =>
-                    x as IEntityProxy);
+            IList<IEntityProxy>
+                 expected = new List<IEntityProxy>();
+
+            foreach (IEntityProxy proxy in dbTest.FetchAll())
+            {
+                if (proxy != null)
+                {
+                    expected.Add(proxy);
+                }
+            }
 
             expected.Count().Should().Be(dbTest.Count());
 
