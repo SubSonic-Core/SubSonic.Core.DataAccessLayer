@@ -11,7 +11,7 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     env:
-      VERSION: 4.2.0-beta.3
+      VERSION: 4.2.0-beta.4
     strategy:
       matrix:
         os: [ubuntu-latest]
