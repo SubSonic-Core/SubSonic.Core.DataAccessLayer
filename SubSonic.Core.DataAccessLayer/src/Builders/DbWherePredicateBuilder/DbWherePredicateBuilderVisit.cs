@@ -350,13 +350,17 @@ namespace SubSonic.Builders
                         {
                             return VisitMemberExtended(node);
                         }
-                        else if (member.Member is FieldInfo field)
+                        else if (member.Member is FieldInfo parameter)
                         {
-                            object value = field.GetValue(constant.Value);
+                            object value = parameter.GetValue(constant.Value);
 
                             if (node.Member is PropertyInfo property)
                             {
                                 value = property.GetValue(value);
+                            }
+                            else if (node.Member is FieldInfo field)
+                            {
+                                value = field.GetValue(value);
                             }
 
                             return Visit(Expression.Constant(value));
