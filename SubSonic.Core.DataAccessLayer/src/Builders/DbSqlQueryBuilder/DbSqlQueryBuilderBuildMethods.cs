@@ -624,7 +624,25 @@ namespace SubSonic.Builders
                 switch (selector.Body.NodeType)
                 {
                     case ExpressionType.MemberAccess:
-                        columns = select.Columns.Where(column => column.PropertyName.Equals(selector.GetProperty().Name, StringComparison.CurrentCulture));
+                        if (selector.ReturnType.IsClass)
+                        {
+                            IEnumerable<DbTableExpression> tables = select.From.ToTableList();
+
+                            if (tables.Any(x => x.Type.GenericTypeArguments[0] == selector.ReturnType))
+                            {
+                                DbTableExpression dbTable = tables.Single(x => x.Type.GenericTypeArguments[0] == selector.ReturnType);
+
+                                columns = dbTable.Columns;
+                            }
+                            else
+                            {
+                                throw Error.InvalidOperation(SubSonicErrorMessages.MissingTableReferenceFor.Format(selector.ReturnType.Name));
+                            }
+                        }
+                        else
+                        {
+                            columns = select.Columns.Where(column => column.PropertyName.Equals(selector.GetProperty().Name, StringComparison.CurrentCulture));
+                        }
                         break;
                     case ExpressionType.MemberInit:
                         columns = BuildColumnDeclarationList(selector.Body, select);

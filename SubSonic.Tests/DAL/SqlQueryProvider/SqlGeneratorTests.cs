@@ -16,6 +16,7 @@ namespace SubSonic.Tests.DAL.SqlQueryProvider
     using Linq;
     using Linq.Expressions;
     using Tests.DAL.SUT;
+    using SubSonic.src;
 
     [TestFixture]
     public partial class SqlQueryProviderTests
@@ -1089,6 +1090,60 @@ OPTION (RECOMPILE)".Format("T1");
             query.Sql.Should().NotBeNullOrEmpty();
 
             logging.LogInformation("\n" + query.Sql + "\n");
+
+            query.Sql.Should().Be(expected);
+        }
+
+        [Test]
+        public void ThrowMissingReferenceForSelectStatementForIncludedEntityWhenMissingInclude()
+        {
+            FluentActions.Invoking(() =>
+            {
+                Person person = Context.People.First();
+
+                Expression select = person
+                .Renters
+                .Where((Renter) =>
+                    DateTime.Today.Between(Renter.StartDate, Renter.EndDate.GetValueOrDefault(DateTime.Today.AddDays(1))))
+                .Select(x => x.Unit)
+                .Expression;
+            }).Should().Throw<InvalidOperationException>().WithMessage(SubSonicErrorMessages.MissingTableReferenceFor.Format(typeof(Unit).Name));
+        }
+
+        [Test]
+        public void CanGenerateSelectStatementForIncludedEntity()
+        {
+            string expected = @"SELECT [T1].[ID], [T1].[Bedrooms] AS [NumberOfBedrooms], [T1].[StatusID], [T1].[RealEstatePropertyID]
+FROM [dbo].[Renter] AS [T2]
+	INNER JOIN [dbo].[Unit] AS [T1]
+		ON ([T1].[ID] = [T2].[UnitID])
+WHERE (([T2].[PersonID] = @personid_1) AND @dt_value_2 BETWEEN [T2].[StartDate] AND COALESCE([T2].[EndDate], @dt_value_3))";
+
+            Person person = Context.People.First();
+
+            Expression select = person
+                .Renters
+                .Where((Renter) =>
+                    DateTime.Today.Between(Renter.StartDate, Renter.EndDate.GetValueOrDefault(DateTime.Today.AddDays(1))))
+                .Include(x => x.Unit)
+                .Select(x => x.Unit)
+                .Expression;
+
+            IDbQuery query = null;
+
+            var logging = Context.Instance.GetService<ISubSonicLogger<DbSelectPageExpression>>();
+
+            using (var perf = logging.Start("SQL Query Writer"))
+            {
+                FluentActions.Invoking(() =>
+                {
+                    ISubSonicQueryProvider<Status> builder = Context.Instance.GetService<ISubSonicQueryProvider<Status>>();
+
+                    query = builder.ToQuery(select);
+                }).Should().NotThrow();
+            }
+
+            query.Sql.Should().NotBeNullOrEmpty();
 
             query.Sql.Should().Be(expected);
         }
