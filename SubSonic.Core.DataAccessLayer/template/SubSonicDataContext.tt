@@ -1,0 +1,20 @@
+﻿<#@ template language="C#" #>
+using Microsoft.Extensions.DependencyInjection;
+using SubSonic;
+
+namespace TemplateRootNamespace
+{
+	public partial class TemplateSafeRootName
+		: SubSonicContext
+	{
+		private readonly IServiceCollection services = null;
+
+		public TemplateSafeRootName(IServiceCollection services)
+		{
+			this.services = services ?? throw Error.ArgumentNull(nameof(services));
+		}
+
+		#region ISubSonicSetCollection{TEntity} Collection Properties
+		#endregion
+	}
+}

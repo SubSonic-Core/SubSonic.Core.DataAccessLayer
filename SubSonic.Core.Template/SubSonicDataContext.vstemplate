@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
+  <TemplateData>
+    <Name>SubSonicDataContext</Name>
+    <Description>SubSonic data context generation.</Description>
+    <Icon>SubSonicDataContext.ico</Icon>
+    <TemplateID>61cd38fc-f7da-4531-bb14-eaea773458ec</TemplateID>
+    <ProjectType>CSharp</ProjectType>
+    <ProjectSubType>Data</ProjectSubType>
+    <RequiredFrameworkVersion>2.0</RequiredFrameworkVersion>
+    <NumberOfParentCategoriesToRollUp>1</NumberOfParentCategoriesToRollUp>
+    <DefaultName>SubSonicDataContext.cs</DefaultName>
+  </TemplateData>
+  <TemplateContent>
+    <References>
+      <Reference>
+        <Assembly>System</Assembly>
+      </Reference>
+    </References>
+    <ProjectItem ReplaceParameters="true">SubSonicDataContext.tt</ProjectItem>
+  </TemplateContent>
+</VSTemplate>

@@ -257,3 +257,5 @@ SubSonic/temp.txt
 SubSonic.Core.Abstractions/
 SubSonic.Extensions.SqlServer/
 SubSonic.Extensions.Test/
+SubSonic.Core.DataAccessLayer/template/SubSonicDataContext.cs
+SubSonic.Core.Template/SubSonicDataContext.cs
