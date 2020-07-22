@@ -1,6 +1,7 @@
 ﻿<#@ template language="C#" #>
 using Microsoft.Extensions.DependencyInjection;
 using SubSonic;
+using System;
 
 namespace TemplateRootNamespace
 {
@@ -11,7 +12,7 @@ namespace TemplateRootNamespace
 
 		public TemplateSafeRootName(IServiceCollection services)
 		{
-			this.services = services ?? throw Error.ArgumentNull(nameof(services));
+			this.services = services ?? throw new ArgumentNullException(nameof(services));
 		}
 
 		#region ISubSonicSetCollection{TEntity} Collection Properties

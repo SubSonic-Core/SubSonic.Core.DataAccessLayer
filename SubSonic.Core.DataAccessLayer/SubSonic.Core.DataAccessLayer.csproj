@@ -90,6 +90,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>SubSonicErrorMessages.resx</DependentUpon>
     </Compile>
+    <Compile Update="template\SubSonicDataContext.cs">
+      <DependentUpon>SubSonicDataContext.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -124,6 +129,13 @@
 
   <ItemGroup>
     <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="template\SubSonicDataContext.tt">
+      <LastGenOutput>SubSonicDataContext.cs</LastGenOutput>
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
   </ItemGroup>
 
 </Project>
