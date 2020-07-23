@@ -5,6 +5,12 @@ using System;
 
 namespace TemplateRootNamespace
 {
+	namespace Models
+	{
+	#region Generate Database Models
+	#endregion
+	}
+
 	public partial class TemplateSafeRootName
 		: SubSonicContext
 	{
