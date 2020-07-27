@@ -138,4 +138,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="src\CodeGenerator\Models\" />
+  </ItemGroup>
+
 </Project>
