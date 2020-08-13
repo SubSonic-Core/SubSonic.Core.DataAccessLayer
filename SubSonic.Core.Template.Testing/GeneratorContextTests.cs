@@ -2,11 +2,13 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NUnit.Framework;
+using SubSonic.Core;
 using SubSonic.Extensions.SqlServer;
 using SubSonic.Logging;
 using SubSonic.Schema;
 using System;
 using System.Data.Common;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace SubSonic.CodeGenerator.Testing
@@ -130,6 +132,60 @@ FROM ({Models.Relationship.Query}) AS [T1]";
             }
 
             context.Relationships.Count.Should().BeGreaterThan(0);
+        }
+
+        [Test]
+        public void CanNavigateRelationshipModel()
+        {
+            using var context = new GeneratorContext(connection, LogLevel.Trace);
+
+            foreach(Models.Table table in context.Tables)
+            {
+                table.Relationships.Load();
+
+                Console.WriteLine(table);
+
+                if (table.Relationships.Count > 0)
+                {
+                    foreach(Models.Relationship relationship in table.Relationships)
+                    {
+                        Console.WriteLine("{0} points to {1}".Format(relationship, relationship.ForiegnTable));
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("{0} no relationships detected".Format(table));
+                }
+
+                Console.WriteLine();
+            }
+        }
+
+        [Test]
+        public void CanNavigateColumnModel()
+        {
+            using var context = new GeneratorContext(connection, LogLevel.Trace);
+
+            foreach (Models.Table table in context.Tables)
+            {
+                table.Relationships.Load();
+
+                Console.WriteLine(table);
+
+                if (table.Columns.Count > 0)
+                {
+                    foreach (Models.Column column in table.Columns.OrderBy(x => x.OrdinalPosition))
+                    {
+                        Console.WriteLine("{0} belongs to {1}".Format(column, column.Table));
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("{0} no columns detected".Format(table));
+                }
+
+                Console.WriteLine();
+            }
         }
     }
 }
