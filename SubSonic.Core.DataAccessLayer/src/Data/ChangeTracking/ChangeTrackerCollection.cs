@@ -172,15 +172,17 @@ namespace SubSonic.Data.Caching
 
         private IEnumerable<KeyValuePair<Type, IEnumerable<IEntityProxy>>> BuildEnumeration()
         {
-            switch(dbQueryType)
+            var _collection = collection.Where(x => x.Value.Model.DbObjectType == Schema.DbObjectTypeEnum.Table);
+
+            switch (dbQueryType)
             {
                 case DbQueryType.Update:
                 case DbQueryType.Insert:
-                    return collection
+                    return _collection
                         .OrderBy(x => x.Value.Model.ObjectGraphWeight)
                         .Select(set => new KeyValuePair<Type, IEnumerable<IEntityProxy>>(set.Key, set.Value.ToProxyCollection()));
                 case DbQueryType.Delete:
-                    return collection
+                    return _collection
                         .OrderByDescending(x => x.Value.Model.ObjectGraphWeight)
                         .Select(set => new KeyValuePair<Type, IEnumerable<IEntityProxy>>(set.Key, set.Value.ToProxyCollection()));
                 case DbQueryType.Unknown:

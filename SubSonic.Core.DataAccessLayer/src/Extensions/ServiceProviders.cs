@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
 
 namespace SubSonic
 {
-    using Linq;
-    using Microsoft.Extensions.DependencyInjection;
-    using System.Linq;
+    using SubSonic.Linq;
+    using SubSonic.Logging;
 
     public static partial class SubSonicExtensions
     {
@@ -26,6 +26,45 @@ namespace SubSonic
                 });
             }
             builder.SetServiceProvider(collection.BuildServiceProvider());
+            return builder;
+        }
+
+        public static DbContextOptionsBuilder AddLogging(this DbContextOptionsBuilder builder, Action<ILoggingBuilder> configure)
+        {
+            if (builder is null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            if (configure is null)
+            {
+                throw new ArgumentNullException(nameof(configure));
+            }
+
+            IServiceCollection services = builder.ServiceProvider.GetService<IServiceCollection>();
+
+            services.AddLogging(configure);
+
+            builder.ConfigureServiceCollection(services);
+
+            return builder;
+        }
+
+        public static ILoggingBuilder AddDebugLogger<TClassName>(this ILoggingBuilder builder)
+        {
+#pragma warning disable CA2000 // Dispose objects before losing scope
+            builder.AddProvider(new DebugLogProvider<TClassName>());
+#pragma warning restore CA2000 // Dispose objects before losing scope
+
+            return builder;
+        }
+
+        public static ILoggingBuilder AddTraceLogger<TClassName>(this ILoggingBuilder builder)
+        {
+#pragma warning disable CA2000 // Dispose objects before losing scope
+            builder.AddProvider(new TraceLogProvider<TClassName>());
+#pragma warning restore CA2000 // Dispose objects before losing scope
+
             return builder;
         }
 

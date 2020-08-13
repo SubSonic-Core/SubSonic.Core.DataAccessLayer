@@ -9,7 +9,7 @@ namespace SubSonic
         public static TType GetService<TType>(this IServiceProvider provider)
             where TType : class
         {
-            return (TType)provider.GetService(typeof(TType));
+            return (TType)provider?.GetService(typeof(TType));
         }
     }
 }

@@ -46,7 +46,23 @@ namespace SubSonic.Schema
 
         public Type EntityModelType { get; internal set; }
 
-        public DbTableExpression Table => (DbTableExpression)DbExpression.DbTable(this, this.ToAlias());
+        public DbTableExpression Table
+        {
+            get
+            {
+                switch (DbObjectType)
+                {
+                    case DbObjectTypeEnum.Table:
+                        return (DbTableExpression)DbExpression.DbTable(this, this.ToAlias());
+                    case DbObjectTypeEnum.TableType:
+                        return (DbTableExpression)DbExpression.DbTableType(this, Name);
+                    case DbObjectTypeEnum.View:
+                        return (DbTableExpression)DbExpression.DbView(this, this.ToAlias());
+                    default:
+                        return null;
+                }
+            }
+        }
 
         public DbTableExpression GetTableType(string name)
         {

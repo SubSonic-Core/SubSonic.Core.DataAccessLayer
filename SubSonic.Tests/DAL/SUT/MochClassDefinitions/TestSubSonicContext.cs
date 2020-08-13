@@ -48,7 +48,10 @@ namespace SubSonic.Tests.DAL.SUT
             builder.AddEntityModel<Models.Unit>();
             builder.AddEntityModel<Models.Renter>();
             builder.AddEntityModel<Models.Person>();
+        }
 
+        protected override void OnDbModelRelationships(DbModelBuilder builder)
+        {
             builder.AddRelationshipFor<Models.RealEstateProperty>(() =>
                 builder.GetRelationshipFor<Models.RealEstateProperty>()
                     .HasMany(Model => Model.Units)

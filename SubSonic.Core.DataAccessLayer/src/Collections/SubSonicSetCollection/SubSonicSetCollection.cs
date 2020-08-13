@@ -21,7 +21,7 @@ namespace SubSonic.Collections
         private readonly IDbEntityModel model;
         private readonly ICollection<IEntityProxy<TEntity>> dataset;
 
-        private bool isLoaded = false;
+        private bool isLoaded;
 
         public SubSonicSetCollection(ISubSonicQueryProvider<TEntity> provider)
         {

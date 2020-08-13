@@ -10,7 +10,9 @@ namespace SubSonic.CodeGenerator.Models
     public class Table
     {
         public const string SQL =
-@"SELECT TABLE_SCHEMA [Schema], TABLE_NAME [Name]
+@"SELECT 
+	[Schema]	= TABLE_SCHEMA,
+	[Name]		= TABLE_NAME 
 FROM  INFORMATION_SCHEMA.TABLES
 WHERE TABLE_TYPE='BASE TABLE' and TABLE_NAME <> '__RefactorLog'";
 
@@ -22,5 +24,7 @@ WHERE TABLE_TYPE='BASE TABLE' and TABLE_NAME <> '__RefactorLog'";
         public string Schema { get; set; }
 
         public string Name { get; set; }
+
+        public virtual ISubSonicSetCollection<Relationship> Relationships { get; set; }
     }
 }

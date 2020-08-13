@@ -74,6 +74,7 @@ namespace SubSonic
         private void RegisterDbModel(DbModelBuilder builder)
         {
             OnDbModeling(builder);
+            OnDbModelRelationships(builder);
 
             IsDbModelReadOnly = true;
 
@@ -93,8 +94,13 @@ namespace SubSonic
 
         }
 
+        protected virtual void OnDbModelRelationships(DbModelBuilder builder)
+        {
+
+        }
+
         #region IDisposable Support
-        private bool disposedValue = false; // To detect redundant calls
+        private bool disposedValue; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing)
         {
@@ -103,6 +109,12 @@ namespace SubSonic
                 if (disposing)
                 {
                     ChangeTracking.Flush();
+
+                    if (ServiceProvider is ServiceProvider provider)
+                    {
+                        provider.Dispose();
+                        ServiceProvider = null;
+                    }
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.

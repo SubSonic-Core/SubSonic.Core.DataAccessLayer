@@ -60,7 +60,7 @@ namespace SubSonic.Builders
                             {
                                 if (reader.HasRows)
                                 {
-                                    while (await reader.ReadAsync().ConfigureAwait(false))
+                                    while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
                                     {
                                         SubSonicContext.Current.ChangeTracking.Add(elementType, reader.ActivateAndLoadInstanceOf(elementType));
                                     }

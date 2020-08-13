@@ -24,7 +24,7 @@ namespace SubSonic.Linq.Expressions.Structure
     {
         [ThreadStatic]
         private static Stack<TSqlFormatter> __formatter_instances;
-        private int depth = 0;
+        private int depth;
         private readonly TextWriter writer;
         private readonly ISqlContext context;
         private readonly TableAliasCollection aliases = new TableAliasCollection();
@@ -60,7 +60,7 @@ namespace SubSonic.Linq.Expressions.Structure
 
         protected static int IndentationWidth => __formatter_instances.Count;
 
-        protected bool IsNested { get; set; } = false;
+        protected bool IsNested { get; set; }
 
         protected ISqlFragment Fragments => context.Fragments;
         

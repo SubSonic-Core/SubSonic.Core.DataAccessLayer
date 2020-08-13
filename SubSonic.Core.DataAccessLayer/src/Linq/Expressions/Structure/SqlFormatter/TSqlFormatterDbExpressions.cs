@@ -133,6 +133,13 @@ namespace SubSonic.Linq.Expressions.Structure
                     {
                         Write($"@{dbTableType.QualifiedName}");
                     }
+                    else if (dbTable is DbViewExpression dbView && 
+                             dbView.IsQuery == true)
+                    {
+                        Write($"{Fragments.LEFT_PARENTHESIS}");
+                        Write(dbView.Query);
+                        Write($"{Fragments.RIGHT_PARENTHESIS}");
+                    }
                     else
                     {
                         Write(dbTable.QualifiedName);
