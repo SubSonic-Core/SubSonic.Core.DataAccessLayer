@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SubSonic.Core.DataAccessLayer", "SubSonic.Core.DataAccessLayer\SubSonic.Core.DataAccessLayer.csproj", "{7EE2095A-FB70-4590-B91C-26DA72EEF65F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubSonic.Core.Template.Testing", "SubSonic.Core.Template.Testing\SubSonic.Core.Template.Testing.csproj", "{C8325EE6-1576-4A10-ABCF-6323D75FE498}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SubSonic.CodeGenerator.Testing", "SubSonic.Core.Template.Testing\SubSonic.CodeGenerator.Testing.csproj", "{C8325EE6-1576-4A10-ABCF-6323D75FE498}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

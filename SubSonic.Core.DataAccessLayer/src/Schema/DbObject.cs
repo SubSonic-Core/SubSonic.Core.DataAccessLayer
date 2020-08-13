@@ -25,6 +25,7 @@ namespace SubSonic.Schema
         public string FriendlyName { get; set; }
         public string QualifiedName { get => $"{SchemaName}.{Name}".EncapsulateQualifiedName(); }
         public string SchemaName { get; set; }
+        public DbObjectTypeEnum DbObjectType { get; set; }
 
         public override string ToString() => QualifiedName;
     }

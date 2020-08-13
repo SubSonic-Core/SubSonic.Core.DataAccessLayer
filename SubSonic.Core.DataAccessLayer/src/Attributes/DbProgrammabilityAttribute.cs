@@ -36,6 +36,8 @@ namespace SubSonic
         public string FriendlyName => Name;
 
         public string QualifiedName => $"{SchemaName}.{Name}".EncapsulateQualifiedName();
+
+        public DbObjectTypeEnum DbObjectType { get; } = DbObjectTypeEnum.Programmability;
         #endregion
 
         public override string ToString() => QualifiedName;

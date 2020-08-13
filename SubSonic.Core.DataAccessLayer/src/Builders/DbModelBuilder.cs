@@ -43,10 +43,18 @@ namespace SubSonic
                 EntityModelType = entityModelType,
                 Name = TableAttr.IsNotNull(Table => Table.Name, entityModelType.Name),
                 SchemaName = TableAttr.IsNotNull(Table => Table.Schema).IsNull(SubSonicDefaults.SchemaName),
-                DefinedTableType = TableTypeAttr
+                DefinedTableType = TableTypeAttr,
+                DbObjectType = DbObjectTypeEnum.Table
             };
 
-            foreach(DbCommandQueryAttribute command in entityModelType.GetCustomAttributes<DbCommandQueryAttribute>())
+            if (entityModelType.GetCustomAttribute<Attributes.DbViewAttribute>() is Attributes.DbViewAttribute ViewAttr)
+            {
+                entity.Name = ViewAttr.IsNotNull(Table => Table.Name, entityModelType.Name);
+                entity.SchemaName = ViewAttr.IsNotNull(Table => Table.Schema).IsNull(SubSonicDefaults.SchemaName);
+                entity.DbObjectType = DbObjectTypeEnum.View;
+            }
+
+            foreach (DbCommandQueryAttribute command in entityModelType.GetCustomAttributes<DbCommandQueryAttribute>())
             {
                 entity.Commands[command.QueryType] = new DbCommandQuery(command.QueryType, command.StoredProcedureType);
             }

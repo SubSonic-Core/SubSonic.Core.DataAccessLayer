@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SubSonic.Core.Template.Testing.Objects
+namespace SubSonic.CodeGenerator
 {
     public class GeneratorContext
         : SubSonicContext
@@ -15,6 +15,8 @@ namespace SubSonic.Core.Template.Testing.Objects
             this.connection = connection;
         }
 
+        public ISubSonicSetCollection<Models.Table> Tables { get; private set; }
+
         protected override void OnDbConfiguring(DbContextOptionsBuilder builder)
         {
             builder
@@ -23,6 +25,11 @@ namespace SubSonic.Core.Template.Testing.Objects
                 {
                     config.ConnectionString = connection;
                 });
+        }
+
+        protected override void OnDbModeling(DbModelBuilder builder)
+        {
+            builder.AddEntityModel<Models.Table>();
         }
     }
 }

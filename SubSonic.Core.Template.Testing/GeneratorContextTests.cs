@@ -1,17 +1,11 @@
 ﻿using FluentAssertions;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using NUnit.Framework;
-using SubSonic.Core.Template.Testing.Objects;
 using SubSonic.Extensions.SqlServer;
+using SubSonic.Schema;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Data.Common;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace SubSonic.Core.Template.Testing
+namespace SubSonic.CodeGenerator.Testing
 {
     [TestFixture]
     public class GeneratorContextTests
@@ -27,6 +21,25 @@ namespace SubSonic.Core.Template.Testing
             DbProviderFactories.TryGetFactory(providerFactoryType.Namespace, out DbProviderFactory factory);
 
             factory.Should().NotBeNull();
+        }
+
+        [Test]
+        public void ShouldBeAbleToIdentifyEntityTypeAsView()
+        {
+            var context = new GeneratorContext(connection);
+
+            IDbEntityModel model = context.Model.GetEntityModel<Models.Table>();
+
+            model.DbObjectType.Should().Be(DbObjectTypeEnum.View);
+        }
+
+        [Test]
+        public void DbSetCollectionGetSqlForViewFromView()
+        {
+            var context = new GeneratorContext(connection);
+
+            context.Tables.ToString().Should().Be(Models.Table.SQL);
+            
         }
     }
 }

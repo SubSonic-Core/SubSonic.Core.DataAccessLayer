@@ -6,5 +6,6 @@
         string FriendlyName { get; }
         string QualifiedName { get; }
         string SchemaName { get; }
+        DbObjectTypeEnum DbObjectType { get; }
     }
 }
