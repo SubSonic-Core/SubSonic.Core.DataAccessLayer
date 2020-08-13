@@ -1,15 +1,16 @@
 ﻿using SubSonic.Attributes;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace SubSonic.CodeGenerator.Models
 {
-    [DbView(Query = SQL)]
+    [DbView(Query = Query)]
     public class Relationship
     {
-        public const string SQL =
+        public const string Query =
 @"SELECT
     TableName  = FK.TABLE_NAME,
     ColumnName = CU.COLUMN_NAME,
@@ -37,7 +38,7 @@ PT ON PT.TABLE_NAME = PK.TABLE_NAME";
         public string ForiegnTableName { get; set; }
 
         public string ForiegnColumnName { get; set; }
-
+        [Key]
         public string ConstraintName { get; set; }
 
         public string SchemaOwner { get; set; }
@@ -47,5 +48,10 @@ PT ON PT.TABLE_NAME = PK.TABLE_NAME";
 
         [ForeignKey(nameof(ForiegnTableName))]
         public virtual Table ForiegnTable { get; set; }
+
+        public override string ToString()
+        {
+            return ConstraintName;
+        }
     }
 }

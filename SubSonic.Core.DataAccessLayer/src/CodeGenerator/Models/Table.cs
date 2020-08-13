@@ -1,16 +1,14 @@
 ﻿using SubSonic.Attributes;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
+using System.ComponentModel.DataAnnotations;
 
 namespace SubSonic.CodeGenerator.Models
 {
-    [DbView(Query = SQL)]
+    [DbView(Query = Query)]
     public class Table
     {
-        public const string SQL =
+        public const string Query =
 @"SELECT 
+    [Catalog]	= TABLE_CATALOG,
 	[Schema]	= TABLE_SCHEMA,
 	[Name]		= TABLE_NAME 
 FROM  INFORMATION_SCHEMA.TABLES
@@ -20,11 +18,19 @@ WHERE TABLE_TYPE='BASE TABLE' and TABLE_NAME <> '__RefactorLog'";
         {
 
         }
-
+        
+        public string Catalog { get; set; }
         public string Schema { get; set; }
-
+        [Key]
         public string Name { get; set; }
 
-        public virtual ISubSonicSetCollection<Relationship> Relationships { get; set; }
+        public virtual ISubSonicCollection<Relationship> Relationships { get; set; }
+
+        public virtual ISubSonicCollection<Column> Columns { get; set; }
+
+        public override string ToString()
+        {
+            return $"[{Schema}].[{Name}]";
+        }
     }
 }

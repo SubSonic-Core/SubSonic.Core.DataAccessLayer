@@ -42,8 +42,8 @@ namespace SubSonic.CodeGenerator.Testing
         {
             using var context = new GeneratorContext(connection);
 
-            string expected = $@"SELECT [T1].[Schema], [T1].[Name]
-FROM ({Models.Table.SQL}) AS [T1]";
+            string expected = $@"SELECT [T1].[Catalog], [T1].[Schema], [T1].[Name]
+FROM ({Models.Table.Query}) AS [T1]";
             
             Expression select = context.Tables.Expression;
 
@@ -71,7 +71,7 @@ FROM ({Models.Table.SQL}) AS [T1]";
             using var context = new GeneratorContext(connection);
 
             string expected = $@"SELECT [T1].[TableName], [T1].[ColumnName], [T1].[ForiegnTableName], [T1].[ForiegnColumnName], [T1].[ConstraintName], [T1].[SchemaOwner]
-FROM ({Models.Relationship.SQL}) AS [T1]";
+FROM ({Models.Relationship.Query}) AS [T1]";
 
             Expression select = context.Relationships.Expression;
 
@@ -91,6 +91,45 @@ FROM ({Models.Relationship.SQL}) AS [T1]";
 
             query.Sql.Should().NotBeNullOrEmpty();
             query.Sql.Should().Be(expected);
+        }
+
+        [Test]
+        public void CanPullListOfTableObjectsFromDatabase()
+        {
+            using var context = new GeneratorContext(connection, LogLevel.Trace);
+
+            foreach (Models.Table table in context.Tables)
+            {
+                Console.WriteLine(table.ToString());
+            }
+
+            context.Tables.Count.Should().BeGreaterThan(0);
+        }
+
+        [Test]
+        public void CanPullListOfColumnsObjectsFromDatabase()
+        {
+            using var context = new GeneratorContext(connection, LogLevel.Trace);
+
+            foreach (Models.Column column in context.Columns)
+            {
+                Console.WriteLine(column.ToString());
+            }
+
+            context.Columns.Count.Should().BeGreaterThan(0);
+        }
+
+        [Test]
+        public void CanPullListOfRelationshipObjectsFromDatabase()
+        {
+            using var context = new GeneratorContext(connection, LogLevel.Trace);
+
+            foreach (Models.Relationship relationship in context.Relationships)
+            {
+                Console.WriteLine(relationship.ToString());
+            }
+
+            context.Relationships.Count.Should().BeGreaterThan(0);
         }
     }
 }
