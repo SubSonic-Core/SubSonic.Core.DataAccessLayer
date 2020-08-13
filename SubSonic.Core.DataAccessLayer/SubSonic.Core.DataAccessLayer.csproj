@@ -55,7 +55,6 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.6" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.6" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.6" />
     <PackageReference Include="SubSonic.Core.Abstractions" Version="4.2.0" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
@@ -90,6 +89,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>SubSonicErrorMessages.resx</DependentUpon>
     </Compile>
+    <Compile Update="template\SubSonicDataContext.cs">
+      <DependentUpon>SubSonicDataContext.tt</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -120,6 +124,21 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="template\SubSonicDataContext.tt">
+      <LastGenOutput>SubSonicDataContext.cs</LastGenOutput>
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="src\CodeGenerator\Models\" />
   </ItemGroup>
 
 </Project>

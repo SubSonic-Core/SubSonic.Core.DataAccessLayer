@@ -57,7 +57,7 @@ namespace SubSonic
                 throw Error.InvalidOperation(SubSonicErrorMessages.ConfigurationInvalid.Format(nameof(DbContextOptionsBuilder.SetServiceProvider)));
             }
 
-            IServiceCollection services = Instance.GetService<IServiceCollection>();
+            IServiceCollection services = Instance?.GetService<IServiceCollection>() ?? new ServiceCollection();
 
             if (services.IsNotNull())
             {
