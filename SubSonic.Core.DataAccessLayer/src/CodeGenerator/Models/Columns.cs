@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data;
 using System.Text;
 
 namespace SubSonic.CodeGenerator.Models
@@ -12,22 +13,31 @@ namespace SubSonic.CodeGenerator.Models
     {
         public const string Query =
 @"SELECT 
-    [Catalog]			= [TABLE_CATALOG],
-    [Schema]			= [TABLE_SCHEMA], 
-    [TableName]			= [TABLE_NAME], 
-    [ColumnName]		= [COLUMN_NAME], 
-    [OrdinalPosition]	= [ORDINAL_POSITION], 
-    [DefaultValue]		= [COLUMN_DEFAULT], 
-    [IsNullable]		= CASE WHEN [IS_NULLABLE] = 'YES' THEN 1 ELSE 0 END,
-	[DataType]			= [DATA_TYPE], 
-    [MaximumLength]		= [CHARACTER_MAXIMUM_LENGTH], 
-	[NumericPrecision]	= [NUMERIC_PRECISION],
-	[NumericScale]		= [NUMERIC_SCALE],
-    [DatePrecision]		= [DATETIME_PRECISION],
-    [IsIdentity]		= COLUMNPROPERTY(object_id('[' + TABLE_SCHEMA + '].[' + TABLE_NAME + ']'), COLUMN_NAME, 'IsIdentity'),
-    [IsComputed]		= COLUMNPROPERTY(object_id('[' + TABLE_SCHEMA + '].[' + TABLE_NAME + ']'), COLUMN_NAME, 'IsComputed')
-FROM  INFORMATION_SCHEMA.COLUMNS
-WHERE TABLE_NAME <> '__RefactorLog'";
+    [Catalog]			= [COL].[TABLE_CATALOG],
+    [Schema]			= [COL].[TABLE_SCHEMA], 
+    [TableName]			= [COL].[TABLE_NAME], 
+    [ColumnName]		= [COL].[COLUMN_NAME], 
+    [OrdinalPosition]	= [COL].[ORDINAL_POSITION], 
+    [DefaultValue]		= [COL].[COLUMN_DEFAULT], 
+    [IsNullable]		= CASE WHEN [COL].[IS_NULLABLE] = 'YES' THEN 1 ELSE 0 END,
+	[DataType]			= [COL].[DATA_TYPE], 
+    [MaximumLength]		= [COL].[CHARACTER_MAXIMUM_LENGTH], 
+	[NumericPrecision]	= [COL].[NUMERIC_PRECISION],
+	[NumericScale]		= [COL].[NUMERIC_SCALE],
+    [DatePrecision]		= [COL].[DATETIME_PRECISION],
+	[IsPrimaryKey]		= CASE WHEN [PK].COLUMN_NAME IS NOT NULL THEN 1 ELSE 0 END,
+    [IsIdentity]		= COLUMNPROPERTY(object_id('[' + [COL].TABLE_SCHEMA + '].[' + [COL].TABLE_NAME + ']'), [COL].COLUMN_NAME, 'IsIdentity'),
+    [IsComputed]		= COLUMNPROPERTY(object_id('[' + [COL].TABLE_SCHEMA + '].[' + [COL].TABLE_NAME + ']'), [COL].COLUMN_NAME, 'IsComputed')
+FROM  INFORMATION_SCHEMA.COLUMNS COL
+	LEFT JOIN ( SELECT KCU.TABLE_SCHEMA, KCU.TABLE_NAME, KCU.ORDINAL_POSITION, KCU.COLUMN_NAME
+				FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE KCU
+					JOIN INFORMATION_SCHEMA.TABLE_CONSTRAINTS TC
+					ON KCU.CONSTRAINT_NAME = TC.CONSTRAINT_NAME
+				WHERE TC.CONSTRAINT_TYPE = 'PRIMARY KEY' AND KCU.TABLE_NAME <> '__RefactorLog') [PK] ON
+					[PK].TABLE_SCHEMA = COL.TABLE_SCHEMA AND 
+					[PK].TABLE_NAME = [COL].[TABLE_NAME] AND
+					[PK].ORDINAL_POSITION = [COL].ORDINAL_POSITION
+WHERE [COL].[TABLE_NAME] <> '__RefactorLog'";
 
         public string Catalog { get; set; }
         public string Schema { get; set; }
@@ -43,11 +53,31 @@ WHERE TABLE_NAME <> '__RefactorLog'";
         public int? NumericPrecision { get; set; }
         public int? NumericScale { get; set; }
         public decimal? DatePrecision { get; set; }
+        public bool IsPrimaryKey { get; set; }
         public bool IsIdentity { get; set; }
         public bool IsComputed { get; set; }
 
         [ForeignKey(nameof(TableName))]
         public virtual Table Table { get; set; }
+
+        public SqlDbType GetSqlDbType()
+        {
+            if (Enum.TryParse(DataType, true, out SqlDbType dbType))
+            {
+                return dbType;
+            }
+            return default;
+        }
+
+        public DbType GetDbType()
+        {
+            return TypeConvertor.ToDbType(GetSqlDbType());
+        }
+
+        public Type GetClrType()
+        {
+            return TypeConvertor.ToNetType(GetSqlDbType());
+        }
 
         public override string ToString()
         {

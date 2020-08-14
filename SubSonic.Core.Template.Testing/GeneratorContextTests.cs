@@ -20,7 +20,7 @@ namespace SubSonic.CodeGenerator.Testing
         [Test]
         public void ShouldBeAbleToInstanciateTheGeneratorContext()
         {
-            using var context = new GeneratorContext(connection);
+            using var context = new SqlGeneratorContext(connection);
 
             Type providerFactoryType = typeof(SubSonicSqlClient);
 
@@ -32,7 +32,7 @@ namespace SubSonic.CodeGenerator.Testing
         [Test]
         public void ShouldBeAbleToIdentifyEntityTypeAsView()
         {
-            using var context = new GeneratorContext(connection);
+            using var context = new SqlGeneratorContext(connection);
 
             IDbEntityModel model = context.Model.GetEntityModel<Models.Table>();
 
@@ -42,7 +42,7 @@ namespace SubSonic.CodeGenerator.Testing
         [Test]
         public void DbSetCollectionForTablesGetSqlFromView()
         {
-            using var context = new GeneratorContext(connection);
+            using var context = new SqlGeneratorContext(connection);
 
             string expected = $@"SELECT [T1].[Catalog], [T1].[Schema], [T1].[Name]
 FROM ({Models.Table.Query}) AS [T1]";
@@ -70,7 +70,7 @@ FROM ({Models.Table.Query}) AS [T1]";
         [Test]
         public void DbSetCollectionForRelationshipsGetSqlFromView()
         {
-            using var context = new GeneratorContext(connection);
+            using var context = new SqlGeneratorContext(connection);
 
             string expected = $@"SELECT [T1].[TableName], [T1].[ColumnName], [T1].[ForiegnTableName], [T1].[ForiegnColumnName], [T1].[ConstraintName], [T1].[SchemaOwner]
 FROM ({Models.Relationship.Query}) AS [T1]";
@@ -98,7 +98,7 @@ FROM ({Models.Relationship.Query}) AS [T1]";
         [Test]
         public void CanPullListOfTableObjectsFromDatabase()
         {
-            using var context = new GeneratorContext(connection, LogLevel.Trace);
+            using var context = new SqlGeneratorContext(connection, LogLevel.Trace);
 
             foreach (Models.Table table in context.Tables)
             {
@@ -111,7 +111,7 @@ FROM ({Models.Relationship.Query}) AS [T1]";
         [Test]
         public void CanPullListOfColumnsObjectsFromDatabase()
         {
-            using var context = new GeneratorContext(connection, LogLevel.Trace);
+            using var context = new SqlGeneratorContext(connection, LogLevel.Trace);
 
             foreach (Models.Column column in context.Columns)
             {
@@ -124,7 +124,7 @@ FROM ({Models.Relationship.Query}) AS [T1]";
         [Test]
         public void CanPullListOfRelationshipObjectsFromDatabase()
         {
-            using var context = new GeneratorContext(connection, LogLevel.Trace);
+            using var context = new SqlGeneratorContext(connection, LogLevel.Trace);
 
             foreach (Models.Relationship relationship in context.Relationships)
             {
@@ -137,7 +137,7 @@ FROM ({Models.Relationship.Query}) AS [T1]";
         [Test]
         public void CanNavigateRelationshipModel()
         {
-            using var context = new GeneratorContext(connection, LogLevel.Trace);
+            using var context = new SqlGeneratorContext(connection, LogLevel.Trace);
 
             foreach(Models.Table table in context.Tables)
             {
@@ -164,7 +164,7 @@ FROM ({Models.Relationship.Query}) AS [T1]";
         [Test]
         public void CanNavigateColumnModel()
         {
-            using var context = new GeneratorContext(connection, LogLevel.Trace);
+            using var context = new SqlGeneratorContext(connection, LogLevel.Trace);
 
             foreach (Models.Table table in context.Tables)
             {
@@ -176,6 +176,10 @@ FROM ({Models.Relationship.Query}) AS [T1]";
                 {
                     foreach (Models.Column column in table.Columns.OrderBy(x => x.OrdinalPosition))
                     {
+                        column.GetSqlDbType().ToString().ToUpperInvariant().Should().Be(column.DataType.ToUpperInvariant());
+
+                        column.GetClrType().Should().NotBeNull();
+
                         Console.WriteLine("{0} belongs to {1}".Format(column, column.Table));
                     }
                 }

@@ -70,7 +70,7 @@ WHERE (([T1].[PersonID] = @personid_1) AND ([T1].[UnitID] = @unitid_2))", renter
                 }
             }
 
-            expected.Count().Should().Be(dbTest.Count());
+            expected.Count().Should().BeLessOrEqualTo(dbTest.Count());
 
             Context.Database.Instance.AddCommandBehavior(dbTest.Expectation, cmd =>
             {

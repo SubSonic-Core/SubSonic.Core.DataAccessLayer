@@ -1,58 +1,61 @@
 ﻿using Microsoft.Extensions.Logging;
-using SubSonic.Extensions.SqlServer;
-using SubSonic.Logging;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
 
 namespace SubSonic.CodeGenerator
 {
     public class GeneratorContext
         : SubSonicContext
     {
-        private readonly LogLevel logLevel;
-        private readonly string connection;
+        protected LogLevel LogLevel { get; }
+        protected string ConnectionString { get; }
 
-        public GeneratorContext(string connection)
+        protected GeneratorContext(string connection)
             : this(connection, LogLevel.Debug) { }
 
-        public GeneratorContext(string connection, LogLevel logLevel)
+        protected GeneratorContext(string connection, LogLevel logLevel)
         {
-            this.logLevel = logLevel;
-            this.connection = connection;
+            this.LogLevel = logLevel;
+            this.ConnectionString = connection;
         }
 
-        public ISubSonicSetCollection<Models.Table> Tables { get; private set; }
-        public ISubSonicSetCollection<Models.Column> Columns { get; private set; }
-        public ISubSonicSetCollection<Models.Relationship> Relationships { get; set; }
+        public ISubSonicSetCollection<Models.Table> Tables { get; protected set; }
+        public ISubSonicSetCollection<Models.Column> Columns { get; protected set; }
+        public ISubSonicSetCollection<Models.Relationship> Relationships { get; protected set; }
 
         protected override void OnDbConfiguring(DbContextOptionsBuilder builder)
         {
             builder
                 .ConfigureServiceCollection()
-                .AddLogging((config) => {
+                .AddLogging((config) =>
+                {
                     config
                     .ClearProviders()
                     .AddDebugLogger<GeneratorContext>()
                     .AddTraceLogger<GeneratorContext>()
-                    .SetMinimumLevel(logLevel);
-                })
-                .UseSqlClient((config, options) =>
-                {
-                    config.ConnectionString = connection;
+                    .SetMinimumLevel(LogLevel);
                 });
         }
 
         protected override void OnDbModeling(DbModelBuilder builder)
         {
-            builder.AddEntityModel<Models.Table>();
-            builder.AddEntityModel<Models.Column>();
-            builder.AddEntityModel<Models.Relationship>();
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
+            _ = builder
+                .AddEntityModel<Models.Table>()
+                .AddEntityModel<Models.Column>()
+                .AddEntityModel<Models.Relationship>();
         }
 
         protected override void OnDbModelRelationships(DbModelBuilder builder)
         {
+            if (builder == null)
+            {
+                throw new ArgumentNullException(nameof(builder));
+            }
+
             builder.AddRelationshipFor<Models.Table>(() =>
                 builder.GetRelationshipFor<Models.Table>()
                     .HasMany(Model => Model.Columns)
