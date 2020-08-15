@@ -24,8 +24,8 @@ namespace SubSonic.CodeGenerator.Models
 	[NumericScale]		= [COL].[NUMERIC_SCALE],
     [DatePrecision]		= [COL].[DATETIME_PRECISION],
 	[IsPrimaryKey]		= CAST(CASE WHEN [PK].COLUMN_NAME IS NOT NULL THEN 1 ELSE 0 END AS BIT),
-    [IsIdentity]		= COLUMNPROPERTY(object_id('[' + [COL].TABLE_SCHEMA + '].[' + [COL].TABLE_NAME + ']'), [COL].COLUMN_NAME, 'IsIdentity'),
-    [IsComputed]		= COLUMNPROPERTY(object_id('[' + [COL].TABLE_SCHEMA + '].[' + [COL].TABLE_NAME + ']'), [COL].COLUMN_NAME, 'IsComputed')
+    [IsIdentity]		= CAST(COLUMNPROPERTY(object_id('[' + [COL].TABLE_SCHEMA + '].[' + [COL].TABLE_NAME + ']'), [COL].COLUMN_NAME, 'IsIdentity') AS BIT),
+    [IsComputed]		= CAST(COLUMNPROPERTY(object_id('[' + [COL].TABLE_SCHEMA + '].[' + [COL].TABLE_NAME + ']'), [COL].COLUMN_NAME, 'IsComputed') AS BIT)
 FROM  INFORMATION_SCHEMA.COLUMNS COL
 	LEFT JOIN ( SELECT KCU.TABLE_SCHEMA, KCU.TABLE_NAME, KCU.ORDINAL_POSITION, KCU.COLUMN_NAME
 				FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE KCU

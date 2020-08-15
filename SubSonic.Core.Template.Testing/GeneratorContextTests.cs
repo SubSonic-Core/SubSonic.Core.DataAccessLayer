@@ -180,6 +180,13 @@ FROM ({Models.Relationship.Query}) AS [T1]";
 
                         column.IsPrimaryKey.Should().Be(column.ColumnName.Equals("Id", StringComparison.OrdinalIgnoreCase));
 
+                        column.IsIdentity.Should().Be(column.IsPrimaryKey);
+
+                        if (column.TableName == "Person" && column.ColumnName == "FullName")
+                        {
+                            column.IsComputed.Should().BeTrue();
+                        }
+
                         column.GetClrType().Should().NotBeNull();
 
                         if (column.ColumnName.EndsWith("Date"))
