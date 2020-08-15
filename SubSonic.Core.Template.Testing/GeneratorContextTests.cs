@@ -178,7 +178,72 @@ FROM ({Models.Relationship.Query}) AS [T1]";
                     {
                         column.GetSqlDbType().ToString().ToUpperInvariant().Should().Be(column.DataType.ToUpperInvariant());
 
+                        column.IsPrimaryKey.Should().Be(column.ColumnName.Equals("Id", StringComparison.OrdinalIgnoreCase));
+
                         column.GetClrType().Should().NotBeNull();
+
+                        if (column.ColumnName.EndsWith("Date"))
+                        {
+                            column.GetClrType().Should().Be<DateTime>();
+                        }
+
+                        string simpleType = column.ToSimpleType();
+
+                        if (column.GetClrType().IsValueType)
+                        {
+                            if (column.GetClrType() == typeof(int))
+                            {
+                                simpleType.Should().StartWith("int");
+                            }
+                            else if (column.GetClrType() == typeof(long))
+                            {
+                                simpleType.Should().StartWith("long");
+                            }
+                            else if (column.GetClrType() == typeof(bool))
+                            {
+                                simpleType.Should().StartWith("bool");
+                            }
+                            else if (column.GetClrType() == typeof(decimal))
+                            {
+                                simpleType.Should().StartWith("decimal");
+                            }
+                            else if (column.GetClrType() == typeof(double))
+                            {
+                                simpleType.Should().StartWith("double");
+                            }
+                            else if (column.GetClrType() == typeof(short))
+                            {
+                                simpleType.Should().StartWith("short");
+                            }
+                            else if (column.GetClrType() == typeof(float))
+                            {
+                                simpleType.Should().StartWith("float");
+                            }
+                            else if (column.GetClrType() == typeof(byte))
+                            {
+                                simpleType.Should().StartWith("byte");
+                            }
+                            else if (column.GetClrType() == typeof(byte[]))
+                            {
+                                simpleType.Should().StartWith("byte[]");
+                            }
+
+                            if (column.IsNullable)
+                            {
+                                simpleType.Should().EndWith("?");
+                            }
+                        }
+                        else
+                        {
+                            if (column.GetClrType() == typeof(string))
+                            {
+                                simpleType.Should().Equals("string");
+                            }
+                            else if (column.GetClrType() == typeof(object))
+                            {
+                                simpleType.Should().Equals("object");
+                            }
+                        }
 
                         Console.WriteLine("{0} belongs to {1}".Format(column, column.Table));
                     }

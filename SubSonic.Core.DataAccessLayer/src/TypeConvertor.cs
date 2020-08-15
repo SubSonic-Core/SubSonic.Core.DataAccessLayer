@@ -58,6 +58,10 @@ namespace SubSonic
             _DbTypeList.Add(dbTypeMapEntry);
 
             dbTypeMapEntry
+            = new DbTypeMapEntry(typeof(DateTime), DbType.Date, SqlDbType.Date);
+            _DbTypeList.Add(dbTypeMapEntry);
+
+            dbTypeMapEntry
             = new DbTypeMapEntry(typeof(decimal), DbType.Decimal, SqlDbType.Decimal);
             _DbTypeList.Add(dbTypeMapEntry);
 

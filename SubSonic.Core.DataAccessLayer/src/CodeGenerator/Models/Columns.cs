@@ -1,10 +1,8 @@
 ﻿using SubSonic.Attributes;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
-using System.Text;
 
 namespace SubSonic.CodeGenerator.Models
 {
@@ -19,13 +17,13 @@ namespace SubSonic.CodeGenerator.Models
     [ColumnName]		= [COL].[COLUMN_NAME], 
     [OrdinalPosition]	= [COL].[ORDINAL_POSITION], 
     [DefaultValue]		= [COL].[COLUMN_DEFAULT], 
-    [IsNullable]		= CASE WHEN [COL].[IS_NULLABLE] = 'YES' THEN 1 ELSE 0 END,
+    [IsNullable]		= CAST(CASE WHEN [COL].[IS_NULLABLE] = 'YES' THEN 1 ELSE 0 END AS BIT),
 	[DataType]			= [COL].[DATA_TYPE], 
     [MaximumLength]		= [COL].[CHARACTER_MAXIMUM_LENGTH], 
 	[NumericPrecision]	= [COL].[NUMERIC_PRECISION],
 	[NumericScale]		= [COL].[NUMERIC_SCALE],
     [DatePrecision]		= [COL].[DATETIME_PRECISION],
-	[IsPrimaryKey]		= CASE WHEN [PK].COLUMN_NAME IS NOT NULL THEN 1 ELSE 0 END,
+	[IsPrimaryKey]		= CAST(CASE WHEN [PK].COLUMN_NAME IS NOT NULL THEN 1 ELSE 0 END AS BIT),
     [IsIdentity]		= COLUMNPROPERTY(object_id('[' + [COL].TABLE_SCHEMA + '].[' + [COL].TABLE_NAME + ']'), [COL].COLUMN_NAME, 'IsIdentity'),
     [IsComputed]		= COLUMNPROPERTY(object_id('[' + [COL].TABLE_SCHEMA + '].[' + [COL].TABLE_NAME + ']'), [COL].COLUMN_NAME, 'IsComputed')
 FROM  INFORMATION_SCHEMA.COLUMNS COL
@@ -77,6 +75,60 @@ WHERE [COL].[TABLE_NAME] <> '__RefactorLog'";
         public Type GetClrType()
         {
             return TypeConvertor.ToNetType(GetSqlDbType());
+        }
+
+        public string ToSimpleType()
+        {
+            Type clrType = GetClrType();
+
+            string simpleType = clrType.Name;
+
+            if (clrType == typeof(int))
+            {
+                simpleType = "int";
+            }
+            if (clrType == typeof(short))
+            {
+                simpleType = "short";
+            }
+            else if (clrType == typeof(long))
+            {
+                simpleType = "long";
+            }
+            else if (clrType == typeof(bool))
+            {
+                simpleType = "bool";
+            }
+            else if (clrType == typeof(decimal))
+            {
+                simpleType = "decimal";
+            }
+            else if (clrType == typeof(double))
+            {
+                simpleType = "double";
+            }
+            else if (clrType == typeof(float))
+            {
+                simpleType = "float";
+            }
+            else if (clrType == typeof(string))
+            {
+                simpleType = "string";
+            }
+            else if (clrType == typeof(object))
+            {
+                simpleType = "object";
+            }
+            else if (clrType == typeof(byte))
+            {
+                simpleType = "byte";
+            }
+            else if (clrType == typeof(byte[]))
+            {
+                simpleType = "byte[]";
+            }
+
+            return $"{simpleType}{((clrType.IsValueType && IsNullable) ? "?" : "")}";
         }
 
         public override string ToString()
