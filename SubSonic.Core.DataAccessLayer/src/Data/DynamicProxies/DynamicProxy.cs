@@ -127,7 +127,7 @@ namespace SubSonic.Data.DynamicProxies
                 
                 AssemblyBuilder DynamicAssembly = AssemblyBuilder.DefineDynamicAssembly(
                     assemblyName,
-                    AssemblyBuilderAccess.Run);
+                    AssemblyBuilderAccess.RunAndCollect);
 
                 ModuleBuilder = DynamicAssembly.DefineDynamicModule("DynamicProxiesTypeGenerator");
             }
