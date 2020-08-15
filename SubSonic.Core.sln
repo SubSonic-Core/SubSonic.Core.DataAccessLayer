@@ -12,6 +12,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SubSonic.Core.DataAccessLayer", "SubSonic.Core.DataAccessLayer\SubSonic.Core.DataAccessLayer.csproj", "{7EE2095A-FB70-4590-B91C-26DA72EEF65F}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SubSonic.CodeGenerator.Testing", "SubSonic.Core.Template.Testing\SubSonic.CodeGenerator.Testing.csproj", "{CAA04978-A954-4842-B20F-DE2AB8835866}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +48,18 @@ Global
 		{7EE2095A-FB70-4590-B91C-26DA72EEF65F}.Release|x64.Build.0 = Release|Any CPU
 		{7EE2095A-FB70-4590-B91C-26DA72EEF65F}.Release|x86.ActiveCfg = Release|Any CPU
 		{7EE2095A-FB70-4590-B91C-26DA72EEF65F}.Release|x86.Build.0 = Release|Any CPU
+		{CAA04978-A954-4842-B20F-DE2AB8835866}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAA04978-A954-4842-B20F-DE2AB8835866}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAA04978-A954-4842-B20F-DE2AB8835866}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CAA04978-A954-4842-B20F-DE2AB8835866}.Debug|x64.Build.0 = Debug|Any CPU
+		{CAA04978-A954-4842-B20F-DE2AB8835866}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CAA04978-A954-4842-B20F-DE2AB8835866}.Debug|x86.Build.0 = Debug|Any CPU
+		{CAA04978-A954-4842-B20F-DE2AB8835866}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAA04978-A954-4842-B20F-DE2AB8835866}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAA04978-A954-4842-B20F-DE2AB8835866}.Release|x64.ActiveCfg = Release|Any CPU
+		{CAA04978-A954-4842-B20F-DE2AB8835866}.Release|x64.Build.0 = Release|Any CPU
+		{CAA04978-A954-4842-B20F-DE2AB8835866}.Release|x86.ActiveCfg = Release|Any CPU
+		{CAA04978-A954-4842-B20F-DE2AB8835866}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
