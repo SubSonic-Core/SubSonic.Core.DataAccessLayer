@@ -1,19 +1,17 @@
-﻿using NUnit.Framework;
-using FluentAssertions;
-using System;
+﻿using FluentAssertions;
+using NUnit.Framework;
+using SubSonic.Extensions.Test;
 using System.Collections.Generic;
-using System.Linq;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 
 namespace SubSonic.Tests.DAL
 {
-    using Extensions.Test;
-    
-    using Schema;
     using Linq;
-    using Models = Extensions.Test.Models;
+    using Schema;
     using System.Threading.Tasks;
+    using Models = Extensions.Test.Models;
 
     public partial class SubSonicContextTests
     {

@@ -5,15 +5,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Data;
 using System.Data.Common;
+using SubSonic.Extensions.Test;
 
 namespace SubSonic.Tests.DAL
 {
-    using Extensions.Test;
-    
     using Schema;
     using Linq;
     using SubSonic.Data.Caching;
     using Models = Extensions.Test.Models;
+    using SubSonic.Tests.DAL.SUT;
 
     public partial class SubSonicContextTests
     {
