@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace SubSonic.src {
+namespace SubSonic.Core.DAL.src {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace SubSonic.src {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SubSonic.src.SubSonicDefaults", typeof(SubSonicDefaults).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SubSonic.Core.DAL.src.SubSonicDefaults", typeof(SubSonicDefaults).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

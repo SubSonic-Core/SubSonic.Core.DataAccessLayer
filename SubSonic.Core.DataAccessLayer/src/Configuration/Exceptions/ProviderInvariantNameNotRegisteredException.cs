@@ -3,7 +3,7 @@ using System.Globalization;
 
 namespace SubSonic
 {
-    using src;
+    using SubSonic.Core.DAL.src;
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1032:Implement standard exception constructors", Justification = "<Pending>")]
     public class ProviderInvariantNameNotRegisteredException

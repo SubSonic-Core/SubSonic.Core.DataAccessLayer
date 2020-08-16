@@ -12,7 +12,7 @@ using System.Reflection;
 
 namespace SubSonic.Linq.Expressions.Structure
 {
-    using src;
+    using SubSonic.Core.DAL.src;
     public partial class TSqlFormatter
     {
         protected override Expression VisitMember(MemberExpression node)

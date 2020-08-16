@@ -4,9 +4,8 @@ using System.Linq;
 
 namespace SubSonic.Schema
 {
-    using src;
     using Linq;
-    using SubSonic.Data.Caching;
+    using SubSonic.Core.DAL.src;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Reflection;
 

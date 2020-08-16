@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace SubSonic.Builders
 {
-    using src;
+    using SubSonic.Core.DAL.src;
     using Schema;
     using Linq;
     using Linq.Expressions;

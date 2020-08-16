@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 
 namespace SubSonic
 {
-    using src;
+    using SubSonic.Core.DAL.src;
 
     public class EntityNotRegisteredWithDbModelException
         : Exception

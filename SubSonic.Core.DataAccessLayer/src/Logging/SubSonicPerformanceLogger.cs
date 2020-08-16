@@ -3,9 +3,8 @@ using System;
 
 namespace SubSonic.Logging
 {
-
-    using src;
-    using src.Logging;
+    using SubSonic.Core.DAL.src;
+    using SubSonic.Core.DAL.src.Logging;
     using Linq;
 
     public class SubSonicPerformanceLogger<TCategoryName>

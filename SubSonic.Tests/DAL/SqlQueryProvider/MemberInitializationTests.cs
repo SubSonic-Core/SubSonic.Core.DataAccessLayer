@@ -10,7 +10,7 @@ namespace SubSonic.Tests.DAL.SqlQueryProvider
     using Linq.Expressions;
     using Logging;
     using Microsoft.Extensions.Logging;
-    using SubSonic.src;
+    using SubSonic.Core.DAL.src;
     using System;
 
     [TestFixture]

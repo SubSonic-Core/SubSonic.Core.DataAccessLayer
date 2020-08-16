@@ -16,7 +16,7 @@ namespace SubSonic.Tests.DAL.SqlQueryProvider
     using Linq;
     using Linq.Expressions;
     using Tests.DAL.SUT;
-    using SubSonic.src;
+    using SubSonic.Core.DAL.src;
 
     [TestFixture]
     public partial class SqlQueryProviderTests

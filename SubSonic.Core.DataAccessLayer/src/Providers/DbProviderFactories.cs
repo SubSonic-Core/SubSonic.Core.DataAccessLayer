@@ -11,7 +11,7 @@ using System.Reflection;
 
 namespace SubSonic
 {
-    using src;
+    using SubSonic.Core.DAL.src;
     public static class DbProviderFactories
     {
         private static readonly ConcurrentDictionary<string, DbProviderFactory> registeredFactories = new ConcurrentDictionary<string, DbProviderFactory>();

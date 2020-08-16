@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SubSonic
 {
-    using src;
+    using SubSonic.Core.DAL.src;
     public class MissingServiceCollectionException
         : Exception
     {

@@ -13,7 +13,7 @@ using System.Text;
 
 namespace SubSonic.Linq.Expressions.Structure
 {
-    using src;
+    using SubSonic.Core.DAL.src;
     using Alias;
     using SqlGenerator;
     using Factory;

@@ -9,7 +9,7 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Builders
 {
-    using src;
+    using SubSonic.Core.DAL.src;
     using Collections;
     using Linq;
     using Linq.Expressions;

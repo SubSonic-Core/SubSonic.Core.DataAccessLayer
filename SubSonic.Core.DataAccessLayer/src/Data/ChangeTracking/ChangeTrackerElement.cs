@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SubSonic.Data.Caching
 {
-    using src;
+    using SubSonic.Core.DAL.src;
     using Collections;
     using Logging;
     using Schema;

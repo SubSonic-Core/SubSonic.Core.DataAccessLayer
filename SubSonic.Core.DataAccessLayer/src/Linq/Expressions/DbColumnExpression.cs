@@ -3,9 +3,9 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
+    using SubSonic.Core.DAL.src;
     using Alias;
     using Structure;
-    using SubSonic.src;
     using System.Linq;
     using System.Reflection;
 

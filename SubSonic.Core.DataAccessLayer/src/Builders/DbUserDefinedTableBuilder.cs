@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace SubSonic
 {
-    using src;
+    using SubSonic.Core.DAL.src;
     using Linq;
     using Schema;
 

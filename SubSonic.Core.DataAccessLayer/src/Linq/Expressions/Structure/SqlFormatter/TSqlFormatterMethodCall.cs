@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace SubSonic.Linq.Expressions.Structure
 {
-    using src;
+    using SubSonic.Core.DAL.src;
     using SqlGenerator;
     using System.Globalization;
 

@@ -12,7 +12,7 @@ using System.Runtime.CompilerServices;
 
 namespace SubSonic
 {
-    using src;
+    using SubSonic.Core.DAL.src;
     using Linq;
 
     public partial class SubSonicContext

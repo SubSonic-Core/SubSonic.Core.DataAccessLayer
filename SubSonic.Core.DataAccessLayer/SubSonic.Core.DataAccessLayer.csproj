@@ -18,7 +18,7 @@
     <Description>Fast Data Access, your database should belong to SubSonic.</Description>
     <Copyright>SubSonic-Core © 2020</Copyright>
     <NeutralLanguage>en</NeutralLanguage>
-    <RootNamespace>SubSonic</RootNamespace>
+    <RootNamespace>SubSonic.Core.DAL</RootNamespace>
     <PackageLicenseFile>LICENSE.MD</PackageLicenseFile>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <AssemblyName>SubSonic.Core.DAL</AssemblyName>
@@ -65,6 +65,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Update="src\Logging\SubSonicLogging.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -98,6 +103,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Update="Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Update="src\Logging\SubSonicLogging.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>SubSonicLogging.Designer.cs</LastGenOutput>

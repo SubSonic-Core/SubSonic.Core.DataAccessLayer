@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace SubSonic.Linq.Expressions
 {
-    using src;
+    using SubSonic.Core.DAL.src;
     using Structure;
 
     public class DbUpdateExpression

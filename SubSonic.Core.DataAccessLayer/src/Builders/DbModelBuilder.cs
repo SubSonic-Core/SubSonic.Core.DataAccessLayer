@@ -6,7 +6,7 @@ using Ext = SubSonic.SubSonicExtensions;
 
 namespace SubSonic
 { 
-    using src;
+    using SubSonic.Core.DAL.src;
     using Linq;
     using Schema;
 

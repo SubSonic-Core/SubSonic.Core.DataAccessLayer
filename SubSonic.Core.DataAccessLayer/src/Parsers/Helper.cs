@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace SubSonic.Parsers
 {
-    using src;
+    using SubSonic.Core.DAL.src;
 
     internal class Helper
     {

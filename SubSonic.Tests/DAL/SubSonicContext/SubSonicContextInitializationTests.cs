@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
-using SubSonic.src;
+using SubSonic.Core.DAL.src;
 using SubSonic.Tests.DAL.SUT;
 using System;
 

@@ -3,7 +3,7 @@ using System;
 
 namespace SubSonic.Logging
 {
-    using src.Logging;
+    using SubSonic.Core.DAL.src.Logging;
     using Linq;
 
     class SubSonicTraceLogger<TCategoryName>

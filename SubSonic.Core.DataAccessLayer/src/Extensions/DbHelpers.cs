@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace SubSonic
 {
-    using src;
+    using SubSonic.Core.DAL.src;
     using Linq;
     using Data.DynamicProxies;
     using Schema;

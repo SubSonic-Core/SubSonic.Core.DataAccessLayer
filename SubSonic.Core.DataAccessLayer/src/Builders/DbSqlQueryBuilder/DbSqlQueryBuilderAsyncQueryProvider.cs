@@ -15,7 +15,7 @@ namespace SubSonic.Builders
 {
 
     using Linq.Expressions;
-    using src;
+    using SubSonic.Core.DAL.src;
     using SubSonic.Linq;
 
     public partial class DbSqlQueryBuilder

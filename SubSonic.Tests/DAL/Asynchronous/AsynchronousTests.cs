@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace SubSonic.Tests.DAL
 {
-    using src;
+    using SubSonic.Core.DAL.src;
     using FluentAssertions;
     using Linq;
     using System.Threading;
