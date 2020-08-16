@@ -22,7 +22,9 @@ namespace SubSonic.Data.DynamicProxies
                     return null;
                 }
 
+#pragma warning disable IDE0074 // Use compound assignment
                 return ProxyType ?? (ProxyType = DynamicProxy.BuildDerivedTypeFrom<TEntity>(DbContext));
+#pragma warning restore IDE0074 // Use compound assignment
             }
         }
 }
