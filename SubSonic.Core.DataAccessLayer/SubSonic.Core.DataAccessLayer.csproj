@@ -21,7 +21,7 @@
     <RootNamespace>SubSonic</RootNamespace>
     <PackageLicenseFile>LICENSE.MD</PackageLicenseFile>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
-    <AssemblyName>SubSonic.Core.DataAccessLayer</AssemblyName>
+    <AssemblyName>SubSonic.Core.DAL</AssemblyName>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>SubSonicStrongName.snk</AssemblyOriginatorKeyFile>
     <DelaySign>false</DelaySign>
