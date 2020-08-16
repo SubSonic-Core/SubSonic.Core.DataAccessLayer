@@ -11,7 +11,7 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     env:
-      VERSION: 4.3.0-alpha.6
+      VERSION: 4.3.0-alpha.7
 
     strategy:
       matrix:
