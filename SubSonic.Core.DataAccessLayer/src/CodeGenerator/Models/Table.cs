@@ -12,7 +12,7 @@ namespace SubSonic.CodeGenerator.Models
 	[Schema]	= TABLE_SCHEMA,
 	[Name]		= TABLE_NAME 
 FROM  INFORMATION_SCHEMA.TABLES
-WHERE TABLE_TYPE='BASE TABLE' and TABLE_NAME <> '__RefactorLog'";
+WHERE TABLE_TYPE='BASE TABLE'";
 
         public Table()
         {
