@@ -39,10 +39,13 @@ namespace SubSonic
 
         public IEnumerable<string> RelatedKeys { get; private set; }
 
+        public string PropertyName { get; set; }
+
         public IDbRelationshipMap RelationshipMap => new DbRelationshipMap(
                         RelationshipType,
                         SubSonicContext.DbModel.GetEntityModel(LookupEntityType),
                         SubSonicContext.DbModel.GetEntityModel(RelatedEntityType),
+                        PropertyName,
                         RelatedKeys.ToArray());
 
         public DbNavigationPropertyBuilder<TEntity, TRelatedEntity> WithOne(Expression<Func<TRelatedEntity, TEntity>> selector)
@@ -58,7 +61,8 @@ namespace SubSonic
 
             return new DbNavigationPropertyBuilder<TEntity, TRelatedEntity>(has, nameof(WithOne))
             {
-                RelatedKeys = GetForeignKeys(selector.Body)
+                RelatedKeys = GetForeignKeys(selector.Body),
+                PropertyName = this.PropertyName
             };
         }
 
@@ -71,7 +75,8 @@ namespace SubSonic
 
             return new DbNavigationPropertyBuilder<TEntity, TRelatedEntity>(has, nameof(WithNone))
             {
-                RelatedKeys = GetForeignKeys(typeof(TEntity))
+                RelatedKeys = GetForeignKeys(typeof(TEntity)),
+                PropertyName = this.PropertyName
             };
         }
 
@@ -86,7 +91,8 @@ namespace SubSonic
             {
                 IsReciprocated = !(selector is null),
                 LookupEntityType = LookupEntityType,
-                RelatedKeys = (RelatedKeys?.Any() ?? false) ? RelatedKeys : GetPrimayKeys(selector, LookupEntityType)
+                RelatedKeys = (RelatedKeys?.Any() ?? false) ? RelatedKeys : GetPrimayKeys(selector, LookupEntityType),
+                PropertyName = this.PropertyName
             };
         }
 

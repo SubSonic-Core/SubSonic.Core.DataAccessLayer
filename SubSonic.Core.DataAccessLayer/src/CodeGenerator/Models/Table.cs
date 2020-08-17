@@ -24,7 +24,9 @@ WHERE TABLE_TYPE='BASE TABLE' and TABLE_NAME <> '__RefactorLog'";
         [Key]
         public string Name { get; set; }
 
-        public virtual ISubSonicCollection<Relationship> Relationships { get; set; }
+        public virtual ISubSonicCollection<Relationship> WithOneRelationships { get; set; }
+
+        public virtual ISubSonicCollection<Relationship> WithManyRelationships { get; set; }
 
         public virtual ISubSonicCollection<Column> Columns { get; set; }
 

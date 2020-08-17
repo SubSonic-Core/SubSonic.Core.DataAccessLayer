@@ -80,9 +80,9 @@ namespace SubSonic
             return null;
         }
 
-        public IDbRelationshipMap GetRelationshipMapping<TEntity, TProperty>()
+        public IDbRelationshipMap GetRelationshipMapping<TEntity, TProperty>(string propertyName)
         {
-            return GetEntityModel<TEntity>().GetRelationshipWith(GetEntityModel<TProperty>());
+            return GetEntityModel<TEntity>().GetRelationshipWith(GetEntityModel<TProperty>(), propertyName);
         }
     }
 }

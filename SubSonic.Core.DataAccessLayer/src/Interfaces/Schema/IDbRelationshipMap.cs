@@ -8,6 +8,8 @@ namespace SubSonic.Schema
     {
         DbRelationshipType RelationshipType { get; }
 
+        string PropertyName { get; }
+
         IDbEntityModel ForeignModel { get; }
         IDbEntityModel LookupModel { get; }
         bool IsLookupMapping { get; }

@@ -93,7 +93,7 @@ namespace SubSonic.Schema
             }
         }
 
-        public IDbRelationshipMap GetRelationshipWith(IDbEntityModel model)
+        public IDbRelationshipMap GetRelationshipWith(IDbEntityModel model, string propertyName)
         {
             if (model.IsNotNull())
             {
@@ -106,7 +106,14 @@ namespace SubSonic.Schema
 
                     if (map.ForeignModel.QualifiedName == model.QualifiedName)
                     {
-                        return map;
+                        if (propertyName.IsNullOrEmpty())
+                        {
+                            return map;
+                        }
+                        else if (map.PropertyName.Equals(propertyName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return map;
+                        }
                     }
                 }
             }

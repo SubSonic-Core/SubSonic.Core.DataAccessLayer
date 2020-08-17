@@ -63,8 +63,13 @@ namespace SubSonic.CodeGenerator
 
             builder.AddRelationshipFor<Models.Table>(() =>
                 builder.GetRelationshipFor<Models.Table>()
-                    .HasMany(Model => Model.Relationships)
+                    .HasMany(Model => Model.WithOneRelationships)
                     .WithOne(Model => Model.Table));
+
+            builder.AddRelationshipFor<Models.Table>(() =>
+                builder.GetRelationshipFor<Models.Table>()
+                    .HasMany(Model => Model.WithManyRelationships)
+                    .WithOne(Model => Model.ForiegnTable));
 
             builder.AddRelationshipFor<Models.Column>(() =>
                 builder.GetRelationshipFor<Models.Column>()
@@ -74,12 +79,12 @@ namespace SubSonic.CodeGenerator
             builder.AddRelationshipFor<Models.Relationship>(() =>
                 builder.GetRelationshipFor<Models.Relationship>()
                     .HasOne(Model => Model.Table)
-                    .WithMany(Model => Model.Relationships));
+                    .WithMany(Model => Model.WithOneRelationships));
 
             builder.AddRelationshipFor<Models.Relationship>(() =>
                 builder.GetRelationshipFor<Models.Relationship>()
                     .HasOne(Model => Model.ForiegnTable)
-                    .WithMany(Model => Model.Relationships));
+                    .WithMany(Model => Model.WithOneRelationships));
         }
     }
 }

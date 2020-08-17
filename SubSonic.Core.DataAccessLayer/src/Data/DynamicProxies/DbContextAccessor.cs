@@ -129,7 +129,7 @@ namespace SubSonic.Data.DynamicProxies
             }
 
             IDbRelationshipMap
-                relationship = DbContext.Model.GetRelationshipMapping<TEntity, TProperty>();
+                relationship = DbContext.Model.GetRelationshipMapping<TEntity, TProperty>(info.Name);
 
             string[] 
                 keys = DbContext.Model

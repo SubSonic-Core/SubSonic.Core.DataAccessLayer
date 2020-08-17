@@ -141,20 +141,33 @@ FROM ({Models.Relationship.Query}) AS [T1]";
 
             foreach(Models.Table table in context.Tables)
             {
-                table.Relationships.Load();
+                table.WithOneRelationships.Load();
+                table.WithManyRelationships.Load();
 
                 Console.WriteLine(table);
 
-                if (table.Relationships.Count > 0)
+                if (table.WithOneRelationships.Count > 0)
                 {
-                    foreach(Models.Relationship relationship in table.Relationships)
+                    foreach(Models.Relationship relationship in table.WithOneRelationships)
                     {
                         Console.WriteLine("{0} points to {1}".Format(relationship, relationship.ForiegnTable));
                     }
                 }
                 else
                 {
-                    Console.WriteLine("{0} no relationships detected".Format(table));
+                    Console.WriteLine("{0} no with one relationships detected".Format(table));
+                }
+
+                if (table.WithManyRelationships.Count > 0)
+                {
+                    foreach (Models.Relationship relationship in table.WithManyRelationships)
+                    {
+                        Console.WriteLine("{0} points to {1}".Format(relationship, relationship.Table));
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("{0} no with many relationships detected".Format(table));
                 }
 
                 Console.WriteLine();
@@ -168,7 +181,7 @@ FROM ({Models.Relationship.Query}) AS [T1]";
 
             foreach (Models.Table table in context.Tables)
             {
-                table.Relationships.Load();
+                table.WithOneRelationships.Load();
 
                 Console.WriteLine(table);
 

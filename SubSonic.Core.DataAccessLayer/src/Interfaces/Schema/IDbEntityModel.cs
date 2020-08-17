@@ -76,7 +76,7 @@ namespace SubSonic.Schema
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        IDbRelationshipMap GetRelationshipWith(IDbEntityModel model);
+        IDbRelationshipMap GetRelationshipWith(IDbEntityModel model, string propertyName = null);
         /// <summary>
         /// increments the object graph weight
         /// </summary>

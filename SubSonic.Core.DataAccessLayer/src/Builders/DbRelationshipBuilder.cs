@@ -26,7 +26,10 @@ namespace SubSonic
 
             SubSonicContext.DbModel.GetEntityModel<TRelatedEntity>().IncrementObjectGraphWeight();
 
-            return new DbNavigationPropertyBuilder<TEntity, TRelatedEntity>(nameof(HasMany));
+            return new DbNavigationPropertyBuilder<TEntity, TRelatedEntity>(nameof(HasMany))
+            {
+                PropertyName = selector.GetPropertyName()
+            };
         }
 
         public DbNavigationPropertyBuilder<TEntity, TRelatedEntity> HasOne<TRelatedEntity>(Expression<Func<TEntity, TRelatedEntity>> selector) where TRelatedEntity : class
@@ -38,7 +41,10 @@ namespace SubSonic
 
             primary.IncrementObjectGraphWeight();
 
-            return new DbNavigationPropertyBuilder<TEntity, TRelatedEntity>(nameof(HasOne));
+            return new DbNavigationPropertyBuilder<TEntity, TRelatedEntity>(nameof(HasOne))
+            {
+                PropertyName = selector.GetPropertyName()
+            };
         }
     }
 }

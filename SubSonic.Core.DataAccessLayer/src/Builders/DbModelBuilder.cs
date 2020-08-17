@@ -41,16 +41,16 @@ namespace SubSonic
             DbEntityModel entity = new DbEntityModel()
             {
                 EntityModelType = entityModelType,
-                Name = TableAttr.IsNotNull(Table => Table.Name, entityModelType.Name),
-                SchemaName = TableAttr.IsNotNull(Table => Table.Schema).IsNull(SubSonicDefaults.SchemaName),
+                Name = TableAttr.IsNotNull(Table => Table.Name ?? entityModelType.Name, entityModelType.Name),
+                SchemaName = TableAttr.IsNotNull(Table => Table.Schema ?? SubSonicDefaults.SchemaName).IsNull(SubSonicDefaults.SchemaName),
                 DefinedTableType = TableTypeAttr,
                 DbObjectType = DbObjectTypeEnum.Table
             };
 
             if (entityModelType.GetCustomAttribute<Attributes.DbViewAttribute>() is Attributes.DbViewAttribute ViewAttr)
             {
-                entity.Name = ViewAttr.IsNotNull(Table => Table.Name, entityModelType.Name);
-                entity.SchemaName = ViewAttr.IsNotNull(Table => Table.Schema).IsNull(SubSonicDefaults.SchemaName);
+                entity.Name = ViewAttr.IsNotNull(Table => Table.Name ?? entityModelType.Name, entityModelType.Name);
+                entity.SchemaName = ViewAttr.IsNotNull(Table => Table.Schema ?? SubSonicDefaults.SchemaName).IsNull(SubSonicDefaults.SchemaName);
                 entity.DbObjectType = DbObjectTypeEnum.View;
             }
 
