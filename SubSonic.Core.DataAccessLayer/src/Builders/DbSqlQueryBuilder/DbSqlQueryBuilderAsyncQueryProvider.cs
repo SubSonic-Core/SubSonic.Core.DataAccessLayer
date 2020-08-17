@@ -233,7 +233,7 @@ namespace SubSonic.Builders
                     {
                         if (reader.HasRows)
                         {
-                            while (await reader.ReadAsync().ConfigureAwait(false))
+                            while (await reader.ReadAsync(cancellationToken).ConfigureAwait(false))
                             {
                                 if (reader.ActivateAndLoadInstanceOf(elementType) is TResult entity)
                                 {

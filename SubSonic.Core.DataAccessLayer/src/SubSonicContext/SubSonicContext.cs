@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Reflection;
+using System.Resources;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo(@"SubSonic.Extensions.Test, PublicKey=

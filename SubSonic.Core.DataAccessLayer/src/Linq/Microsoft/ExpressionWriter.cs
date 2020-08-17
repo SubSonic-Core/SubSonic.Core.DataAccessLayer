@@ -62,9 +62,9 @@ namespace SubSonic.Linq.Microsoft
             }
 
 #if NETSTANDARD2_0
-            if (text.IndexOf('\n') >= 0)
+            if (text.Contains('\n'))
 #elif NETSTANDARD2_1
-            if (text.IndexOf('\n', StringComparison.CurrentCulture) >= 0)
+            if (text.Contains('\n', StringComparison.CurrentCulture))
 #endif
             {
                 string[] lines = text.Split(splitters, StringSplitOptions.RemoveEmptyEntries);

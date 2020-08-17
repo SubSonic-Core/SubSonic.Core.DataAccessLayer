@@ -9,7 +9,7 @@ namespace SubSonic
         , IDbObject
     {
         #region fields
-        private string _schema = null;
+        private string _schema;
         #endregion
 
         protected DbProgrammabilityAttribute(string name, DbProgrammabilityType dbProgrammabilityType)

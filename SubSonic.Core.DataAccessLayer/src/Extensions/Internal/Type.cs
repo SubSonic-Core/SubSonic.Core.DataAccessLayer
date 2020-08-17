@@ -174,20 +174,20 @@ namespace SubSonic
             {
                 StringBuilder sb = new StringBuilder();
                 sb.Append(name);
-                sb.Append("<");
+                sb.Append('<');
                 var args = type.GetGenericArguments();
                 for (int i = 0, n = args.Length; i < n; i++)
                 {
                     if (i > 0)
                     {
-                        sb.Append(",");
+                        sb.Append(',');
                     }
                     if (type.IsGenericType)
                     {
                         sb.Append(GetTypeName(args[i]));
                     }
                 }
-                sb.Append(">");
+                sb.Append('>');
                 name = sb.ToString();
             }
             return name;

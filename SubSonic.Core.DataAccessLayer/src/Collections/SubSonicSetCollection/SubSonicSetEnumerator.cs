@@ -13,9 +13,9 @@ namespace SubSonic.Collections
         : IEnumerator<TEntity>
         where TEntity: class
     {
-        private TEntity current = null;
+        private TEntity current;
 
-        private int position = 0;
+        private int position;
 
         TEntity IEnumerator<TEntity>.Current => current;
 

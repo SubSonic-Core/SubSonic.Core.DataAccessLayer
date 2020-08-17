@@ -128,7 +128,7 @@ namespace SubSonic.Linq.Expressions.Structure
 #if NETSTANDARD2_0
             if (text.IndexOf(special[0]) >= 0)
 #elif NETSTANDARD2_1
-            if (text.IndexOf(special[0], StringComparison.CurrentCulture) >= 0)
+            if (text.Contains(special[0], StringComparison.CurrentCulture))
 #endif
             {
                 string[] lines = text.Split(splitters, StringSplitOptions.RemoveEmptyEntries);

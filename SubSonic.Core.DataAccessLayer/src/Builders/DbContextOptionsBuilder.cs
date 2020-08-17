@@ -11,7 +11,7 @@ namespace SubSonic
         private readonly SubSonicContext dbContext;
         private readonly SubSonicContextOptions options;
 
-        private bool isDirtyServiceProvider = false;
+        private bool isDirtyServiceProvider;
 
         internal class ConnectionStringKeys
         {

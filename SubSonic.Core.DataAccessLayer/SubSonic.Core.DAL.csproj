@@ -17,7 +17,7 @@
     <RepositoryUrl>https://github.com/SubSonic-Core/SubSonic</RepositoryUrl>
     <Description>Fast Data Access, your database should belong to SubSonic.</Description>
     <Copyright>SubSonic-Core © 2020</Copyright>
-    <NeutralLanguage>en</NeutralLanguage>
+    <NeutralLanguage>en-US</NeutralLanguage>
     <RootNamespace>SubSonic.Core.DAL</RootNamespace>
     <PackageLicenseFile>LICENSE.MD</PackageLicenseFile>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

@@ -13,9 +13,9 @@ namespace TemplateRootNamespace
 	public partial class TemplateSafeRootName
 		: SubSonicContext
 	{
-		private readonly IServiceCollection services = null;
+		private readonly IServiceCollection services;
 
-		public TemplateSafeRootName(IServiceCollection services)
+        public TemplateSafeRootName(IServiceCollection services)
 		{
 			this.services = services ?? throw new ArgumentNullException(nameof(services));
 		}
