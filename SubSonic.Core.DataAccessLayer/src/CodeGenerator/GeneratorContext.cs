@@ -47,7 +47,8 @@ namespace SubSonic.CodeGenerator
             _ = builder
                 .AddEntityModel<Models.Table>()
                 .AddEntityModel<Models.Column>()
-                .AddEntityModel<Models.Relationship>();
+                .AddEntityModel<Models.Relationship>()
+                .AddEntityModel<Models.TableType>();
         }
 
         protected override void OnDbModelRelationships(DbModelBuilder builder)
