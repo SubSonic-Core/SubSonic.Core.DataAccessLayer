@@ -21,6 +21,7 @@ namespace SubSonic.CodeGenerator
         public ISubSonicSetCollection<Models.Table> Tables { get; protected set; }
         public ISubSonicSetCollection<Models.Column> Columns { get; protected set; }
         public ISubSonicSetCollection<Models.Relationship> Relationships { get; protected set; }
+        public ISubSonicSetCollection<Models.TableType> TableTypes { get; protected set; }
 
         protected override void OnDbConfiguring(DbContextOptionsBuilder builder)
         {
